@@ -1,0 +1,51 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/macros.twig' as m %}
+{% import 'main/local_macros.twig' as lm %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{{ lm.panel_header(_context) }}
+	  	<div class="panel-body">
+			<ul class="nav nav-tabs" role="tablist">
+		  		{% if series %}
+		  			{{ m.tab('series', 'Серии', true) }}
+				{% endif %}
+		  		{% if standalones %}
+		  			{{ m.tab('standalones', 'Одиночные') }}
+				{% endif %}
+			</ul>
+
+			<div class="tab-content">
+				{% if series %}
+					<div role="tabpanel" class="tab-pane fade in active" id="series">
+						<div class="flex-wrapper comics">
+							{% for s in series %}
+								<div class="flex-item flex-item-shaded overlay-wrapper comic-image">
+									<a href="{{ s.page_url }}" title="{{ s.name_ru }} ({{ s.comic_count }}&nbsp;{{ s.comic_count_str }})">
+										<img src="{{ s.cover_url }}" class="card-image" />
+										<span class="overlay overlay-full">{{ s.name_ru }}</span>
+									</a>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				{% endif %}
+				{% if standalones %}
+					<div role="tabpanel" class="tab-pane fade" id="standalones">
+						<div class="flex-wrapper comics">
+							{% for c in standalones %}
+								<div class="flex-item flex-item-shaded overlay-wrapper comic-image">
+									<a href="{{ c.page_url }}" title="{{ c.name_ru }}">
+										<img src="{{ c.cover_url }}" class="card-image" />
+										<span class="overlay overlay-full">{{ c.name_ru }}</span>
+									</a>
+								</div>
+							{% endfor %}
+						</div>
+		    		</div>
+		    	{% endif %}
+		    </div>
+		</div>
+	</div>
+{% endblock %}

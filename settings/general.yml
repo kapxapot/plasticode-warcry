@@ -1,0 +1,133 @@
+displayErrorDetails: true
+addContentLengthHeader: false
+
+# constants for PHP code
+log_errors: true
+debug: true
+
+modules:
+  - view_globals
+  - tables
+  - entities
+  - access
+  - localization
+
+# validation
+password_min: 5
+login_min: 3
+login_max: 20
+
+# auth
+captcha_digits: 2
+# in hours
+token_ttl: 168
+
+# folders for PHP code
+folders:
+  root: /dev
+
+  gallery_pictures: /../../../../gallery/pictures/
+  gallery_thumbs: /../../../../gallery/pictures/thumb/
+  gallery_pictures_public: /gallery/pictures/
+  gallery_thumbs_public: /gallery/pictures/thumb/
+  
+  comics_pages: /../../../../comics/pages/
+  comics_thumbs: /../../../../comics/pages/thumb/
+  comics_pages_public: /comics/pages/
+  comics_thumbs_public: /comics/pages/thumb/
+  
+  rss_cache: /../../cache/
+
+logger:
+  name: slim-app
+  path: /../logs/app.log
+
+view:
+  templates_path:
+    - /../views/
+    - /../../lib_dev/views/bootstrap3/
+  cache_path: false
+
+telegram:
+  channels:
+    warcry: warcry_ru
+    blizzard_streams: blizzard_streams
+    blizzard_streams_ru: blizzard_streams_ru
+    warcry_streams: warcry_streams
+
+forum:
+  index: /forum
+  page: /forum/index.php
+  news_index: 6
+
+articles:
+  root_id: 0
+  description_limit: 2000
+
+recipes:
+  title: Рецепты
+  page_size: 15
+  game: warcraft
+  default_icon: inv_misc_questionmark
+  images:
+    icon_border: /images/icon_border_medium.gif
+
+gallery:
+  title: Галерея
+  pics_per_page: 20
+
+map:
+  title: Карта сайта
+
+streams:
+  title: Стримы
+
+  # in days
+  ttl: 14
+  
+  # in minutes
+  stats_ttl: 10
+
+  priority_games:
+    - world of warcraft
+    - hearthstone
+    - overwatch
+    - heroes of the storm
+    - starcraft
+    - starcraft ii
+    - warcraft iii
+    - 'warcraft iii: the frozen throne'
+    - diablo iii
+    - 'diablo iii: reaper of souls'
+    - diablo ii
+    - 'diablo ii: lord of destruction'
+
+comics:
+  title: Комиксы
+  thumb_height: 400
+
+news:
+  description_limit: 2000
+
+events:
+  title: События
+
+news_limit: 7
+rss_limit: 20
+
+sidebar:
+  article_limit: 7
+  forum_topic_limit: 7
+  latest_news_limit: 7
+  future_events_days: 7
+
+default_game_id: 5
+hidden_forum_ids:
+  - 3
+
+date_format: %d.%m.%Y
+time_format: %d.%m.%Y %H:%M
+
+webdb_link: 'http://wowhead.com/'
+webdb_ru_link: 'http://ru.wowhead.com/'
+hsdb_ru_link: 'http://ru.hearthhead.com/'

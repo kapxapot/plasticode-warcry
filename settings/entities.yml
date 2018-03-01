@@ -1,0 +1,1051 @@
+articles:
+
+  name_gen: статьи
+  name_accus: статью
+  title: Статьи
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    game_id:
+      name: Игра
+      entity: games
+      default: 1
+
+    name_ru:
+      name: Заголовок
+      template: >
+        '<a href="/articles/' + row.name_en_esc + (row.cat ? '/' + row.cat_en_esc : '') + '">' + row.name_ru + (row.cat ? ' / ' + row.cat_ru : '') + ' (' + row.name_en + ')</a>'
+
+    name_en:
+      name: Eng. Title
+      form_name: Английский заголовок
+      tooltip: 'Этот заголовок выводится в адресе статьи, а также может нести информацию об исходном наименовании предмета статьи.'
+      access: publish
+      attributes: [ hidden ]
+
+    hideeng:
+      name: Без англ. заг.
+      form_name: Скрывать английский заголовок
+      type: bool
+      access: publish
+      attributes: [ hidden ]
+
+    text:
+      name: Текст
+      type: html
+      attributes: [ nullable, hidden ]
+      tooltip: '<a href="/articles/Markup_Guide" target="_blank">Руководство по оформлению текстов</a> (откроется в новом окне)'
+
+    parent_id:
+      name: Родительская статья
+      entity: articles
+      access: publish
+      dropdown_template: '[{{%item%.id}}] {{%name%}}'
+      attributes: [ nullable, hidden ]
+
+    cat:
+      name: Категория
+      entity: article_categories
+      access: publish
+      attributes: [ nullable, hidden ]
+
+    origin:
+      name: Источник
+      type: url
+      attributes: [ nullable, hidden ]
+
+    announce:
+      name: Анонс
+      type: bool
+      access: publish
+      attributes: [ hidden ]
+
+    no_breadcrumb:
+      name: Скр. в пути
+      form_name: Скрыта в пути (в «хлебных крошках»)
+      type: bool
+      access: publish
+      attributes: [ hidden ]
+
+    published:
+      name: Опубликована
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+article_categories:
+
+  name_gen: категории статей
+  name_accus: категорию статей
+  title: Категории статей
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    name_ru:
+      name: Название
+
+    name_en:
+      name: Eng. Title
+      form_name: Английское название
+      tooltip: 'Это название включается в адреса статей.'
+
+
+comic_issues:
+
+  name_gen: комикса
+  name_accus: комикс
+  title: Комиксы
+
+  #delete_extra_message: " ' + i.name_ru + ' (со всеми страницами)' + '"
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    number:
+      name: Номер
+      type: number
+      template: >
+        '<a href="/comics/series/' + row.series_alias + '/' + row.number + '">' + row.number + '</a>'
+
+    name_ru:
+      name: Название
+      attributes: [ nullable ]
+      template: >
+        row.name_ru ? '<a href="/comics/series/' + row.series_alias + '/' + row.number + '">' + row.name_ru + '</a>' : ''
+
+    name_en:
+      name: Eng. Title
+      form_name: Английское название
+      attributes: [ nullable, hidden ]
+
+    description:
+      name: Описание
+      type: html
+      attributes: [ nullable, hidden ]
+
+    origin:
+      name: Источник
+      type: url
+      attributes: [ nullable, hidden ]
+
+    issued_on:
+      name: Дата выхода
+      type: date
+      attributes: [ hidden ]
+
+    published:
+      name: Опубликован
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+    comic_pages:
+      name: Страницы
+      template: >
+        '<a href="comic_issues/' + row.id + '/comic_pages"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-picture" title="Редактировать страницы"></span></button></a>'
+      attributes: [ no_sort, readonly ]
+
+
+comic_pages:
+
+  name_gen: страницы
+  name_accus: страницу
+  title: Страницы
+  
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    pic:
+      name: Картинка
+      template: >
+        '<a href="' + row.picture + '"><img src="' + row.thumb + '" height="120"></a>'
+      attributes: [ no_sort, readonly ]
+
+    number:
+      name: Номер
+      type: number
+
+    picture:
+      name: Картинка
+      type: thumb
+      #tooltip: Выберите картинку и настройте ее миниатюру.
+      attributes: [ hidden ]
+
+    published:
+      name: Опубликована
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+  
+
+comic_publishers:
+
+  name_gen: издательства
+  name_accus: издательства
+  title: Издательства
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    name:
+      name: Название
+
+    website:
+      name: Веб-сайт
+      type: url
+      attributes: [ nullable, hidden ]
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+comic_series:
+
+  name_gen: серии
+  name_accus: серию
+  title: Серии
+
+  #delete_extra_message: " ' + i.name_ru + ' (со всеми комиксами)' + '"
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    game_id:
+      name: Игра
+      entity: games
+      default: 1
+
+    name_ru:
+      name: Название
+      template: >
+        '<a href="/comics/series/' + row.alias + '">' + row.name_ru + '</a>'
+
+    name_en:
+      name: Eng. Title
+      form_name: Английское название
+      attributes: [ hidden ]
+
+    alias:
+      name: Алиас
+      attributes: [ hidden ]
+
+    publisher_id:
+      name: Издательство
+      entity: comic_publishers
+      attributes: [ hidden ]
+
+    description:
+      name: Описание
+      type: html
+      attributes: [ nullable, hidden ]
+
+    published:
+      name: Опубликована
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+    comic_issues:
+      name: Комиксы
+      template: >
+        '<a href="comic_series/' + row.id + '/comic_issues"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-book" title="Редактировать комиксы"></span></button></a>'
+      attributes: [ no_sort, readonly ]
+
+
+comic_standalones:
+
+  name_gen: комикса
+  name_accus: комикс
+  title: Комиксы
+
+  #delete_extra_message: " ' + i.name_ru + ' (со всеми страницами)' + '"
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    name_ru:
+      name: Название
+      template: >
+        '<a href="/comics/' + row.alias + '">' + row.name_ru + '</a>'
+
+    name_en:
+      name: Eng. Title
+      form_name: Английское название
+      attributes: [ hidden ]
+
+    game_id:
+      name: Игра
+      entity: games
+      default: 1
+
+    alias:
+      name: Алиас
+      attributes: [ hidden ]
+
+    publisher_id:
+      name: Издательство
+      entity: comic_publishers
+      attributes: [ hidden ]
+
+    description:
+      name: Описание
+      type: html
+      attributes: [ nullable, hidden ]
+
+    origin:
+      name: Источник
+      type: url
+      attributes: [ nullable, hidden ]
+
+    issued_on:
+      name: Дата выхода
+      type: date
+      attributes: [ hidden ]
+
+    published:
+      name: Опубликован
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+    comic_standalone_pages:
+      name: Страницы
+      template: >
+        '<a href="comic_standalones/' + row.id + '/comic_standalone_pages"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-picture" title="Редактировать страницы"></span></button></a>'
+      attributes: [ no_sort, readonly ]
+
+
+comic_standalone_pages:
+
+  name_gen: страницы
+  name_accus: страницу
+  title: Страницы
+  
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    pic:
+      name: Картинка
+      template: >
+        '<a href="' + row.picture + '"><img src="' + row.thumb + '" height="120"></a>'
+      attributes: [ no_sort, readonly ]
+
+    number:
+      name: Номер
+      type: number
+
+    picture:
+      name: Картинка
+      type: thumb
+      #tooltip: Выберите картинку и настройте ее миниатюру.
+      attributes: [ hidden ]
+
+    published:
+      name: Опубликована
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+events:
+
+  name_gen: события
+  name_accus: событие
+  title: События
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    name:
+      name: Название
+      template: >
+        '<a href="/events/' + row.id + '">' + row.name + '</a>'
+
+    type_id:
+      name: Тип
+      entity: event_types
+      attributes: [ hidden ]
+
+    starts_at:
+      name: Начало
+      type: datetime-local
+      attributes: [ hidden ]
+
+    ends_at:
+      name: Конец
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      tooltip: Оставьте пустым, если дата совпадает с началом.
+
+    website:
+      name: Веб-сайт
+      type: url
+      attributes: [ nullable, hidden ]
+
+    region_id:
+      name: Регион
+      entity: regions
+      attributes: [ nullable, hidden ]
+
+    game_id:
+      name: Игра
+      entity: games
+      attributes: [ nullable ]
+
+    description:
+      name: Описание
+      type: html
+      attributes: [ nullable, hidden ]
+      tooltip: '<a href="/articles/Markup_Guide" target="_blank">Руководство по оформлению текстов</a> (откроется в новом окне)'
+
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      tooltip: Через запятую.
+
+    announce:
+      name: Анонс
+      type: bool
+      access: publish
+
+    published:
+      name: Опубликовано
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+event_types:
+
+  name_gen: типа событий
+  name_accus: тип событий
+  title: Типы событий
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    name:
+      name: Название
+
+    plural:
+      name: Множественное число
+      attributes: [ nullable, hidden ]
+      tooltip: Укажите, если отличается от единственного числа.
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+gallery_authors:
+
+  name_gen: автора
+  name_accus: автора
+  title: Галерея
+
+  delete_extra_message: " ' + i.name + ' (со всеми картинками)' + '"
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    name:
+      name: Имя
+      template: >
+        '<a href="/gallery/' + row.alias + '">' + row.name + '</a>'
+
+    alias:
+      name: Алиас
+      access: publish
+      attributes: [ hidden ]
+      tooltip: Страница автора будет http://warcry.ru/gallery/{алиас}.
+
+    deviant:
+      name: Deviant
+      template: >
+        '<a href="//' + row.deviant + '.deviantart.com">' + row.deviant + '</a>'
+      attributes: [ nullable, hidden ]
+
+    real_name:
+      name: Настоящее имя
+      template: >
+        row.real_name + (row.real_name_en ? ' (' + row.real_name_en + ')' : '')
+      attributes: [ nullable, hidden ]
+
+    real_name_en:
+      name: Real Name
+      attributes: [ nullable, hidden ]
+
+    description:
+      name: Описание
+      type: html
+      attributes: [ nullable, hidden ]
+        
+    published:
+      name: Опубликован
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+    gallery_pictures:
+      name: Картинки
+      template: >
+        '<a href="gallery/' + row.id + '/gallery_pictures"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-picture" title="Редактировать картинки"></span></button></a>'
+      attributes: [ no_sort, readonly ]
+
+
+gallery_pictures:
+
+  name_gen: картинки
+  name_accus: картинку
+  title: Картинки
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    pic:
+      name: Картинка
+      template: >
+        '<a href="' + row.picture + '"><img src="' + row.thumb + '" width="50"></a>'
+      attributes: [ no_sort, readonly ]
+
+    comment:
+      template: >
+        (row.published == 1) ? '<a href="/gallery/' + row.author_alias + '/' + row.id + '">' + row.comment + '</a>' : row.comment
+      name: Заголовок
+
+    picture:
+      name: Картинка
+      type: thumb
+      tooltip: Выберите картинку и настройте ее миниатюру.
+      attributes: [ hidden ]
+
+    description:
+      name: Описание
+      type: html
+      attributes: [ nullable, hidden ]
+        
+    official:
+      name: Официальная
+      type: bool
+      attributes: [ hidden ]
+        
+    published:
+      name: Опубликована
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+games:
+
+  name_gen: игры
+  name_accus: игру
+  title: Игры
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    icon:
+      name: Иконка
+      type: site_url
+      display_type: img
+      attributes: [ no_sort ]
+
+    name:
+      name: Название
+
+    alias:
+      name: Алиас
+
+    news_forum_id:
+      name: Id новостного форума
+      type: number
+      attributes: [ nullable, hidden ]
+
+    main_forum_id:
+      name: Id игрового форума
+      type: number
+      attributes: [ nullable, hidden ]
+
+    position:
+      name: Позиция
+      type: number
+      default: 1
+
+    published:
+      name: Опубликована
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+
+menus:
+
+  name_gen: меню
+  name_accus: меню
+  title: Меню
+
+  delete_extra_message: " ' + i.text + ' (со всеми элементами)' + '"
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    game_id:
+      name: Игра
+      entity: games
+
+    link:
+      name: Ссылка
+      type: site_url
+      template: >
+        '<a href="' + row.link + '">' + row.text + '</a>'
+
+    text:
+      name: Текст
+      attributes: [ hidden ]
+
+    position:
+      name: Позиция
+      type: number
+      default: 1
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+    menu_items:
+      name: Подменю
+      template: >
+        '<a href="menus/' + row.id + '/menu_items"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-align-justify" title="Редактировать элементы меню"></span></button></a>'
+      attributes: [ no_sort, readonly ]
+
+
+menu_items:
+
+  name_gen: элемента меню
+  name_accus: элемент меню
+  title: Элементы меню
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+    
+    link:
+      name: Ссылка
+      type: site_url
+      template: >
+        '<a href="' + row.link + '">' + row.text + '</a>'
+
+    text:
+      name: Текст
+      attributes: [ hidden ]
+
+    position:
+      name: Позиция
+      type: number
+      default: 1
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+news:
+
+  name_gen: новости
+  name_accus: новость
+  title: Новости
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    title:
+      name: Заголовок
+      template: >
+        '<a href="/news/' + row.id + '">' + row.title + '</a>'
+
+    text:
+      name: Текст
+      type: html
+      attributes: [ hidden ]
+      tooltip: '<a href="/articles/Markup_Guide" target="_blank">Руководство по оформлению текстов</a> (откроется в новом окне)'
+
+    game_id:
+      name: Игра
+      entity: games
+      default: 1
+
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Через запятую.
+
+    published:
+      name: Опубликована
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+regions:
+
+  name_gen: региона
+  name_accus: регион
+  title: Регионы
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    name_ru:
+      name: Название
+
+    name_en:
+      name: Eng. Title
+      form_name: Английское название
+      attributes: [ nullable ]
+      tooltip: Укажите для зарубежного региона.
+
+    parent_id:
+      name: Род. регион
+      form_name: Родительский регион
+      entity: regions
+      dropdown_template: '[{{%item%.id}}] {{%name%}}'
+      attributes: [ nullable ]
+
+    terminal:
+      name: Терминальный
+      type: bool
+      attributes: [ hidden ]
+      tooltip: Поставьте эту галку, если в названии этого региона не нужно выводить название его родителя.
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+
+replaces:
+
+  name_gen: замены
+  name_accus: замену
+  title: Замены
+  
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+    
+    first:
+      name: Строка
+
+    second:
+      name: Замена
+      template: escapeHtml(row.second)
+
+
+roles:
+
+  name_gen: роли
+  name_accus: роль
+  title: Роли
+  
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+    
+    name:
+      name: Название
+
+    tag:
+      name: Тег
+
+
+streams:
+
+  name_gen: стрима
+  name_accus: стрим
+  title: Стримы
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    title:
+      name: Название
+      template: >
+        ((row.published == 1) ? '<a href="/streams/' + (row.stream_alias ? row.stream_alias : row.stream_id) + '">' + row.title + '</a>' : row.title) + ((row.channel == 1) ? ' (канал)' : '')
+
+    #type:
+    #  name: Тип
+    #  entity: stream_types
+    #  attributes: [ hidden ]
+
+    stream_id:
+      name: Код
+      attributes: [ hidden ]
+      tooltip: Уникальный идентификатор стрима http://twitch.tv/{код}.
+
+    stream_alias:
+      name: Алиас
+      access: publish
+      tooltip: Оставьте пустым, если совпадает с кодом.
+      attributes: [ nullable, hidden ]
+
+    description:
+      name: Описание
+      type: html
+      #tooltip: Описание также загружается (и перезаписывается) из самого стрима.
+      attributes: [ hidden ]
+
+    gender_id:
+      name: Грамматический род
+      entity: genders
+      access: publish
+      attributes: [ hidden ]
+
+    channel:
+      name: Канал
+      type: bool
+      access: publish
+      attributes: [ hidden ]
+      tooltip: Канал это не стример, не человек.
+
+    priority:
+      name: Приоритетный
+      type: bool
+      access: publish
+      attributes: [ hidden ]
+      tooltip: Приоритетные стримы выводятся в топ.
+
+    official:
+      name: Официальный
+      type: bool
+      access: publish
+      attributes: [ hidden ]
+
+    official_ru:
+      name: Официальный русскоязычный
+      type: bool
+      access: publish
+      attributes: [ hidden ]
+
+    published:
+      name: Опубликован
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]
+
+users:
+
+  name_gen: пользователя
+  name_accus: пользователя
+  title: Пользователи
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    login:
+      name: Логин
+      template: >
+        row.login + (row.name ? ' (' + row.name + ')' : '')
+
+    name:
+      name: Отображаемое имя
+      attributes: [ nullable, hidden ]
+      tooltip: По умолчанию совпадает с логином.
+
+    email:
+      name: E-mail
+      type: email
+
+    role_id:
+      name: Роль
+      entity: roles
+      default: 3
+
+    forum_name:
+      name: Имя на форуме
+      attributes: [ nullable, hidden ]
+      tooltip: По умолчанию совпадает с логином.
+
+    password:
+      name: Пароль
+      type: password
+      tooltip: Введите пароль, если хотите его изменить. Иначе оставьте поле пустым.
+      attributes: [ nullable, hidden, readonly, on_form ]
+    
+    created_at:
+      name: Дата регистрации
+      type: date
+      attributes: [ readonly ]

@@ -1,0 +1,46 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/local_macros.twig' as lm %}
+
+{% set no_disqus = true %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.news.archive'), 'text': 'Архив новостей' }
+		] %}
+		{{ lm.panel_header(_context) }}
+		{% if monthly %}
+		  	<div class="panel-body body-nopad">
+				<ul class="nav nav-tabs" role="tablist">
+			  		{% for month, value in monthly %}
+						<li role="presentation"{% if loop.first %} class="active"{% endif %}><a href="#{{ month }}" aria-controls="{{ month }}" role="tab" data-toggle="tab" title="{{ value.full_label }}">{{ value.label }}</a></li>
+					{% endfor %}
+				</ul>
+	
+				<div class="tab-content">
+					{% for month, value in monthly %}
+						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %} linkblock-big" id="{{ month }}">
+							{% for n in value.news %}
+								<div class="icon-{{ n.game.alias }}">
+									<div>
+										<a title="[{{ n.game.name }}] {{ n.title|raw }}" href="{{ n.url }}">{{ n.title|raw }}</a>
+									</div>
+									<div>
+										{{ n.start_date|raw }}
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% endfor %}
+				</div>
+		    </div>
+		{% else %}
+			<div class="panel-body">
+				<p>За {{ archive_year }} год ничего нет.</p>
+				{% if archive_year > year %}<p>Привет, будущее!</p>{% endif %}
+				{% if archive_year < 2004 %}<p><b>{{ site_name }}</b> тогда еще не существовал!</p>{% endif %}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

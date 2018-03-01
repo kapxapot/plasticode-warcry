@@ -1,0 +1,58 @@
+{% macro panel(context, title, body, footer = null) %}
+	{% import _self as m %}
+	<div class="panel panel-primary">
+		{{ m.panel_header(context, title) }}
+	  	<div class="panel-body">
+	  		{{ body }}
+	    </div>
+	    {% if footer %}
+		    <div class="panel-footer">
+		    	{{ footer }}
+		    </div>
+	    {% endif %}
+	</div>
+{% endmacro %}
+
+{% macro panel_header(context, title = null, data = null) %}
+	{% import _self as m %}
+	{{ m.panel_game_header(context.game, title ?? context.title, data) }}
+	{{ m.breadcrumbs(context, title ?? context.title, data) }}
+{% endmacro %}
+
+{% macro panel_game_header(game, title, data = null) %}
+	<div class="panel-heading panel-title heading-{{ game.alias }}">
+		<i class="game-icon icon-{{ game.alias }}" title="{{ game.name }}"></i>
+		<header>
+			{% if data.url %}
+				<a href="{{ data.url }}">{{ title|raw }}</a>
+			{% else %}
+				<span>
+					{{ title|raw }}
+					{% if not (data.published ?? true) %}
+						<span title="Не опубликована!">[!]</span>
+					{% endif %}
+				</span>
+			{% endif %}
+			{% if data.subtitle %}
+				<small>{{ data.subtitle }}</small>
+			{% endif %}
+		</header>
+		{% if data.buttons %}
+			<div class="panel-title-buttons">
+				{% for b in data.buttons %}
+					{{ b|raw }}
+				{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+{% endmacro %}
+
+{% macro breadcrumbs(context, title, data = null) %}
+	{% import 'main/macros.twig' as m %}
+	{% set items = context.breadcrumbs %}
+	{% if not data.bc_no_game and not context.game.default %}
+		{% set game_items = [ { 'url': context.game.url, 'text': context.game.name } ] %}
+		{% set items = items ? game_items|merge(items) : game_items %}
+	{% endif %}
+	{{ m.breadcrumbs(context, items, data.bc_title ?? title) }}
+{% endmacro %}

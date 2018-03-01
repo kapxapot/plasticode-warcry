@@ -1,0 +1,50 @@
+{% macro recipe_icon(data, small = false) %}
+  	<div class="recipe-icon{% if small %} recipe-icon-small{% endif %}">
+  		{#% if data.icon_url %#}
+	  		<img src="{{ data.icon_url }}" alt="" class="recipe-icon-icon" />
+	  		<a href="{{ data.url }}"{% if data.title %} title="{{ data.title }}"{% endif %} class="recipe-icon-link">
+	  			<img src="/images/icon_border_medium.gif" alt="" />
+	  		</a>
+			{% if not small and (data.count > 1 or data.count < data.max_count) %}
+				<span class="recipe-icon-count">{{ data.count }}{% if data.count < data.max_count %}-{{ data.max_count }}{% endif %}</span>
+			{% endif %}
+		{#% else %}
+			<a href="{{ data.url }}">{{ data.title ?? 'no title' }}</a>{% if data.count > 1 or data.count < data.max_count %} x{{ data.count }}{% if data.count < data.max_count %}-{{ data.max_count }}{% endif %}{% endif %}
+		{% endif %#}
+  	</div>
+{% endmacro %}
+
+{% macro recipe_link(recipe, external = false) %}
+	<div class="recipe-link">
+		<a href="{% if external %}{{ recipe.link.spell_url }}{% else %}{{ recipe.url }}{% endif %}" class="recipe-name item-q{{ recipe.inv_quality }}"{# rel="spell={{ recipe.id }}&amp;domain=ru"#}>{{ recipe.name_ru }}</a>
+		{% if recipe.name and recipe.name != recipe.name_ru %}
+			<div class="recipe-subname">{{ recipe.name }}</div>
+		{% endif %}
+	</div>
+{% endmacro %}
+
+{% macro item_link(item) %}
+	<div class="item-link">
+		<a href="{{ item.url }}" class="item-name item-q{{ item.quality }}">{{ item.name_ru }}</a>
+		{% if item.name and item.name != item.name_ru %}
+			<div class="item-subname">{{ item.name }}</div>
+		{% endif %}
+	</div>
+{% endmacro %}
+
+{% macro total_count_str(min, max) %}{{ min }}{% if min < max %}-{{ max }}{% endif %}{% endmacro %}
+
+{% macro total_count(min, max) %}
+	{% import _self as m %}
+	{% if min > 1 or min < max %}
+		<div class="total-count">x{{ m.total_count_str(min, max) }}</div>
+	{% endif %}
+{% endmacro %}
+
+{% macro skill_link(id, skill) %}
+	{% if skill %}
+		<a href="{{ path_for('main.recipes', { 'skill': skill.alias }) }}">{{ skill.name_ru }}</a>
+	{% else %}
+		{{ skill_id }}
+	{% endif %}
+{% endmacro %}

@@ -1,0 +1,38 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/local_macros.twig' as lm %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.gallery'), 'text': gallery_title }
+		] %}
+		{{ lm.panel_header(_context) }}
+	  	<div class="panel-body gallery-author">
+			{% if author.real_name %}
+	  			<p><b>Настоящее имя:</b> {{ author.real_name }}{% if author.real_name_en %} ({{ author.real_name_en }}){% endif %}</p>
+			{% endif %}
+			{% if author.member_url %}
+				<p><span class="glyphicon glyphicon-user" aria-hidden="true"></span> <a href="{{ author.member_url }}">Профиль на форуме</a></p>
+			{% endif %}
+			{% if author.deviant %}
+				<p><span class="glyphicon glyphicon-picture" aria-hidden="true"></span> <a href="//{{ author.deviant }}.deviantart.com">Портфолио на DeviantArt</a></p>
+			{% endif %}
+			{% if author.description %}
+	  			<p>{{ author.description|raw }}</p>
+			{% endif %}
+			<div id="gallery" class="flex-wrapper">
+				{% for p in pictures %}
+					<div class="flex-item flex-item-shaded overlay-wrapper">
+						<a href="{{ p.page_url }}">
+							<img src="{{ p.thumb }}" alt="{{ p.comment }}" class="card-image" />
+							<span class="overlay overlay-full">{{ p.comment }}</span>
+						</a>
+					</div>
+				{% endfor %}
+			</div>
+			{% set paging_title = 'Навигация по страницам' %}
+			{% include 'main/includes/paging.twig' %}
+	    </div>
+	</div>
+{% endblock %}

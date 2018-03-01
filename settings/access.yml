@@ -1,0 +1,112 @@
+actions:
+  - full:
+    - delete:
+      - edit:
+        - read:
+          - read_own:
+            - api_read
+        - create:
+          - api_create
+        - edit_own:
+          - api_edit
+        - publish
+      - delete_own:
+        - api_delete
+
+templates:
+  admin_strict:
+    admin: [ full ]
+
+  admin_api:
+    admin: [ full ]
+    editor: [ api_read ]
+    author: [ api_read ]
+
+  editor_strict:
+    admin: [ full ]
+    editor: [ edit ]
+
+  editor:
+    admin: [ full ]
+    editor: [ edit ]
+    author: [ read ]
+
+  public:
+    admin: [ full ]
+    editor: [ edit ]
+    author: [ read_own, create, edit_own ]
+
+  public_extended:
+    admin: [ full ]
+    editor: [ edit ]
+    author: [ read, create, edit_own ]
+
+rights:
+  articles:
+    template: public
+
+  article_categories:
+    template: admin_api
+
+  comic_issues:
+    template: editor_strict
+
+  comic_pages:
+    template: editor_strict
+
+  comic_publishers:
+    template: admin_api
+
+  comic_series:
+    template: editor_strict
+
+  comic_standalones:
+    template: editor_strict
+
+  comic_standalone_pages:
+    template: editor_strict
+
+  events:
+    template: public
+
+  event_types:
+    template: editor
+    
+  games:
+    template: admin_api
+
+  gallery_authors:
+    template: public_extended
+
+  gallery_pictures:
+    template: public
+
+  genders:
+    template: admin_api
+
+  menus:
+    template: admin_strict
+
+  menu_items:
+    template: admin_strict
+
+  news:
+    template: public
+
+  regions:
+    template: editor_strict
+  
+  replaces:
+    template: admin_strict
+
+  roles:
+    template: admin_api
+
+  streams:
+    template: public
+
+  stream_types:
+    template: admin_api
+
+  users:
+    template: admin_strict

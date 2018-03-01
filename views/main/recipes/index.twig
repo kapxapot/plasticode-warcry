@@ -1,0 +1,106 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'macros.twig' as gm %}
+{% import 'main/local_macros.twig' as lm %}
+{% import 'main/recipes/macros.twig' as rm %}
+
+{% set with_datatables = true %}
+{% set iconize_links = false %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{{ lm.panel_header(_context, title, {
+			'subtitle': title_en
+		}) }}
+	  	<div class="panel-body flex-wrapper" id="recipes-skills">
+	  		{% for s in skills %}
+	  			<div class="flex-item{% if s.id == skill.id %} flex-item-active{% endif %}">
+	  				{{ rm.recipe_icon({
+	  					'icon_url': s.icon_url,
+	  					'url': path_for('main.recipes', { 'skill': s.alias }),
+	  					'title': s.name_ru }) }}
+	  			</div>
+	  		{% endfor %}
+	  	</div>
+	  	<div class="panel-body" id="recipes-search">
+			<form action="{{ base_url }}" method="get">
+				<div class="input-group col-sm-6 col-xs-12">
+					<input name="q" type="search" maxlength="300" class="form-control" placeholder="Искать рецепты..." value="{{ query }}" />
+					<span class="input-group-btn">
+						<button type="submit" class="btn btn-primary" aria-label="Поиск">
+							{{ gm.gi('search') }}
+						</button>
+						<a class="btn btn-default" href="{{ base_url }}" role="button" title="Сбросить фильтр">
+							{{ gm.gi('remove') }}
+						</a>
+					</span>
+			  	</div>
+			</form>
+		</div>
+		<div class="panel-body">
+			{% if recipes %}
+				<table id="recipes-table" class="display responsive table table-striped" width="100%">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Рецепт</th>
+							<th>Реагенты</th>
+							<th>Источник</th>
+							<th>Навык</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for r in recipes %}
+							<tr>
+								<td>{{ rm.recipe_icon(r.link) }}</td>
+								<td>{{ rm.recipe_link(r) }}</td>
+								<td>
+									<div class="flex-wrapper recipe-reagents">
+										{% for reg in r.reagents %}
+											{{ rm.recipe_icon(reg) }}
+										{% endfor %}
+									</div>
+								</td>
+								<td class="small">
+									{% for src in r.sources %}
+										{{ src }}{% if not loop.last %},<br/>{% endif %}
+									{% endfor %}
+								<td class="small nowrap">
+									{{ r.skill.name_ru ?? r.skill_id }} ({{ r.learnedat }})<br/>
+									{% for color, level in r.levels if level > 0 %}
+										<span class="label recipe-lvl-{{ color }}">{{ level }}</span>
+									{% endfor %}
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<div id="recipes">
+					По запросу <b>«{{ query }}»</b> ничего не найдено.
+				</div>
+			{% endif %}
+
+			{% if paging %}
+				<div id="recipes-pagination">
+					{% include 'main/includes/paging.twig' %}
+				</div>
+			{% endif %}
+	    </div>
+	</div>
+{% endblock %}
+
+{% block more_js %}
+	<script>
+		$(document).ready(function() {
+		    $('#recipes-table').DataTable({
+				dom: "<'row'<'col-sm-12'tr>>", //'ftrilp',
+				language: {
+					url: '{{ folders.public }}datatables/ru.json'
+				},
+				pageLength: {{ page_size }},
+				ordering: false
+			});
+		});
+	</script>
+{% endblock %}

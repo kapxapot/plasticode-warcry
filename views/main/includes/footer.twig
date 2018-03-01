@@ -1,0 +1,30 @@
+<div class="row">
+	<ul class="nav nav-pills">
+		<li><a href="{{ path_for('main.article', { 'id': 'Links' }) }}">Ссылки</a></li>
+		<li><a href="{{ path_for('main.map') }}">Карта сайта</a></li>
+		<li><a href="{{ path_for('main.news.archive') }}">Архив новостей</a></li>
+		<li><a href="{{ path_for('main.article', { 'id': 'About' }) }}">О сайте</a></li>
+		<li><a href="{{ path_for('main.article', { 'id': 'Jobs' }) }}">Вакансии</a></li>
+		<li><a href="{{ path_for('main.article', { 'id': 'Cooperation' }) }}">Сотрудничество</a></li>
+		<li><a href="{{ path_for('main.article', { 'id': 'Contacts' }) }}">Контакты</a></li>
+	</ul>
+</div>
+
+<!-- social links -->
+<div>{{ site_name }} в социальных сетях и сервисах:</div>
+<div id="social-links">
+	<a href="//feeds.feedburner.com/warcryru" title="Наши новости в формате RSS"><img src="/images/sharelarge/rss.png" alt="" /></a>
+	<a href="//eu.blizzard.com/invite/ePB7oUZgw" title="Наше сообщество в Blizzard Battle.net"><img src="/images/sharelarge/battlenet.png" alt="" /></a>
+	<a href="//twitter.com/warcry_ru" title="Мы в Twitter"><img src="/images/sharelarge/twitter.png" alt="" /></a>
+	<a href="//vk.com/warcry_ru" title="Наша группа ВКонтакте"><img src="/images/sharelarge/vk.png" alt="" /></a>
+	<a href="//t.me/warcry_ru" title="Наш канал в Telegram"><img src="/images/sharelarge/telegram.png" alt="" /></a>
+	<a href="//youtube.com/user/WarcryCast/videos" title="Наш канал на YouTube"><img src="/images/sharelarge/youtube.png" alt="" /></a>
+	<a href="//twitch.tv/warcryru" title="Наш канал на Twitch"><img src="/images/sharelarge/twitch.png" alt="" /></a>
+	<a href="https://www.facebook.com/pages/Warcryru/240114022746294" title="Наша страница в Facebook"><img src="/images/sharelarge/facebook.png" alt="" /></a>
+	<a href="https://plus.google.com/u/0/b/118030010104701570479/118030010104701570479/posts" title="Наша страница в Google+"><img src="/images/sharelarge/googleplus.png" alt="" /></a>
+</div>
+
+<div>Все права защищены. &copy; {{ years_str }} <a href="mailto:{{ contact_email }}">{{ site_name }}</a></div>
+<div>При копировании материалов ссылка на источник обязательна.</div>
+<div>Сайт построен на <a href="https://github.com/kapxapot/plasticode">Plasticode</a></div>
+<div id="disclaimer">Все товарные знаки являются собственностью соответствующих владельцев. &copy; Blizzard Entertainment, {{ year }} г. Все права защищены.</div>

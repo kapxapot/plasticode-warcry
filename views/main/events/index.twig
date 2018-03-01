@@ -1,0 +1,96 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/local_macros.twig' as lm %}
+
+{% set no_disqus = true %}
+{% set no_social = true %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{{ lm.panel_header(_context) }}
+		{# radios #}
+		{#<div class="panel-title-buttons">
+			<div class="btn-group pull-right">
+				<button type="button" class="btn btn-default btn-pad dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<span class="glyphicon glyphicon-filter" title="Фильтр"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" class="disabled">Игра:</a></li>
+					<li>
+						<div class="radio">
+							<label><input type="radio" name="event_game" id="event_game_0" data-id="0">Все игры</label>
+						</div>
+					</li>
+					{% for eg in event_games %}
+						<li>
+							<div class="radio">
+								<label><input type="radio" name="event_game" id="event_game_{{ eg.id }}" data-id="{{ eg.id }}">{{ eg.name }}</label>
+							</div>
+						</li>
+					{% endfor %}
+					<li><a href="#" class="disabled">Тип события:</a></li>
+					<li>
+						<div class="radio">
+							<label><input type="radio" name="event_type" id="event_type_0" data-id="0">Все типы</label>
+						</div>
+					</li>
+					{% for et in event_types %}
+						<li>
+							<div class="radio">
+								<label><input type="radio" name="event_type" id="event_type_{{ et.id }}" data-id="{{ et.id }}">{{ et.plural ?? et.name }}</label>
+							</div>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>#}
+		{# checkboxes #}
+		{#<div class="panel-title-buttons">
+			<div class="btn-group pull-right">
+				<button type="button" class="btn btn-default btn-pad dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<span class="glyphicon glyphicon-filter" title="Фильтр"></span>
+				</button>
+				<ul class="dropdown-menu">
+					{% for et in event_types %}
+						{% set et_id = 'event_type_' ~ et.id %}
+						<li>
+							<div class="checkbox">
+								<label><input type="checkbox" name="{{ et_id }}" id="{{ et_id }}" data-id="{{ et.id }}" checked>{{ et.plural ?? et.name }}</label>
+							</div>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>#}
+		{% if events|length > 0 %}
+			<div class="panel-body body-nopad">
+				<ul class="nav nav-tabs" role="tablist">
+			  		{% for group in events if group.items|length > 0 %}
+						<li role="presentation"{% if loop.first %} class="active"{% endif %}><a href="#{{ group.id }}" aria-controls="{{ group.label }}" role="tab" data-toggle="tab" title="{{ group.label }}">{{ group.label }}</a></li>
+					{% endfor %}
+				</ul>
+	
+				<div class="tab-content">
+					{% for group in events if group.items|length > 0 %}
+						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %} linkblock-big" id="{{ group.id }}">
+							{% for e in group.items %}
+								<div class="icon-{{ e.game.alias }}">
+									<div>
+										<a title="[{{ e.game.name }}] {{ e.name|raw }}" href="{{ path_for('main.event', { 'id': e.id }) }}">{{ e.name }}</a>
+									</div>
+									<div>
+										{{ e.type.name }}, {{ e.interval_ui|raw }}
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		{% else %}
+			<div class="panel-body">
+				По заданным параметрам события не найдены.
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

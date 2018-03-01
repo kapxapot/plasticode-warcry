@@ -1,0 +1,714 @@
+.navbar-nav > li > a {
+	margin-top: -1px;
+	line-height: 22px;
+}
+
+.navbar-img {
+	width: 32px;
+	height: 32px;
+	margin: -6px 4px -3px 0;
+}
+
+/*.navbar-dropdown-img {
+	width: 24px;
+	height: 24px;
+	margin: 0 4px 4px -2px;
+}*/
+
+.dropdown-menu > li > .icon-menu {
+	background-size: 24px 24px;
+	background-position: left 8px center;
+	background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) {
+	.dropdown-menu > li > .icon-menu {
+		padding: 6px 10px 6px 41px;
+	}
+}
+
+@media (max-width: 767px) {
+	.navbar-nav .open .dropdown-menu > li > .icon-menu {
+		padding: 6px 10px 6px 41px;
+	}
+}
+
+.news .img + p, .news .quote + p, .news .bluepost + p {
+	/*padding-top: 10px;*/
+}
+
+#news-pagination {
+	margin-top: 15px;
+	margin-bottom: 5px;
+}
+
+.news .center:last-child {
+	margin-bottom: -5px;
+}
+
+.news .center + ul {
+	margin-top: 20px;
+}
+
+.news div + br {
+	display: block;
+	content: "";
+}
+
+/*.all-news {
+	display: flex;
+	justify-content: center;
+	margin-top: 7px;
+}*/
+
+/* linkblock */
+
+.linkblock, .linkblock-big, .body-nopad {
+	padding: 2px 0 0 0;
+}
+
+.linkblock {
+	margin-bottom: -1px;
+}
+
+.body-nopad ul {
+	padding-top: 3px;
+}
+
+.body-nopad ul li:first-child {
+	padding-left: 5px;
+}
+
+.body-nopad ul li:last-child {
+	padding-right: 5px;
+}
+
+.linkblock > div {
+	padding: 5px 10px 5px 44px;
+	display: block;
+	background-size: 24px 24px;
+	background-position: left 10px center;
+	background-repeat: no-repeat;
+	/*border: solid #ddd;
+	border-width: 0px 0px 1px 0px;*/
+}
+
+.linkblock-big > div {
+	padding: 8px 10px 8px 53px;
+	display: block;
+	background-size: 32px 32px;
+	background-position: left 10px center;
+	background-repeat: no-repeat;
+	/*border: solid #ddd;
+	border-width: 0px 0px 1px 0px;*/
+}
+
+.linkblock-big .noicon {
+	padding-left: 12px;
+}
+
+.linkblock > div:last-child, .linkblock-big > div:last-child {
+	/*border: 0;
+	margin-bottom: -1px;*/
+}
+
+.linkblock-big > div:last-child {
+	/*margin-bottom: -1px;*/
+}
+
+.linkblock > div:last-child {
+	/*border-radius: 0 0 7px 7px;*/
+}
+
+.linkblock > div:nth-of-type(even), .linkblock-big > div:nth-of-type(even) {
+	background-color: #eee;
+}
+
+.tab-content .linkblock-big {
+	margin-top: 5px;
+}
+
+/* quote / bluepost */
+
+.news .quote:last-child {
+	margin-bottom: 0;
+}
+
+.bluepost {
+	background-color: #0c0c0c;
+	color: #00bfff;
+	/*border-radius: 2px;*/
+	border: 0;
+	padding-left: 13px;
+	padding-right: 13px;
+}
+
+.bluepost .quote-body {
+	color: #4DC4EC;
+	border: 0;
+}
+
+.bluepost .quote-body b {
+	color: white;
+}
+
+.bluepost .quote-header {
+	background: url(/images/blizzard.gif);
+	background-repeat: no-repeat;
+	background-position: left 0 top 2px;
+	padding-left: 26px;
+}
+
+/* ?? */
+
+.game-icon {
+	width: 32px;
+	height: 32px;
+	margin-top: 1px;
+	margin-right: 10px;
+}
+
+#fansite {
+	margin-bottom: 15px;
+	text-align: center;
+}
+
+.icon-starcraft {
+    background-image: url(/images/scicon.png);
+}
+
+.panel-primary > .heading-starcraft {
+	background-color: #29353d;
+	background-color: hsl(215, 20%, 20%);
+}
+
+.icon-warcraft {
+    background-image: url(/images/wowicon.png);
+}
+
+.panel-primary > .heading-warcraft {
+	background-color: #2c3d29;
+	background-color: hsl(110, 20%, 20%);
+}
+
+.icon-diablo {
+    background-image: url(/images/diabloicon.png);
+}
+
+.panel-primary > .heading-diablo {
+	background-color: #3d2c29;
+	background-color: hsl(10, 20%, 20%);
+}
+
+.icon-overwatch {
+    background-image: url(/images/overwatchicon.png);
+}
+
+.panel-primary > .heading-overwatch {
+	background-color: #293d33;
+	background-color: hsl(150, 20%, 20%);
+}
+
+.icon-warcryru {
+    background-image: url(/images/warcryicon.png);
+}
+
+.panel-primary > .heading-blizzard {
+	background-color: #3d3329;
+	background-color: hsl(30, 20%, 20%);
+}
+
+.icon-titan {
+    background-image: url(/images/titanicon.png);
+}
+
+.icon-blizzard {
+    background-image: url(/images/blizzicon.png);
+}
+
+.panel-primary > .heading-blizzard {
+	background-color: #293a3d;
+	background-color: hsl(185, 20%, 20%);
+}
+
+.icon-heroesofthestorm {
+    background-image: url(/images/hotsicon.png);
+}
+
+.panel-primary > .heading-heroesofthestorm {
+	background-color: #3d293d;
+	background-color: hsl(300, 20%, 20%);
+}
+
+.icon-hearthstone {
+    background-image: url(/images/hearthicon.png);
+}
+
+.panel-primary > .heading-hearthstone {
+	background-color: #3d3529;
+	background-color: hsl(35, 20%, 20%);
+}
+
+/* streams */
+
+.tab-pane .streams {
+	margin-top: 5px;
+}
+
+.tab-pane .nostreams {
+	margin-top: 10px;
+}
+
+.streams {
+	justify-content: space-around;
+}
+
+.streams .flex-item {
+	/*flex-grow: 1;*/
+	width: 260px;
+	box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
+}
+
+.stream-image .overlay {
+    /*bottom: 1px;*/
+}
+
+.stream-standalone, .stream-standalone .stream-image {
+	width: 100%;
+}
+
+/*.stream-standalone .overlay {
+    top: 135px;
+}*/
+
+.stream-standalone .title {
+	padding: 5px 10px;
+}
+
+.stream-standalone .title p {
+	margin-bottom: 7px;
+}
+
+.stream-standalone .title p:last-child {
+	margin-bottom: 2px;
+}
+
+/*.streams .card-image {
+	min-height: 112px;
+}*/
+
+.stream {
+	padding: 0;
+}
+
+.stream-footer {
+	padding: 12px;
+}
+
+.stream-footer .tab-pane {
+	margin-top: 10px;
+}
+
+.stream-footer #chat {
+	margin-top: 0px;
+}
+
+#stats svg {
+	width: 500px;
+	height: 400px;
+}
+
+/*.stream-description p:last-child {
+	margin-bottom: 0;
+}
+
+.stream-description div {
+	padding-top: 15px;
+}*/
+
+.stream-logo {
+	width: 100px;
+	height: auto;
+}
+
+.streams-telegram {
+	margin-top: 10px;
+}
+
+.streams-telegram img {
+	width: 32px;
+	height: auto;
+}
+
+.streams-telegram a {
+	padding-left: 2px;
+}
+
+/* gallery */
+
+#gallery .flex-item,
+.comics .flex-item,
+.comics-issue .flex-item {
+	/*flex-grow: 1;*/
+	box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.5);
+	margin: 7px;
+}
+
+#gallery .flex-item {
+    /*width: 150px;*/
+}
+
+.gallery-picture {
+	padding: 0;
+}
+
+.gallery-picture-description {
+	padding: 15px 12px;
+}
+
+.gallery-author .paging {
+	margin-top: 15px;
+	margin-bottom: -12px;
+}
+
+/* comics */
+
+.tab-pane .comics {
+	margin-top: 5px;
+}
+
+h3:first-child, h4:first-child {
+	margin-top: 0;
+}
+
+.comics-issue .card-image {
+	/*height: 233px;
+	width: auto;*/
+}
+
+.comics-issue .flex-item {
+	box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.5);
+	/*box-shadow: 3px 3px 3px 0px rgba(0, 0, 0, 0.5);*/
+}
+
+.comic-image img {
+	height: 380px;
+	width: auto;
+}
+
+.comic-image .overlay {
+	color: black;
+	font-size: 135%;
+    padding: 8px;
+    line-height: 1.05em;
+    /*opacity: 0.50;
+    filter: alpha(opacity=50);*/
+}
+
+/* map */
+
+.map ul {
+	list-style: none;
+}
+
+.map > ul {
+	padding-left: 0;
+}
+
+.map > ul > li {
+	margin-top: 15px;
+	font-size: 125%;
+}
+
+.map > ul > li > ul {
+	font-size: 80%;
+}
+
+.map > ul > li:first-child {
+	margin-top: 0;
+}
+
+/* recipes */
+
+.recipe-icon {
+	min-width: 44px;
+	min-height: 44px;
+	position: relative;
+}
+
+.recipe-icon-small, .recipe-icon-small img {
+	min-width: 22px;
+	min-height: 22px;
+	width: 22px;
+	height: 22px;
+}
+
+.recipe-icon-icon {
+	padding: 4px;
+	position: absolute;
+}
+
+.recipe-icon-small .recipe-icon-icon {
+	padding: 2px;
+}
+
+.recipe-icon-link {
+	position: absolute;
+}
+
+.recipe-icon-link img {
+	vertical-align: baseline;
+}
+
+.recipe-icon-count {
+	color: white;
+	font-weight: bolder;
+	position: absolute;
+	right: 7px;
+	bottom: 2px;
+	font-size: 85%;
+	text-shadow: 2px 0 1px #000, 0 2px 1px #000, -2px 0 1px #000, 0 -2px 1px #000;
+}
+
+.recipe-item-quantity {
+	color: white;
+	font-size: 120%;
+	padding-left: 5px;
+	padding-bottom: 18px;
+}
+
+.recipe-lvl-orange {
+	background-color: #e65a14;
+}
+
+.recipe-lvl-yellow {
+	background-color: #ea9b00;
+}
+
+.recipe-lvl-green {
+	background-color: #39a239;
+}
+
+.recipe-lvl-gray {
+	background-color: #808080;
+}
+
+.recipe-name, .item-name {
+	font-weight: bolder;
+}
+
+.recipe-name, .item-flat-name, .item-name {
+	font-size: 85%;
+}
+
+.item-flat-name .item-name {
+	font-size: 100%;
+}
+
+.recipe-subname, .item-subname {
+	color: gray;
+	font-size: 85%;
+}
+
+.recipe-reagents {
+	justify-content: flex-start;
+	flex-wrap: nowrap;
+}
+
+.recipe-hightlight {
+	background-color: #333;
+}
+
+#recipes-skills {
+	padding: 7px;
+}
+
+#recipes-skills .flex-item {
+	padding: 4px;
+	margin: 1px;
+}
+
+#recipes-skills .flex-item-active {
+	/*background-color: #89e289;*/
+	background-color: #2db32d;
+	border-radius: 8px;
+}
+
+#recipes-table {
+	padding: 0 5px 10px 5px;
+	/*margin-bottom: 15px;*/
+}
+
+#recipes-table > tbody > tr > td, #recipes-table > tbody > tr >th, #recipes-table > tfoot > tr > td, #recipes-table > tfoot > tr > th, #recipes-table > thead > tr > td, #recipes-table > thead > tr > th {
+	padding: 4px;
+	vertical-align: middle;
+}
+
+#recipes-table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before, #recipes-table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
+    z-index: 10;
+    top: 0;
+    left: 0;
+}
+
+#recipes-search {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+#recipes-table.dataTable {
+	/*margin-bottom: 0 !important;*/
+}
+
+#recipes-pagination {
+	margin-bottom: -10px;
+}
+
+.item-q0, .item-q0:hover, .item-q0:active, .item-q0:visited {
+	color: gray;
+}
+
+.item-q1, .item-q1:hover, .item-q1:active, .item-q1:visited {
+	color: #444;
+}
+
+.item-q2, .item-q2:hover, .item-q2:active, .item-q2:visited {
+	color: #1d9200;
+}
+
+.item-q3, .item-q3:hover, .item-q3:active, .item-q3:visited {
+	color: #0070dd;
+}
+
+.item-q4, .item-q4:hover, .item-q4:active, .item-q4:visited {
+	color: #8810da;
+}
+
+.item-q5, .item-q5:hover, .item-q5:active, .item-q5:visited {
+	color: #e65a14;
+}
+
+/*.item-q6 {
+	color: #e5cc80;
+}
+
+.item-q7 {
+	color: #0cf;
+}
+
+.item-q8 {
+	color: #0cf;
+}
+
+.item-q9 {
+	color: #71d5ff;
+}
+
+.item-q10 {
+	color: #ff4040;
+}
+
+.item-q13 {
+	color: #ffff98;
+}*/
+
+.recipe-tree, .recipe-base {
+	margin-top: 20px;
+}
+
+.recipe-tree ul, .recipe-base ul {
+	list-style: none;
+}
+
+.recipe-required-skills {
+	margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+	.recipe-tree ul {
+		padding-left: 0px;
+	}
+	
+	.recipe-tree ul ul {
+		padding-left: 4px;
+	}
+	
+	.recipe-tree-leaf {
+		padding-left: 20px;
+	}
+	
+	.recipe-subname, .item-subname {
+		display: none;
+	}
+
+	.recipe-node-arrow {
+		padding-right: 4px;
+	}
+
+	.recipe-tree .total-count {
+		padding-left: 5px;
+	}
+}
+
+@media (min-width: 768px) {
+	.recipe-tree ul {
+		padding-left: 24px;
+	}
+	
+	.recipe-tree ul ul {
+		padding-left: 51px;
+	}
+	
+	.recipe-tree-leaf {
+		padding-left: 25px;
+	}
+
+	.recipe-node-arrow {
+		padding-right: 10px;
+	}
+
+	.recipe-tree .total-count {
+		padding-left: 15px;
+		font-size: 120%;
+	}
+}
+
+.recipe-tree ul li, .recipe-base ul li {
+	padding-top: 3px;
+}
+
+.recipe-base ul li:first-child {
+	padding-top: 0;
+}
+
+.recipe-base ul {
+	padding-left: 0;
+}
+
+.recipe-tree .flex-wrapper, .recipe-base .flex-wrapper {
+	justify-content: flex-start;
+	align-items: center;
+	flex-wrap: nowrap;
+}
+
+.recipe-tree .flex-wrapper .recipe-link,
+.recipe-tree .flex-wrapper .item-link,
+.recipe-base .flex-wrapper .item-flat-name {
+	padding-left: 7px;
+}
+
+.recipe-node-arrow, .recipe-node-arrow:hover, .recipe-node-arrow:active, .recipe-node-arrow:visited {
+	color: black;
+}
+
+/* misc */
+
+.textlogo {
+	font-family: 'Noticia Text', serif;
+	font-size: 2.3em;
+	letter-spacing: 0.07em;
+	margin-top: 1px;
+}
+
+.textlogo a {
+	color: #efdda8;
+}

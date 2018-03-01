@@ -1,0 +1,9 @@
+{% extends 'main/generic.twig' %}
+
+{% import 'macros.twig' as m %}
+
+{% set text %}
+	<div class="map">
+		{{ m.tree(items) }}
+	</div>
+{% endset %}

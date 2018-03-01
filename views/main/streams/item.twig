@@ -1,0 +1,337 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'macros.twig' as gm %}
+{% import 'main/macros.twig' as m %}
+{% import 'main/local_macros.twig' as lm %}
+
+{% set with_charts = true %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.streams'), 'text': streams_title }
+		] %}
+		{{ lm.panel_header(_context, title, {
+			'buttons': [ m.edit_button('streams', stream) ]
+		}) }}
+	  	<div class="panel-body stream">
+			<div class="embed-responsive embed-responsive-16by9">
+				<iframe class="embed-responsive-item" src="https://player.twitch.tv/?channel={{ stream.stream_id }}" allowfullscreen="true" frameborder="0" scrolling="no" width="620" height="378"></iframe>
+			</div>
+			<div class="stream-footer">
+				<ul class="nav nav-tabs" role="tablist">
+					{{ m.tab('about', 'Описание', true) }}
+					{{ m.tab('chat', 'Чат') }}
+					{% if stats.viewers %}
+						{{ m.tab('viewers', 'Статистика по зрителям', false, gm.gi('stats') ~ ' Зрители') }}
+					{% endif %}
+					{% if stats.bars %}
+						{{ m.tab('bars', 'Статистика по зрителям', false, gm.gi('stats') ~ ' Колонки') }}
+					{% endif %}
+					{% if stats.games %} 
+						{{ m.tab('games', 'Статистика по играм', false, gm.gi('stats') ~ ' Игры') }}
+					{% endif %}
+				</ul>
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane fade in active" id="about">
+						<p><b>Канал:</b> {% if stream.stream_url %}<a href="{{ stream.stream_url }}">{% endif %}{% if stream.remote_title %}{{ stream.remote_title }}{% else %}{{ stream.title }}{% endif %}{% if stream.stream_url %}</a>{% endif %}</p>
+						{% if stream.remote_online %}
+							<p><b>Зрители:</b> {{ stream.remote_viewers }}</p>
+						{% else %}
+							<p>Офлайн</p>
+						{% endif %}
+						{% if stream.remote_game %}
+							<p><b>Игра:</b> {{ stream.remote_game }}</p>
+						{% endif %}
+						<p><b>Описание:</b> {% if stream.remote_status %}{{ stream.remote_status }}{% else %}{{ stream.description }}{% endif %}</p>
+						{% if stream.remote_logo %}
+							<img src="{{ stream.remote_logo }}" class="stream-logo" />
+						{% endif %}
+					</div>
+					<div role="tabpanel" class="tab-pane fade" id="chat">
+						<iframe src="https://www.twitch.tv/{{ stream.stream_id }}/chat?popout=" frameborder="0" scrolling="no" height="500" width="100%"></iframe>
+					</div>
+					{% if stats.viewers %}
+						<div role="tabpanel" class="tab-pane fade" id="viewers">
+							<div id="legendViewers"></div>
+							<div class="chart-container">
+								<canvas id="chartViewers"></canvas>
+							</div>
+						</div>
+					{% endif %}
+					{% if stats.bars %}
+						<div role="tabpanel" class="tab-pane fade" id="bars">
+							<div class="chart-container">
+								<canvas id="chartBars"></canvas>
+							</div>
+							<div class="chart-footer">
+								<p>Среднее число зрителей в разбивке по часам за последние сутки (время <a href="https://www.timeanddate.com/time/zones/msk">московское</a>).</p>
+							</div>
+						</div>
+					{% endif %}
+					{% if stats.games %}
+						<div role="tabpanel" class="tab-pane fade" id="games">
+							<div id="legendGames"></div>
+							<div class="chart-container chart-pie">
+								<canvas id="chartGames"></canvas>
+							</div>
+							{#<div class="chart-footer">
+								<p><b>Лояльность Blizzard:</b> {{ stats.blizzard_total }}%</p>
+							</div>#}
+						</div>
+					{% endif %}
+				</div>
+			</div>
+	    </div>
+	</div>
+{% endblock %}
+
+{% block more_js %}
+	<script>
+		{% if stats.viewers %}
+			var ctxViewers = $('#chartViewers')[0].getContext('2d');
+			//var ctxViewers = document.getElementById('chartViewers').getContext('2d');
+			var chartViewers = new Chart(ctxViewers, {
+			    type: 'line',
+			    data: {
+			        datasets: [
+			        	{% for v_game, v_sets in stats.viewers.data %}
+			        		{% for v_data in v_sets %}
+				        		{
+				            		label: '{{ v_game }}',
+						            data: [
+							        	{% for r in v_data %}
+							        		{ x: '{{ r.iso }}', y: {{ r.remote_viewers }}}{% if not loop.last %},{% endif %}
+							        	{% endfor %}
+						            ],
+						            statuses: [
+							        	{% for r in v_data %}
+							        		'{{ r.remote_status|e('js')|raw }}'{% if not loop.last %},{% endif %}
+							        	{% endfor %}
+						            ],
+				            		backgroundColor: pickColor({{ loop.parent.loop.index }} - 1, 0, 0.2),
+				            		borderColor: pickColor({{ loop.parent.loop.index }} - 1, 0),
+				            		pointRadius: 2,
+				            		pointHitRadius: 2,
+				            		pointHoverRadius: 2,
+				            		tension: 0.2
+				        		}{% if not loop.last %},{% endif %}
+			    			{% endfor %}
+			    			{% if not loop.last %},{% endif %}
+			        	{% endfor %}
+			        ]
+			    },
+			    options: {
+			        scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero: true
+			                }
+			            }],
+						xAxes: [{
+							type: 'time',
+							time: {
+								min: '{{ stats.viewers.min_date }}',
+								max: '{{ stats.viewers.max_date }}',
+          						unit: 'hour',
+          						unitStepSize: 1,
+          						displayFormats: {
+                                    'hour': 'H'
+								}
+							},
+							ticks: {
+								autoSkip: true,
+								maxRotation: 0,
+          						minRotation: 0
+    						}
+						}]
+			        },
+		            tooltips: {
+		                callbacks: {
+		                    footer: function(tooltipItems, data) {
+		                    	var tooltipItem = tooltipItems[0];
+		                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                    			var index = tooltipItem.index;
+                    			
+                    			return dataset.statuses[index];
+		                    },
+		                    title: function(tooltipItems, data) {
+		                    	var tooltipItem = tooltipItems[0];
+		                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                    			var index = tooltipItem.index;
+                    			
+                    			return moment(dataset.data[index].x).format('DD.MM.Y H:mm');
+		                    }
+		                    {#label: function(tooltipItem, data) {
+		                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                    			var index = tooltipItem.index;
+                    			
+                    			return dataset.statuses[index];
+		                    }#}
+		                }
+		            },
+		            legend: {
+		            	display: false
+		            },
+		            legendCallback: function(chart) {
+		                var text = [];
+		                text.push('<ul class="legend legend-line">');
+		                {% for v_game, v_sets in stats.viewers.data %}
+		                    text.push('<li>');
+		                    {#text.push('<span style="background-color: ' + pickColor({{ loop.index }}, 0) + '">&nbsp;</span>');#}
+		                    text.push('<span style="border-color: ' + pickColor({{ loop.index }} - 1, 0) + '; background-color: ' + pickColor({{ loop.index }} - 1, 0, 0.2) + '">&nbsp;</span>');
+	                        text.push('{{ v_game }}');
+		                    text.push('</li>');
+			        	{% endfor %}
+		                text.push('</ul>');
+		                return text.join('');
+                	}
+			    }
+			});
+
+			$('#legendViewers').html(chartViewers.generateLegend());
+		{% endif %}
+		
+		{% if stats.bars %}
+			var ctxBars = $('#chartBars')[0].getContext('2d');
+			//var ctxBars = document.getElementById('chartBars').getContext('2d');
+			var chartBars = new Chart(ctxBars, {
+			    type: 'bar',
+			    data: {
+			        labels: [
+			        	{% for r in stats.bars %}
+			        		'{{ r.hour }}'{% if not loop.last %},{% endif %}
+			        	{% endfor %}
+			        ],
+			        datasets: [{
+			            label: 'Зрители',
+			            data: [
+				        	{% for r in stats.bars %}
+				        		{{ r.viewers }}{% if not loop.last %},{% endif %}
+				        	{% endfor %}
+			            ],
+			            backgroundColor: [
+				        	{% for r in stats.bars %}
+				        		pickColor(1, 0, 0.2){% if not loop.last %},{% endif %}
+				        	{% endfor %}
+			            ],
+			            borderColor: [
+				        	{% for r in stats.bars %}
+				        		pickColor(1, 0){% if not loop.last %},{% endif %}
+				        	{% endfor %}
+			            ],
+			            borderWidth: 1
+			        }]
+			    },
+			    options: {
+			        scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero: true
+			                }
+			            }],
+						xAxes: [{
+							ticks: {
+								autoSkip: true,
+								maxRotation: 0,
+          						minRotation: 0
+          					}
+						}]
+			        },
+		            legend: {
+		            	display: false
+		            }
+			    }
+			});
+		{% endif %}
+		
+		{% if stats.games %}
+			var ctxGames = $('#chartGames')[0].getContext('2d');
+			//var ctxGames = document.getElementById('chartGames').getContext('2d');
+			var chartGames = new Chart(ctxGames, {
+			    type: 'doughnut',
+			    data: {
+				    datasets: [{
+				        data: [
+				        	{% for game in stats.games %}
+				        		{{ game.percent }}{% if not loop.last %},{% endif %}
+				        	{% endfor %}
+				        ],
+			            backgroundColor: [
+				        	{% for game in stats.games %}
+				        		pickColor({{ loop.index }} - 1, 0){% if not loop.last %},{% endif %}
+				        	{% endfor %}
+			            ],
+       				    labels: [
+				        	{% for game in stats.games %}
+				        		'{{ game.remote_game|e('js') }}'{% if not loop.last %},{% endif %}
+				        	{% endfor %}
+					    ]
+				    },
+				    {
+				        data: [
+				        	{% for b in stats.blizzard %}
+				        		{{ b.value }}{% if not loop.last %},{% endif %}
+				        	{% endfor %}
+				        ],
+			            backgroundColor: [
+				        	{% for b in stats.blizzard %}
+				        		pickColor({{ loop.index }} - 1, 2){% if not loop.last %},{% endif %}
+				        	{% endfor %}
+			            ],
+       				    labels: [
+				        	{% for b in stats.blizzard %}
+				        		'{{ b.label }}'{% if not loop.last %},{% endif %}
+				        	{% endfor %}
+       				    ]
+				    }]{#,
+				
+				    labels: [
+			        	{% for game in stats.games %}
+			        		'{{ game.remote_game }}'{% if not loop.last %},{% endif %}
+			        	{% endfor %}
+				    ]#}
+				},
+		        options: {
+		            maintainAspectRatio: false,
+		            cutoutPercentage: 0,
+		            tooltips: {
+		                callbacks: {
+		                    label: function(tooltipItem, data) {
+		                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                    			var index = tooltipItem.index;
+                    			
+                    			return dataset.labels[index] + ': ' + dataset.data[index] + '%';
+		                    }
+		                }
+		            },
+		            legend: {
+		            	display: false
+		            },
+		            legendCallback: function(chart) {
+		                var text = [];
+		                text.push('<ul class="legend">');
+		                var dataset = chart.data.datasets[0];
+		                for (var i = 0; i < dataset.data.length; i++) {
+		                    text.push('<li>');
+		                    text.push('<span class="label" style="background-color: ' + dataset.backgroundColor[i] + '">' + dataset.data[i] + '</span>');
+		                    if (dataset.labels[i]) {
+		                        text.push(dataset.labels[i]);
+		                    }
+		                    text.push('</li>');
+		                }
+		                text.push('</ul>');
+		                return text.join('');
+                	},
+		            animation: {
+		                animateScale: true,
+		                animateRotate: true
+	            	}
+	        	}
+			});
+			
+			$('#legendGames').html(chartGames.generateLegend());
+			//document.getElementById('legendGames').innerHTML = chartGames.generateLegend();
+		{% endif %}
+	</script>
+{% endblock %}

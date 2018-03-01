@@ -1,0 +1,7 @@
+{% import 'macros.twig' as gm %}
+
+{% if comic.origin %}
+	<div class="panel-footer">
+		<div class="glyphicon-block">{{ gm.gi('copyright-mark') }} <a href="{{ comic.origin }}">Источник</a></div>
+	</div>
+{% endif %}

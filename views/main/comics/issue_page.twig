@@ -1,0 +1,46 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'macros.twig' as gm %}
+{% import 'main/local_macros.twig' as lm %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.comics'), 'text': comics_title },
+			{ 'url': path_for('main.comics.series', { 'alias': series.alias }), 'text': series.name_ru },
+	  		{ 'url': path_for('main.comics.issue', { 'alias': series.alias, 'number': comic.number }), 'text': 'Выпуск ' ~ comic.number_str }
+		] %}
+		{{ lm.panel_header(_context, series.name_ru ~ ' ' ~ comic.number_str, {
+			'subtitle': series.name_en ?? comic.name_en,
+			'bc_no_game': true,
+			'bc_title': 'Страница ' ~ page.number_str
+		}) }}
+	  	<div class="panel-body gallery-picture">
+	  		<div>
+	  			{% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: Выпуск {{ page.next.comic_number_str }}, Страница {{ page.next.number_str }}">{% endif %}
+	  				<img src="{{ page.url }}" class="center img-responsive" />
+	  			{% if page.next %}</a>{% endif %}
+	  		</div>
+	   	</div>
+	</div>
+  	<div class="gallery-picture-nav pagination-flex">
+		{% if page.prev %}
+			<a href="{{ page.prev.page_url }}" title="Назад: Выпуск {{ page.prev.comic_number_str }}, Страница {{ page.prev.number_str }}" class="btn btn-default btn-lg">
+				{{ gm.gi('chevron-left') }}
+				<span class="hidden-md hidden-lg">#{{ page.prev.comic.number }}-{{ page.prev.number_str }}</span>
+				<span class="hidden-xs hidden-sm">Выпуск {{ page.prev.comic_number_str }}, Страница {{ page.prev.number_str }}</span>
+			</a>
+		{% endif %}
+		<a href="{{ page.url }}" download="{{ series.name_ru }} {{ comic.number_str }} - {{ page.number_str }} ({{ site_name }}).{{ page.ext }}" class="btn btn-default btn-lg">
+			{{ gm.gi('save', 'Скачать') }}
+			<span class="hidden-xs">Скачать</span>
+		</a>
+		{% if page.next %}
+			<a href="{{ page.next.page_url }}" title="Вперед: Выпуск {{ page.next.comic_number_str }}, Страница {{ page.next.number_str }}" class="btn btn-default btn-lg">
+				<span class="hidden-md hidden-lg">#{{ page.next.comic.number }}-{{ page.next.number_str }}</span>
+				<span class="hidden-xs hidden-sm">Выпуск {{ page.next.comic_number_str }}, Страница {{ page.next.number_str }}</span>
+				{{ gm.gi('chevron-right') }}
+			</a>
+		{% endif %}
+	</div>
+{% endblock %}

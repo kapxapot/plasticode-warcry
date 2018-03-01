@@ -1,0 +1,29 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/local_macros.twig' as lm %}
+
+{% set no_disqus = true %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{{ lm.panel_header(_context) }}
+		{% if years %}
+			{#<div class="panel-body linkblock-big">
+				{% for y in years %}
+					<div class="noicon">
+						<b><a href="{{ path_for('main.news.archive.year', { 'year': y }) }}">{{ y }} год</a></b>
+					</div>
+				{% endfor %}
+			</div>#}
+			<div class="panel-body">
+				{% for y in years %}
+					<a class="label label-default" href="{{ path_for('main.news.archive.year', { 'year': y }) }}">{{ y }} год</a>
+				{% endfor %}
+			</div>
+		{% else %}
+			<div class="panel-body">
+				Архив пуст.
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+<li class="dropdown">
+	<a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="{{ game.icon }}" alt="{{ game.name }}" class="navbar-img" /> {% if game.default %}Игры{% else %}{{ game.name }}{% endif %}<b class="caret"></b></a>
+	<ul class="dropdown-menu">
+		{% for g in games %}
+			<li><a href="{{ g.url }}" class="icon-menu icon-{{ g.alias }}">{% if g.default %}Все игры{% else %}{{ g.name }}{% endif %}</a></li>
+		{% endfor %}
+  </ul>
+</li>
+{% include 'main/includes/auto_menu.twig' %}

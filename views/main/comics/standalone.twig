@@ -1,0 +1,37 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/local_macros.twig' as lm %}
+
+{% block content %}
+	<div class="panel panel-primary comic">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.comics'), 'text': comics_title }
+		] %}
+		{{ lm.panel_header(_context, comic.name_ru, {
+			'subtitle': comic.name_en,
+			'bc_no_game': true
+		}) }}
+	  	<div class="panel-body">
+			{% if comic.publisher %}
+	  			<p><b>Издательство:</b> <a href="{{ comic.publisher.website }}">{{ comic.publisher.name }}</a></p>
+			{% endif %}
+			{% if comic.issued_ui %}
+	  			<p><b>Дата выхода:</b> {{ comic.issued_ui|raw }}</p>
+			{% endif %}
+			{% if comic.description %}
+	  			<p>{{ comic.description|raw }}</p>
+			{% endif %}
+			<div class="flex-wrapper comics-issue">
+				{% for p in pages %}
+					<div class="flex-item flex-item-shaded overlay-wrapper comic-image">
+						<a href="{{ p.page_url }}" title="{{ p.number_str }}">
+							<img src="{{ p.thumb }}" class="card-image" />
+							<span class="overlay">{{ p.number_str }}</span>
+						</a>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	    {% include 'main/comics/comic_footer.twig' %}
+	</div>
+{% endblock %}

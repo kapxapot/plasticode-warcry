@@ -1,0 +1,61 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'macros.twig' as gm %}
+{% import 'main/local_macros.twig' as lm %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.gallery'), 'text': gallery_title },
+			{ 'url': path_for('main.gallery.author', { 'alias': author.alias }), 'text': author.name }
+		] %}
+		{{ lm.panel_header(_context) }}
+	  	<div class="panel-body gallery-picture">
+	  		<div>
+	  			{% if picture.next %}<a href="{{ picture.next.page_url }}" title="Вперед: {{ picture.next.comment }}">{% endif %}
+	  				<img src="{{ picture.url }}" class="center img-responsive" />
+	  			{% if picture.next %}</a>{% endif %}
+	  		</div>
+	  		{% if picture.description %}
+	  			<div class="gallery-picture-description">{{ picture.description|raw }}</div>
+	  		{% endif %}
+	   	</div>
+	    <div class="panel-footer">
+	    	{% if author %}
+	    		<div class="glyphicon-block" title="Автор">
+	    			{{ gm.gi('user') }}
+	    			<a href="{{ author.page_url }}">{{ author.name }}</a>
+	    			{% if author.real_name %}({{ author.real_name }}){% endif %}
+	    		</div>
+	    	{% endif %}
+	    	<div class="glyphicon-block" title="Дата добавления">
+	    		{{ gm.gi('time') }}
+	    		{{ picture.created_ui|raw }}
+	    	</div>
+	    	{% if picture.official %}
+	    		<div class="glyphicon-block">
+	    			{{ gm.gi('copyright-mark') }}
+	    			Официальный арт
+	    		</div>
+	    	{% endif %}
+	    </div>
+	</div>
+  	<div class="pagination-flex">
+  		{% if picture.prev %}
+  			<a href="{{ picture.prev.page_url }}" title="Назад: {{ picture.prev.comment }}" class="btn btn-default btn-lg">
+  				{{ gm.gi('chevron-left') }}
+  				<span class="hidden-xs">{{ picture.prev.comment }}</span>
+  			</a>
+  		{% endif %}
+  		<a href="{{ picture.url }}" download="{{ author.name }} - {{ picture.comment }} ({{ site_name }}).{{ picture.ext }}" class="btn btn-default btn-lg">
+  			{{ gm.gi('save', 'Скачать') }}
+  			<span class="hidden-xs">Скачать</span>
+  		</a>
+  		{% if picture.next %}
+  			<a href="{{ picture.next.page_url }}" title="Вперед: {{ picture.next.comment }}" class="btn btn-default btn-lg">
+  				<span class="hidden-xs">{{ picture.next.comment }}</span>
+  				{{ gm.gi('chevron-right') }}
+  			</a>
+  		{% endif %}
+	</div>
+{% endblock %}

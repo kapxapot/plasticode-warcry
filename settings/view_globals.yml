@@ -1,0 +1,66 @@
+site_name: Warcry.ru
+site_bare_url: warcry.ru
+site_url: 'http://warcry.ru'
+site_description: 'Все о World of Warcraft, Diablo III, Hearthstone, Heroes of the Storm, StarCraft II и Overwatch. Официальный фан-сайт Blizzard. Новости, аналитика, энциклопедия, руководства, творчество'
+short_site_description: 'World of Warcraft, Diablo III, Hearthstone, Overwatch'
+logo: /images/text_logo_4.png
+twitter_card_image: 'http://warcry.ru/images/social_logo.jpg'
+contact_email: team[собака]warcry.ru
+copyright_from: 2004
+admin_copyright_from: 2016
+site_keywords: world of warcraft, warcraft, world, wow, вов, варкрафт, starcraft, starcraft 2, старкрафт, старкрафт 2, diablo, diablo 2, diablo 3, диабло, дьябло, дьябла, hearthstone heroes of warcraft, hearthstone, хартстоун, heroes of the storm, hots, overwatch, овервотч, blizzard, близзард, альянс, орда, alliance, horde, люди, орки, таурены, нежить, ночные эльфы, тролли, дворфы, гномы, human, orc, tauren, undead, night elf, elves, troll, dwarf, gnome, воин, маг, шаман, разбойник, рога, прист, жрец, варлок, чернокнижник, друид, охотник, хантер, паладин, warrior, mage, shaman, rogue, priest, warlock, druid, hunter, paladin, игра, ролевая, ролевые, игры, role-playing, roleplaying, role, playing, рпг, rpg, mmorpg, game, games, faq, forum, форум, форумы, скриншот, арт, фан-арт, screen, screenshot, art, fan, файлы, скачать, патчи, патч, рецепты, статьи, новости
+admin_url: /admin
+
+# folders for Twig only
+folders:
+  global: /codiad/workspace/lib_dev/public/
+  local: /codiad/workspace/warcry_admin/public/
+
+mde: true
+with_colorbox: true
+
+vk_widget:
+  group_id: 18630942
+
+disqus_alias: warcry-ru
+twitter_alias: warcry_ru
+google_analytics_id: UA-1465426-1
+rss_feed: 'http://feeds.feedburner.com/warcryru'
+
+angular:
+  app: warcryApp
+  ctrl: warcryCtrl
+
+user_actions:
+  create:
+    news: Написать новость
+    articles: Написать статью
+    streams: Добавить стрим
+    events: Добавить событие
+
+admin_menu:
+  - news
+  - articles
+  - events
+  - streams
+  - group:
+      title: Комиксы
+      items:
+        - comic_series
+        - comic_standalones
+  - gallery_authors
+  - group:
+      title: Сайт
+      items:
+        - users
+        - roles
+        - menus
+        - replaces
+  - group:
+      title: Справочники
+      items:
+        - games
+        - article_categories
+        - comic_publishers
+        - event_types
+        - regions

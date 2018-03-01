@@ -1,0 +1,97 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/local_macros.twig' as lm %}
+{% import 'main/recipes/macros.twig' as rm %}
+{% import _self as l %}
+
+{% set iconize_links = false %}
+
+{% macro recipe_tree(recipe, top = false) %}
+	{% import 'macros.twig' as gm %}
+	{% import 'main/recipes/macros.twig' as rm %}
+	{% import _self as l %}
+
+    <div id="recipe_{{ recipe.node_id }}"{% if not top %} class="hidden"{% endif %}>
+	    <div class="flex-wrapper">
+	    	{% if not top %}
+				<a class="recipe-node-arrow" href="javascript:void(0);" ng-click="hideSubTree('{{ recipe.node_id }}');" title="Свернуть">{{ gm.gi('chevron-down') }}</a>
+			{% endif %}
+	    	{{ rm.recipe_icon(recipe.link) }}
+	    	{{ rm.recipe_link(recipe, top) }}
+	       	{{ rm.total_count(recipe.total_min, recipe.total_max) }}
+	    </div>
+	
+		{% if recipe.reagents %}
+			<ul>
+			    {% for r in recipe.reagents %}
+			        <li>
+			        	<div{% if r.recipe %} id="item_{{ r.recipe.node_id }}"{% endif%} class="flex-wrapper{% if not r.recipe %} recipe-tree-leaf{% endif %}">
+			        		{% if r.recipe %}
+			        			<a class="recipe-node-arrow" href="javascript:void(0);" ng-click="showSubTree('{{ r.recipe.node_id }}');" title="Развернуть">{{ gm.gi('chevron-right') }}</a>
+			        		{% endif %}
+			            	{{ rm.recipe_icon(r) }}
+			            	{{ rm.item_link(r.item) }}
+			            	{{ rm.total_count(r.total_min, r.total_max) }}
+			            </div>
+			            
+			            {% if r.recipe %}
+		                	{{ l.recipe_tree(r.recipe) }}
+		                {% endif %}
+			        </li>
+			    {% endfor %}
+	    	</ul>
+	    {% endif %}
+	</div>
+{% endmacro %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.recipes'), 'text': recipes_title },
+			{ 'url': path_for('main.recipes', { 'skill': recipe.skill.alias }), 'text': recipe.skill.name_ru }
+		] %}
+		{{ lm.panel_header(_context, recipe.name_ru, {
+			'subtitle': (recipe.name != recipe.name_ru) ? recipe.name
+		}) }}
+	  	<div class="panel-body">
+	  		<p>Требует: {{ rm.skill_link(recipe.skill_id, recipe.skill) }} ({{ recipe.learnedat }})</p>
+	  		<p>
+	  			Сложность:
+				{% for color, level in recipe.levels if level > 0 %}
+					<span class="label recipe-lvl-{{ color }}">{{ level }}</span>
+				{% endfor %}
+			</p>
+
+	  		<div class="recipe-tree">
+				{{ l.recipe_tree(recipe, true) }}
+	  		</div>
+
+	  		<div class="recipe-base">
+		  		<p>Чтобы сделать этот предмет из <b>базовых реагентов</b>, понадобится:</p>
+		  		
+				<ul>
+				    {% for r in recipe.base_reagents %}
+				        <li>
+				        	<div class="flex-wrapper">
+				            	{{ rm.recipe_icon(r, true) }}
+				            	<span class="item-flat-name"><a href="{{ r.item.url }}" class="item-name item-q{{ r.item.quality }}">{{ r.item.name_ru }}</a>{% if r.total_min > 1 or r.total_min < r.total_max %} ({{ rm.total_count_str(r.total_min, r.total_max) }}){% endif %}</span>
+				            </div>
+				        </li>
+				    {% endfor %}
+		    	</ul>
+			</div>
+			
+			<p class="recipe-required-skills">Для этого потребу{% if recipe.required_skills|length > 1 %}ю{% else %}е{% endif %}тся {% for id, skill in recipe.required_skills %}{% if not loop.first %}{% if loop.last %} и {% else %}, {% endif %}{% endif %}<span class="nowrap">{{ rm.skill_link(id, skill.skill) }} ({{ skill.max }})</span>{% endfor %}.</p>
+		</div>
+	</div>
+{% endblock %}
+
+{% set more_angular %}
+	$scope.hideSubTree = function(id) {
+		switchElements('#recipe_' + id, '#item_' + id);
+	}
+	
+	$scope.showSubTree = function(id) {
+		switchElements('#item_' + id, '#recipe_' + id);
+	}
+{% endset %}

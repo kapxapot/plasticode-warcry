@@ -1,0 +1,32 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/macros.twig' as m %}
+{% import 'main/local_macros.twig' as lm %}
+
+{% set index = true %}
+{% set no_disqus = true %}
+{% set no_social = true %}
+
+{% block content %}
+	<div id="news-index">
+		{% if news %}
+			{% for news_item in news %}
+				<div class="panel panel-primary">
+					{{ lm.panel_game_header(news_item.game, news_item.title, {
+						'url': path_for('main.news', { 'id': news_item.id }),
+						'buttons': [ m.edit_button('news', news_item) ]
+					}) }}
+				    {% include 'main/news/bodyfooter.twig' %}
+				</div>
+			{% endfor %}
+		{% else %}
+			<div>По заданным параметрам новости не найдены.</div>
+		{% endif %}
+		
+		{% if paging %}
+			<div id="news-pagination">
+				{% include 'main/includes/paging.twig' %}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

@@ -1,0 +1,445 @@
+auth_tokens:
+  table: auth_tokens
+  private:
+    - id
+    - user_id
+    - token
+    - expires_at
+
+articles:
+  table: enc_data
+  api: full
+  name_field: name_ru
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - parent_id
+    - cat
+    - name_ru
+    - name_en
+    - origin
+    - text
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - game_id
+  private:
+    - hideeng
+    - announce
+    - published
+    - published_at
+    - no_breadcrumb
+
+article_categories:
+  table: enc_cat
+  api: full
+  name_field: name_ru
+  sort: name_ru
+  public:
+    - id
+    - name_ru
+    - name_en
+
+comic_issues:
+  table: comic_issue
+  api: full
+  name_field: number
+  sort: number
+  public:
+    - id
+    - series_id
+    - number
+    - issued_on
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - published
+    - description
+    - origin
+    - name_ru
+    - name_en
+
+comic_pages:
+  table: comic_page
+  api: full
+  name_field: number
+  sort: number
+  public:
+    - id
+    - comic_issue_id
+    - number
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - published
+    - type
+
+comic_publishers:
+  table: comic_publisher
+  api: full
+  name_field: name
+  sort: name
+  public:
+    - id
+    - name
+    - website
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+
+comic_series:
+  table: comic_series
+  api: full
+  name_field: name_ru
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - game_id
+    - name_ru
+    - name_en
+    - alias
+    - publisher_id
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - description
+  private:
+    - published
+
+comic_standalones:
+  table: comic_standalone
+  api: full
+  name_field: name_ru
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - name_ru
+    - name_en
+    - game_id
+    - alias
+    - publisher_id
+    - issued_on
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - published
+    - description
+    - origin
+
+comic_standalone_pages:
+  table: comic_page
+  api: full
+  name_field: number
+  sort: number
+  public:
+    - id
+    - comic_standalone_id
+    - number
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - published
+    - type
+
+events:
+  table: events
+  api: full
+  name_field: name
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - name
+    - type_id
+    - starts_at
+    - ends_at
+    - website
+    - region_id
+    - game_id
+    - description
+    - tags
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+  private:
+    - published
+    - published_at
+    - announce
+
+event_types:
+  table: event_types
+  api: full
+  name_field: name
+  sort: name
+  public:
+    - id
+    - name
+    - plural
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+
+forums:
+  table: forumforums
+
+forum_members:
+  table: forummembers
+
+forum_posts:
+  table: forumposts
+
+forum_tags:
+  table: forumcore_tags
+
+forum_topics:
+  table: forumtopics
+
+gallery_authors:
+  table: gallery_authors
+  api: full
+  name_field: name
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - name
+    - deviant
+    - alias
+    - real_name
+    - real_name_en
+    - description
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+  private:
+    - published
+
+gallery_pictures:
+  table: gallery_pictures
+  api: full
+  name_field: comment
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - author_id
+    - comment
+    - official
+    - description
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - points
+    - picture_type
+    - thumb_type
+  private:
+    - published
+
+games:
+  table: warcry_game
+  api: full
+  name_field: name
+  sort: position
+  public:
+    - id
+    - name
+  private:
+    - alias
+    - news_forum_id
+    - main_forum_id
+    - published
+    - position
+    - icon
+
+genders:
+  table: gender
+  api: list
+  name_field: name
+  sort: id
+  private:
+    - id
+    - name
+    - tag
+
+items:
+  table: wow_items_new
+
+locations:
+  table: enc_loc
+
+menus:
+  table: wow_menu_sections
+  api: full
+  name_field: text
+  sort: created_at
+  reverse: true
+  private:
+    - id
+    - link
+    - text
+    - position
+    - game_id
+    - created_at
+    - updated_at
+
+menu_items:
+  table: wow_menu_items
+  api: full
+  name_field: text
+  sort: position
+  private:
+    - id
+    - section_id
+    - link
+    - text
+    - position
+    - created_at
+    - updated_at
+
+news:
+  table: news
+  api: full
+  name_field: title
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - game_id
+    - title
+    - text
+    - tags
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+  private:
+    - published
+    - published_at
+
+npc:
+  table: enc_npc
+
+quests:
+  table: enc_spells
+
+recipes:
+  table: wow_recipes
+
+recipe_sources:
+  table: wow_recipe_sources
+
+regions:
+  table: regions
+  api: full
+  name_field: name_ru
+  sort: name_ru
+  public:
+    - id
+    - name_ru
+    - name_en
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - parent_id
+    - terminal
+
+replaces:
+  table: enc_replace
+  api: full
+  name_field: first
+  sort: first
+  private:
+    - id
+    - first
+    - second
+
+roles:
+  table: warcry_role
+  api: full
+  name_field: name
+  sort: name
+  public:
+    - id
+    - name
+    - tag
+
+skills:
+  table: wow_skills
+
+spells:
+  table: enc_spells
+
+spell_icons:
+  table: wow_spell_icons
+
+streams:
+  table: warcry_streams_items
+  api: full
+  name_field: title
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - stream_id
+    - stream_alias
+    - type
+    - title
+    - description
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - priority
+    - gender_id
+    - channel
+    - official
+    - official_ru
+  private:
+    - published
+
+stream_stats:
+  table: stream_stats
+
+stream_types:
+  table: warcry_streams_types
+  api: list
+  name_field: title
+  public:
+    - id
+    - url
+    - title
+
+tags:
+  table: tags
+
+users:
+  table: users
+  api: full
+  name_field: login
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - login
+    - name
+    - role_id
+    - created_at
+    - updated_at
+  private:
+    - forum_name
+    - email

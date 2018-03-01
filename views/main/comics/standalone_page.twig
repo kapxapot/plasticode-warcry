@@ -1,0 +1,47 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'macros.twig' as gm %}
+{% import 'main/local_macros.twig' as lm %}
+
+{% block content %}
+	<div class="panel panel-primary">
+		{% set breadcrumbs = [
+			{ 'url': path_for('main.comics'), 'text': comics_title },
+	  		{ 'url': path_for('main.comics.standalone', { 'alias': comic.alias }), 'text': comic.name_ru }
+		] %}
+		{{ lm.panel_header(_context, comic.name_ru, {
+			'subtitle': comic.name_en,
+			'bc_no_game': true,
+			'bc_title': 'Страница ' ~ page.number_str
+		}) }}
+	  	<div class="panel-body gallery-picture">
+	  		<div>
+	  			{% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: Страница {{ page.next.comic_number_str }}">{% endif %}
+	  				<img src="{{ page.url }}" class="center img-responsive" />
+	  			{% if page.next %}</a>{% endif %}
+	  		</div>
+	   	</div>
+	</div>
+  	<div class="gallery-picture-nav pagination-flex">
+		{% if page.prev %}
+			<a href="{{ page.prev.page_url }}" title="Назад: Страница {{ page.prev.number_str }}" class="btn btn-default btn-lg">
+				{{ gm.gi('chevron-left') }}
+				<span class="hidden-xs">Страница</span>
+				<span class="visible-xs-inline">Стр.</span>
+				{{ page.prev.number_str }}
+			</a>
+		{% endif %}
+		<a href="{{ page.url }}" download="{{ comic.name_ru }} {{ comic.number_str }} - {{ page.number_str }} ({{ site_name }}).{{ page.ext }}" class="btn btn-default btn-lg">
+			{{ gm.gi('save', 'Скачать') }}
+			<span class="hidden-xs">Скачать</span>
+		</a>
+		{% if page.next %}
+			<a href="{{ page.next.page_url }}" title="Вперед: Страница {{ page.next.number_str }}" class="btn btn-default btn-lg">
+				<span class="hidden-xs">Страница</span>
+				<span class="visible-xs-inline">Стр.</span>
+				{{ page.next.number_str }}
+				{{ gm.gi('chevron-right') }}
+			</a>
+		{% endif %}
+	</div>
+{% endblock %}

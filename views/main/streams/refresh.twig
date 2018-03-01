@@ -1,0 +1,10 @@
+{% for s in data %}
+	<p>Stream {{ s.stream_id }} updated.</p>
+
+	{% if log %}
+		<p>{{ s.json }}</p>
+		<p>{{ s.message }}</p>
+	{% endif %}
+{% endfor %}
+
+<p>Done</p>

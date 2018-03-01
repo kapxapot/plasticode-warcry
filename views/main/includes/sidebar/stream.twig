@@ -1,0 +1,31 @@
+{% set s = sidebar.stream %}
+{% if s %}
+	<div class="panel-secondary-heading">Сейчас в эфире</div>
+	<div class="panel panel-secondary">
+		<div class="panel-body panel-body-bare">
+			<div class="stream-standalone">
+			    {% if s.large_img_url %}
+			    	<div class="overlay-wrapper stream-image">
+			    		<a href="{{ s.page_url }}"><img class="card-image" src="{{ s.large_img_url }}" /></a>
+						<span class="overlay"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ s.remote_viewers }}</span>
+			    	</div>
+			    {% endif %}
+			   	<div class="title">
+			   		<p>
+			   			<a href="{{ s.page_url }}">{{ s.title }}</a>
+			   			{% if s.channel %}
+			   				{% if s.remote_status %}
+			   					транслирует <b>{{ s.remote_status }}</b>
+			   				{% else %}
+			   					ведет трансляцию
+			   				{% endif %}
+			   			{% else %}
+			   			играет в <b>{{ s.remote_game }}</b>
+			   			{% endif %}
+			   		</p>
+			   		<p>Всего онлайн <a href="{{ path_for('main.streams') }}">{{ s.total_streams_online }}</a></p>
+			   	</div>
+			</div>
+		</div>
+	</div>
+{% endif %}

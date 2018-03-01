@@ -1,0 +1,41 @@
+{% import 'macros.twig' as gm %}
+
+<div class="panel-body article news">
+	{{ news_item.text|raw }}
+</div>
+<div class="panel-footer">
+	<div class="glyphicon-block" title="Дата публикации">
+		{{ gm.gi('time') }}
+		{% if news_item.published %}
+			{{ news_item.start_date|raw }}
+		{% else %}
+			Не опубликована!
+		{% endif %}
+	</div>
+	<div class="glyphicon-block" title="Автор">
+		{{ gm.gi('user') }}
+		{% if news_item.starter_url %}
+			<a href="{{ news_item.starter_url }}">{{ news_item.starter_name }}</a>
+		{% else %}
+			<b>{{ news_item.starter_name }}</b>
+		{% endif %}
+	</div>
+	{% if news_item.forum_url %}
+		<div class="glyphicon-block">
+			{{ gm.gi('comment') }}
+			<a href="{{ news_item.forum_url }}" title="Комментарии на форуме">{{ news_item.posts }}</a>
+		</div>
+	{% endif %}
+	{% if news_item.tags %}
+		<div class="glyphicon-block" title="Теги">
+			{{ gm.gi('tag') }}
+			{% for tag in news_item.tags %}
+				{% if tag.url %}
+					<a href="{{ tag.url }}" class="label label-default">{{ tag.text }}</a>
+				{% else %}
+					<span class="label label-default">{{ tag.text }}</span>
+				{% endif %}
+			{% endfor %}
+		</div>
+	{% endif %}
+</div>

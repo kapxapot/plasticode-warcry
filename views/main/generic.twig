@@ -1,0 +1,7 @@
+{% extends 'main/layout.twig' %}
+
+{% import 'main/local_macros.twig' as lm %}
+
+{% block content %}
+	{{ lm.panel(_context, title, text) }}
+{% endblock %}
