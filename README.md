@@ -1,2 +1,3 @@
-# plasticode-warcry
-Warcry.ru built on Plasticode
+# Warcry.ru
+
+Built on Plasticode (kapxapot/plasticode).
