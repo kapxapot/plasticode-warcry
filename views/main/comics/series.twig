@@ -1,5 +1,6 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
@@ -9,7 +10,7 @@
 		] %}
 		{{ lm.panel_header(_context, series.name_ru, {
 			'subtitle': series.name_en,
-			'bc_no_game': true
+			'buttons': [ m.edit_button('comic_series', series) ]
 		}) }}
 	  	<div class="panel-body">
 			{% if series.publisher %}
@@ -18,18 +19,12 @@
 			{% if series.description %}
 	  			<p>{{ series.description|raw }}</p>
 			{% endif %}
-			{% if comics %}
-				<div class="flex-wrapper comics">
-					{% for c in comics %}
-						<div class="flex-item flex-item-shaded overlay-wrapper comic-image">
-							<a href="{{ c.page_url }}" title="Выпуск {{ c.number_str }}">
-								<img src="{{ c.cover_url }}" class="card-image" />
-								<span class="overlay overlay-full">Выпуск {{ c.number_str }}</span>
-							</a>
-						</div>
-					{% endfor %}
-				</div>
-			{% endif %}
+		    {% include 'components/comics.twig' with { 'comics': comics } only %}
 	    </div>
+		{% if series.tags %}
+			<div class="panel-footer">
+                {% include 'components/tags.twig' with { 'tags': series.tags } only %}
+			</div>
+		{% endif %}
 	</div>
 {% endblock %}

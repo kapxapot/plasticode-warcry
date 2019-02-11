@@ -12,7 +12,7 @@ articles:
     game_id:
       name: Игра
       entity: games
-      default: 1
+      dropdown_template: '{{%item%.select_title}}'
 
     name_ru:
       name: Заголовок
@@ -25,6 +25,7 @@ articles:
       tooltip: 'Этот заголовок выводится в адресе статьи, а также может нести информацию об исходном наименовании предмета статьи.'
       access: publish
       attributes: [ hidden ]
+      prefix: '//warcry.ru/articles/'
 
     hideeng:
       name: Без англ. заг.
@@ -37,28 +38,35 @@ articles:
       name: Текст
       type: html
       attributes: [ nullable, hidden ]
-      tooltip: '<a href="/articles/Markup_Guide" target="_blank">Руководство по оформлению текстов</a> (откроется в новом окне)'
 
     parent_id:
       name: Родительская статья
       entity: articles
       access: publish
-      dropdown_template: '[{{%item%.id}}] {{%name%}}'
-      attributes: [ nullable, hidden ]
+      dropdown_template: '{{%item%.select_title}}'
+      attributes: [ nullable, hidden, tokens ]
 
     cat:
       name: Категория
       entity: article_categories
       access: publish
       attributes: [ nullable, hidden ]
+      tooltip: Не трогайте, если не знаете, зачем это.
 
     origin:
       name: Источник
       type: url
       attributes: [ nullable, hidden ]
 
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Через запятую.
+
     announce:
       name: Анонс
+      form_name: Анонс на главной и в соцсетях
       type: bool
       access: publish
       attributes: [ hidden ]
@@ -115,11 +123,9 @@ article_categories:
 
 comic_issues:
 
-  name_gen: комикса
-  name_accus: комикс
-  title: Комиксы
-
-  #delete_extra_message: " ' + i.name_ru + ' (со всеми страницами)' + '"
+  name_gen: выпуска
+  name_accus: выпуск
+  title: Выпуски
 
   columns:
     id:
@@ -129,14 +135,16 @@ comic_issues:
     number:
       name: Номер
       type: number
+      attributes: [ nullable ]
       template: >
-        '<a href="/comics/series/' + row.series_alias + '/' + row.number + '">' + row.number + '</a>'
+        '<a href="' + row.page_url + '">' + row.number + '</a>'
+      tooltip: Оставьте пустым для автозаполнения.
 
     name_ru:
       name: Название
       attributes: [ nullable ]
       template: >
-        row.name_ru ? '<a href="/comics/series/' + row.series_alias + '/' + row.number + '">' + row.name_ru + '</a>' : ''
+        row.name_ru ? '<a href="' + row.page_url + '">' + row.name_ru + '</a>' : ''
 
     name_en:
       name: Eng. Title
@@ -158,11 +166,24 @@ comic_issues:
       type: date
       attributes: [ hidden ]
 
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Через запятую.
+
     published:
       name: Опубликован
       form_name: Опубликовать
       type: bool
       access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
 
     created_by_name:
       name: Автор
@@ -176,7 +197,7 @@ comic_issues:
     comic_pages:
       name: Страницы
       template: >
-        '<a href="comic_issues/' + row.id + '/comic_pages"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-picture" title="Редактировать страницы"></span></button></a>'
+        '<a href="comic_issues/' + row.id + '/comic_pages" class="btn btn-success btn-pad mr-1"><i class="glyphicon glyphicon-picture" title="Редактировать страницы"></i></a> <button type="button" data-id="' + row.id + '" data-action="upload" class="btn btn-success btn-pad"><i class="glyphicon glyphicon-open" title="Загрузить страницы"></i></button>'
       attributes: [ no_sort, readonly ]
 
 
@@ -194,12 +215,14 @@ comic_pages:
     pic:
       name: Картинка
       template: >
-        '<a href="' + row.picture + '"><img src="' + row.thumb + '" height="120"></a>'
+        '<a href="' + row.page_url + '"><img src="' + row.thumb + '" height="120"></a>'
       attributes: [ no_sort, readonly ]
 
     number:
       name: Номер
       type: number
+      attributes: [ nullable ]
+      tooltip: Оставьте пустым для автозаполнения.
 
     picture:
       name: Картинка
@@ -212,6 +235,7 @@ comic_pages:
       form_name: Опубликовать
       type: bool
       access: publish
+      default: 1
 
     created_by_name:
       name: Автор
@@ -258,8 +282,6 @@ comic_series:
   name_accus: серию
   title: Серии
 
-  #delete_extra_message: " ' + i.name_ru + ' (со всеми комиксами)' + '"
-
   columns:
     id:
       name: id
@@ -268,12 +290,12 @@ comic_series:
     game_id:
       name: Игра
       entity: games
-      default: 1
+      dropdown_template: '{{%item%.select_title}}'
 
     name_ru:
       name: Название
       template: >
-        '<a href="/comics/series/' + row.alias + '">' + row.name_ru + '</a>'
+        '<a href="' + row.page_url + '">' + row.name_ru + '</a>'
 
     name_en:
       name: Eng. Title
@@ -283,6 +305,7 @@ comic_series:
     alias:
       name: Алиас
       attributes: [ hidden ]
+      prefix: '//warcry.ru/comics/series/'
 
     publisher_id:
       name: Издательство
@@ -294,11 +317,24 @@ comic_series:
       type: html
       attributes: [ nullable, hidden ]
 
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Через запятую.
+
     published:
       name: Опубликована
       form_name: Опубликовать
       type: bool
       access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
 
     created_by_name:
       name: Автор
@@ -310,7 +346,7 @@ comic_series:
       attributes: [ readonly ]
 
     comic_issues:
-      name: Комиксы
+      name: Выпуски
       template: >
         '<a href="comic_series/' + row.id + '/comic_issues"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-book" title="Редактировать комиксы"></span></button></a>'
       attributes: [ no_sort, readonly ]
@@ -322,8 +358,6 @@ comic_standalones:
   name_accus: комикс
   title: Комиксы
 
-  #delete_extra_message: " ' + i.name_ru + ' (со всеми страницами)' + '"
-
   columns:
     id:
       name: id
@@ -332,7 +366,7 @@ comic_standalones:
     name_ru:
       name: Название
       template: >
-        '<a href="/comics/' + row.alias + '">' + row.name_ru + '</a>'
+        '<a href="' + row.page_url + '">' + row.name_ru + '</a>'
 
     name_en:
       name: Eng. Title
@@ -342,11 +376,12 @@ comic_standalones:
     game_id:
       name: Игра
       entity: games
-      default: 1
+      dropdown_template: '{{%item%.select_title}}'
 
     alias:
       name: Алиас
       attributes: [ hidden ]
+      prefix: '//warcry.ru/comics/'
 
     publisher_id:
       name: Издательство
@@ -368,11 +403,24 @@ comic_standalones:
       type: date
       attributes: [ hidden ]
 
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Через запятую.
+
     published:
       name: Опубликован
       form_name: Опубликовать
       type: bool
       access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
 
     created_by_name:
       name: Автор
@@ -386,7 +434,7 @@ comic_standalones:
     comic_standalone_pages:
       name: Страницы
       template: >
-        '<a href="comic_standalones/' + row.id + '/comic_standalone_pages"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-picture" title="Редактировать страницы"></span></button></a>'
+        '<a href="comic_standalones/' + row.id + '/comic_standalone_pages"><button type="button" class="btn btn-success btn-pad mr-1"><span class="glyphicon glyphicon-picture" title="Редактировать страницы"></span></button></a>  <button type="button" data-id="' + row.id + '" data-action="upload" class="btn btn-success btn-pad"><i class="glyphicon glyphicon-open" title="Загрузить страницы"></i></button>'
       attributes: [ no_sort, readonly ]
 
 
@@ -404,12 +452,14 @@ comic_standalone_pages:
     pic:
       name: Картинка
       template: >
-        '<a href="' + row.picture + '"><img src="' + row.thumb + '" height="120"></a>'
+        '<a href="' + row.page_url + '"><img src="' + row.thumb + '" height="120"></a>'
       attributes: [ no_sort, readonly ]
 
     number:
       name: Номер
       type: number
+      attributes: [ nullable ]
+      tooltip: Оставьте пустым для автозаполнения.
 
     picture:
       name: Картинка
@@ -422,6 +472,7 @@ comic_standalone_pages:
       form_name: Опубликовать
       type: bool
       access: publish
+      default: 1
 
     created_by_name:
       name: Автор
@@ -444,6 +495,12 @@ events:
       name: id
       attributes: [ readonly ]
 
+    game_id:
+      name: Игра
+      entity: games
+      dropdown_template: '{{%item%.select_title}}'
+      attributes: [ nullable ]
+
     name:
       name: Название
       template: >
@@ -465,6 +522,11 @@ events:
       attributes: [ nullable, hidden ]
       tooltip: Оставьте пустым, если дата совпадает с началом.
 
+    unknown_end:
+      name: Конец неизвестен
+      type: bool
+      attributes: [ hidden ]
+
     website:
       name: Веб-сайт
       type: url
@@ -473,18 +535,17 @@ events:
     region_id:
       name: Регион
       entity: regions
+      dropdown_template: '{{%item%.select_title}}'
       attributes: [ nullable, hidden ]
 
-    game_id:
-      name: Игра
-      entity: games
-      attributes: [ nullable ]
+    address:
+      name: Адрес
+      attributes: [ nullable, hidden ]
 
     description:
       name: Описание
       type: html
       attributes: [ nullable, hidden ]
-      tooltip: '<a href="/articles/Markup_Guide" target="_blank">Руководство по оформлению текстов</a> (откроется в новом окне)'
 
     tags:
       name: Теги
@@ -501,6 +562,13 @@ events:
       form_name: Опубликовать
       type: bool
       access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
 
     created_by_name:
       name: Автор
@@ -559,17 +627,32 @@ gallery_authors:
       template: >
         '<a href="/gallery/' + row.alias + '">' + row.name + '</a>'
 
+    category_id:
+      name: Категория
+      entity: gallery_author_categories
+      attributes: [ hidden ]
+
     alias:
       name: Алиас
       access: publish
       attributes: [ hidden ]
-      tooltip: Страница автора будет http://warcry.ru/gallery/{алиас}.
+      prefix: '//warcry.ru/gallery/'
+      #tooltip: Страница автора будет http://warcry.ru/gallery/{алиас}.
 
     deviant:
-      name: Deviant
+      name: DeviantArt
       template: >
         '<a href="//' + row.deviant + '.deviantart.com">' + row.deviant + '</a>'
       attributes: [ nullable, hidden ]
+      prefix: '//'
+      suffix: '.deviantart.com'
+
+    art_station:
+      name: ArtStation
+      template: >
+        '<a href="//artstation.com/artist/' + row.art_station + '">' + row.art_station + '</a>'
+      attributes: [ nullable, hidden ]
+      prefix: '//artstation.com/artist/'
 
     real_name:
       name: Настоящее имя
@@ -604,7 +687,7 @@ gallery_authors:
     gallery_pictures:
       name: Картинки
       template: >
-        '<a href="gallery/' + row.id + '/gallery_pictures"><button type="button" class="btn btn-success btn-pad"><span class="glyphicon glyphicon-picture" title="Редактировать картинки"></span></button></a>'
+        '<a href="gallery/' + row.id + '/gallery_pictures" class="btn btn-success btn-pad mr-1"><i class="glyphicon glyphicon-picture" title="Редактировать картинки"></i></a> <button type="button" data-id="' + row.id + '" data-action="upload" class="btn btn-success btn-pad"><i class="glyphicon glyphicon-open" title="Загрузить картинки"></i></button>'
       attributes: [ no_sort, readonly ]
 
 
@@ -625,6 +708,12 @@ gallery_pictures:
         '<a href="' + row.picture + '"><img src="' + row.thumb + '" width="50"></a>'
       attributes: [ no_sort, readonly ]
 
+    game_id:
+      name: Игра
+      entity: games
+      dropdown_template: '{{%item%.select_title}}'
+      attributes: [ nullable, hidden ]
+
     comment:
       template: >
         (row.published == 1) ? '<a href="/gallery/' + row.author_alias + '/' + row.id + '">' + row.comment + '</a>' : row.comment
@@ -640,6 +729,12 @@ gallery_pictures:
       name: Описание
       type: html
       attributes: [ nullable, hidden ]
+
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Через запятую.
         
     official:
       name: Официальная
@@ -651,6 +746,13 @@ gallery_pictures:
       form_name: Опубликовать
       type: bool
       access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
 
     created_by_name:
       name: Автор
@@ -673,17 +775,34 @@ games:
       name: id
       attributes: [ readonly ]
 
-    icon:
+    pic:
       name: Иконка
-      type: site_url
-      display_type: img
-      attributes: [ no_sort ]
+      template: >
+        '<img src="' + row.icon + '">'
+      attributes: [ no_sort, readonly ]
 
     name:
       name: Название
+    
+    parent_id:
+      name: Родительская игра
+      entity: games
+      dropdown_template: '{{%item%.select_title}}'
+      attributes: [ nullable, hidden ]
+
+    icon:
+      name: Иконка
+      type: site_url
+      attributes: [ nullable, hidden, no_sort ]
 
     alias:
       name: Алиас
+      prefix: '//warcry.ru/'
+      attributes: [ nullable ]
+
+    autotags:
+      name: Автотеги
+      attributes: [ nullable, hidden ]
 
     news_forum_id:
       name: Id новостного форума
@@ -698,7 +817,7 @@ games:
     position:
       name: Позиция
       type: number
-      default: 1
+      attributes: [ nullable ]
 
     published:
       name: Опубликована
@@ -723,6 +842,7 @@ menus:
     game_id:
       name: Игра
       entity: games
+      dropdown_template: '{{%item%.select_title}}'
 
     link:
       name: Ссылка
@@ -794,6 +914,11 @@ news:
       name: id
       attributes: [ readonly ]
 
+    game_id:
+      name: Игра
+      entity: games
+      dropdown_template: '{{%item%.select_title}}'
+
     title:
       name: Заголовок
       template: >
@@ -803,12 +928,6 @@ news:
       name: Текст
       type: html
       attributes: [ hidden ]
-      tooltip: '<a href="/articles/Markup_Guide" target="_blank">Руководство по оформлению текстов</a> (откроется в новом окне)'
-
-    game_id:
-      name: Игра
-      entity: games
-      default: 1
 
     tags:
       name: Теги
@@ -863,7 +982,7 @@ regions:
       name: Род. регион
       form_name: Родительский регион
       entity: regions
-      dropdown_template: '[{{%item%.id}}] {{%name%}}'
+      dropdown_template: '{{%item%.select_title}}'
       attributes: [ nullable ]
 
     terminal:
@@ -880,25 +999,6 @@ regions:
       name: Дата создания
       type: date
       attributes: [ readonly ]
-
-
-replaces:
-
-  name_gen: замены
-  name_accus: замену
-  title: Замены
-  
-  columns:
-    id:
-      name: id
-      attributes: [ readonly ]
-    
-    first:
-      name: Строка
-
-    second:
-      name: Замена
-      template: escapeHtml(row.second)
 
 
 roles:
@@ -943,25 +1043,33 @@ streams:
     stream_id:
       name: Код
       attributes: [ hidden ]
-      tooltip: Уникальный идентификатор стрима http://twitch.tv/{код}.
+      prefix: '//twitch.tv/'
+      #tooltip: Уникальный идентификатор стрима http://twitch.tv/{код}.
 
     stream_alias:
       name: Алиас
       access: publish
       tooltip: Оставьте пустым, если совпадает с кодом.
       attributes: [ nullable, hidden ]
+      prefix: '//warcry.ru/streams/'
 
     description:
       name: Описание
       type: html
       #tooltip: Описание также загружается (и перезаписывается) из самого стрима.
-      attributes: [ hidden ]
+      attributes: [ nullable, hidden ]
 
     gender_id:
       name: Грамматический род
       entity: genders
       access: publish
       attributes: [ hidden ]
+
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Через запятую.
 
     channel:
       name: Канал
@@ -995,6 +1103,13 @@ streams:
       type: bool
       access: publish
 
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
+
     created_by_name:
       name: Автор
       attributes: [ readonly ]
@@ -1003,6 +1118,7 @@ streams:
       name: Дата создания
       type: date
       attributes: [ readonly ]
+
 
 users:
 
@@ -1032,7 +1148,6 @@ users:
     role_id:
       name: Роль
       entity: roles
-      default: 3
 
     forum_name:
       name: Имя на форуме

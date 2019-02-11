@@ -1,0 +1,11 @@
+/* playground */
+
+.playground #result > .img:first-child,
+.playground #result > .embed-responsive:first-child,
+.playground #result > .carousel:first-child {
+    margin-top: 0;
+}
+
+.playground > div {
+    margin-bottom: 15px;
+}

@@ -29,7 +29,7 @@
 				<span>
 					{{ title|raw }}
 					{% if not (data.published ?? true) %}
-						<span title="Не опубликована!">[!]</span>
+						<i class="fa fa-eye-slash" title="Не опубликовано!"></i>
 					{% endif %}
 				</span>
 			{% endif %}
@@ -50,8 +50,8 @@
 {% macro breadcrumbs(context, title, data = null) %}
 	{% import 'main/macros.twig' as m %}
 	{% set items = context.breadcrumbs %}
-	{% if not data.bc_no_game and not context.game.default %}
-		{% set game_items = [ { 'url': context.game.url, 'text': context.game.name } ] %}
+	{% if not context.menu_game.default %}
+		{% set game_items = [ { 'url': context.menu_game.url, 'text': context.menu_game.name } ] %}
 		{% set items = items ? game_items|merge(items) : game_items %}
 	{% endif %}
 	{{ m.breadcrumbs(context, items, data.bc_title ?? title) }}

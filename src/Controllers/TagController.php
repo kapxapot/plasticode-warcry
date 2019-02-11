@@ -4,8 +4,10 @@ namespace App\Controllers;
 
 use Plasticode\Util\Sort;
 
-class TagController extends BaseController {
-	public function item($request, $response, $args) {
+class TagController extends BaseController
+{
+	public function item($request, $response, $args)
+	{
 		$tag = $args['tag'];
 
 		if (strlen($tag) == 0) {
@@ -15,7 +17,7 @@ class TagController extends BaseController {
 		$parts = $this->builder->buildTagParts($tag);
 
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'tag' => $tag,
 				'title' => "Тег «{$tag}»", 

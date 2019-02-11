@@ -10,7 +10,7 @@ articles:
   table: enc_data
   api: full
   name_field: name_ru
-  sort: created_at
+  sort: id
   reverse: true
   public:
     - id
@@ -25,6 +25,7 @@ articles:
     - updated_at
     - updated_by
     - game_id
+    - tags
   private:
     - hideeng
     - announce
@@ -56,11 +57,14 @@ comic_issues:
     - created_by
     - updated_at
     - updated_by
-    - published
     - description
     - origin
     - name_ru
     - name_en
+    - tags
+  private:
+    - published
+    - published_at
 
 comic_pages:
   table: comic_page
@@ -83,6 +87,7 @@ comic_publishers:
   api: full
   name_field: name
   sort: name
+  default: 1
   public:
     - id
     - name
@@ -110,8 +115,10 @@ comic_series:
     - updated_at
     - updated_by
     - description
+    - tags
   private:
     - published
+    - published_at
 
 comic_standalones:
   table: comic_standalone
@@ -131,9 +138,12 @@ comic_standalones:
     - created_by
     - updated_at
     - updated_by
-    - published
     - description
     - origin
+    - tags
+  private:
+    - published
+    - published_at
 
 comic_standalone_pages:
   table: comic_page
@@ -172,16 +182,19 @@ events:
     - created_by
     - updated_at
     - updated_by
+    - address
   private:
     - published
     - published_at
     - announce
+    - unknown_end
 
 event_types:
   table: event_types
   api: full
   name_field: name
   sort: name
+  default: 3
   public:
     - id
     - name
@@ -216,6 +229,7 @@ gallery_authors:
     - id
     - name
     - deviant
+    - art_station
     - alias
     - real_name
     - real_name_en
@@ -224,8 +238,20 @@ gallery_authors:
     - created_by
     - updated_at
     - updated_by
+    - category_id
   private:
     - published
+
+gallery_author_categories:
+  table: gallery_author_categories
+  api: list
+  name_field: name
+  sort: position
+  default: 2
+  public:
+    - id
+    - name
+    - alias
 
 gallery_pictures:
   table: gallery_pictures
@@ -246,14 +272,18 @@ gallery_pictures:
     - points
     - picture_type
     - thumb_type
+    - tags
+    - game_id
   private:
     - published
+    - published_at
 
 games:
-  table: warcry_game
+  table: games
   api: full
   name_field: name
   sort: position
+  default: 1
   public:
     - id
     - name
@@ -264,12 +294,15 @@ games:
     - published
     - position
     - icon
+    - parent_id
+    - autotags
 
 genders:
   table: gender
   api: list
   name_field: name
   sort: id
+  default: 1
   private:
     - id
     - name
@@ -358,21 +391,12 @@ regions:
     - parent_id
     - terminal
 
-replaces:
-  table: enc_replace
-  api: full
-  name_field: first
-  sort: first
-  private:
-    - id
-    - first
-    - second
-
 roles:
   table: warcry_role
   api: full
   name_field: name
   sort: name
+  default: 3
   public:
     - id
     - name
@@ -409,8 +433,10 @@ streams:
     - channel
     - official
     - official_ru
+    - tags
   private:
     - published
+    - published_at
 
 stream_stats:
   table: stream_stats

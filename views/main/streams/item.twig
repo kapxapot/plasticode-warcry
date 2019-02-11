@@ -6,6 +6,10 @@
 
 {% set with_charts = true %}
 
+{% if can('streams', 'create') %}
+    {% set sidebar_buttons = [ m.create_button('streams', 'Добавить стрим') ] %}
+{% endif %}
+
 {% block content %}
 	<div class="panel panel-primary">
 		{% set breadcrumbs = [
@@ -14,75 +18,84 @@
 		{{ lm.panel_header(_context, title, {
 			'buttons': [ m.edit_button('streams', stream) ]
 		}) }}
-	  	<div class="panel-body stream">
+	  	<div class="panel-body panel-body--nopad mb-1">
 			<div class="embed-responsive embed-responsive-16by9">
 				<iframe class="embed-responsive-item" src="https://player.twitch.tv/?channel={{ stream.stream_id }}" allowfullscreen="true" frameborder="0" scrolling="no" width="620" height="378"></iframe>
 			</div>
-			<div class="stream-footer">
-				<ul class="nav nav-tabs" role="tablist">
-					{{ m.tab('about', 'Описание', true) }}
-					{{ m.tab('chat', 'Чат') }}
-					{% if stats.viewers %}
-						{{ m.tab('viewers', 'Статистика по зрителям', false, gm.gi('stats') ~ ' Зрители') }}
+		</div>
+		<div class="panel-body body-nopad stream-footer">
+			<ul class="nav nav-tabs" role="tablist">
+				{{ m.tab('about', 'Описание', true) }}
+				{{ m.tab('chat', 'Чат') }}
+				{% if stats.viewers %}
+					{{ m.tab('viewers', 'Статистика по зрителям за последние сутки', false, gm.gi('stats') ~ ' Зрители') }}
+				{% endif %}
+				{# turned off #}
+				{% if stats.bars %}
+					{{ m.tab('bars', 'Статистика по зрителям', false, gm.gi('stats') ~ ' Колонки') }}
+				{% endif %}
+				{% if stats.games %} 
+					{{ m.tab('games', 'Статистика по играм за последние 30 дней', false, gm.gi('stats') ~ ' Игры') }}
+				{% endif %}
+			</ul>
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane fade in active" id="about">
+					{% if stream.remote_logo %}
+						<img src="{{ stream.remote_logo }}" class="stream-logo" />
 					{% endif %}
-					{% if stats.bars %}
-						{{ m.tab('bars', 'Статистика по зрителям', false, gm.gi('stats') ~ ' Колонки') }}
+					<p><b>Канал:</b> {% if stream.stream_url %}<a href="{{ stream.stream_url }}">{% endif %}{% if stream.remote_title %}{{ stream.remote_title }}{% else %}{{ stream.title }}{% endif %}{% if stream.stream_url %}</a>{% endif %}</p>
+					{% if stream.remote_online %}
+						<p><b>Зрители:</b> {{ stream.remote_viewers }}</p>
+					{% else %}
+						<p>Офлайн</p>
 					{% endif %}
-					{% if stats.games %} 
-						{{ m.tab('games', 'Статистика по играм', false, gm.gi('stats') ~ ' Игры') }}
+					{% if stream.remote_game %}
+						<p><b>Игра:</b> {{ stream.remote_game }}</p>
 					{% endif %}
-				</ul>
-				<div class="tab-content">
-					<div role="tabpanel" class="tab-pane fade in active" id="about">
-						<p><b>Канал:</b> {% if stream.stream_url %}<a href="{{ stream.stream_url }}">{% endif %}{% if stream.remote_title %}{{ stream.remote_title }}{% else %}{{ stream.title }}{% endif %}{% if stream.stream_url %}</a>{% endif %}</p>
-						{% if stream.remote_online %}
-							<p><b>Зрители:</b> {{ stream.remote_viewers }}</p>
-						{% else %}
-							<p>Офлайн</p>
-						{% endif %}
-						{% if stream.remote_game %}
-							<p><b>Игра:</b> {{ stream.remote_game }}</p>
-						{% endif %}
-						<p><b>Описание:</b> {% if stream.remote_status %}{{ stream.remote_status }}{% else %}{{ stream.description }}{% endif %}</p>
-						{% if stream.remote_logo %}
-							<img src="{{ stream.remote_logo }}" class="stream-logo" />
-						{% endif %}
-					</div>
-					<div role="tabpanel" class="tab-pane fade" id="chat">
-						<iframe src="https://www.twitch.tv/{{ stream.stream_id }}/chat?popout=" frameborder="0" scrolling="no" height="500" width="100%"></iframe>
-					</div>
-					{% if stats.viewers %}
-						<div role="tabpanel" class="tab-pane fade" id="viewers">
-							<div id="legendViewers"></div>
-							<div class="chart-container">
-								<canvas id="chartViewers"></canvas>
-							</div>
-						</div>
+					{% if stream.remote_status %}
+					    <p><b>Статус:</b> {{ stream.remote_status }}</p>
 					{% endif %}
-					{% if stats.bars %}
-						<div role="tabpanel" class="tab-pane fade" id="bars">
-							<div class="chart-container">
-								<canvas id="chartBars"></canvas>
-							</div>
-							<div class="chart-footer">
-								<p>Среднее число зрителей в разбивке по часам за последние сутки (время <a href="https://www.timeanddate.com/time/zones/msk">московское</a>).</p>
-							</div>
-						</div>
-					{% endif %}
-					{% if stats.games %}
-						<div role="tabpanel" class="tab-pane fade" id="games">
-							<div id="legendGames"></div>
-							<div class="chart-container chart-pie">
-								<canvas id="chartGames"></canvas>
-							</div>
-							{#<div class="chart-footer">
-								<p><b>Лояльность Blizzard:</b> {{ stats.blizzard_total }}%</p>
-							</div>#}
-						</div>
+					{% if stream.description %}
+					    {{ stream.description|raw }}
 					{% endif %}
 				</div>
+				<div role="tabpanel" class="tab-pane fade" id="chat">
+					<iframe src="https://www.twitch.tv/embed/{{ stream.stream_id }}/chat" frameborder="0" scrolling="no" height="500" width="100%"></iframe>
+				</div>
+				{% if stats.viewers %}
+					<div role="tabpanel" class="tab-pane fade" id="viewers">
+						<div id="legendViewers"></div>
+						<div class="chart-container">
+							<canvas id="chartViewers"></canvas>
+						</div>
+					</div>
+				{% endif %}
+				{# turned off #}
+				{% if stats.bars %}
+					<div role="tabpanel" class="tab-pane fade" id="bars">
+						<div class="chart-container">
+							<canvas id="chartBars"></canvas>
+						</div>
+						<div class="chart-footer">
+							<p>Среднее число зрителей в разбивке по часам за последние сутки (время <a href="https://www.timeanddate.com/time/zones/msk">московское</a>).</p>
+						</div>
+					</div>
+				{% endif %}
+				{% if stats.games %}
+					<div role="tabpanel" class="tab-pane fade" id="games">
+						<div id="legendGames"></div>
+						<div class="chart-container chart-pie">
+							<canvas id="chartGames"></canvas>
+						</div>
+					</div>
+				{% endif %}
 			</div>
 	    </div>
+		{% if stream.tags %}
+			<div class="panel-footer">
+                {% include 'components/tags.twig' with { 'tags': stream.tags } only %}
+			</div>
+		{% endif %}
 	</div>
 {% endblock %}
 
@@ -90,7 +103,6 @@
 	<script>
 		{% if stats.viewers %}
 			var ctxViewers = $('#chartViewers')[0].getContext('2d');
-			//var ctxViewers = document.getElementById('chartViewers').getContext('2d');
 			var chartViewers = new Chart(ctxViewers, {
 			    type: 'line',
 			    data: {
@@ -194,7 +206,6 @@
 		
 		{% if stats.bars %}
 			var ctxBars = $('#chartBars')[0].getContext('2d');
-			//var ctxBars = document.getElementById('chartBars').getContext('2d');
 			var chartBars = new Chart(ctxBars, {
 			    type: 'bar',
 			    data: {
@@ -247,7 +258,6 @@
 		
 		{% if stats.games %}
 			var ctxGames = $('#chartGames')[0].getContext('2d');
-			//var ctxGames = document.getElementById('chartGames').getContext('2d');
 			var chartGames = new Chart(ctxGames, {
 			    type: 'doughnut',
 			    data: {
@@ -331,7 +341,6 @@
 			});
 			
 			$('#legendGames').html(chartGames.generateLegend());
-			//document.getElementById('legendGames').innerHTML = chartGames.generateLegend();
 		{% endif %}
 	</script>
 {% endblock %}

@@ -2,21 +2,37 @@
 
 namespace App\Generators;
 
-class ComicPagesGenerator extends ComicPagesBaseGenerator {
-	public function getOptions() {
-		return [
-			'uri' => 'comic_issues/{id:\d+}/comic_pages',
-			'filter' => 'comic_issue_id',
-		];
+class ComicPagesGenerator extends ComicPagesBaseGenerator
+{
+    protected function getPageUrl($item)
+    {
+        $comic = $this->db->getComicIssue($item['comic_issue_id']);
+        if ($comic) {
+    		$series = $this->db->getComicSeries($comic['series_id']);
+		    if ($series) {
+        		return $this->linker->comicIssuePage($series['alias'], $comic['number'], $item['number']);
+		    }
+        }
+    }
+    
+	public function getOptions()
+	{
+	    $options = parent::getOptions();
+	    
+	    $options['uri'] = 'comic_issues/{id:\d+}/comic_pages';
+	    $options['filter'] = 'comic_issue_id';
+	    
+	    return $options;
 	}
 	
-	public function getAdminParams($args) {
+	public function getAdminParams($args)
+	{
 		$params = parent::getAdminParams($args);
 
 		$comicId = $args['id'];
 		$comic = $this->db->getComicIssue($comicId);
 		$seriesId = $comic['series_id'];
-		$series = $this->db->getComicSeries($seriesId);
+		$series = $this->db->getComicSeries($seriesId, true);
 		$game = $this->db->getGame($series['game_id']);
 
 		$params['source'] = "comic_issues/{$comicId}/comic_pages";

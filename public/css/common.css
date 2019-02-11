@@ -1,0 +1,47 @@
+/* quote / bluepost */
+
+.news .quote:last-child {
+	margin-bottom: 0;
+}
+
+.quote--bluepost {
+	background-color: #0c0c0c;
+	color: #00bfff;
+	/*border-radius: 2px;*/
+	border: 0;
+	/*padding-left: 13px;
+	padding-right: 13px;*/
+}
+
+.quote--bluepost .quote--body {
+	color: #4dc4ec;
+	border: 0;
+}
+
+.quote--bluepost .quote--body b {
+	color: white;
+}
+
+.quote--bluepost .quote--header {
+	background: url(/images/blizzard.gif);
+	background-repeat: no-repeat;
+	background-position: left 0 top 2px;
+	padding-left: 26px;
+}
+
+
+.quote--bluepost .quote--author a:link,
+.quote--bluepost .quote--author a:visited,
+.quote--bluepost .quote--author a:active {
+    color: #00bfff; text-decoration: underline;
+}
+
+.quote--bluepost .quote--author a:hover {
+    color: white;
+}
+
+/* font awesome */
+
+.editor-toolbar a.fa-blue {
+    color: #0029ff !important;
+}

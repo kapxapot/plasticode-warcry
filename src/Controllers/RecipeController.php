@@ -64,7 +64,7 @@ class RecipeController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $this->game,
-			'sidebar' => [ 'stream' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'disqus_url' => $this->linker->disqusRecipes($skill),
 				'disqus_id' => 'recipes' . ($skill ? '_' . $skill['alias'] : ''),
@@ -94,7 +94,7 @@ class RecipeController extends BaseController {
 			return $this->notFound($request, $response);
 		}
 		
-		$recipe = $this->builder->buildRecipe($row, $rebuild === false);
+		$recipe = $this->builder->buildRecipe($row, $rebuild);
 		
 		$title = $recipe['name_ru'];
 		if (isset($recipe['name']) && $recipe['name'] != $recipe['name_ru']) {
@@ -103,7 +103,7 @@ class RecipeController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $this->game,
-			'sidebar' => [ 'stream' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'disqus_url' => $this->linker->disqusRecipe($id),
 				'disqus_id' => 'recipe' . $id,

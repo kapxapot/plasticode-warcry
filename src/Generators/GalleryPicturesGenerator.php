@@ -3,25 +3,44 @@
 namespace App\Generators;
 
 use Plasticode\Generators\EntityGenerator;
+use Plasticode\Traits\Publishable;
 
-class GalleryPicturesGenerator extends EntityGenerator {
-	public function getRules($data, $id = null) {
-		return [
-			'comment' => $this->rule('text'),
-			'picture' => $this->optional('image'),
-			'thumb' => $this->rule('image'),
-		];
+use App\Data\Taggable;
+
+class GalleryPicturesGenerator extends EntityGenerator
+{
+	use Publishable;
+	
+	protected $taggable = Taggable::GALLERY_PICTURES;
+	
+	public function getRules($data, $id = null)
+	{
+	    $rules = parent::getRules($data, $id);
+	    
+		$rules['comment'] = $this->rule('text');
+		$rules['picture'] = $this->optional('image');
+		$rules['thumb'] = $this->rule('image');
+		
+		return $rules;
 	}
 	
-	public function getOptions() {
-		return [
-			'uri' => 'gallery_authors/{id:\d+}/gallery_pictures',
-			'filter' => 'author_id',
-			'admin_uri' => 'gallery/{id:\d+}/gallery_pictures',
+	public function getOptions()
+	{
+	    $options = parent::getOptions();
+	    
+		$options['uri'] = 'gallery_authors/{id:\d+}/gallery_pictures';
+		$options['filter'] = 'author_id';
+		$options['admin_uri'] = 'gallery/{id:\d+}/gallery_pictures';
+		$options['admin_template'] = 'gallery_pictures';
+		$options['admin_args'] = [
+		    'upload_path' => 'admin.gallery.upload',
 		];
+		
+		return $options;
 	}
 	
-	public function afterLoad($item) {
+	public function afterLoad($item)
+	{
 		$item['picture'] = $this->gallery->getPictureUrl($item);
 		$item['thumb'] = $this->gallery->getThumbUrl($item);
 		
@@ -40,11 +59,12 @@ class GalleryPicturesGenerator extends EntityGenerator {
 		return $item;
 	}
 
-	public function getAdminParams($args) {
+	public function getAdminParams($args)
+	{
 		$params = parent::getAdminParams($args);
 
 		$authorId = $args['id'];
-		$author = $this->db->getGalleryAuthor($authorId);
+		$author = $this->db->getGalleryAuthor($authorId, true);
 
 		$params['source'] = "gallery_authors/{$authorId}/gallery_pictures";
 		$params['breadcrumbs'] = [
@@ -57,10 +77,16 @@ class GalleryPicturesGenerator extends EntityGenerator {
 			'author_id' => $authorId,
 		];
 		
+		$params['upload_context'] = [
+		    'field' => 'author_id',
+		    'id' => $authorId,
+		];
+		
 		return $params;
 	}
 	
-	public function beforeSave($data, $id = null) {
+	public function beforeSave($data, $id = null)
+	{
 		if (isset($data['points'])) {
 			$data['points'] = implode(',', $data['points']);
 		}
@@ -72,15 +98,19 @@ class GalleryPicturesGenerator extends EntityGenerator {
 		if (isset($data['thumb'])) {
 			unset($data['thumb']);
 		}
+
+		$data = $this->publishIfNeeded($data);		
 		
 		return $data;
 	}
 	
-	public function afterSave($item, $data) {
+	public function afterSave($item, $data)
+	{
 		$this->gallery->save($item, $data);
 	}
 	
-	public function afterDelete($item) {
+	public function afterDelete($item)
+	{
 		$this->gallery->delete($item);
 	}
 }

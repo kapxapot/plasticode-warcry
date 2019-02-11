@@ -7,6 +7,10 @@
 {% set no_disqus = true %}
 {% set no_social = true %}
 
+{% if can('news', 'create') %}
+    {% set sidebar_buttons = [ m.create_button('news', 'Написать новость') ] %}
+{% endif %}
+
 {% block content %}
 	<div id="news-index">
 		{% if news %}
@@ -25,7 +29,7 @@
 		
 		{% if paging %}
 			<div id="news-pagination">
-				{% include 'main/includes/paging.twig' %}
+				{% include 'components/paging.twig' with { 'paging': paging } only %}
 			</div>
 		{% endif %}
 	</div>

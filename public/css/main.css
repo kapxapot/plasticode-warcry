@@ -9,12 +9,6 @@
 	margin: -6px 4px -3px 0;
 }
 
-/*.navbar-dropdown-img {
-	width: 24px;
-	height: 24px;
-	margin: 0 4px 4px -2px;
-}*/
-
 .dropdown-menu > li > .icon-menu {
 	background-size: 24px 24px;
 	background-position: left 8px center;
@@ -31,10 +25,6 @@
 	.navbar-nav .open .dropdown-menu > li > .icon-menu {
 		padding: 6px 10px 6px 41px;
 	}
-}
-
-.news .img + p, .news .quote + p, .news .bluepost + p {
-	/*padding-top: 10px;*/
 }
 
 #news-pagination {
@@ -55,110 +45,6 @@
 	content: "";
 }
 
-/*.all-news {
-	display: flex;
-	justify-content: center;
-	margin-top: 7px;
-}*/
-
-/* linkblock */
-
-.linkblock, .linkblock-big, .body-nopad {
-	padding: 2px 0 0 0;
-}
-
-.linkblock {
-	margin-bottom: -1px;
-}
-
-.body-nopad ul {
-	padding-top: 3px;
-}
-
-.body-nopad ul li:first-child {
-	padding-left: 5px;
-}
-
-.body-nopad ul li:last-child {
-	padding-right: 5px;
-}
-
-.linkblock > div {
-	padding: 5px 10px 5px 44px;
-	display: block;
-	background-size: 24px 24px;
-	background-position: left 10px center;
-	background-repeat: no-repeat;
-	/*border: solid #ddd;
-	border-width: 0px 0px 1px 0px;*/
-}
-
-.linkblock-big > div {
-	padding: 8px 10px 8px 53px;
-	display: block;
-	background-size: 32px 32px;
-	background-position: left 10px center;
-	background-repeat: no-repeat;
-	/*border: solid #ddd;
-	border-width: 0px 0px 1px 0px;*/
-}
-
-.linkblock-big .noicon {
-	padding-left: 12px;
-}
-
-.linkblock > div:last-child, .linkblock-big > div:last-child {
-	/*border: 0;
-	margin-bottom: -1px;*/
-}
-
-.linkblock-big > div:last-child {
-	/*margin-bottom: -1px;*/
-}
-
-.linkblock > div:last-child {
-	/*border-radius: 0 0 7px 7px;*/
-}
-
-.linkblock > div:nth-of-type(even), .linkblock-big > div:nth-of-type(even) {
-	background-color: #eee;
-}
-
-.tab-content .linkblock-big {
-	margin-top: 5px;
-}
-
-/* quote / bluepost */
-
-.news .quote:last-child {
-	margin-bottom: 0;
-}
-
-.bluepost {
-	background-color: #0c0c0c;
-	color: #00bfff;
-	/*border-radius: 2px;*/
-	border: 0;
-	padding-left: 13px;
-	padding-right: 13px;
-}
-
-.bluepost .quote-body {
-	color: #4DC4EC;
-	border: 0;
-}
-
-.bluepost .quote-body b {
-	color: white;
-}
-
-.bluepost .quote-header {
-	background: url(/images/blizzard.gif);
-	background-repeat: no-repeat;
-	background-position: left 0 top 2px;
-	padding-left: 26px;
-}
-
 /* ?? */
 
 .game-icon {
@@ -168,7 +54,7 @@
 	margin-right: 10px;
 }
 
-#fansite {
+.fansite {
 	margin-bottom: 15px;
 	text-align: center;
 }
@@ -213,7 +99,7 @@
     background-image: url(/images/warcryicon.png);
 }
 
-.panel-primary > .heading-blizzard {
+.panel-primary > .heading-warcryru {
 	background-color: #3d3329;
 	background-color: hsl(30, 20%, 20%);
 }
@@ -251,35 +137,19 @@
 
 /* streams */
 
-.tab-pane .streams {
+/*.tab-pane .nostreams {
 	margin-top: 5px;
-}
+}*/
 
-.tab-pane .nostreams {
-	margin-top: 10px;
-}
-
-.streams {
-	justify-content: space-around;
-}
-
-.streams .flex-item {
-	/*flex-grow: 1;*/
-	width: 260px;
-	box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.75);
-}
-
-.stream-image .overlay {
-    /*bottom: 1px;*/
+@media (min-width: 600px) {
+    .streams .flex-item {
+    	width: 270px;
+    }
 }
 
 .stream-standalone, .stream-standalone .stream-image {
 	width: 100%;
 }
-
-/*.stream-standalone .overlay {
-    top: 135px;
-}*/
 
 .stream-standalone .title {
 	padding: 5px 10px;
@@ -293,24 +163,8 @@
 	margin-bottom: 2px;
 }
 
-/*.streams .card-image {
-	min-height: 112px;
-}*/
-
-.stream {
-	padding: 0;
-}
-
-.stream-footer {
-	padding: 12px;
-}
-
-.stream-footer .tab-pane {
-	margin-top: 10px;
-}
-
 .stream-footer #chat {
-	margin-top: 0px;
+	margin: 0;
 }
 
 #stats svg {
@@ -318,91 +172,14 @@
 	height: 400px;
 }
 
-/*.stream-description p:last-child {
-	margin-bottom: 0;
-}
-
-.stream-description div {
-	padding-top: 15px;
-}*/
-
 .stream-logo {
 	width: 100px;
-	height: auto;
+	float: right;
+	margin: 4px 0 15px 10px;
 }
 
-.streams-telegram {
-	margin-top: 10px;
-}
-
-.streams-telegram img {
-	width: 32px;
-	height: auto;
-}
-
-.streams-telegram a {
-	padding-left: 2px;
-}
-
-/* gallery */
-
-#gallery .flex-item,
-.comics .flex-item,
-.comics-issue .flex-item {
-	/*flex-grow: 1;*/
-	box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.5);
-	margin: 7px;
-}
-
-#gallery .flex-item {
-    /*width: 150px;*/
-}
-
-.gallery-picture {
-	padding: 0;
-}
-
-.gallery-picture-description {
-	padding: 15px 12px;
-}
-
-.gallery-author .paging {
-	margin-top: 15px;
-	margin-bottom: -12px;
-}
-
-/* comics */
-
-.tab-pane .comics {
-	margin-top: 5px;
-}
-
-h3:first-child, h4:first-child {
-	margin-top: 0;
-}
-
-.comics-issue .card-image {
-	/*height: 233px;
-	width: auto;*/
-}
-
-.comics-issue .flex-item {
-	box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.5);
-	/*box-shadow: 3px 3px 3px 0px rgba(0, 0, 0, 0.5);*/
-}
-
-.comic-image img {
-	height: 380px;
-	width: auto;
-}
-
-.comic-image .overlay {
-	color: black;
-	font-size: 135%;
-    padding: 8px;
-    line-height: 1.05em;
-    /*opacity: 0.50;
-    filter: alpha(opacity=50);*/
+.telegram-icon {
+    color: #3bb8e4;
 }
 
 /* map */
@@ -535,8 +312,8 @@ h3:first-child, h4:first-child {
 }
 
 #recipes-table {
-	padding: 0 5px 10px 5px;
-	/*margin-bottom: 15px;*/
+	padding: 0 5px 0 5px;
+	margin-bottom: 0 !important;
 }
 
 #recipes-table > tbody > tr > td, #recipes-table > tbody > tr >th, #recipes-table > tfoot > tr > td, #recipes-table > tfoot > tr > th, #recipes-table > thead > tr > td, #recipes-table > thead > tr > th {
@@ -555,12 +332,9 @@ h3:first-child, h4:first-child {
 	padding-bottom: 0;
 }
 
-#recipes-table.dataTable {
-	/*margin-bottom: 0 !important;*/
-}
-
 #recipes-pagination {
 	margin-bottom: -10px;
+	margin-top: 1.5rem;
 }
 
 .item-q0, .item-q0:hover, .item-q0:active, .item-q0:visited {
@@ -700,6 +474,13 @@ h3:first-child, h4:first-child {
 	color: black;
 }
 
+/* gallery */
+
+.gallery-author .paging {
+	margin-top: 15px;
+	margin-bottom: -12px;
+}
+
 /* misc */
 
 .textlogo {
@@ -712,3 +493,21 @@ h3:first-child, h4:first-child {
 .textlogo a {
 	color: #efdda8;
 }
+
+.social-links a:hover {
+    color: #66f;
+}
+
+.bnet-icon {
+    fill: currentColor;
+    margin-top: -20px;
+    width: 48px;
+    height: 48px;
+    position: relative;
+    top: 13px;
+    left: -5px;
+}
+
+/** {
+    outline: 1px solid red !important;
+}*/

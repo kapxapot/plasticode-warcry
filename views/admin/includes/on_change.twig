@@ -1,0 +1,11 @@
+if (this.name == 'game_id') {
+    var gameId = this.value;
+    var game = getById($scope.games, gameId);
+
+    var tags = $('#entityForm').find('#tags.ng-untouched');
+    if (game && ($scope.itemId == 0 || !tags.val())) {
+        tags.val(game.tags);
+    }
+}
+
+{{ on_change }}

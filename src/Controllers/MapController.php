@@ -5,7 +5,7 @@ namespace App\Controllers;
 class MapController extends BaseController {
 	public function index($request, $response, $args) {
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => $this->getSettings('map.title'),
 				'items' => $this->builder->buildMap(),

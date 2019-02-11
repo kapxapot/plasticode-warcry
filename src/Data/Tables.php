@@ -4,7 +4,8 @@ namespace App\Data;
 
 use Plasticode\Data\Tables as TablesBase;
 
-class Tables extends TablesBase {
+class Tables extends TablesBase
+{
 	const ARTICLES = 'articles';
 	const ARTICLE_CATEGORIES = 'article_categories';
 	const COMIC_ISSUES = 'comic_issues';
@@ -20,6 +21,7 @@ class Tables extends TablesBase {
 	const FORUM_TAGS = 'forum_tags';
 	const FORUM_TOPICS = 'forum_topics';
 	const GALLERY_AUTHORS = 'gallery_authors';
+	const GALLERY_AUTHOR_CATEGORIES = 'gallery_author_categories';
 	const GALLERY_PICTURES = 'gallery_pictures';
 	const GAMES = 'games';
 	const ITEMS = 'items';

@@ -1,10 +1,12 @@
 site_name: Warcry.ru
 site_bare_url: warcry.ru
-site_url: 'http://warcry.ru'
+site_url: 'https://warcry.ru'
+cool_site_url: '//warcry.ru'
 site_description: 'Все о World of Warcraft, Diablo III, Hearthstone, Heroes of the Storm, StarCraft II и Overwatch. Официальный фан-сайт Blizzard. Новости, аналитика, энциклопедия, руководства, творчество'
 short_site_description: 'World of Warcraft, Diablo III, Hearthstone, Overwatch'
 logo: /images/text_logo_4.png
-twitter_card_image: 'http://warcry.ru/images/social_logo.jpg'
+twitter_card_image: 'https://warcry.ru/images/social_logo.jpg'
+touch_icon: 'https://warcry.ru/images/social_logo.jpg'
 contact_email: team[собака]warcry.ru
 copyright_from: 2004
 admin_copyright_from: 2016
@@ -13,19 +15,20 @@ admin_url: /admin
 
 # folders for Twig only
 folders:
-  global: /codiad/workspace/lib_dev/public/
-  local: /codiad/workspace/warcry_admin/public/
+  global: {PLASTICODE_PUBLIC_PATH}
+  local: {SITE_PUBLIC_PATH}
 
 mde: true
 with_colorbox: true
 
 vk_widget:
   group_id: 18630942
+  #with_chat: true
 
 disqus_alias: warcry-ru
 twitter_alias: warcry_ru
 google_analytics_id: UA-1465426-1
-rss_feed: 'http://feeds.feedburner.com/warcryru'
+rss_feed: '//feeds.feedburner.com/warcryru'
 
 angular:
   app: warcryApp
@@ -37,6 +40,7 @@ user_actions:
     articles: Написать статью
     streams: Добавить стрим
     events: Добавить событие
+    gallery_authors: Добавить художника
 
 admin_menu:
   - news
@@ -55,7 +59,6 @@ admin_menu:
         - users
         - roles
         - menus
-        - replaces
   - group:
       title: Справочники
       items:

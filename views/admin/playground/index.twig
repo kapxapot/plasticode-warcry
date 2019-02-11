@@ -1,0 +1,61 @@
+{% extends 'admin/layout.twig' %}
+
+{% set full_width = true %}
+{% set with_mde = true %}
+{% set with_colorbox = true %}
+{% set title_hidden = true %}
+
+{% import 'admin/macros.twig' as m %}
+
+{% block content %}
+    <div class="playground">
+    	<div class="col-xs-12 col-md-6">
+        	<textarea class="form-control" name="text" id="text"></textarea>
+    	</div>
+    	<div class="col-xs-12 col-md-6 article" id="result"></div>
+    </div>
+{% endblock %}
+
+{% set more_angular %}
+    $(function() {
+        var buttons = mdeButtons();
+        {% set mde_standalone_mode = true %}
+        {% include 'admin/includes/mde_buttons.twig' %}
+
+    	var options = {
+            element: $('#text')[0],
+            spellChecker: false,
+            toolbar: buttons,
+    	    status: false,
+            autofocus: true,
+            autosave: {
+    	        enabled: true,
+    	        uniqueId: 'playground',
+    	        delay: 1000
+    	    }
+        };
+    
+        var mde = new SimpleMDE(options);
+    
+        var parse = function() {
+            $scope.ajax({
+    			method: 'post',
+    			url: '{{ api }}parser/parse',
+    			data: {
+    		        'text': mde.value()
+    		    },
+    		    noSuccessMessage: true,
+    			onSuccess: function(data) {
+    			    $('#result').html(data.text);
+    			    updateUI();
+    			}
+    		});
+        };
+        
+        mde.codemirror.on("change", function() {
+            delay(parse, 1000);
+        });
+        
+        parse();
+    });
+{% endset %}

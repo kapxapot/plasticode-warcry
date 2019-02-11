@@ -18,11 +18,15 @@ messages:
   'Incorrect user/password.': "Пользователь с такими данными не найден."
   'Login successful.': "Вы успешно вошли."
   'Password change successful.': "Пароль успешно изменен."
-  'No image.': "Изображение не выбрано."
+  'No image.': "Картинка не выбрана."
   'Incorrect image type.': "Неверный тип изображения."
   'Access denied.': "Отказано в доступе."
   'Insufficient access rights.': "Недостаточно прав."
   'Not found.': "Не найдено."
+  'Server error.': "Ошибка на сервере."
+  'Parent entity creates recursion.': "Родительская сущность создает рекурсию."
+  'Data already changed. Please reload page.': "Данные уже изменены. Перезагрузите страницу."
+  'Upload successful.': "Загрузка успешно завершена."
 
 fields:
   login: Логин

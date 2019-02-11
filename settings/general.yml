@@ -3,14 +3,15 @@ addContentLengthHeader: false
 
 # constants for PHP code
 log_errors: true
-debug: true
+debug: {DEBUG}
 
-modules:
-  - view_globals
-  - tables
-  - entities
-  - access
-  - localization
+language: ru
+
+db:
+  host: {DB_HOST}
+  database: {DB_DATABASE}
+  user: {DB_USER}
+  password: {DB_PASSWORD}
 
 # validation
 password_min: 5
@@ -18,13 +19,14 @@ login_min: 3
 login_max: 20
 
 # auth
-captcha_digits: 2
+# 1..16 digits
+captcha_digits: 3
 # in hours
 token_ttl: 168
 
 # folders for PHP code
 folders:
-  root: /dev
+  root: {ROOT_PATH}
 
   gallery_pictures: /../../../../gallery/pictures/
   gallery_thumbs: /../../../../gallery/pictures/thumb/
@@ -45,7 +47,7 @@ logger:
 view:
   templates_path:
     - /../views/
-    - /../../lib_dev/views/bootstrap3/
+    - {PLASTICODE_TEMPLATES_PATH}
   cache_path: false
 
 telegram:
@@ -62,7 +64,7 @@ forum:
 
 articles:
   root_id: 0
-  description_limit: 2000
+  description_limit: 1000
 
 recipes:
   title: Рецепты
@@ -74,7 +76,7 @@ recipes:
 
 gallery:
   title: Галерея
-  pics_per_page: 20
+  pics_per_page: 40
 
 map:
   title: Карта сайта
@@ -95,7 +97,10 @@ streams:
     - heroes of the storm
     - starcraft
     - starcraft ii
+    - 'warcraft ii: tides of darkness'
+    - 'warcraft ii: beyond the dark portal'
     - warcraft iii
+    - 'warcraft iii: reign of chaos'
     - 'warcraft iii: the frozen throne'
     - diablo iii
     - 'diablo iii: reaper of souls'
@@ -107,7 +112,7 @@ comics:
   thumb_height: 400
 
 news:
-  description_limit: 2000
+  description_limit: 1000
 
 events:
   title: События
@@ -120,10 +125,23 @@ sidebar:
   forum_topic_limit: 7
   latest_news_limit: 7
   future_events_days: 7
+  latest_gallery_pictures_limit: 4
 
 default_game_id: 5
 hidden_forum_ids:
   - 3
+
+twitch:
+  client_id: {TWITCH_CLIENT_ID}
+
+telegram:
+  bot_token: {TELEGRAM_BOT_TOKEN}
+
+twitter:
+  consumer_key: {TWITTER_CONSUMER_KEY}
+  consumer_secret: {TWITTER_CONSUMER_SECRET}
+  access_token: {TWITTER_ACCESS_TOKEN}
+  access_key: {TWITTER_ACCESS_KEY}
 
 date_format: %d.%m.%Y
 time_format: %d.%m.%Y %H:%M

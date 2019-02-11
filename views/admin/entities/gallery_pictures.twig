@@ -1,0 +1,12 @@
+{% extends 'admin/entities/entity_with_upload.twig' %}
+
+{% import 'macros.twig' as gm %}
+
+{% block title_appendix %}
+    {{ parent() }}
+	{% if can_upload %}
+	    <button type="button" class="btn btn-success button-create btn-pad" ng-click="upload({ context_field: '{{ upload_context.field }}', id: {{ upload_context.id }}}, true)">
+			{{ gm.gi('open', 'Загрузить') }}
+		</button>
+	{% endif %}
+{% endblock %}

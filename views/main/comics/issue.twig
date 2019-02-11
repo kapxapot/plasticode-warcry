@@ -1,6 +1,6 @@
 {% extends 'main/layout.twig' %}
 
-{% import 'macros.twig' as gm %}
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
@@ -11,8 +11,8 @@
 		] %}
 		{{ lm.panel_header(_context, series.name_ru ~ ' ' ~ comic.number_str, {
 			'subtitle': series.name_en ?? comic.name_en,
-			'bc_no_game': true,
-			'bc_title': 'Выпуск ' ~ comic.number_str
+			'bc_title': 'Выпуск ' ~ comic.number_str,
+			'buttons': [ m.edit_button('comic_issues', comic, { 'id': series.id }) ]
 		}) }}
 	  	<div class="panel-body">
 			{% if comic.issued_ui %}
@@ -21,23 +21,14 @@
 			{% if comic.description %}
 	  			<p>{{ comic.description|raw }}</p>
 			{% endif %}
-			<div class="flex-wrapper comics-issue">
-				{% for p in pages %}
-					<div class="flex-item flex-item-shaded overlay-wrapper comic-image">
-						<a href="{{ p.page_url }}" title="{{ p.number_str }}">
-							<img src="{{ p.thumb }}" class="card-image" />
-							<span class="overlay">{{ p.number_str }}</span>
-						</a>
-					</div>
-				{% endfor %}
-			</div>
+			{% include 'components/comics_pages.twig' with { 'pages': pages } only %}
 		</div>
 	    {% include 'main/comics/comic_footer.twig' %}
 	</div>
-  	<div class="gallery-picture-nav pagination-flex">
+  	<div class="pagination-flex">
 		{% if comic.prev %}
 			<a href="{{ comic.prev.page_url }}" title="Назад: Выпуск {{ comic.prev.number_str }}" class="btn btn-default btn-lg">
-				{{ gm.gi('chevron-left') }}
+			    {% include 'components/prev.twig' %}
 				Выпуск
 				<span class="hidden-xs">{{ comic.prev.number_str }}</span>
 				<span class="visible-xs-inline">#{{ comic.prev.number }}</span>
@@ -48,7 +39,7 @@
 				Выпуск
 				<span class="hidden-xs">{{ comic.next.number_str }}</span>
 				<span class="visible-xs-inline">#{{ comic.next.number }}</span>
-				{{ gm.gi('chevron-right') }}
+			    {% include 'components/next.twig' %}
 			</a>
 		{% endif %}
 	</div>

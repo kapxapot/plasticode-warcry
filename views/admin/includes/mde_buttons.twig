@@ -1,0 +1,20 @@
+buttons.push(
+    tagWrapButton('bluepost', 'fa fa-quote-right fa-blue', 'bluepost', 'Цитата Blizzard (блюпост)')
+);
+
+buttons.push(
+    wrapButton('quotes', 'fa fa-angle-double-right', '«', '»', 'Кавычки')
+);
+
+buttons.push('|');
+
+{% if not mde_standalone_mode %}
+    buttons.push(previewButton);
+{% endif %}
+
+buttons.push({
+    name: 'extendedGuide',
+	action: '{{ path_for('main.article', { 'id': 'Markup_Guide' }) }}',
+	className: 'fa fa-question-circle',
+	title: 'Руководство по оформлению текстов'
+});

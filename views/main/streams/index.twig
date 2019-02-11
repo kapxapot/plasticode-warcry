@@ -1,79 +1,35 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
+
+{% if can('streams', 'create') %}
+    {% set sidebar_buttons = [ m.create_button('streams', 'Добавить стрим') ] %}
+{% endif %}
 
 {% block content %}
 	<div class="panel panel-primary">
 		{{ lm.panel_header(_context) }}
-	  	<div class="panel-body">
+	  	<div class="panel-body body-nopad">
 			<ul class="nav nav-tabs" role="tablist">
 		  		{% for g in groups %}
-					<li role="presentation"{% if loop.first %} class="active"{% endif %}><a href="#{{ g.id }}" aria-controls="{{ g.id }}" role="tab" data-toggle="tab">{{ g.label }}</a></li>
+		  			{{ m.tab(g.id, g.label, loop.first) }}
 				{% endfor %}
 			</ul>
 
 			<div class="tab-content">
 				{% for g in groups %}
 					<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}" id="{{ g.id }}">
-						{% if not g.streams %}
-							<p class="nostreams">Сейчас никто не стримит. :(</p>
+						{% if g.streams %}
+		                    {% include 'components/streams.twig' with { 'streams': g.streams } only %}
 						{% else %}
-							<div class="flex-wrapper streams">
-							{% for s in g.streams %}
-								<div class="flex-item flex-item-shaded">
-								    {% if s.remote_online and s.large_img_url %}
-								    	<div class="overlay-wrapper stream-image">
-									    	<a href="{{ s.page_url }}">
-									    		<img class="card-image" src="{{ s.large_img_url }}" />
-									    		<span class="overlay">
-									    			<span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ s.remote_viewers }}
-									    		</span>
-									    		{#<span class="overlay">
-									    			{% if s.remote_online %}
-									    				<span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ s.remote_viewers }}
-									    			{% else %}
-									    				офлайн
-									    			{% endif %}
-									    		</span>#}
-									    	</a>
-								    	</div>
-								    {% endif %}
-									<div class="card-body">
-								    	<p>
-								    		<a href="{{ s.page_url }}">{{ s.title }}</a>
-								    		{% if s.channel %}
-								    			{% if s.remote_status %}
-										    		{% if s.remote_online %}
-										    			транслирует
-										    		{% else %}
-										    			{{ s.remote_online_ago }} {{ s.broadcasted }}
-										    		{% endif %}
-										    		<b>{{ s.remote_status }}</b>
-										    	{% else %}
-										    		{% if s.remote_online %}
-										    			ведет трансляцию
-										    		{% else %}
-										    			{{ s.held }} трансляцию {{ s.remote_online_ago }}
-										    		{% endif %}
-										    	{% endif %}
-								    		{% else %}
-									    		{% if s.remote_online %}
-									    			играет
-									    		{% else %}
-									    			{{ s.remote_online_ago }} {{ s.played }}
-									    		{% endif %}
-									    		в <b>{{ s.remote_game }}</b>
-								    		{% endif %}
-								    	</p>
-									</div>
-								</div>
-							{% endfor %}
-						</div>
+							<p class="nostreams">Сейчас никто не стримит. :(</p>
 						{% endif %}
 						
 						{% if g.telegram %}
-							<div class="streams-telegram">
-								<img src="/images/sharelarge/telegram.png" alt=""> <a href="//t.me/{{ g.telegram }}">Подписаться</a> на объявления о начале {{ g.telegram_label ?? 'стримов' }}
+							<div class="flex flex-v mt-2">
+								<i class="fab fa-telegram fa-2x mr-2 telegram-icon"></i>
+								<span><a href="//t.me/{{ g.telegram }}">Подписаться</a> на объявления о начале {{ g.telegram_label ?? 'стримов' }}</span>
 							</div>
 						{% endif %}
 					</div>

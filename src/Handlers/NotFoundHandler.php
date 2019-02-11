@@ -2,21 +2,20 @@
 
 namespace App\Handlers;
 
-use Plasticode\Contained;
+use App\Controllers\BaseController;
 
-class NotFoundHandler extends Contained {
+class NotFoundHandler extends BaseController {
 	public function __invoke($request, $response) {
-		$game = $this->db->getDefaultGame();
-		$games = $this->db->getGames();
-		
-		return $this->view->render($response, 'main/generic.twig', [
-			'menu' => $this->builder->buildMenuByGame($game),
-			'game' => $this->builder->buildGame($game),
-			'games' => $this->builder->buildGames($games),
-			'text' => 'Страница не найдена или перемещена.',
-			'title' => 'Ошибка 404',
-			'no_disqus' => 1,
-			'no_social' => 1,
-		])->withStatus(404);
+		$params = $this->buildParams([
+			'params' => [
+				'text' => 'Страница не найдена или перемещена.',
+				'title' => 'Ошибка 404',
+				'no_disqus' => 1,
+				'no_social' => 1,
+			],
+		]);
+
+		return $this->view->render($response, 'main/generic.twig', $params)
+			->withStatus(404);
 	}
 }

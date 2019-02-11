@@ -83,7 +83,7 @@
 
 			{% if paging %}
 				<div id="recipes-pagination">
-					{% include 'main/includes/paging.twig' %}
+					{% include 'components/paging.twig' with { 'paging': paging } only %}
 				</div>
 			{% endif %}
 	    </div>
@@ -96,7 +96,7 @@
 		    $('#recipes-table').DataTable({
 				dom: "<'row'<'col-sm-12'tr>>", //'ftrilp',
 				language: {
-					url: '{{ folders.public }}datatables/ru.json'
+					url: '{{ folders.global }}datatables/ru.json'
 				},
 				pageLength: {{ page_size }},
 				ordering: false

@@ -1,5 +1,6 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
@@ -9,23 +10,31 @@
 			<div class="panel-body body-nopad">
 				<ul class="nav nav-tabs" role="tablist">
 			  		{% for part in parts %}
-						<li role="presentation"{% if loop.first %} class="active"{% endif %}><a href="#{{ part.id }}" aria-controls="{{ part.label }}" role="tab" data-toggle="tab" title="{{ part.label }}">{{ part.label }}</a></li>
+			  			{{ m.tab(part.id, part.label, loop.first) }}
 					{% endfor %}
 				</ul>
 	
 				<div class="tab-content">
 					{% for part in parts %}
-						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %} linkblock-big" id="{{ part.id }}">
-							{% for v in part.values %}
-								<div class="icon-{{ v.game.alias }}">
-									<div>
-										<a title="[{{ v.game.name }}] {{ v.title|raw }}" href="{{ v.url }}">{{ v.title|raw }}</a>
+						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}{% if not part.component %} linkblock-big{% endif %}" id="{{ part.id }}">
+							{% if part.component == 'gallery_pictures' %}
+			                    {% include 'components/gallery.twig' with { 'pictures': part.values } only %}
+							{% elseif part.component == 'streams' %}
+			                    {% include 'components/streams.twig' with { 'streams': part.values } only %}
+							{% elseif part.component == 'comics' %}
+			                    {% include 'components/comics.twig' with { 'comics': part.values } only %}
+							{% else %}
+								{% for v in part.values %}
+									<div class="icon-{{ v.game.alias }}">
+										<div>
+											<a title="[{{ v.game.name }}] {{ v.title|raw }}" href="{{ v.url }}">{{ v.title|raw }}</a>
+										</div>
+										<div>
+											{{ v.subtitle|raw }}
+										</div>
 									</div>
-									<div>
-										{{ v.subtitle|raw }}
-									</div>
-								</div>
-							{% endfor %}
+								{% endfor %}
+							{% endif %}
 						</div>
 					{% endfor %}
 				</div>

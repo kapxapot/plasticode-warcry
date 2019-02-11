@@ -2,6 +2,10 @@
 
 {% if comic.origin %}
 	<div class="panel-footer">
-		<div class="glyphicon-block">{{ gm.gi('copyright-mark') }} <a href="{{ comic.origin }}">Источник</a></div>
+		<div class="glyphicon-block">
+			{{ gm.gi('copyright-mark') }}
+			<a href="{{ comic.origin }}">Источник</a>
+		</div>
+        {% include 'components/tags.twig' with { 'tags': comic.tags } only %}
 	</div>
 {% endif %}

@@ -1,38 +1,39 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'macros.twig' as gm %}
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
+
+{% if can('gallery_pictures', 'create') %}
+    {% set sidebar_buttons = [ m.create_button('gallery_pictures', 'Добавить работу', { 'id': author.id }) ] %}
+{% endif %}
 
 {% block content %}
 	<div class="panel panel-primary">
 		{% set breadcrumbs = [
 			{ 'url': path_for('main.gallery'), 'text': gallery_title }
 		] %}
-		{{ lm.panel_header(_context) }}
+		{{ lm.panel_header(_context, author.name, {
+			'subtitle': author.subname,
+			'buttons': [ m.edit_button('gallery_authors', author) ]
+		}) }}
 	  	<div class="panel-body gallery-author">
-			{% if author.real_name %}
-	  			<p><b>Настоящее имя:</b> {{ author.real_name }}{% if author.real_name_en %} ({{ author.real_name_en }}){% endif %}</p>
+	  	    {% if not (paging.page > 1) %}
+    			{% if author.member_url %}
+    				<p>{{ gm.gi('user') }} <a href="{{ author.member_url }}">Профиль на форуме</a></p>
+    			{% endif %}
+    			{% if author.deviant %}
+    				<p>{{ gm.gi('picture') }} <a href="//{{ author.deviant }}.deviantart.com">Портфолио на DeviantArt</a></p>
+    			{% endif %}
+    			{% if author.art_station %}
+    				<p>{{ gm.gi('picture') }} <a href="//artstation.com/artist/{{ author.art_station }}">Портфолио на ArtStation</a></p>
+    			{% endif %}
+    			{% if author.description %}
+    	  			{{ author.description|raw }}
+    			{% endif %}
 			{% endif %}
-			{% if author.member_url %}
-				<p><span class="glyphicon glyphicon-user" aria-hidden="true"></span> <a href="{{ author.member_url }}">Профиль на форуме</a></p>
-			{% endif %}
-			{% if author.deviant %}
-				<p><span class="glyphicon glyphicon-picture" aria-hidden="true"></span> <a href="//{{ author.deviant }}.deviantart.com">Портфолио на DeviantArt</a></p>
-			{% endif %}
-			{% if author.description %}
-	  			<p>{{ author.description|raw }}</p>
-			{% endif %}
-			<div id="gallery" class="flex-wrapper">
-				{% for p in pictures %}
-					<div class="flex-item flex-item-shaded overlay-wrapper">
-						<a href="{{ p.page_url }}">
-							<img src="{{ p.thumb }}" alt="{{ p.comment }}" class="card-image" />
-							<span class="overlay overlay-full">{{ p.comment }}</span>
-						</a>
-					</div>
-				{% endfor %}
-			</div>
-			{% set paging_title = 'Навигация по страницам' %}
-			{% include 'main/includes/paging.twig' %}
+			{% include 'components/gallery.twig' with { 'pictures': pictures, 'no_tooltips': true } only %}
+			{% include 'components/paging.twig' with { 'paging': paging, 'paging_title': 'Навигация по страницам' } only %}
 	    </div>
 	</div>
 {% endblock %}

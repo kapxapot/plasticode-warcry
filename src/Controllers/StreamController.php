@@ -2,21 +2,25 @@
 
 namespace App\Controllers;
 
-class StreamController extends BaseController {
+class StreamController extends BaseController
+{
 	private $streamsTitle;
 	
-	public function __construct($container) {
+	public function __construct($container)
+	{
 		parent::__construct($container);
 
 		$this->streamsTitle = $this->getSettings('streams.title');
 	}
 
-	public function index($request, $response, $args) {
-		$streams = $this->builder->buildSortedStreams();
+	public function index($request, $response, $args)
+	{
+	    $rows = $this->db->getStreams();
+		$streams = $this->builder->buildSortedStreams($rows);
 		$groups = $this->builder->buildStreamGroups($streams);
 
 		$params = $this->buildParams([
-			'sidebar' => [ 'create.streams' ],
+			'sidebar' => [ 'gallery' ],
 			'params' => [
 				'title' => $this->streamsTitle,
 				'streams' => $streams,
@@ -27,7 +31,8 @@ class StreamController extends BaseController {
 		return $this->view->render($response, 'main/streams/index.twig', $params);
 	}
 
-	public function item($request, $response, $args) {
+	public function item($request, $response, $args)
+	{
 		$alias = $args['alias'];
 
 		$row = $this->db->getStreamByAlias($alias);
@@ -40,7 +45,8 @@ class StreamController extends BaseController {
 		$stats = $this->builder->buildStreamStats($stream);
 
 		$params = $this->buildParams([
-			'sidebar' => [ 'create.streams' ],
+			'sidebar' => [ 'gallery' ],
+			'image' => $stream['remote_logo'],
 			'params' => [
 				'stream' => $stream,
 				'stats' => $stats,
@@ -52,7 +58,8 @@ class StreamController extends BaseController {
 		return $this->view->render($response, 'main/streams/item.twig', $params);
 	}
 	
-	public function refresh($request, $response, $args) {
+	public function refresh($request, $response, $args)
+	{
 		$log = $request->getQueryParam('log', false);
 		$notify = $request->getQueryParam('notify', true);
 

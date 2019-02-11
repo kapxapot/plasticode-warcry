@@ -5,6 +5,10 @@
 {% set no_disqus = true %}
 {% set no_social = true %}
 
+{% if can('events', 'create') %}
+    {% set sidebar_buttons = [ m.create_button('events', 'Добавить событие') ] %}
+{% endif %}
+
 {% block content %}
 	<div class="panel panel-primary">
 		{{ lm.panel_header(_context) }}

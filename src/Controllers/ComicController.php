@@ -4,18 +4,21 @@ namespace App\Controllers;
 
 use Illuminate\Support\Arr;
 
-class ComicController extends BaseController {
+class ComicController extends BaseController
+{
 	private $comicsTitle;
 	
-	public function __construct($container) {
+	public function __construct($container)
+	{
 		parent::__construct($container);
 
 		$this->comicsTitle = $this->getSettings('comics.title');
 	}
 
-	public function index($request, $response, $args) {
+	public function index($request, $response, $args)
+	{
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => $this->comicsTitle,
 				'series' => $this->builder->buildSortedComicSeries(),
@@ -26,7 +29,8 @@ class ComicController extends BaseController {
 		return $this->view->render($response, 'main/comics/index.twig', $params);
 	}
 
-	public function series($request, $response, $args) {
+	public function series($request, $response, $args)
+	{
 		$alias = $args['alias'];
 		
 		$row = $this->db->getComicSeriesByAlias($alias);
@@ -53,7 +57,10 @@ class ComicController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $series['game'],
-			'sidebar' => [ 'stream', 'news' ],
+			'global_context' => true,
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
+			'large_image' => $this->linker->abs($series['full_cover_url']),
+			'description' => $series['description'],
 			'params' => [
 				'series' => $series,
 				'comics' => $comics,
@@ -65,7 +72,8 @@ class ComicController extends BaseController {
 		return $this->view->render($response, 'main/comics/series.twig', $params);
 	}
 	
-	public function issue($request, $response, $args) {
+	public function issue($request, $response, $args)
+	{
 		$alias = $args['alias'];
 		$number = $args['number'];
 
@@ -76,8 +84,8 @@ class ComicController extends BaseController {
 		}
 		
 		$series = $this->builder->buildComicSeries($seriesRow);
-		
-		$row = $this->db->getComicIssue($series['id'], $number);
+
+		$row = $this->db->getComicIssue(null, $series['id'], $number);
 		
 		if (!$row) {
 			return $this->notFound($request, $response);
@@ -97,7 +105,10 @@ class ComicController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $series['game'],
-			'sidebar' => [ 'stream', 'news' ],
+			'global_context' => true,
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
+			'large_image' => $this->linker->abs($comic['full_cover_url']),
+			'description' => $comic['description'],
 			'params' => [
 				'series' => $series,
 				'comic' => $comic,
@@ -112,7 +123,8 @@ class ComicController extends BaseController {
 		return $this->view->render($response, 'main/comics/issue.twig', $params);
 	}
 	
-	public function standalone($request, $response, $args) {
+	public function standalone($request, $response, $args)
+	{
 		$alias = $args['alias'];
 
 		$row = $this->db->getComicStandaloneByAlias($alias);
@@ -135,7 +147,10 @@ class ComicController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $comic['game'],
-			'sidebar' => [ 'stream', 'news' ],
+			'global_context' => true,
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
+			'large_image' => $this->linker->abs($comic['full_cover_url']),
+			'description' => $comic['description'],
 			'params' => [
 				'comic' => $comic,
 				'pages' => $pages,
@@ -147,7 +162,8 @@ class ComicController extends BaseController {
 		return $this->view->render($response, 'main/comics/standalone.twig', $params);
 	}
 	
-	public function issuePage($request, $response, $args) {
+	public function issuePage($request, $response, $args)
+	{
 		$alias = $args['alias'];
 		$comicNumber = $args['number'];
 		$pageNumber = $args['page'];
@@ -160,7 +176,7 @@ class ComicController extends BaseController {
 		
 		$series = $this->builder->buildComicSeries($seriesRow);
 		
-		$comicRow = $this->db->getComicIssue($series['id'], $comicNumber);
+		$comicRow = $this->db->getComicIssue(null, $series['id'], $comicNumber);
 		
 		if (!$comicRow) {
 			return $this->notFound($request, $response);
@@ -183,6 +199,8 @@ class ComicController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $series['game'],
+			'global_context' => true,
+			'large_image' => $this->linker->abs($page['url']),
 			'params' => [
 				'series' => $series,
 				'comic' => $comic,
@@ -197,7 +215,8 @@ class ComicController extends BaseController {
 		return $this->view->render($response, 'main/comics/issue_page.twig', $params);
 	}
 	
-	public function standalonePage($request, $response, $args) {
+	public function standalonePage($request, $response, $args)
+	{
 		$alias = $args['alias'];
 		$pageNumber = $args['page'];
 
@@ -224,6 +243,8 @@ class ComicController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $comic['game'],
+			'global_context' => true,
+			'large_image' => $this->linker->abs($page['url']),
 			'params' => [
 				'comic' => $comic,
 				'page' => $page,

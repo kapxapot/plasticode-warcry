@@ -4,33 +4,57 @@ namespace App\Controllers;
 
 use Plasticode\Controllers\Controller;
 
-class BaseController extends Controller {
-	protected $autoOneColumn = true;
+class BaseController extends Controller
+{
+	protected $defaultGame;
 
-	protected function buildParams($settings) {
+	public function __construct($container)
+	{
+		parent::__construct($container);
+		
+		$this->defaultGame = $this->db->getDefaultGame();
+	}
+
+	protected function buildParams($settings)
+	{
 		$params = parent::buildParams($settings);
 		
 		$games = $this->db->getGames();
-		$game = $this->getGame($settings);
+		$game = $this->getGame($settings) ?? $this->defaultGame;
+		$menuGame = $this->getMenuGame($settings);
 		
 		$params['games'] = $this->builder->buildGames($games);
 		$params['game'] = $this->builder->buildGame($game);
+		$params['menu_game'] = $this->builder->buildGame($menuGame);
 
 		return $params;
 	}
 	
-	protected function getGame($settings) {
-		return $settings['game'] ?? $this->db->getDefaultGame();
+	protected function getGame($settings)
+	{
+	    return $this->db->getRootGame($settings['game']);
 	}
 	
-	protected function buildMenu($settings) {
-		$game = $this->getGame($settings);
+	protected function getMenuGame($settings)
+	{
+	    $globalContext = $settings['global_context'] ?? false;
+		if (!$globalContext) {
+		    $game = $this->getGame($settings);
+		}
 		
-		return $this->builder->buildMenuByGame($game);
+		return $game ?? $this->defaultGame;
+	}
+	
+	protected function buildMenu($settings)
+	{
+		$menuGame = $this->getMenuGame($settings);
+		
+		return $this->builder->buildMenuByGame($menuGame);
 	}
 
-	protected function buildPart($settings, $result, $part) {
-		$game = $settings['game'];
+	protected function buildPart($settings, $result, $part)
+	{
+		$game = $this->getGame($settings);
 
 		switch ($part) {
 			case 'news':
@@ -54,6 +78,11 @@ class BaseController extends Controller {
 			
 			case 'stream':
 				$result[$part] = $this->builder->buildOnlineStream($game);
+				break;
+			
+			case 'gallery':
+				$limit = $this->getSettings('sidebar.latest_gallery_pictures_limit');
+				$result[$part] = $this->builder->buildLatestGalleryPictures($game, $limit);
 				break;
 			
 			case 'events':

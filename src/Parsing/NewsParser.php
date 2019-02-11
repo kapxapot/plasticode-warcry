@@ -3,6 +3,7 @@
 namespace App\Parsing;
 
 use Plasticode\Contained;
+use Plasticode\Util\Numbers;
 
 class NewsParser extends Contained {
 	private function decodeHtmlSpecialChars($str) {
@@ -47,6 +48,7 @@ class NewsParser extends Contained {
 		$siteUrl = $this->getSettings('view_globals.site_url');
 
 		// fking smileys
+		$str = str_replace("<img src=\"style_emoticons/", "<imgr src=\"/forum/public/style_emoticons/", $str);
 		$str = str_replace("<img src='{$siteUrl}/forum/public/style_emoticons", "<imgr src='/forum/public/style_emoticons", $str);
 		$str = str_replace("<img src=\"{$siteUrl}/forum/style_emoticons", "<imgr src=\"/forum/style_emoticons", $str);
 
@@ -227,7 +229,11 @@ class NewsParser extends Contained {
 					$label = $matches[1];
 				}
 				
-				$newstr .= $this->decorator->spoilerBlock($content, $label);
+				$newstr .= $this->decorator->component('spoiler', [
+                    'id' => Numbers::generate(10),
+                    'title' => $label,
+                    'body' => $content,
+                ]);
 			}
 			else {
 				$newstr .= $part;

@@ -4,35 +4,38 @@ namespace App\Controllers;
 
 use Illuminate\Support\Arr;
 
-class GalleryController extends BaseController {
+class GalleryController extends BaseController
+{
 	private $galleryTitle;
 	
-	public function __construct($container) {
+	public function __construct($container)
+	{
 		parent::__construct($container);
 
 		$this->galleryTitle = $this->getSettings('gallery.title');
 	}
 
-	public function index($request, $response, $args) {
-		$authors = $this->builder->buildSortedGalleryAuthors();
+	public function index($request, $response, $args)
+	{
+		$groups = $this->builder->buildGalleryAuthorGroups();
 
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream' ],
 			'params' => [
 				'title' => $this->galleryTitle,
-				'authors' => $authors,
-				'forum_index' => $this->getSettings('forum.index'),
+				'parts' => $groups,
 			],
 		]);
 	
 		return $this->view->render($response, 'main/gallery/index.twig', $params);
 	}
 
-	public function author($request, $response, $args) {
+	public function author($request, $response, $args)
+	{
 		$alias = $args['alias'];
 
 		$row = $this->db->getGalleryAuthorByAlias($alias);
-		
+
 		if (!$row) {
 			return $this->notFound($request, $response);
 		}
@@ -71,14 +74,20 @@ class GalleryController extends BaseController {
 		foreach ($picRows as $picRow) {
 			$pictures[] = $this->builder->buildGalleryPicture($picRow, $author);
 		}
+		
+		$title = $author['name'];
+		if (isset($author['subname'])) {
+		    $title .= ' (' . $author['subname'] . ')';
+		}
 
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream' ],
+			'image' => $this->linker->abs($author['last_thumb_url']),
 			'params' => [
 				'author' => $author,
 				'pictures' => $pictures,
 				'paging' => $paging,
-				'title' => $author['name'],
+				'title' => $title,
 				'gallery_title' => $this->galleryTitle,
 				'disqus_url' => $this->linker->disqusGalleryAuthor($author),
 				'disqus_id' => 'galleryauthor' . $id,
@@ -88,7 +97,8 @@ class GalleryController extends BaseController {
 		return $this->view->render($response, 'main/gallery/author.twig', $params);
 	}
 	
-	public function picture($request, $response, $args) {
+	public function picture($request, $response, $args)
+	{
 		$alias = $args['alias'];
 		$id = $args['id'];
 
@@ -109,6 +119,10 @@ class GalleryController extends BaseController {
 		$picture = $this->builder->buildGalleryPicture($row);
 
 		$params = $this->buildParams([
+			'game' => $picture['game'],
+			'global_context' => true,
+			'image' => $this->linker->abs($picture['thumb']),
+			'description' => $author['name'],
 			'params' => [
 				'author' => $author,
 				'picture' => $picture,

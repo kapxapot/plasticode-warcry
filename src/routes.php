@@ -6,43 +6,50 @@ use Plasticode\Middleware\GuestMiddleware;
 use Plasticode\Middleware\AccessMiddleware;
 use Plasticode\Middleware\TokenAuthMiddleware;
 
-$access = function($entity, $action, $redirect = null) use ($container) {
+$access = function ($entity, $action, $redirect = null) use ($container) {
 	return new AccessMiddleware($container, $entity, $action, $redirect);
 };
 
 $root = $settings['root'];
 $trueRoot = (strlen($root) == 0);
 
-$app->group($root, function() use ($trueRoot, $settings, $access, $container) {
+$app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 	// api
 	
-	$this->group('/api/v1', function() use ($settings) {
-		$this->get('/captcha', function($request, $response, $args) use ($settings) {
+	$this->group('/api/v1', function () use ($settings) {
+		$this->get('/captcha', function ($request, $response, $args) use ($settings) {
 			$captcha = $this->captcha->generate($settings['captcha_digits'], true);
 			return Core::json($response, [ 'captcha' => $captcha['captcha'] ]);
 		});
 	});
 	
-	$this->group('/api/v1', function() use ($settings, $access, $container) {
+	$this->group('/api/v1', function () use ($settings, $access, $container) {
 		foreach ($settings['tables'] as $alias => $table) {
 			if (isset($table['api'])) {
 				$gen = $container->generatorResolver->resolveEntity($alias);
 				$gen->generateAPIRoutes($this, $access);
 			}
 		}
+	
+		$this->post('/parser/parse', \Plasticode\Controllers\ParserController::class . ':parse')
+			->setName('api.parser.parse');
 	})->add(new TokenAuthMiddleware($container));
 	
 	// admin
 	
-	$this->get('/admin', function($request, $response, $args) {
+	$this->get('/admin', function ($request, $response, $args) {
 		return $this->view->render($response, 'admin/index.twig');
 	})->setName('admin.index');
 	
-	$this->group('/admin', function() use ($settings, $access, $container) {
+	$this->group('/admin', function () use ($settings, $access, $container) {
 		foreach (array_keys($settings['entities']) as $entity) {
 			$gen = $container->generatorResolver->resolveEntity($entity);
 			$gen->generateAdminPageRoute($this, $access);
 		}
+		
+    	$this->get('/playground', \App\Controllers\Admin\PlaygroundController::class . ':index')->setName('admin.playground');
+    	$this->post('/comics/upload', \App\Controllers\Admin\ComicController::class . ':upload')->setName('admin.comics.upload');
+    	$this->post('/gallery/upload', \App\Controllers\Admin\GalleryController::class . ':upload')->setName('admin.gallery.upload');
 	})->add(new AuthMiddleware($container, 'admin.index'));
 
 	// site
@@ -52,8 +59,7 @@ $app->group($root, function() use ($trueRoot, $settings, $access, $container) {
 	$this->get('/news/archive/{year:\d+}', \App\Controllers\NewsController::class . ':archiveYear')->setName('main.news.archive.year');
 	$this->get('/rss', \App\Controllers\NewsController::class . ':rss')->setName('main.rss');
 	
-	//$this->get('/articles/convert/{id}[/{cat}]', \App\Controllers\ArticleController::class . ':convert')->setName('main.articles.convert');
-	$this->get('/articles/source/{id}[/{cat}]', \App\Controllers\ArticleController::class . ':source')->setName('main.articles.convert');
+	//$this->get('/articles/source/{id}[/{cat}]', \App\Controllers\ArticleController::class . ':source')->setName('main.articles.convert');
 	$this->get('/articles/{id}[/{cat}]', \App\Controllers\ArticleController::class . ':item')->setName('main.article');
 	
 	$this->get('/streams', \App\Controllers\StreamController::class . ':index')->setName('main.streams');
@@ -84,18 +90,18 @@ $app->group($root, function() use ($trueRoot, $settings, $access, $container) {
 
 	// cron
 	
-	$this->group('/cron', function() {
+	$this->group('/cron', function () {
 		$this->get('/streams/refresh', \App\Controllers\StreamController::class . ':refresh')->setName('main.cron.streams.refresh');
 	});
 
 	// auth
 	
-	$this->group('/auth', function() {
+	$this->group('/auth', function () {
 		$this->post('/signup', \Plasticode\Controllers\Auth\AuthController::class . ':postSignUp')->setName('auth.signup');
 		$this->post('/signin', \Plasticode\Controllers\Auth\AuthController::class . ':postSignIn')->setName('auth.signin');
 	})->add(new GuestMiddleware($container, 'main.index'));
 		
-	$this->group('/auth', function() {
+	$this->group('/auth', function () {
 		$this->post('/signout', \Plasticode\Controllers\Auth\AuthController::class . ':postSignOut')->setName('auth.signout');
 		$this->post('/password/change', \Plasticode\Controllers\Auth\PasswordController::class . ':postChangePassword')->setName('auth.password.change');
 	})->add(new AuthMiddleware($container, 'main.index'));

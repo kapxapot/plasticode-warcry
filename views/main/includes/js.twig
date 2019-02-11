@@ -1,6 +1,7 @@
 <!-- Wowhead etc. -->  
 {#<script async src="//www.wowhead.com/widgets/power.js"></script>#}
-<script>var whTooltips = {colorLinks: false, iconizeLinks: {{ iconize_links ?? true }}, renameLinks: false};</script>
+{% set iconize_links = iconize_links ?? true %}
+<script>var whTooltips = {colorLinks: false, iconizeLinks: {{ iconize_links ? 'true' : 'false' }}, renameLinks: false};</script>
 <script async src="//wow.zamimg.com/widgets/power.js"></script>
 {#<script async src="//hearthhead.com/dist/hh-ttps.js"></script>#}
 <script async src="//eu.battle.net/d3/static/js/tooltips.js"></script>

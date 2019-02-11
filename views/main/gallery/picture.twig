@@ -1,6 +1,7 @@
 {% extends 'main/layout.twig' %}
 
 {% import 'macros.twig' as gm %}
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
@@ -9,7 +10,9 @@
 			{ 'url': path_for('main.gallery'), 'text': gallery_title },
 			{ 'url': path_for('main.gallery.author', { 'alias': author.alias }), 'text': author.name }
 		] %}
-		{{ lm.panel_header(_context) }}
+		{{ lm.panel_header(_context, title, {
+			'buttons': [ m.edit_button('gallery_pictures', picture, { 'id': author.id }) ]
+		}) }}
 	  	<div class="panel-body gallery-picture">
 	  		<div>
 	  			{% if picture.next %}<a href="{{ picture.next.page_url }}" title="Вперед: {{ picture.next.comment }}">{% endif %}
@@ -21,29 +24,23 @@
 	  		{% endif %}
 	   	</div>
 	    <div class="panel-footer">
-	    	{% if author %}
-	    		<div class="glyphicon-block" title="Автор">
-	    			{{ gm.gi('user') }}
-	    			<a href="{{ author.page_url }}">{{ author.name }}</a>
-	    			{% if author.real_name %}({{ author.real_name }}){% endif %}
-	    		</div>
-	    	{% endif %}
-	    	<div class="glyphicon-block" title="Дата добавления">
-	    		{{ gm.gi('time') }}
-	    		{{ picture.created_ui|raw }}
+	    	<div class="glyphicon-block" title="Дата публикации">
+	    		<i class="far fa-clock"></i>
+	    		{{ picture.published_ui|raw }}
 	    	</div>
 	    	{% if picture.official %}
 	    		<div class="glyphicon-block">
-	    			{{ gm.gi('copyright-mark') }}
+	    			<i class="far fa-copyright"></i>
 	    			Официальный арт
 	    		</div>
 	    	{% endif %}
+            {% include 'components/tags.twig' with { 'tags': picture.tags } only %}
 	    </div>
 	</div>
   	<div class="pagination-flex">
   		{% if picture.prev %}
   			<a href="{{ picture.prev.page_url }}" title="Назад: {{ picture.prev.comment }}" class="btn btn-default btn-lg">
-  				{{ gm.gi('chevron-left') }}
+			    {% include 'components/prev.twig' %}
   				<span class="hidden-xs">{{ picture.prev.comment }}</span>
   			</a>
   		{% endif %}
@@ -54,7 +51,7 @@
   		{% if picture.next %}
   			<a href="{{ picture.next.page_url }}" title="Вперед: {{ picture.next.comment }}" class="btn btn-default btn-lg">
   				<span class="hidden-xs">{{ picture.next.comment }}</span>
-  				{{ gm.gi('chevron-right') }}
+			    {% include 'components/next.twig' %}
   			</a>
   		{% endif %}
 	</div>

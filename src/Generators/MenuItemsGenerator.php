@@ -4,8 +4,10 @@ namespace App\Generators;
 
 use Plasticode\Generators\MenuItemsGenerator as MenuItemsBaseGenerator;
 
-class MenuItemsGenerator extends MenuItemsBaseGenerator {
-	public function getOptions() {
+class MenuItemsGenerator extends MenuItemsBaseGenerator
+{
+	public function getOptions()
+	{
 		$options = parent::getOptions();
 		
 		$options['filter'] = 'section_id';
@@ -13,7 +15,8 @@ class MenuItemsGenerator extends MenuItemsBaseGenerator {
 		return $options;
 	}
 	
-	public function getAdminParams($args) {
+	public function getAdminParams($args)
+	{
 		$params = parent::getAdminParams($args);
 
 		$menuId = $args['id'];

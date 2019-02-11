@@ -7,8 +7,10 @@ use Plasticode\RSS\FeedItem;
 use Plasticode\RSS\RSSCreator20;
 use Plasticode\Util\Sort;
 
-class NewsController extends BaseController {
-	public function index($request, $response, $args) {
+class NewsController extends BaseController
+{
+	public function index($request, $response, $args)
+	{
 		if ($args['game']) {
 			$filterByGame = $this->db->getGameByAlias($args['game']);
 			
@@ -30,7 +32,7 @@ class NewsController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $filterByGame,
-			'sidebar' => [ 'stream', 'create.news', 'events', 'articles' ],
+			'sidebar' => [ 'stream', 'gallery', 'events', 'articles' ],
 			'params' => [
 				'news' => $news,
 				'paging' => $paging,
@@ -40,7 +42,8 @@ class NewsController extends BaseController {
 		return $this->view->render($response, 'main/news/index.twig', $params);
 	}
 
-	public function item($request, $response, $args) {
+	public function item($request, $response, $args)
+	{
 		$id = $args['id'];
 		$rebuild = $request->getQueryParam('rebuild', false);
 
@@ -57,8 +60,10 @@ class NewsController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $news['game'],
-			'sidebar' => [ 'stream', 'news', 'create.news', 'events' ],
+			'sidebar' => [ 'stream', 'gallery', 'news', 'events' ],
 			'news_id' => $id,
+			'large_image' => $news['parsed']['large_image'],
+			'image' => $news['parsed']['image'],
 			'params' => [
 				'disqus_url' => $this->linker->disqusNews($id),
 				'disqus_id' => 'news' . $id,
@@ -71,11 +76,12 @@ class NewsController extends BaseController {
 		return $this->view->render($response, 'main/news/item.twig', $params);
 	}
 
-	public function archiveIndex($request, $response, $args) {
+	public function archiveIndex($request, $response, $args)
+	{
 		$years = $this->builder->buildNewsYears();
 		
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream', 'create.news' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => 'Архив новостей', 
 				'years' => $years,
@@ -85,13 +91,14 @@ class NewsController extends BaseController {
 		return $this->view->render($response, 'main/news/archive/index.twig', $params);
 	}
 	
-	public function archiveYear($request, $response, $args) {
+	public function archiveYear($request, $response, $args)
+	{
 		$year = $args['year'];
 
 		$monthly = $this->builder->buildNewsArchive($year);
 		
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream', 'create.news' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => "Архив новостей за {$year} год", 
 				'archive_year' => $year,
@@ -102,7 +109,8 @@ class NewsController extends BaseController {
 		return $this->view->render($response, 'main/news/archive/year.twig', $params);
 	}
 	
-	public function rss($request, $response, $args) {
+	public function rss($request, $response, $args)
+	{
 		$limit = $this->getSettings('rss_limit');
 		
 		$news = $this->builder->buildAllNews(null, 1, $limit);

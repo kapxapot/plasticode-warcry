@@ -2,14 +2,26 @@
 
 namespace App\Generators;
 
-use Plasticode\Util\Strings;
-use Plasticode\Generators\PublishableGenerator;
+use Respect\Validation\Validator as v;
 
-class ArticlesGenerator extends PublishableGenerator {
-	public function getRules($data, $id = null) {
-		$rules = [
-			'name_ru' => $this->rule('text'),//->regex($cyr("'\(\):\-\.\|,\?!—«»"));
-		];
+use Plasticode\Generators\EntityGenerator;
+use Plasticode\Traits\Publishable;
+use Plasticode\Util\Strings;
+
+use App\Data\Taggable;
+
+class ArticlesGenerator extends EntityGenerator
+{
+	use Publishable;
+	
+	protected $taggable = Taggable::ARTICLES;
+	
+	public function getRules($data, $id = null)
+	{
+	    $rules = parent::getRules($data, $id);
+
+		$rules['name_ru'] = $this->rule('text');//->regex($cyr("'\(\):\-\.\|,\?!—«»"));
+		$rules['parent_id'] = v::nonRecursiveParent($this->entity, $id);
 
 		if (array_key_exists('name_en', $data) && array_key_exists('cat', $data)) {
 			$rules['name_en'] = $this->rule('text')
@@ -20,14 +32,18 @@ class ArticlesGenerator extends PublishableGenerator {
 		return $rules;
 	}
 	
-	public function getOptions() {
-		return [
-			'exclude' => [ 'text' ],
-			'admin_template' => 'article',
-		];
+	public function getOptions()
+	{
+	    $options = parent::getOptions();
+	    
+		$options['exclude'] = [ 'text' ];
+		$options['admin_template'] = 'articles';
+		
+		return $options;
 	}
 	
-	public function afterLoad($item) {
+	public function afterLoad($item)
+	{
 		$item['name_en_esc'] = Strings::fromSpaces($item['name_en']);
 		
 		if ($item['cat'] > 0) {
@@ -38,26 +54,53 @@ class ArticlesGenerator extends PublishableGenerator {
 				$item['cat_en_esc'] = Strings::fromSpaces($cat['name_en']);
 			}
 		}
+		
+		$game = $this->db->getRootGame($item['game_id']);
+		$parent = $this->db->getArticle($item['parent_id']);
+		
+		$parts = [ $game['name'] ];
+		
+		if ($parent && $parent['no_breadcrumb'] != 1) {
+	        $parentParent = $this->db->getArticle($parent['parent_id']);
+	        if ($parentParent && $parentParent['no_breadcrumb'] != 1) {
+	            $parts[] = '...';
+	        }
+
+		    $parts[] = $parent['name_ru'];
+		}
+		
+		$parts[] = $item['name_ru'];
+		$partsStr = implode(' » ', $parts);
+		
+		$item['select_title'] = "[{$item['id']}] {$partsStr}";
+		
+		$item['tokens'] = $game['name'] . ' ' . $item['name_ru'];
 
 		return $item;
 	}
 	
-	public function beforeSave($data, $id = null) {
+	public function beforeSave($data, $id = null)
+	{
 		$data['cache'] = null;
 		$data['contents_cache'] = null;
-		
-		$data['name_en'] = $data['name_en'] ?? $data['name_ru'];
-		
+
 		$data = $this->publishIfNeeded($data);		
 		
 		return $data;
 	}
 
-	public function afterSave($item, $data) {
+	public function afterSave($item, $data)
+	{
+	    if (!$item->name_en) {
+    		$item->name_en = $item->name_ru;
+    		$item->save();
+    	}
+
 		$this->notify($item, $data);
 	}
 
-	private function notify($item, $data) {
+	private function notify($item, $data)
+	{
 		if ($this->isJustPublished($item, $data) && $item->announce == 1) {
 			if ($item->cat) {
 				$catObj = $this->db->getCat($item->cat);
@@ -69,8 +112,8 @@ class ArticlesGenerator extends PublishableGenerator {
 			$url = $this->linker->article($item->name_en, $catName);
 			$url = $this->linker->abs($url);
 			
-			$this->telegram->sendMessage('warcry', "Опубликована статья:
-<a href=\"{$url}\">{$item->name_ru}</a>");
+			/*$this->telegram->sendMessage('warcry', "Опубликована статья:
+<a href=\"{$url}\">{$item->name_ru}</a>");*/
 		}
 	}
 }

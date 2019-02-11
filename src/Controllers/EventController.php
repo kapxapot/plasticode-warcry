@@ -4,21 +4,24 @@ namespace App\Controllers;
 
 use Plasticode\Util\Sort;
 
-class EventController extends BaseController {
+class EventController extends BaseController
+{
 	private $eventsTitle;
 	
-	public function __construct($container) {
+	public function __construct($container)
+	{
 		parent::__construct($container);
 
 		$this->eventsTitle = $this->getSettings('events.title');
 	}
 
-	public function index($request, $response, $args) {
+	public function index($request, $response, $args)
+	{
 		$rows = $this->db->getEvents();
 		$events = $this->builder->buildEvents($rows);
 
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream', 'create.events' ],
+			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => $this->eventsTitle,
 				'events' => $events,
@@ -30,7 +33,8 @@ class EventController extends BaseController {
 		return $this->view->render($response, 'main/events/index.twig', $params);
 	}
 
-	public function item($request, $response, $args) {
+	public function item($request, $response, $args)
+	{
 		$id = $args['id'];
 		$rebuild = $request->getQueryParam('rebuild', false);
 
@@ -44,7 +48,10 @@ class EventController extends BaseController {
 
 		$params = $this->buildParams([
 			'game' => $event['game'],
-			'sidebar' => [ 'stream', 'create.events', 'news' ],
+			'global_context' => true,
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
+			'large_image' => $event['parsed']['large_image'],
+			'image' => $event['parsed']['image'],
 			'params' => [
 				'event' => $event,
 				'title' => $event['name'],

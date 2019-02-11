@@ -4,6 +4,10 @@
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
+{% if can('articles', 'create') %}
+    {% set sidebar_buttons = [ m.create_button('articles', 'Написать статью') ] %}
+{% endif %}
+
 {% block content %}
 	<div class="panel panel-primary">
 		{{ lm.panel_header(_context, article.name_ru, {
@@ -13,48 +17,39 @@
 		}) }}
 		{% if article.sub_articles %}
 		  	<div class="panel-body sub-articles">
-		  		{% for link in article.sub_articles %}
-		  			<a class="label label-default" title="{{ link.title_en }}" href="{{ link.url }}">{{ link.title }}</a>
+		  		{% for sa in article.sub_articles %}
+		  			<a class="label label-default" title="{{ sa.title_en }}" href="{{ sa.url }}">{{ sa.title }}</a>
 		  		{% endfor %}
 			</div>
 		{% endif %}
-		{% if article.contents %}
-			<div class="panel-body contents">
-  				<div class="contents-header">Содержание:</div>
-  				<div class="contents-body">
-  					{% for link in article.contents %}
-  						{{ link|raw }}
-  					{% endfor %}
-  				</div>
-			</div>
-		{% endif %}
+		{% include 'components/contents.twig' with { 'items': article.contents } only %}
 	  	<div class="panel-body article">
 	    	{{ article.text|raw }}
 	    </div>
 	    <div class="panel-footer">
 	    	{% if article.author %}
 	    		<div class="glyphicon-block" title="Автор">
-	    			{{ gm.gi('user') }}
+	    			<i class="fas fa-user-circle"></i>
 	    			{% if article.author.member_url %}
-	    				<a href="{{ article.author.member_url }}">{{ article.author.name }}</a>
+	    				<b><a href="{{ article.author.member_url }}">{{ article.author.name }}</a></b>
 	    			{% else %}
 	    				<b>{{ article.author.name }}</b>
 	    			{% endif %}
 	    		</div>
 	    	{% endif %}
 	    	<div class="glyphicon-block" title="Дата публикации">
-	    		{{ gm.gi('time') }}
+	    		<i class="far fa-clock"></i>
 	    		{% if article.published %}
 	    			{{ article.published_at|raw }}
 	    		{% else %}
 	    			Не опубликована!
 	    		{% endif %}
 	    	</div>
-	    	{% if article.editor %}
+	    	{#% if article.editor %}
 	    		<div class="glyphicon-block" title="Редактор">
-	    			{{ gm.gi('pencil') }}
+	    			<i class="fas fa-user-circle"></i>
 	    			{% if article.editor.member_url %}
-	    				<a href="{{ article.editor.member_url }}">{{ article.editor.name }}</a>
+	    				<b><a href="{{ article.editor.member_url }}">{{ article.editor.name }}</a></b>
 	    			{% else %}
 	    				<b>{{ article.editor.name }}</b>
 	    			{% endif %}
@@ -62,16 +57,17 @@
 	    	{% endif %}
 	    	{% if article.updated_at %}
 	    		<div class="glyphicon-block" title="Дата редакции">
-	    			{{ gm.gi('time') }}
+	    			<i class="far fa-clock"></i>
 	    			{{ article.updated_at|raw }}
 	    		</div>
-	    	{% endif %}
+	    	{% endif %#}
 	    	{% if article.origin %}
 	    		<div class="glyphicon-block" title="Источник">
-	    			{{ gm.gi('copyright-mark') }}
+	    			<i class="far fa-copyright"></i>
 	    			<a href="{{ article.origin }}">Источник</a>
 	    		</div>
 	    	{% endif %}
+            {% include 'components/tags.twig' with { 'tags': article.tags } only %}
 	    </div>
 	</div>
 {% endblock %}

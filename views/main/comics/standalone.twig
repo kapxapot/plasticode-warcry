@@ -1,5 +1,6 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
@@ -9,7 +10,7 @@
 		] %}
 		{{ lm.panel_header(_context, comic.name_ru, {
 			'subtitle': comic.name_en,
-			'bc_no_game': true
+			'buttons': [ m.edit_button('comic_standalones', comic) ]
 		}) }}
 	  	<div class="panel-body">
 			{% if comic.publisher %}
@@ -21,16 +22,7 @@
 			{% if comic.description %}
 	  			<p>{{ comic.description|raw }}</p>
 			{% endif %}
-			<div class="flex-wrapper comics-issue">
-				{% for p in pages %}
-					<div class="flex-item flex-item-shaded overlay-wrapper comic-image">
-						<a href="{{ p.page_url }}" title="{{ p.number_str }}">
-							<img src="{{ p.thumb }}" class="card-image" />
-							<span class="overlay">{{ p.number_str }}</span>
-						</a>
-					</div>
-				{% endfor %}
-			</div>
+			{% include 'components/comics_pages.twig' with { 'pages': pages } only %}
 		</div>
 	    {% include 'main/comics/comic_footer.twig' %}
 	</div>

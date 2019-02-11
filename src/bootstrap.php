@@ -24,13 +24,8 @@ $dotenv->load();
 
 session_start();
 
-$path = $root . '/settings/';
-$appSettings = \Plasticode\Core\Settings::load($path, function($settings) {
-	$settings['twitch']['client_id'] = getenv('TWITCH_CLIENT_ID');
-	$settings['telegram']['bot_token'] = getenv('TELEGRAM_BOT_TOKEN');
-	
-	return $settings;
-});
+$path = $root . '/settings';
+$appSettings = \Plasticode\Core\Settings::load($path);
 
 $app = new \Slim\App($appSettings);
 $container = $app->getContainer();
@@ -42,8 +37,12 @@ if ($settings['debug']) {
 
 require $src . 'dependencies.php';
 
+// middleware
 $app->add(new \Plasticode\Middleware\SlashMiddleware($container));
 $app->add(new \Plasticode\Middleware\CookieAuthMiddleware($container, $settings['auth_token_key']));
+
+// init
+$container->db->init();
 
 require $src . 'routes.php';
 

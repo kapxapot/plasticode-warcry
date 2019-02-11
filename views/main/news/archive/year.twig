@@ -39,7 +39,7 @@
 			<div class="panel-body">
 				<p>За {{ archive_year }} год ничего нет.</p>
 				{% if archive_year > year %}<p>Привет, будущее!</p>{% endif %}
-				{% if archive_year < 2004 %}<p><b>{{ site_name }}</b> тогда еще не существовал!</p>{% endif %}
+				{% if archive_year < year_from %}<p><b>{{ site_name }}</b> тогда еще не существовал!</p>{% endif %}
 			</div>
 		{% endif %}
 	</div>

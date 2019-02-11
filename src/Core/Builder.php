@@ -3,14 +3,16 @@
 namespace App\Core;
 
 use Plasticode\Core\Builder as BuilderBase;
+use Plasticode\Util\Arrays;
 use Plasticode\Util\Cases;
 use Plasticode\Util\Date;
-use Plasticode\Util\Strings;
 
 use App\Data\Taggable;
 
-class Builder extends BuilderBase {
-	public function buildGame($row) {
+class Builder extends BuilderBase
+{
+	public function buildGame($row)
+	{
 		$game = $row;
 		
 		$game['default'] = ($game['id'] == $this->db->getDefaultGameId());
@@ -19,13 +21,26 @@ class Builder extends BuilderBase {
 		return $game;
 	}
 	
-	public function buildGames($rows) {
+	/**
+	 * Build root game.
+	 * 
+	 * @param mixed $game Game array or game id.
+	 */
+	protected function buildRootGame($game)
+	{
+	    $rootGame = $this->db->getRootGame($game);
+	    return $this->buildGame($rootGame);
+	}
+
+	public function buildGames($rows)
+	{
 		return array_map(function($row) {
 			return $this->buildGame($row);
 		}, $rows);
 	}
 
-	public function buildForumNews($news, $full = false) {
+	public function buildForumNews($news, $full = false)
+	{
 		$id = $news['tid'];
 		
 		$news['id'] = $id;
@@ -36,7 +51,7 @@ class Builder extends BuilderBase {
 		$news['text'] = $this->newsParser->afterParsePost($post);
 
 		$game = $this->db->getGameByForumId($news['forum_id']);
-		$news['game'] = $this->buildGame($game);
+		$news['game'] = $this->buildRootGame($game);
 
 		$tagRows = $this->db->getForumTopicTags($id);
 
@@ -48,32 +63,37 @@ class Builder extends BuilderBase {
 		}
 
 		$news['pub_date'] = $news['start_date'];
-		$news['start_date'] = Date::formatUi($this->formatDate($news['start_date']));
+		$news['published'] = true;
+		$news['start_date'] = Date::formatUi($this->formatDateTime($news['start_date']));
 		$news['starter_url'] = $this->linker->forumUser($news['starter_id']);
 		$news['tags'] = $tags;
 		$news['url'] = $this->linker->news($id);
 		$news['forum_url'] = $this->linker->forumTopic($id);
 		
-		$news['description'] = Strings::trunc($news['text'], 1000);
+		$news['description'] = $this->trunc($news['text'], 'news.description_limit');
 		
 		return $news;
 	}
 
-	public function buildNews($news, $full = false, $rebuild = false) {
+	public function buildNews($news, $full = false, $rebuild = false)
+	{
 		$id = $news['id'];
 		
-		$game = $this->db->getGame($news['game_id']);
-		$news['game'] = $this->buildGame($game);
+		$news['game'] = $this->buildRootGame($news['game_id']);
 
 		if (!$rebuild && strlen($news['cache']) > 0) {
-			$text = $news['cache'];
+            $parsed = @json_decode($news['cache']);
 		}
-		else {
+		
+		if (!is_array($parsed)) {
 			$parsed = $this->parser->parse($news['text']);
-			$text = $parsed['text'];
 
-			$this->db->saveNewsCache($id, $text);
+			$this->db->saveNewsCache($id, json_encode($parsed));
 		}
+		
+		$news['parsed'] = $parsed;
+
+		$text = $parsed['text'];
 
 		$url = $this->linker->news($id);
 		$url = $this->linker->abs($url);
@@ -83,7 +103,7 @@ class Builder extends BuilderBase {
 		$text = $this->parser->makeAbsolute($text);
 
 		$news['text'] = $text;
-		$news['description'] = Strings::trunc($text, 1000);
+		$news['description'] = $this->trunc($news['text'], 'news.description_limit');
 		$news['tags'] = $this->tags($news['tags'], Taggable::NEWS);
 		$news['pub_date'] = strtotime($news['published_at']);
 
@@ -97,14 +117,15 @@ class Builder extends BuilderBase {
 		return $news;
 	}
 
-	public function buildForumNewsLink($news) {
+	public function buildForumNewsLink($news)
+	{
 		$id = $news['tid'];
 		
 		$news['id'] = $id;
 		$news['title'] = $this->newsParser->decodeTopicTitle($news['title']);
 
 		$game = $this->db->getGameByForumId($news['forum_id']);
-		$news['game'] = $this->buildGame($game);
+		$news['game'] = $this->buildRootGame($game);
 
 		$news['pub_date'] = $news['start_date'];
 		$news['start_date'] = Date::formatUi($this->formatDate($news['start_date']));
@@ -115,11 +136,11 @@ class Builder extends BuilderBase {
 		return $news;
 	}
 
-	public function buildNewsLink($news) {
+	public function buildNewsLink($news)
+	{
 		$id = $news['id'];
 		
-		$game = $this->db->getGame($news['game_id']);
-		$news['game'] = $this->buildGame($game);
+		$news['game'] = $this->buildRootGame($news['game_id']);
 
 		$news['pub_date'] = strtotime($news['published_at']);
 
@@ -132,18 +153,21 @@ class Builder extends BuilderBase {
 		return $news;
 	}
 
-	public function buildForumTopic($filterByGame, $row) {
+	public function buildForumTopic($filterByGame, $row)
+	{
 		$title = $this->newsParser->decodeTopicTitle($row['title']);
+		$game = $filterByGame ?? $this->db->getGameByForumId($row['forum_id']);
 
 		return [
 			'title' => $this->newsParser->decodeTopicTitle($row['title']),
 			'url' => $this->linker->forumTopic($row['tid'], true),
-			'game' => $filterByGame ?? $this->db->getGameByForumId($row['forum_id']),
+			'game' => $this->buildRootGame($game),
 			'addendum' => $row['posts'],
 		];
 	}
 	
-	public function buildForumTopics($filterByGame, $limit) {
+	public function buildForumTopics($filterByGame, $limit)
+	{
 		$rows = $this->db->getLatestForumTopics($filterByGame, $limit);
 
 		return array_map(function($row) {
@@ -151,11 +175,13 @@ class Builder extends BuilderBase {
 		}, $rows);
 	}
 	
-	public function buildLatestNews($filterByGame, $limit, $exceptNewsId) {
+	public function buildLatestNews($filterByGame, $limit, $exceptNewsId)
+	{
 		return $this->buildAllNews($filterByGame, 1, $limit, $exceptNewsId);
 	}
 
-	public function buildAllNews($filterByGame = null, $page = 1, $pageSize = 7, $exceptNewsId = null) {
+	public function buildAllNews($filterByGame = null, $page = 1, $pageSize = 7, $exceptNewsId = null)
+	{
 		$offset = ($page - 1) * $pageSize;
 		$goal = $pageSize;
 
@@ -189,7 +215,8 @@ class Builder extends BuilderBase {
 		return $sorted;
 	}
 	
-	public function buildNewsYears() {
+	public function buildNewsYears()
+	{
 		$forumNews = $this->db->getLatestForumNews() ?? [];
 		$news = $this->db->getLatestNews() ?? [];
 		
@@ -208,7 +235,8 @@ class Builder extends BuilderBase {
 		return $years;
 	}
 	
-	public function buildNewsArchive($year) {
+	public function buildNewsArchive($year)
+	{
 		$forumNews = $this->db->getForumNewsByYear($year) ?? [];
 		$news = $this->db->getNewsByYear($year) ?? [];
 
@@ -243,9 +271,8 @@ class Builder extends BuilderBase {
 		return $monthly;
 	}
 	
-	public function buildNewsByTag($tag) {
-		$tag = Strings::normalize($tag);
-		
+	public function buildNewsByTag($tag)
+	{
 		$forumNews = $this->db->getForumNewsByTag($tag) ?? [];
 		$news = $this->db->getNewsByTag($tag) ?? [];
 
@@ -261,19 +288,22 @@ class Builder extends BuilderBase {
 		return $this->sortByDate($merged);
 	}
 
-	public function buildArticle($article) {
+	public function buildArticle($article)
+	{
 		$result = $article->data;
+		
+		$result['parsed'] = $article->parsed;
 
 		if ($result['cat']) {
 			$result['cat'] = $this->db->getCat($result['cat']);
 		}
 		
-		$result['game'] = $this->db->getGame($result['game_id']);
+		$result['game'] = $this->buildRootGame($result['game_id']);
 
 		$text = $this->parser->renderLinks($article->text);
 
 		if (strlen($text) > 0) {
-			$result['description'] = Strings::trunc($text, 1000);
+    		$result['description'] = $this->trunc($text, 'articles.description_limit');
 		}
 
 		$subArticleRows = $this->db->getSubArticles($article->id);
@@ -287,6 +317,7 @@ class Builder extends BuilderBase {
 
 		$result['breadcrumbs'] = $article->breadcrumbs;
 		$result['contents'] = $article->contents;
+		$result['tags'] = $this->tags($result['tags'], Taggable::ARTICLES);
 
 		$link = $this->buildArticleLink($result);
 		$result['title'] = $link['title_full'];
@@ -303,8 +334,37 @@ class Builder extends BuilderBase {
 		
 		return $result;
 	}
+	
+	public function buildArticlesByTag($tag)
+	{
+		$rows = $this->db->getArticlesByTag($tag);
 
-	private function getItem($id) {
+		$articles = array_map(function($row) {
+			return $this->buildArticleLink($row);
+		}, $rows ?? []);
+		
+		return $articles;
+	}
+
+	private function getSubArticles($parentId, $recursive = false)
+	{
+		$rows = $this->db->getSubArticles($parentId);
+		if ($rows) {
+			foreach ($rows as $row) {
+				$item = $this->buildArticleLink($row);
+				
+				if ($recursive) {
+					$item['items'] = $this->getSubArticles($row['id'], true);
+					$items[] = $item;
+				}
+			}
+		}
+
+		return $items;
+	}
+
+	private function getItem($id)
+	{
 		$item = $this->db->getItem($id);
 		
 		if (!$item || !isset($item['name_ru'])) {
@@ -314,7 +374,8 @@ class Builder extends BuilderBase {
 		return $item;
 	}
 
-	private function getRemoteItem($id) {
+	private function getRemoteItem($id)
+	{
 		$url = $this->linker->wowheadItemXml($id);
 		$urlRu = $this->linker->wowheadItemRuXml($id);
 		
@@ -344,16 +405,19 @@ class Builder extends BuilderBase {
 		return $item;
 	}
 
-	protected function getSpellIcon($id) {
+	protected function getSpellIcon($id)
+	{
 		$icon = $this->db->getSpellIcon($id);
 		return ($icon != null) ? $icon['icon'] : null;
 	}
 	
-	protected function invertQuality($q) {
+	protected function invertQuality($q)
+	{
 		return 8 - $q;
 	}
 	
-	private function extractRecipeReagents($reagentsString) {
+	private function extractRecipeReagents($reagentsString)
+	{
 		$reagents = [];
 		
 		if (strlen($reagentsString) > 0) {
@@ -370,10 +434,23 @@ class Builder extends BuilderBase {
 		return $reagents;
 	}
 	
-	private function getRecipeBaseReagents($recipe, $baseReagents = []) {
+	private function getRecipeBaseReagentsAndSkills($recipe, &$baseReagents = [], &$requiredSkills = [])
+	{
 		foreach ($recipe['reagents'] as $reagent) {
+			$skillId = $recipe['skill_id'];
+
+			if (!isset($requiredSkills[$skillId])) {
+				$requiredSkills[$skillId] = [
+					'skill' => $recipe['skill'],
+					'max' => $recipe['learnedat'],
+				];
+			}
+			else {
+				$requiredSkills[$skillId]['max'] = max($requiredSkills[$skillId]['max'], $recipe['learnedat']);
+			}
+
 			if (isset($reagent['recipe'])) {
-				$baseReagents = $this->getRecipeBaseReagents($reagent['recipe'], $baseReagents);
+				$this->getRecipeBaseReagentsAndSkills($reagent['recipe'], $baseReagents, $requiredSkills);
 			}
 			else {
 				$id = $reagent['item_id'];
@@ -387,11 +464,10 @@ class Builder extends BuilderBase {
 				}
 			}
 		}
-		
-		return $baseReagents;
 	}
 	
-	private function addNodeIds($recipe, $label = '1') {
+	private function addNodeIds($recipe, $label = '1')
+	{
 		$recipe['node_id'] = $label;
 
 		$count = 1;
@@ -404,7 +480,8 @@ class Builder extends BuilderBase {
 		return $recipe;
 	}
 	
-	private function addTotals($recipe, $countMin = 1, $countMax = 1) {
+	private function addTotals($recipe, $countMin = 1, $countMax = 1)
+	{
 		$createsMin = $recipe['creates_min'];
 		$createsMax = $recipe['creates_max'];
 		
@@ -431,7 +508,8 @@ class Builder extends BuilderBase {
 		return $recipe;
 	}
 	
-	public function buildRecipe($recipe, $cacheEnabled = true, &$requiredSkills = [], $trunk = []) {
+	public function buildRecipe($recipe, $rebuild = false, &$requiredSkills = [], $trunk = [])
+	{
 		$topLevel = empty($trunk);
 
 		// на всякий -__-
@@ -441,15 +519,6 @@ class Builder extends BuilderBase {
 
 		$trunk[] = $recipe['creates_id'];
 
-		/*$createsMin = $recipe['creates_min'];
-		$createsMax = $recipe['creates_max'];
-		
-		$neededMin = ($createsMax > 0) ? ceil($countMin / $createsMax) : 0;
-		$neededMax = ($createsMin > 0) ? ceil($countMax / $createsMin) : 0;
-
-		$recipe['total_min'] = $neededMin;
-		$recipe['total_max'] = $neededMax;*/
-		
 		// title
 		$result['title'] = $result['name_ru'];
 		if ($result['name'] && $result['name'] != $result['name_ru']) {
@@ -474,19 +543,15 @@ class Builder extends BuilderBase {
 		$recipe['skill_id'] = $skillId;
 		$recipe['skill'] = $this->db->getSkill($skillId);
 		
-		if (!isset($requiredSkills[$skillId])) {
+		/*if (!isset($requiredSkills[$skillId])) {
 			$requiredSkills[$skillId] = [
 				'skill' => $recipe['skill'],
 				'max' => $recipe['learnedat'],
 			];
 		}
 		else {
-			$curMax = $requiredSkills[$skillId]['max'];
-			
-			if ($recipe['learnedat'] > $curMax) {
-				$requiredSkills[$skillId]['max'] = $recipe['learnedat'];
-			}
-		}
+			$requiredSkills[$skillId]['max'] = max($requiredSkills[$skillId]['max'], $recipe['learnedat']);
+		}*/
 
 		// source
 		$srcIds = explode(',', $recipe['source']);
@@ -496,7 +561,7 @@ class Builder extends BuilderBase {
 		}, $srcIds);
 
 		// reagents
-		if ($cacheEnabled && strlen($recipe['reagent_cache']) > 0) {
+		if (!$rebuild && strlen($recipe['reagent_cache']) > 0) {
 			$reagents = json_decode($recipe['reagent_cache'], true);
 		}
 		else {
@@ -505,9 +570,6 @@ class Builder extends BuilderBase {
 			$extRegs = $this->extractRecipeReagents($recipe['reagents']);
 			
 			foreach ($extRegs as $id => $count) {
-				//$totalMin = ($neededMin > 0) ? $neededMin * $count : $count;
-				//$totalMax = ($neededMax > 0) ? $neededMax * $count : $count;
-
 				$item = $this->getItem($id);
 
 				$reagent = [
@@ -515,8 +577,6 @@ class Builder extends BuilderBase {
 					'item_id' => $id,
 					'count' => $count,
 					'item' => $this->buildItem($item),
-					//'total_min' => $totalMin,
-					//'total_max' => $totalMax,
 				];
 
 				// going deeper?
@@ -539,7 +599,7 @@ class Builder extends BuilderBase {
 							});
 							
 							if (empty($badReagents)) {
-								$foundRecipe = $this->buildRecipe($srcRecipe, $cacheEnabled, $requiredSkills, $trunk);
+								$foundRecipe = $this->buildRecipe($srcRecipe, $rebuild, $requiredSkills, $trunk);
 								break;
 							}
 						}
@@ -551,13 +611,11 @@ class Builder extends BuilderBase {
 				$reagents[] = $reagent;
 			}
 
-			if ($cacheEnabled) {
-				$this->db->setRecipeReagentCache($recipe['id'], json_encode($reagents));
-			}
+			$this->db->setRecipeReagentCache($recipe['id'], json_encode($reagents));
 		}
 
 		// link
-		if ($cacheEnabled && strlen($recipe['icon_cache']) > 0) {
+		if (!$rebuild && strlen($recipe['icon_cache']) > 0) {
 			$link = json_decode($recipe['icon_cache'], true);
 		}
 		else {
@@ -580,9 +638,7 @@ class Builder extends BuilderBase {
 				];
 			}
 
-			if ($cacheEnabled) {
-				$this->db->setRecipeIconCache($recipe['id'], json_encode($link));
-			}
+			$this->db->setRecipeIconCache($recipe['id'], json_encode($link));
 		}
 
 		$recipe['inv_quality'] = $this->invertQuality($recipe['quality']);
@@ -598,7 +654,10 @@ class Builder extends BuilderBase {
 		$recipe = $this->addTotals($recipe);
 
 		if ($topLevel) {
-			$baseReagents = $this->getRecipeBaseReagents($recipe);
+			$baseReagents = [];
+			$requiredSkills = [];
+			
+			$this->getRecipeBaseReagentsAndSkills($recipe, $baseReagents, $requiredSkills);
 			
 			$recipe['base_reagents'] = array_map(function($r) {
 				return $this->buildRecipeLink($r);
@@ -610,11 +669,13 @@ class Builder extends BuilderBase {
 		return $recipe;
 	}
 	
-	private function defaultIcon() {
+	private function defaultIcon()
+	{
 		return $this->getSettings('recipes.default_icon');
 	}
 	
-	private function buildRecipeLink($link) {
+	private function buildRecipeLink($link)
+	{
 		$link['icon_url'] = $this->linker->wowheadIcon($link['icon'] ?? $this->defaultIcon());
 
 		if (isset($link['item_id'])) {
@@ -630,7 +691,8 @@ class Builder extends BuilderBase {
 		return $link;
 	}
 	
-	private function buildItem($item) {
+	private function buildItem($item)
+	{
 		$item['name_ru'] = $item['name_ru'] ?? $item['name'];
 		
 		$item['url'] = $this->linker->wowheadItemRu($item['id']);
@@ -638,33 +700,39 @@ class Builder extends BuilderBase {
 		return $item;
 	}
 	
-	public function buildSkill($skill) {
+	public function buildSkill($skill)
+	{
 		$skill['icon_url'] = $this->linker->wowheadIcon($skill['icon'] ?? $this->defaultIcon());
 
 		return $skill;
 	}
 
-	public function buildArticleLink($row) {
+	public function buildArticleLink($row)
+	{
 		$cat = is_array($row['cat'])
 			? $row['cat']
 			: $this->db->getCat($row['cat']);
 
 		$ru = $row['name_ru'];
 		$en = $row['name_en'];
-
+		
+		$game = $this->db->getRootGame($row['game'] ?? $row['game_id']);
+		
 		return [
 			'cat' => $cat,
 			'url' => $this->linker->article($en, $cat['name_en']),
 			'title' => $ru,
 			'title_en' => $row['hideeng'] ? $ru : $en,
 			'title_full' => $ru . (!$row['hideeng'] ? " ({$en})" : ''),
-			'game' => $row['game'] ?? $this->db->getGame($row['game_id']),
+			'subtitle' => Date::formatDateUi($row['published_at']),
+			'game' => $game,
 		];
 	}
 	
-	public function buildLatestArticles($filterByGame, $limit, $exceptArticleId) {
+	public function buildLatestArticles($filterByGame, $limit, $exceptArticleId)
+	{
 		$rows = $this->db->getLatestArticles($filterByGame, $limit, $exceptArticleId);
-		
+
 		if ($rows === null) {
 			return null;
 		}
@@ -674,7 +742,8 @@ class Builder extends BuilderBase {
 		}, $rows);
 	}
 	
-	public function buildMenuByGame($game) {
+	public function buildMenuByGame($game)
+	{
 		if (!$game) {
 			throw new \Exception('Game cannot be null.');
 		}
@@ -684,29 +753,51 @@ class Builder extends BuilderBase {
 		return $this->buildSubMenus($menus);
 	}
 	
-	public function buildSortedGalleryAuthors() {
+	public function buildGalleryAuthorGroups()
+	{
+		$groups = [];
+		
+		$cats = $this->db->getGalleryAuthorCategories();
 		$rows = $this->db->getGalleryAuthors();
-		
-		$authors = [];
-		
-		foreach ($rows as $row) {
-			$authors[] = $this->buildGalleryAuthor($row);
-		}
-			
-		$sorts = [
-			'count' => [ 'dir' => 'desc' ],
-			'name' => [ 'dir' => 'asc', 'type' => 'string' ],
-		];
 
-		$authors = $this->sort->multiSort($authors, $sorts);
+		foreach ($cats as $cat) {
+			$filtered = array_filter($rows, function($row) use ($cat) {
+				return $row['category_id'] == $cat['id'];
+			});
+			
+			if (count($filtered) > 0) {
+				$authors = array_map(function($row) {
+					return $this->buildGalleryAuthor($row);
+				}, $filtered);
+
+				$sorts = [
+					//'count' => [ 'dir' => 'desc' ],
+					'name' => [ 'dir' => 'asc', 'type' => 'string' ],
+				];
 		
-		return $authors;
+				$groups[] = [
+					'id' => $cat['alias'],
+					'label' => $cat['name'],
+					'values' => $this->sort->multiSort($authors, $sorts)
+				];
+			}
+		}
+
+		return $groups;
 	}
 
-	public function buildGalleryAuthor($row, $short = false) {
+	public function buildGalleryAuthor($row, $short = false)
+	{
 		$author = $row;
 
 		$author['page_url'] = $this->linker->galleryAuthor($author['alias']);
+		$subname = $author['name'];
+		$name = $author['real_name'] ?? $author['real_name_en'] ?? $author['name'];
+		
+		$author['name'] = $name;
+		if ($name != $subname) {
+		    $author['subname'] = $subname;
+		}
 
 		if (!$short) {
 			$picRows = $this->db->getGalleryPictures($author['id']);
@@ -728,19 +819,39 @@ class Builder extends BuilderBase {
 				$author['member_id'] = $forumMember['member_id'];
 				$author['member_url'] = $this->linker->forumUser($author['member_id']);
 			}
+		
+			$author['description'] = $this->parser->justText($author['description']);
 		}
 		
 		return $author;
 	}
-	
-	public function buildGalleryPicture($row, $author = null) {
+    
+    public function buildLatestGalleryPictures($filterByGame, $limit)
+    {
+        $pictures = $this->db->getLatestGalleryPictures($filterByGame, $limit);
+        $pictures = array_map(function ($pic) {
+            return  $this->buildGalleryPicture($pic);
+        }, $pictures ?? []);
+
+        return [
+            'pictures' => $pictures
+        ];
+    }
+    
+	public function buildGalleryPicture($row, $author = null)
+	{
 		$picture = $row;
 
 		$id = $picture['id'];
 		
+		if ($picture['game_id']) {
+			$picture['game'] = $this->buildRootGame($picture['game_id']);
+		}
+
 		$picture['ext'] = $this->linker->getExtension($picture['picture_type']);
 		$picture['url'] = $this->linker->galleryPictureImg($picture);
 		$picture['thumb'] = $this->linker->galleryThumbImg($picture);
+		$picture['tags'] = $this->tags($picture['tags'], Taggable::GALLERY_PICTURES);
 
 		if ($author == null) {
 			$authorRow = $this->db->getGalleryAuthor($picture['author_id']);
@@ -748,7 +859,7 @@ class Builder extends BuilderBase {
 		}
 
 		if ($author != null) {
-			$picture['author'] = $author;
+			$picture['gallery_author'] = $author;
 			$picture['page_url'] = $this->linker->galleryPicture($author['alias'], $id);
 		}
 		
@@ -766,14 +877,29 @@ class Builder extends BuilderBase {
 		}
 		
 		$picture['created_ui'] = Date::formatUi($picture['created_at']);
+		$picture['published_ui'] = Date::formatUi($picture['published_at']);
+		
+		$picture['description'] = $this->parser->justText($picture['description']);
 
 		return $this->stamps($picture, true);
+	}
+	
+	public function buildGalleryPicturesByTag($tag)
+	{
+		$rows = $this->db->getGalleryPicturesByTag($tag);
+
+		$pictures = array_map(function($row) {
+			return $this->buildGalleryPicture($row);
+		}, $rows ?? []);
+		
+		return $pictures;
 	}
 
 	/**
 	 * Override.
 	 */
-	public function buildUser($row) {
+	public function buildUser($row)
+	{
 		$user = parent::buildUser($row);
 
 		$forumMember = $this->db->getForumMemberByUser($user);
@@ -785,14 +911,16 @@ class Builder extends BuilderBase {
 		return $user;
 	}
 	
-	private function isPriorityGame($game) {
+	private function isPriorityGame($game)
+	{
 		$game = strtolower($game);
 		$priorityGames = $this->getSettings('streams.priority_games');
 
 		return in_array($game, $priorityGames);
 	}
 	
-	public function buildStream($row) {
+	public function buildStream($row, $full = true)
+	{
 		$stream = $row;
 
 		$stream['priority_game'] = false;
@@ -849,11 +977,18 @@ class Builder extends BuilderBase {
 		$stream['played'] = $this->cases->conjugation('играть', $form);
 		$stream['broadcasted'] = $this->cases->conjugation('транслировать', $form);
 		$stream['held'] = $this->cases->conjugation('вести', $form);
+		
+		$stream['tags'] = $this->tags($stream['tags'], Taggable::STREAMS);
+		
+		if ($full) {
+		    $stream['description'] = $this->parser->justText($stream['description']);
+		}
 
 		return $stream;
 	}
 	
-	public function buildStreamStats($stream) {
+	public function buildStreamStats($stream)
+	{
 		$stats = [];
 		
 		$games = $this->db->getStreamGameStats($stream['id']);
@@ -919,7 +1054,8 @@ class Builder extends BuilderBase {
 		return $stats;
 	}
 	
-	private function buildHourlyStreamStats($latest, \DateTime $start, \DateTime $now) {
+	private function buildHourlyStreamStats($latest, \DateTime $start, \DateTime $now)
+	{
 		$hourly = [];
 		
 		$cur = clone $start;
@@ -953,7 +1089,8 @@ class Builder extends BuilderBase {
 		return $hourly;
 	}
 	
-	private function buildGamelyStreamStats($latest, \DateTime $start, \DateTime $end) {
+	private function buildGamelyStreamStats($latest, \DateTime $start, \DateTime $end)
+	{
 		$gamely = [];
 		
 		$prev = null;
@@ -1004,7 +1141,8 @@ class Builder extends BuilderBase {
 		];
 	}
 	
-	public function updateStreamData($row, $notify = false) {
+	public function updateStreamData($row, $notify = false)
+	{
 		$stream = $row;
 		
 		$id = $stream['stream_id'];
@@ -1060,7 +1198,8 @@ class Builder extends BuilderBase {
 		return $stream;
 	}
 	
-	private function updateStreamStats($stream) {
+	private function updateStreamStats($stream)
+	{
 		$online = ($stream['remote_online'] == 1);
 		$refresh = $online;
 		
@@ -1087,7 +1226,8 @@ class Builder extends BuilderBase {
 		}
 	}
 	
-	private function sendStreamNotifications($s) {
+	private function sendStreamNotifications($s)
+	{
 		$verb = ($s['channel'] == 1)
 			? ($s['remote_status']
 				? "транслирует <b>{$s['remote_status']}</b>"
@@ -1109,11 +1249,11 @@ class Builder extends BuilderBase {
 		$messageEn = $source . ' ' . $verbEn;
 
 		$settings = [
-			[
+			/*[
 				'channel' => 'warcry',
 				'condition' => $s['priority'] == 1 || $s['official'] == 1 || $s['official_ru'] == 1,
 				'message' => $message,
-			],
+			],*/
 			[
 				'channel' => 'warcry_streams',
 				'condition' => true,
@@ -1140,10 +1280,11 @@ class Builder extends BuilderBase {
 		return $message . ' ' . $messageEn;
 	}
 
-	public function buildSortedStreams() {
-		$streams = array_map(function($s) {
-			return $this->buildStream($s);
-		}, $this->db->getStreams());
+	public function buildSortedStreams($streams)
+	{
+		$streams = array_map(function ($s) {
+			return $this->buildStream($s, false);
+		}, $streams ?? []);
 
 		$sorts = [
 			'remote_online' => [ 'dir' => 'desc' ],
@@ -1160,7 +1301,8 @@ class Builder extends BuilderBase {
 		return $streams;
 	}
 	
-	public function buildStreamGroups($streams) {
+	public function buildStreamGroups($streams)
+	{
 		$groupSettings = [
 			[
 				'id' => 'online',
@@ -1208,34 +1350,75 @@ class Builder extends BuilderBase {
 		return $groups;
 	}
 	
-	public function buildTagParts($tag) {
+	public function buildStreamsByTag($tag)
+	{
+		$rows = $this->db->getStreamsByTag($tag);
+		$streams = $this->buildSortedStreams($rows);
+		
+		$streams = array_filter($streams, function($stream) {
+			return $stream['alive'];
+		});
+
+		return $streams;
+	}
+	
+	public function buildTagParts($tag)
+	{
 		$parts = [];
 		
-		$news = $this->builder->buildNewsByTag($tag);
-		
-		if ($news) {
-			$parts[] = [
-				'id' => 'news',
+		$groups = [
+			[
+				'id' => Taggable::NEWS,
 				'label' => 'Новости',
-				'values' => $news,
-			];
-		}
-		
-		$events = $this->builder->buildEventsByTag($tag);
-		
-		if ($events) {
-			$parts[] = [
-				'id' => 'events',
+				'values' => $this->buildNewsByTag($tag)
+			],
+			[
+				'id' => Taggable::ARTICLES,
+				'label' => 'Статьи',
+				'values' => $this->buildArticlesByTag($tag)
+			],
+			[
+				'id' => Taggable::GALLERY_PICTURES,
+				'label' => 'Галерея',
+				'values' => $this->buildGalleryPicturesByTag($tag),
+				'component' => 'gallery_pictures'
+			],
+			[
+				'id' => 'comics',
+				'label' => 'Комиксы',
+				'values' => array_merge(
+					$this->buildComicIssuesByTag($tag) ?? [],
+					$this->buildComicSeriesByTag($tag) ?? [],
+					$this->buildComicStandalonesByTag($tag) ?? []
+				),
+				'component' => 'comics'
+			],
+			[
+				'id' => Taggable::STREAMS,
+				'label' => 'Стримы',
+				'values' => $this->buildStreamsByTag($tag),
+				'component' => 'streams'
+			],
+			[
+				'id' => Taggable::EVENTS,
 				'label' => 'События',
-				'values' => $events,
-			];
+				'values' => $this->buildEventsByTag($tag)
+			],
+		];
+
+		foreach ($groups as $group) {
+			if ($group['values']) {
+				$parts[] = $group;
+			}
 		}
-		
+
 		return $parts;
 	}
 	
-	public function buildOnlineStream($filterByGame) {
-		$streams = $this->buildSortedStreams();
+	public function buildOnlineStream($filterByGame)
+	{
+	    $rows = $this->db->getStreams();
+		$streams = $this->buildSortedStreams($rows);
 	
 		$onlineStreams = array_filter($streams, function($stream) {
 			return $stream['remote_online'] == 1;
@@ -1253,7 +1436,8 @@ class Builder extends BuilderBase {
 	
 	// COMICS
 
-	public function buildSortedComicSeries() {
+	public function buildSortedComicSeries()
+	{
 		$rows = $this->db->getComicSeries();
 
 		$series = [];
@@ -1271,10 +1455,11 @@ class Builder extends BuilderBase {
 		return $series;
 	}
 
-	public function buildComicSeries($row) {
+	public function buildComicSeries($row)
+	{
 		$series = $row;
 		
-		$series['game'] = $this->db->getGame($series['game_id']);
+		$series['game'] = $this->db->getRootGame($series['game_id']);
 
 		$series['page_url'] = $this->linker->comicSeries($series['alias']);
 
@@ -1283,6 +1468,7 @@ class Builder extends BuilderBase {
 		
 		if ($comicCount > 0) {
 			$series['cover_url'] = $this->getComicIssueCover($comicRows[0]['id']);
+		    $series['full_cover_url'] = $this->getComicIssueFullCover($comicRows[0]['id']);
 			$series['last_issued_on'] = $comicRows[$comicCount - 1]['issued_on'];
 		}
 		
@@ -1294,11 +1480,15 @@ class Builder extends BuilderBase {
 		if ($series['name_ru'] == $series['name_en']) {
 			$series['name_en'] = null;
 		}
+		
+		$series['description'] = $this->parser->justText($series['description']);
+		$series['tags'] = $this->tags($series['tags'], 'comics');
 
 		return $series;
 	}
 
-	public function buildSortedComicStandalones() {
+	public function buildSortedComicStandalones()
+	{
 		$rows = $this->db->getComicStandalones();
 
 		$comics = [];
@@ -1310,10 +1500,11 @@ class Builder extends BuilderBase {
 		return $comics;
 	}
 
-	public function buildComicStandalone($row) {
+	public function buildComicStandalone($row)
+	{
 		$comic = $row;
 		
-		$comic['game'] = $this->db->getGame($comic['game_id']);
+		$comic['game'] = $this->db->getRootGame($comic['game_id']);
 
 		$comic['page_url'] = $this->linker->comicStandalone($comic['alias']);
 
@@ -1322,6 +1513,7 @@ class Builder extends BuilderBase {
 		if (count($pageRows) > 0) {
 			$pageRow = $pageRows[0];
 			$comic['cover_url'] = $this->linker->comicThumbImg($pageRow);
+			$comic['full_cover_url'] = $this->linker->comicPageImg($pageRow);
 		}
 
 		$comic['publisher'] = $this->db->getComicPublisher($comic['publisher_id']);
@@ -1331,14 +1523,19 @@ class Builder extends BuilderBase {
 			$comic['name_en'] = null;
 		}
 
+		$comic['description'] = $this->parser->justText($comic['description']);
+		$comic['tags'] = $this->tags($comic['tags'], 'comics');
+
 		return $comic;
 	}
 	
-	private function padNum($num) {
+	private function padNum($num)
+	{
 		return str_pad($num, 2, '0', STR_PAD_LEFT);
 	}
 	
-	private function comicNum($comic) {
+	private function comicNum($comic)
+	{
 		$numStr = '#' . $comic['number'];
 		
 		if ($comic['name_ru']) {
@@ -1348,26 +1545,55 @@ class Builder extends BuilderBase {
 		return $numStr;
 	}
 	
-	private function pageNum($num) {
+	private function pageNum($num)
+	{
 		return $this->padNum($num);
 	}
 	
-	private function getComicIssueCover($comicId) {
+	private function getComicIssueCover($comicId)
+	{
 		$pageRows = $this->db->getComicIssuePages($comicId);
 		
-		if (count($pageRows) > 0) {
+		if (!empty($pageRows)) {
 			$cover = $this->linker->comicThumbImg($pageRows[0]);
 		}
 		
 		return $cover;
 	}
+	
+	private function getComicIssueFullCover($comicId)
+	{
+		$pageRows = $this->db->getComicIssuePages($comicId);
+		
+		if (!empty($pageRows)) {
+			$cover = $this->linker->comicPageImg($pageRows[0]);
+		}
+		
+		return $cover;
+	}
 
-	public function buildComicIssue($row, $series) {
+	public function buildComicIssue($row, $series = null, $globalContext = null)
+	{
 		$comic = $row;
-
+		
+		if (!$series) {
+			$globalContext = $globalContext ?? true;
+			
+			$seriesRow = $this->db->getComicSeries($comic['series_id']);
+			$series = $this->buildComicSeries($seriesRow);
+		}
+		
 		$comic['page_url'] = $this->linker->comicIssue($series['alias'], $comic['number']);
 		$comic['cover_url'] = $this->getComicIssueCover($comic['id']);
+		$comic['full_cover_url'] = $this->getComicIssueFullCover($comic['id']);
 		$comic['number_str'] = $this->comicNum($comic);
+		
+		$name = ($globalContext == true)
+			? $series['name_ru']
+			: 'Выпуск';
+		
+		$comic['title'] = $name . '&nbsp;' . $comic['number_str'];
+		
 		$comic['issued_ui'] = Date::formatUi($comic['issued_on']);
 
 		$prev = $this->db->getComicIssuePrev($comic);
@@ -1384,11 +1610,15 @@ class Builder extends BuilderBase {
 			$next['number_str'] = $this->comicNum($next);
 			$comic['next'] = $next;
 		}
+		
+		$comic['description'] = $this->parser->justText($comic['description']);
+		$comic['tags'] = $this->tags($comic['tags'], 'comics');
 
 		return $comic;
 	}
 	
-	public function buildComicIssuePage($row, $series, $comic) {
+	public function buildComicIssuePage($row, $series, $comic)
+	{
 		$page = $row;
 
 		$id = $page['id'];
@@ -1420,7 +1650,8 @@ class Builder extends BuilderBase {
 		return $page;
 	}
 	
-	public function buildComicStandalonePage($row, $comic) {
+	public function buildComicStandalonePage($row, $comic)
+	{
 		$page = $row;
 
 		$id = $page['id'];
@@ -1450,29 +1681,52 @@ class Builder extends BuilderBase {
 		return $page;
 	}
 
-	private function getSubArticles($parentId, $recursive = false) {
-		$rows = $this->db->getSubArticles($parentId);
-		if ($rows) {
-			foreach ($rows as $row) {
-				$item = $this->buildArticleLink($row);
-				
-				if ($recursive) {
-					$item['items'] = $this->getSubArticles($row['id'], true);
-					$items[] = $item;
-				}
-			}
-		}
+	public function buildComicSeriesByTag($tag)
+	{
+		$rows = $this->db->getComicSeriesByTag($tag);
 
-		return $items;
+		$series = array_map(function($row) {
+			return $this->buildComicSeries($row);
+		}, $rows ?? []);
+
+		return $series;
 	}
 
-	public function buildMap() {
+	public function buildComicIssuesByTag($tag)
+	{
+		$rows = $this->db->getComicIssuesByTag($tag);
+
+		$comics = array_map(function($row) {
+			return $this->buildComicIssue($row);
+		}, $rows ?? []);
+		
+		return $comics;
+	}
+
+	public function buildComicStandalonesByTag($tag)
+	{
+		$rows = $this->db->getComicStandalonesByTag($tag);
+
+		$comics = array_map(function($row) {
+			return $this->buildComicStandalone($row);
+		}, $rows ?? []);
+		
+		return $comics;
+	}
+	
+	// MAP
+
+	public function buildMap()
+	{
 		$rootId = $this->getSettings('articles.root_id');
 		
 		return $this->getSubArticles($rootId, true);
 	}
 	
-	public function buildCurrentEvents($game, $days) {
+	// EVENTS
+	
+	public function buildCurrentEvents($game, $days)
+	{
 		$rows = $this->db->getCurrentEvents($game, $days);
 		
 		if ($rows === null) {
@@ -1487,7 +1741,8 @@ class Builder extends BuilderBase {
 		return $events;
 	}
 
-	public function buildEventLink($event) {
+	public function buildEventLink($event)
+	{
 		if (!$event['started']) {
 			$event['addendum'] = Date::to($event['starts_at']);
 		}
@@ -1495,7 +1750,8 @@ class Builder extends BuilderBase {
 		return $event;
 	}
 	
-	public function buildEvents($rows) {
+	public function buildEvents($rows)
+	{
 		$events = array_map(function($row) {
 			return $this->buildEvent($row);
 		}, $rows);
@@ -1527,7 +1783,8 @@ class Builder extends BuilderBase {
 		return $groups;
 	}
 	
-	private function buildRegion($region) {
+	private function buildRegion($region)
+	{
 		$ru = [ $region['name_ru'] ];
 		$en = [ $region['name_en'] ];
 
@@ -1556,12 +1813,11 @@ class Builder extends BuilderBase {
 		return $region;
 	}
 	
-	public function buildEvent($event, $rebuild = false) {
+	public function buildEvent($event, $rebuild = false)
+	{
 		$id = $event['id'];
 		
-		$event['game'] = $event['game_id']
-			? $this->db->getGame($event['game_id'])
-			: $this->db->getDefaultGame();
+		$event['game'] = $this->buildRootGame($event['game_id'] ?? $this->db->getDefaultGame());
 
 		$event['pub_date'] = strtotime($event['published_at']);
 
@@ -1585,8 +1841,14 @@ class Builder extends BuilderBase {
 
 		$event['tags'] = $this->tags($event['tags'], Taggable::EVENTS);
 
+		$unknownEnd = ($event['unknown_end'] == 1);
+
 		// ui
 		$event['interval_ui'] = Date::formatIntervalUi($start, $end);
+		if ($unknownEnd) {
+		    $event['interval_ui'] .= ' — ?';
+		}
+		
 		$event['subtitle'] = $event['type']['name'] . ', ' . $event['interval_ui'];
 
 		$event['start_ui'] = Date::formatUi($start);
@@ -1596,46 +1858,37 @@ class Builder extends BuilderBase {
 		$event['started'] = Date::happened($start);
 
 		$end = $end ?? Date::endOfDay($start);
-		$event['ended'] = Date::happened($end);
+		$event['ended'] = !$unknownEnd && Date::happened($end);
 		
 		// description
 		if (!$rebuild && strlen($event['cache']) > 0) {
-			$text = $event['cache'];
-		}
-		else {
-			$parsed = $this->parser->parse($event['description']);
-			$text = $parsed['text'];
-
-			$this->db->saveEventCache($id, $text);
+            $parsed = @json_decode($event['cache']);
 		}
 		
+		if (!is_array($parsed)) {
+			$parsed = $this->parser->parse($event['description']);
+
+			$this->db->saveEventCache($id, json_encode($parsed));
+		}
+		
+		$event['parsed'] = $parsed;
+
+        $text = $parsed['text'];
 		$text = $this->parser->renderLinks($text);
 		
 		$event['description'] = $text;
-
+		
 		return $event;
 	}
 	
-	public function buildEventsByTag($tag) {
-		$tag = Strings::normalize($tag);
-		
-		$events = $this->db->getEventsByTag($tag);
+	public function buildEventsByTag($tag)
+	{
+		$rows = $this->db->getEventsByTag($tag);
 
-		$events = array_map(function($e) {
-			return $this->buildEvent($e);
-		}, $events);
-		
+		$events = array_map(function($row) {
+			return $this->buildEvent($row);
+		}, $rows ?? []);
+
 		return $events;
-	}
-	
-	protected function tags($tags, $tab = null) {
-		return array_map(function($t) use ($tab) {
-			$tag = trim($t);
-			
-			return [
-				'text' => $tag,
-				'url' => $this->linker->tag($tag, $tab),
-			];
-		}, explode(',', $tags));
 	}
 }

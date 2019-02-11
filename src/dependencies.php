@@ -2,7 +2,8 @@
 
 use Respect\Validation\Validator as v;
 
-$container['logger'] = function($c) use ($settings) {
+$container['logger'] = function($c) use ($settings)
+{
     $logger = new \Monolog\Logger($settings['logger']['name']);
 
     $logger->pushProcessor(function($record) use ($c) {
@@ -24,23 +25,46 @@ $container['logger'] = function($c) use ($settings) {
     return $logger;
 };
 
-$container['auth'] = function($c) {
+$container['auth'] = function($c)
+{
 	return new \Plasticode\Auth\Auth($c);
 };
 
-$container['captcha'] = function($c) {
+$container['captcha'] = function($c)
+{
 	return new \Plasticode\Auth\Captcha($c, [
-		'ард' => [ 'ярд' ],
+		'ысяч' => [ 'ыщич', 'ыщ', 'ишч', 'исеч' ],
+		'дцат' => [ 'цодд', 'цыыд', 'цадз' ],
+		'десят' => [ 'дисяд', 'дзисят' ],
+		'сот' => [ 'соод', 'цот', 'цод' ],
+		'один' => [ 'адзин', 'адин', 'адын' ],
+		'одн' => [ 'адн', 'адын' ],
+		'дв' => [ 'дыв', 'дэв' ],
+		'три' => [ 'тыри', 'тари' ],
+		'четыре' => [ 'чатыри', 'читыри', 'чтыря' ],
+		'пять' => [ 'пият', 'пиадь' ],
+		'шест' => [ 'шээз', 'щэсс' ],
+		'ст' => [ 'сат', 'зт' ],
+		'восемь' => [ 'восим', 'воссям' ],
+		'семь' => [ 'сеем', 'сёмь' ],
+		'девя' => [ 'дэви', 'дзювя' ],
+		'сорок' => [ 'сорык', 'сораг' ],
+		'лион' => [ 'ляон', 'леонн' ],
+		'милли' => [ 'мюлле', 'мялле' ],
+		'ард' => [ 'ярд', 'йард' ],
+		// 'ард' => [ 'ярд' ],
 		// .. your rules here. mine are mine ;)
 	]);
 };
 
-$container['access'] = function($c) {
+$container['access'] = function($c)
+{
 	return new \Plasticode\Auth\Access($c);
 };
 
-$container['gallery'] = function($c) {
-	$settings = [
+$container['gallery'] = function($c)
+{
+	$gallerySettings = [
 		'base_dir' => __DIR__,
 		'fields' => [
 			'picture_type' => 'picture_type',
@@ -58,11 +82,12 @@ $container['gallery'] = function($c) {
 		],
 	];
 
-	return new \Plasticode\Gallery\Gallery($c, $settings);
+	return new \Plasticode\Gallery\Gallery($c, $gallerySettings);
 };
 
-$container['comics'] = function($c) {
-	$settings = [
+$container['comics'] = function($c) use ($settings)
+{
+	$comicsSettings = [
 		'base_dir' => __DIR__,
 		'fields' => [
 			'picture_type' => 'type',
@@ -78,24 +103,27 @@ $container['comics'] = function($c) {
 				'public' => 'comics_thumbs_public',
 			],
 		],
-		'thumb_height' => $this->getSettings('comics.thumb_height'),
+		'thumb_height' => $settings['comics']['thumb_height'],
 	];
 
-	return new \Plasticode\Gallery\Comics($c, $settings);
+	return new \Plasticode\Gallery\Comics($c, $comicsSettings);
 };
 
-$container['generatorResolver'] = function($c) {
+$container['generatorResolver'] = function($c)
+{
 	return new \Plasticode\Generators\GeneratorResolver($c, [ '\\App\\Generators' ]);
 };
 
-$container['cases'] = function($c) {
+$container['cases'] = function($c)
+{
 	$cases = new \Plasticode\Util\Cases;
 	$cases->yo = false;
 	
 	return $cases;
 };
 
-$container['view'] = function($c) use ($settings) {
+$container['view'] = function($c) use ($settings)
+{
     $tws = $settings['view'];
 
 	$path = $tws['templates_path'];
@@ -134,10 +162,9 @@ $container['view'] = function($c) use ($settings) {
 		'check' => $check,
 		'user' => $user,
 		'role' => $c->auth->getRole(),
-		'editor' => $c->auth->isEditor(),
 	];
 	
-	$view['image_types'] = \Plasticode\Gallery\Gallery::buildTypesString();
+	$view['image_types'] = \Plasticode\IO\Image::buildTypesString();
 	
 	$view['tables'] = $settings['tables'];
 	$view['entities'] = $settings['entities'];
@@ -152,11 +179,13 @@ $container['view'] = function($c) use ($settings) {
     return $view;
 };
 
-$container['cache'] = function($c) {
+$container['cache'] = function($c)
+{
 	return new \Plasticode\Core\Cache();
 };
 
-$container['session'] = function($c) use ($settings) {
+$container['session'] = function($c) use ($settings)
+{
     $root = $settings['root'];
     
 	$name = 'sessionContainer' . $root;
@@ -164,28 +193,29 @@ $container['session'] = function($c) use ($settings) {
 	return new \Plasticode\Core\Session($name);
 };
 
-$container['translator'] = function($c) use ($settings) {
-	return new \Plasticode\Core\Translator($settings['localization']);
+$container['localization'] = function($c)
+{
+    return new \App\Config\Localization;
 };
 
-$container['validator'] = function($c) {
+$container['translator'] = function($c) use ($settings)
+{
+    $loc = $c->localization->get($settings['language']);
+	return new \Plasticode\Core\Translator($loc);
+};
+
+$container['validator'] = function($c)
+{
 	return new \Plasticode\Validation\Validator($c);
 };
 
 v::with('Plasticode\\Validation\\Rules\\');
 v::with('App\\Validation\\Rules\\');
 
-$container['AuthController'] = function($c) {
-	return new \Plasticode\Controllers\Auth\AuthController($c);
-};
-
-$container['PasswordController'] = function($c) {
-	return new \Plasticode\Controllers\Auth\PasswordController($c);
-};
-
 $dbs = $settings['db'];
 
-$container['db'] = function($c) use ($dbs) {
+$container['db'] = function($c) use ($dbs)
+{
 	\ORM::configure("mysql:host={$dbs['host']};dbname={$dbs['database']}");
 	\ORM::configure("username", $dbs['user']);
 	\ORM::configure("password", $dbs['password']);
@@ -194,7 +224,7 @@ $container['db'] = function($c) use ($dbs) {
 	return new \App\Data\Db($c);
 };
 
-$capsule = new \Illuminate\Database\Capsule\Manager;
+/*$capsule = new \Illuminate\Database\Capsule\Manager;
 $capsule->addConnection([
 	'driver' => 'mysql',
 	'host' => $dbs['host'],
@@ -209,56 +239,71 @@ $capsule->addConnection([
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
-$container['eloquent'] = function($c) use ($capsule) {
+$container['eloquent'] = function($c) use ($capsule)
+{
 	return $capsule;
-};
+};*/
 
-$container['decorator'] = function($c) {
+$container['decorator'] = function($c)
+{
 	return new \App\Core\Decorator($c);
 };
 
-$container['builder'] = function($c) {
+$container['builder'] = function($c)
+{
 	return new \App\Core\Builder($c);
 };
 
-$container['linker'] = function($c) {
+$container['linker'] = function($c)
+{
 	return new \App\Core\Linker($c);
 };
 
-$container['parser'] = function($c) {
+$container['parser'] = function($c)
+{
 	return new \App\Core\Parser($c);
 };
 
-$container['newsParser'] = function($c) {
+$container['newsParser'] = function($c)
+{
 	return new \App\Parsing\NewsParser($c);
 };
 
-$container['forumParser'] = function($c) {
+$container['forumParser'] = function($c)
+{
 	return new \App\Parsing\ForumParser($c);
 };
 
 // handlers
 
-$container['notFoundHandler'] = function($c) {
+$container['notFoundHandler'] = function ($c)
+{
 	return new \App\Handlers\NotFoundHandler($c);
 };
 
-if ($debug !== true) {
-	$container['errorHandler'] = function($c) {
-		return new \Plasticode\Handlers\ErrorHandler($c);
-	};
-}
+$container['errorHandler'] = function ($c) use ($debug)
+{
+	return new \Plasticode\Handlers\ErrorHandler($c, $debug);
+};
 
-$container['notAllowedHandler'] = function($c) {
+$container['notAllowedHandler'] = function ($c)
+{
 	return new \Plasticode\Handlers\NotAllowedHandler($c);
 };
 
 // external
 
-$container['twitch'] = function($c) {
+$container['twitch'] = function ($c)
+{
 	return new \Plasticode\External\Twitch($c);
 };
 
-$container['telegram'] = function($c) {
+$container['telegram'] = function ($c)
+{
 	return new \Plasticode\External\Telegram($c);
+};
+
+$container['twitter'] = function ($c) use ($settings)
+{
+	return new \Plasticode\External\Twitter($c, $settings['twitter']);
 };

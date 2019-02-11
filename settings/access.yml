@@ -9,7 +9,8 @@ actions:
           - api_create
         - edit_own:
           - api_edit
-        - publish
+        - publish:
+          - upload
       - delete_own:
         - api_delete
 
@@ -39,6 +40,11 @@ templates:
   public_extended:
     admin: [ full ]
     editor: [ edit ]
+    author: [ read, create, edit_own ]
+
+  public_editor_extended:
+    admin: [ full ]
+    editor: [ delete ]
     author: [ read, create, edit_own ]
 
 rights:
@@ -78,8 +84,11 @@ rights:
   gallery_authors:
     template: public_extended
 
+  gallery_author_categories:
+    template: admin_api
+
   gallery_pictures:
-    template: public
+    template: public_editor_extended
 
   genders:
     template: admin_api
@@ -95,9 +104,6 @@ rights:
 
   regions:
     template: editor_strict
-  
-  replaces:
-    template: admin_strict
 
   roles:
     template: admin_api

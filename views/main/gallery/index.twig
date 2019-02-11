@@ -1,22 +1,37 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
+
+{% if can('gallery_authors', 'create') %}
+    {% set sidebar_buttons = [ m.create_button('gallery_authors', 'Добавить автора') ] %}
+{% endif %}
 
 {% block content %}
 	<div class="panel panel-primary">
 		{{ lm.panel_header(_context) }}
-	  	<div class="panel-body">
-	  		<p>В этом разделе собраны картинки на тему игр <b>Blizzard</b>, присланные нам на сайт или опубликованные на <a href="{{ forum_index }}">форуме</a> (а также позаимствованные из портфолио художников). У нас вы можете найти как фан-арт, так и официальные работы, права на которые принадлежат <b>Blizzard</b>. Некоторые из художников начинали публиковать свои работы здесь, а теперь официально рисуют для любимой компании!</p>
-	  		<p>Если вы хотите опубликовать здесь свои работы, регистрируйтесь у нас на сайте и добавляйте их через <a href="{{ admin_url }}">админку</a>.</p>
-			<div id="gallery" class="flex-wrapper">
-				{% for a in authors %}
-					<div class="flex-item flex-item-shaded overlay-wrapper">
-						{% if a.last_thumb_url %}
-							<a href="{{ a.page_url }}" title="{{ a.name }}: {{ a.count }} {{ a.pictures_str }}">
-								<img src="{{ a.last_thumb_url }}" class="card-image" />
-								<span class="overlay overlay-full">{{ a.name }} ({{ a.count }})</span>
-							</a>
-						{% endif %}
+	  	<div class="panel-body body-nopad">
+  			<ul class="nav nav-tabs" role="tablist">
+		  		{% for part in parts %}
+		  			{{ m.tab(part.id, part.label, loop.first) }}
+				{% endfor %}
+			</ul>
+
+			<div class="tab-content">
+				{% for part in parts %}
+					<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}" id="{{ part.id }}">
+						<div class="flex-wrapper gallery">
+							{% for a in part.values %}
+								<div class="flex-item flex-item-shaded overlay-wrapper">
+									{% if a.last_thumb_url %}
+										<a href="{{ a.page_url }}" title="{{ a.name }}: {{ a.count }} {{ a.pictures_str }}">
+											<img src="{{ a.last_thumb_url }}" class="card-image" />
+											<span class="overlay overlay-full">{{ a.name }}{% if a.subname %} ({{ a.subname }}){% endif %}{# ({{ a.count }})#}</span>
+										</a>
+									{% endif %}
+								</div>
+							{% endfor %}
+						</div>
 					</div>
 				{% endfor %}
 			</div>

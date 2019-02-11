@@ -5,7 +5,7 @@
 </div>
 <div class="panel-footer">
 	<div class="glyphicon-block" title="Дата публикации">
-		{{ gm.gi('time') }}
+		<i class="far fa-clock"></i>
 		{% if news_item.published %}
 			{{ news_item.start_date|raw }}
 		{% else %}
@@ -13,29 +13,18 @@
 		{% endif %}
 	</div>
 	<div class="glyphicon-block" title="Автор">
-		{{ gm.gi('user') }}
+		<i class="fas fa-user-circle"></i>
 		{% if news_item.starter_url %}
-			<a href="{{ news_item.starter_url }}">{{ news_item.starter_name }}</a>
+			<b><a href="{{ news_item.starter_url }}">{{ news_item.starter_name }}</a></b>
 		{% else %}
 			<b>{{ news_item.starter_name }}</b>
 		{% endif %}
 	</div>
 	{% if news_item.forum_url %}
 		<div class="glyphicon-block">
-			{{ gm.gi('comment') }}
+			<i class="fas fa-comments"></i>
 			<a href="{{ news_item.forum_url }}" title="Комментарии на форуме">{{ news_item.posts }}</a>
 		</div>
 	{% endif %}
-	{% if news_item.tags %}
-		<div class="glyphicon-block" title="Теги">
-			{{ gm.gi('tag') }}
-			{% for tag in news_item.tags %}
-				{% if tag.url %}
-					<a href="{{ tag.url }}" class="label label-default">{{ tag.text }}</a>
-				{% else %}
-					<span class="label label-default">{{ tag.text }}</span>
-				{% endif %}
-			{% endfor %}
-		</div>
-	{% endif %}
+    {% include 'components/tags.twig' with { 'tags': news_item.tags } only %}
 </div>
