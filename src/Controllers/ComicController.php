@@ -2,9 +2,13 @@
 
 namespace App\Controllers;
 
-use Illuminate\Support\Arr;
+use App\Models\ComicSeries;
+use App\Models\ComicIssue;
+use App\Models\ComicStandalone;
+use App\Models\ComicPage;
+use App\Models\ComicStandalonePage;
 
-class ComicController extends BaseController
+class ComicController extends Controller
 {
 	private $comicsTitle;
 	
@@ -21,8 +25,8 @@ class ComicController extends BaseController
 			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => $this->comicsTitle,
-				'series' => $this->builder->buildSortedComicSeries(),
-				'standalones' => $this->builder->buildSortedComicStandalones(),
+				'series' => ComicSeries::getAllSorted(),
+				'standalones' => ComicStandalone::getAllPublished(),
 			],
 		]);
 	
@@ -33,38 +37,22 @@ class ComicController extends BaseController
 	{
 		$alias = $args['alias'];
 		
-		$row = $this->db->getComicSeriesByAlias($alias);
+		$series = ComicSeries::getPublishedByAlias($alias);
 
-		if (!$row) {
+		if (!$series) {
 			return $this->notFound($request, $response);
 		}
 		
-		$id = $row['id'];
-
-		$series = $this->builder->buildComicSeries($row);
-
-		$title = $series['name_ru'];
-		if ($series['name_en']) {
-			$title .= ' (' . $series['name_en'] . ')';
-		}
-	
-		$comicRows = $this->db->getComicIssues($id);
-		
-		$comics = [];
-		foreach ($comicRows as $comicRow) {
-			$comics[] = $this->builder->buildComicIssue($comicRow, $series);
-		}
-
 		$params = $this->buildParams([
-			'game' => $series['game'],
+			'game' => $series->game(),
 			'global_context' => true,
 			'sidebar' => [ 'stream', 'gallery', 'news' ],
-			'large_image' => $this->linker->abs($series['full_cover_url']),
-			'description' => $series['description'],
+			'large_image' => $series->cover() ? $this->linker->abs($series->cover()->url()) : null,
+			'description' => $series->parsedDescription(),
 			'params' => [
 				'series' => $series,
-				'comics' => $comics,
-				'title' => $title,
+				'comics' => $series->issues(),
+				'title' => $series->fullName(),
 				'comics_title' => $this->comicsTitle,
 			],
 		]);
@@ -77,46 +65,32 @@ class ComicController extends BaseController
 		$alias = $args['alias'];
 		$number = $args['number'];
 
-		$seriesRow = $this->db->getComicSeriesByAlias($alias);
+		$series = ComicSeries::getPublishedByAlias($alias);
 
-		if (!$seriesRow) {
+		if (!$series) {
 			return $this->notFound($request, $response);
 		}
 		
-		$series = $this->builder->buildComicSeries($seriesRow);
-
-		$row = $this->db->getComicIssue(null, $series['id'], $number);
+		$comic = $series->issueByNumber($number);
 		
-		if (!$row) {
+		if (!$comic) {
 			return $this->notFound($request, $response);
-		}
-
-		$comic = $this->builder->buildComicIssue($row, $series);
-		
-		$title = $series['name_ru'] . ' ' . $comic['number_str'];
-		if ($series['name_en']) {
-			$title .= ' (' . $series['name_en'] . ')';
-		}
-		
-		$pageRows = $this->db->getComicIssuePages($comic['id']);
-		foreach ($pageRows as $pageRow) {
-			$pages[] = $this->builder->buildComicIssuePage($pageRow, $series, $comic);
 		}
 
 		$params = $this->buildParams([
-			'game' => $series['game'],
+			'game' => $series->game(),
 			'global_context' => true,
 			'sidebar' => [ 'stream', 'gallery', 'news' ],
-			'large_image' => $this->linker->abs($comic['full_cover_url']),
-			'description' => $comic['description'],
+			'large_image' => $comic->cover() ? $this->linker->abs($comic->cover()->url()) : null,
+			'description' => $comic->parsedDescription(),
 			'params' => [
 				'series' => $series,
 				'comic' => $comic,
-				'pages' => $pages,
-				'title' => $title,
+				'pages' => $comic->pages(),
+				'title' => $comic->titleName(),
 				'comics_title' => $this->comicsTitle,
-				'rel_prev' => Arr::get($comic, 'prev.page_url'),
-				'rel_next' => Arr::get($comic, 'next.page_url'),
+				'rel_prev' => $comic->prev() ? $comic->prev()->pageUrl() : null,
+				'rel_next' => $comic->next() ? $comic->next()->pageUrl() : null,
 			],
 		]);
 
@@ -127,34 +101,22 @@ class ComicController extends BaseController
 	{
 		$alias = $args['alias'];
 
-		$row = $this->db->getComicStandaloneByAlias($alias);
+		$comic = ComicStandalone::getPublishedByAlias($alias);
 
-		if (!$row) {
+		if (!$comic) {
 			return $this->notFound($request, $response);
 		}
 
-		$comic = $this->builder->buildComicStandalone($row);
-
-		$title = $comic['name_ru'];
-		if ($comic['name_en']) {
-			$title .= ' (' . $comic['name_en'] . ')';
-		}
-		
-		$pageRows = $this->db->getComicStandalonePages($comic['id']);
-		foreach ($pageRows as $pageRow) {
-			$pages[] = $this->builder->buildComicStandalonePage($pageRow, $comic);
-		}
-
 		$params = $this->buildParams([
-			'game' => $comic['game'],
+			'game' => $comic->game(),
 			'global_context' => true,
 			'sidebar' => [ 'stream', 'gallery', 'news' ],
-			'large_image' => $this->linker->abs($comic['full_cover_url']),
-			'description' => $comic['description'],
+			'large_image' => $comic->cover() ? $this->linker->abs($comic->cover()->url()) : null,
+			'description' => $comic->parsedDescription(),
 			'params' => [
 				'comic' => $comic,
-				'pages' => $pages,
-				'title' => $title,
+				'pages' => $comic->pages(),
+				'title' => $comic->titleName(),
 				'comics_title' => $this->comicsTitle,
 			],
 		]);
@@ -168,47 +130,36 @@ class ComicController extends BaseController
 		$comicNumber = $args['number'];
 		$pageNumber = $args['page'];
 
-		$seriesRow = $this->db->getComicSeriesByAlias($alias);
+		$series = ComicSeries::getPublishedByAlias($alias);
 
-		if (!$seriesRow) {
+		if (!$series) {
 			return $this->notFound($request, $response);
 		}
 		
-		$series = $this->builder->buildComicSeries($seriesRow);
+		$comic = $series->issueByNumber($comicNumber);
 		
-		$comicRow = $this->db->getComicIssue(null, $series['id'], $comicNumber);
-		
-		if (!$comicRow) {
+		if (!$comic) {
 			return $this->notFound($request, $response);
 		}
-
-		$comic = $this->builder->buildComicIssue($comicRow, $series);
-
-		$row = $this->db->getComicIssuePage($comic['id'], $pageNumber);
 		
-		if (!$row) {
+		$page = $comic->pageByNumber($pageNumber);
+		
+		if (!$page) {
 			return $this->notFound($request, $response);
-		}
-
-		$page = $this->builder->buildComicIssuePage($row, $series, $comic);
-
-		$title = $page['number_str'] . ' - ' . $series['name_ru'] . ' ' . $comic['number_str'];
-		if ($series['name_en']) {
-			$title .= ' (' . $series['name_en'] . ')';
 		}
 
 		$params = $this->buildParams([
-			'game' => $series['game'],
+			'game' => $series->game(),
 			'global_context' => true,
-			'large_image' => $this->linker->abs($page['url']),
+			'large_image' => $this->linker->abs($page->url),
 			'params' => [
 				'series' => $series,
 				'comic' => $comic,
 				'page' => $page,
-				'title' => $title,
+				'title' => $page->titleName(),
 				'comics_title' => $this->comicsTitle,
-				'rel_prev' => Arr::get($page, 'prev.page_url'),
-				'rel_next' => Arr::get($page, 'next.page_url'),
+				'rel_prev' => $page->prev() ? $page->prev()->pageUrl() : null,
+				'rel_next' => $page->next() ? $page->next()->pageUrl() : null,
 			],
 		]);
 
@@ -220,38 +171,29 @@ class ComicController extends BaseController
 		$alias = $args['alias'];
 		$pageNumber = $args['page'];
 
-		$comicRow = $this->db->getComicStandaloneByAlias($alias);
+		$comic = ComicStandalone::getPublishedByAlias($alias);
 
-		if (!$comicRow) {
+		if (!$comic) {
 			return $this->notFound($request, $response);
 		}
 
-		$comic = $this->builder->buildComicStandalone($comicRow);
+		$page = $comic->pageByNumber($pageNumber);
 
-		$row = $this->db->getComicStandalonePage($comic['id'], $pageNumber);
-
-		if (!$row) {
+		if (!$page) {
 			return $this->notFound($request, $response);
-		}
-		
-		$page = $this->builder->buildComicStandalonePage($row, $comic);
-
-		$title = $page['number_str'] . ' - ' . $comic['name_ru'];
-		if ($comic['name_en']) {
-			$title .= ' (' . $comic['name_en'] . ')';
 		}
 
 		$params = $this->buildParams([
-			'game' => $comic['game'],
+			'game' => $comic->game(),
 			'global_context' => true,
-			'large_image' => $this->linker->abs($page['url']),
+			'large_image' => $this->linker->abs($page->url()),
 			'params' => [
 				'comic' => $comic,
 				'page' => $page,
-				'title' => $title,
+				'title' => $page->titleName(),
 				'comics_title' => $this->comicsTitle,
-				'rel_prev' => Arr::get($page, 'prev.page_url'),
-				'rel_next' => Arr::get($page, 'next.page_url'),
+				'rel_prev' => $page->prev() ? $page->prev()->pageUrl() : null,
+				'rel_next' => $page->next() ? $page->next()->pageUrl() : null,
 			],
 		]);
 

@@ -35,14 +35,12 @@ if ($settings['debug']) {
 	debugModeOn();
 }
 
-require $src . 'dependencies.php';
+$bootstrap = new \App\Config\Bootstrap($settings, $debug, __DIR__);
+\Plasticode\Core\Core::bootstrap($container, $bootstrap->getMappings());
 
 // middleware
 $app->add(new \Plasticode\Middleware\SlashMiddleware($container));
 $app->add(new \Plasticode\Middleware\CookieAuthMiddleware($container, $settings['auth_token_key']));
-
-// init
-$container->db->init();
 
 require $src . 'routes.php';
 

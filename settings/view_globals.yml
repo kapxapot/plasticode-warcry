@@ -12,6 +12,7 @@ copyright_from: 2004
 admin_copyright_from: 2016
 site_keywords: world of warcraft, warcraft, world, wow, вов, варкрафт, starcraft, starcraft 2, старкрафт, старкрафт 2, diablo, diablo 2, diablo 3, диабло, дьябло, дьябла, hearthstone heroes of warcraft, hearthstone, хартстоун, heroes of the storm, hots, overwatch, овервотч, blizzard, близзард, альянс, орда, alliance, horde, люди, орки, таурены, нежить, ночные эльфы, тролли, дворфы, гномы, human, orc, tauren, undead, night elf, elves, troll, dwarf, gnome, воин, маг, шаман, разбойник, рога, прист, жрец, варлок, чернокнижник, друид, охотник, хантер, паладин, warrior, mage, shaman, rogue, priest, warlock, druid, hunter, paladin, игра, ролевая, ролевые, игры, role-playing, roleplaying, role, playing, рпг, rpg, mmorpg, game, games, faq, forum, форум, форумы, скриншот, арт, фан-арт, screen, screenshot, art, fan, файлы, скачать, патчи, патч, рецепты, статьи, новости
 admin_url: /admin
+lang: ru
 
 # folders for Twig only
 folders:
@@ -33,6 +34,8 @@ rss_feed: '//feeds.feedburner.com/warcryru'
 angular:
   app: warcryApp
   ctrl: warcryCtrl
+  adminApp: warcryAdmin
+  adminAppKebab: warcry-admin
 
 user_actions:
   create:

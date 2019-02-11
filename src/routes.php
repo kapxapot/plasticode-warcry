@@ -47,7 +47,7 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 			$gen->generateAdminPageRoute($this, $access);
 		}
 		
-    	$this->get('/playground', \App\Controllers\Admin\PlaygroundController::class . ':index')->setName('admin.playground');
+    	$this->get('/playground', \App\Controllers\Admin\PlaygroundController::class)->setName('admin.playground');
     	$this->post('/comics/upload', \App\Controllers\Admin\ComicController::class . ':upload')->setName('admin.comics.upload');
     	$this->post('/gallery/upload', \App\Controllers\Admin\GalleryController::class . ':upload')->setName('admin.gallery.upload');
 	})->add(new AuthMiddleware($container, 'admin.index'));
@@ -86,6 +86,9 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 
 	$this->get('/tags/{tag}', \App\Controllers\TagController::class . ':item')->setName('main.tag');
 
+	$this->get('/search/{query}', \App\Controllers\SearchController::class . ':search')
+	    ->setName('main.search');
+
 	$this->get($trueRoot ? '/[{game}]' : '[/{game}]', \App\Controllers\NewsController::class . ':index')->setName('main.index');
 
 	// cron
@@ -104,5 +107,12 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 	$this->group('/auth', function () {
 		$this->post('/signout', \Plasticode\Controllers\Auth\AuthController::class . ':postSignOut')->setName('auth.signout');
 		$this->post('/password/change', \Plasticode\Controllers\Auth\PasswordController::class . ':postChangePassword')->setName('auth.password.change');
+	})->add(new AuthMiddleware($container, 'main.index'));
+	
+	// tests
+	
+	$this->group('/tests', function () {
+	    $this->get('/smoke', \App\Controllers\Tests\SmokeTestController::class)
+	        ->setName('tests.smoke');
 	})->add(new AuthMiddleware($container, 'main.index'));
 });

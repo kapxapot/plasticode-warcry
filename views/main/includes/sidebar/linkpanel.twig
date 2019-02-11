@@ -3,8 +3,8 @@
 	<div class="panel panel-secondary">
 		<div class="panel-body linkblock">
 			{% for link in linkpanel_links %}
-				<div class="icon-{{ link.game.alias }}">
-					<a title="[{{ link.game.name }}] {{ link.title|raw }}" href="{{ link.url }}">{{ link.title|raw }}</a>
+				<div class="icon-{{ link.game.result_alias }}">
+					<a{% if link.important %} class="important"{% endif %} title="[{{ link.game.name }}] {{ link.title|raw }}" href="{{ link.url }}">{{ link.title|raw }}</a>
 					{% if link.addendum %}({{ link.addendum }}){% endif %}
 				</div>
 			{% endfor %}

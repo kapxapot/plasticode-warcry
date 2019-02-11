@@ -20,7 +20,12 @@
 						'url': path_for('main.news', { 'id': news_item.id }),
 						'buttons': [ m.edit_button('news', news_item) ]
 					}) }}
-				    {% include 'main/news/bodyfooter.twig' %}
+					
+					<div class="panel-body article news">
+	                    {{ news_item.short_text|raw }}
+                    </div>
+
+				    {% include 'main/news/footer.twig' %}
 				</div>
 			{% endfor %}
 		{% else %}

@@ -8,8 +8,8 @@
 		{% set breadcrumbs = [
 			{ 'url': path_for('main.comics'), 'text': comics_title }
 		] %}
-		{{ lm.panel_header(_context, series.name_ru, {
-			'subtitle': series.name_en,
+		{{ lm.panel_header(_context, series.name, {
+			'subtitle': series.sub_name,
 			'buttons': [ m.edit_button('comic_series', series) ]
 		}) }}
 	  	<div class="panel-body">
@@ -19,11 +19,11 @@
 			{% if series.description %}
 	  			<p>{{ series.description|raw }}</p>
 			{% endif %}
-		    {% include 'components/comics.twig' with { 'comics': comics } only %}
+		    {% include 'components/comics_issues.twig' with { 'comics': comics } only %}
 	    </div>
 		{% if series.tags %}
 			<div class="panel-footer">
-                {% include 'components/tags.twig' with { 'tags': series.tags } only %}
+                {% include 'components/tags.twig' with { 'tags': series.tag_links } only %}
 			</div>
 		{% endif %}
 	</div>

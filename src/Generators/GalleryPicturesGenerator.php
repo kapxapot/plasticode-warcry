@@ -2,17 +2,16 @@
 
 namespace App\Generators;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Data\Taggable;
+use App\Models\GalleryAuthor;
+use App\Models\GalleryPicture;
 
-class GalleryPicturesGenerator extends EntityGenerator
+class GalleryPicturesGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::GALLERY_PICTURES;
-	
+
 	public function getRules($data, $id = null)
 	{
 	    $rules = parent::getRules($data, $id);
@@ -41,6 +40,8 @@ class GalleryPicturesGenerator extends EntityGenerator
 	
 	public function afterLoad($item)
 	{
+	    $item = parent::afterLoad($item);
+	    
 		$item['picture'] = $this->gallery->getPictureUrl($item);
 		$item['thumb'] = $this->gallery->getThumbUrl($item);
 		
@@ -51,9 +52,10 @@ class GalleryPicturesGenerator extends EntityGenerator
 			$item['points'] = explode(',', $item['points']);
 		}
 
-		$author = $this->db->getGalleryAuthor($item['author_id']);
+		$author = GalleryAuthor::get($item['author_id']);
+		
 		if ($author) {
-			$item['author_alias'] = $author['alias'];
+			$item['author_alias'] = $author->alias;
 		}
 
 		return $item;
@@ -64,12 +66,12 @@ class GalleryPicturesGenerator extends EntityGenerator
 		$params = parent::getAdminParams($args);
 
 		$authorId = $args['id'];
-		$author = $this->db->getGalleryAuthor($authorId, true);
+		$author = GalleryAuthor::get($authorId);
 
 		$params['source'] = "gallery_authors/{$authorId}/gallery_pictures";
 		$params['breadcrumbs'] = [
 			[ 'text' => 'Галерея', 'link' => $this->router->pathFor('admin.entities.gallery_authors') ],
-			[ 'text' => $author['name'] ],
+			[ 'text' => $author->name ],
 			[ 'text' => 'Картинки' ],
 		];
 		

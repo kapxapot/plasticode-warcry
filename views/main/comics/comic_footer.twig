@@ -6,6 +6,6 @@
 			{{ gm.gi('copyright-mark') }}
 			<a href="{{ comic.origin }}">Источник</a>
 		</div>
-        {% include 'components/tags.twig' with { 'tags': comic.tags } only %}
+        {% include 'components/tags.twig' with { 'tags': comic.tag_links } only %}
 	</div>
 {% endif %}

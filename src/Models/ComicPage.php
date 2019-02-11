@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+class ComicPage extends ComicPageBase
+{
+    protected static $comicIdField = 'comic_issue_id';
+
+    // PROPS
+    
+    public function comic()
+    {
+        return ComicIssue::get($this->{static::$comicIdField});
+    }
+    
+    public function pageUrl()
+    {
+        return self::$linker->comicIssuePage($this);
+    }
+}

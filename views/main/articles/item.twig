@@ -15,59 +15,27 @@
 			'buttons': [ m.edit_button('articles', article) ],
 			'published': article.published
 		}) }}
-		{% if article.sub_articles %}
+		{% if article.sub_articles.any %}
 		  	<div class="panel-body sub-articles">
 		  		{% for sa in article.sub_articles %}
-		  			<a class="label label-default" title="{{ sa.title_en }}" href="{{ sa.url }}">{{ sa.title }}</a>
+		  			<a class="label label-default" title="{{ sa.title_en }}" href="{{ sa.url }}">{{ sa.name_ru }}</a>
 		  		{% endfor %}
 			</div>
 		{% endif %}
-		{% include 'components/contents.twig' with { 'items': article.contents } only %}
+		{% include 'components/contents.twig' with { 'items': article.parsed.contents } only %}
 	  	<div class="panel-body article">
-	    	{{ article.text|raw }}
+	    	{{ article.parsed.text|raw }}
 	    </div>
 	    <div class="panel-footer">
-	    	{% if article.author %}
-	    		<div class="glyphicon-block" title="Автор">
-	    			<i class="fas fa-user-circle"></i>
-	    			{% if article.author.member_url %}
-	    				<b><a href="{{ article.author.member_url }}">{{ article.author.name }}</a></b>
-	    			{% else %}
-	    				<b>{{ article.author.name }}</b>
-	    			{% endif %}
-	    		</div>
-	    	{% endif %}
-	    	<div class="glyphicon-block" title="Дата публикации">
-	    		<i class="far fa-clock"></i>
-	    		{% if article.published %}
-	    			{{ article.published_at|raw }}
-	    		{% else %}
-	    			Не опубликована!
-	    		{% endif %}
-	    	</div>
-	    	{#% if article.editor %}
-	    		<div class="glyphicon-block" title="Редактор">
-	    			<i class="fas fa-user-circle"></i>
-	    			{% if article.editor.member_url %}
-	    				<b><a href="{{ article.editor.member_url }}">{{ article.editor.name }}</a></b>
-	    			{% else %}
-	    				<b>{{ article.editor.name }}</b>
-	    			{% endif %}
-	    		</div>
-	    	{% endif %}
-	    	{% if article.updated_at %}
-	    		<div class="glyphicon-block" title="Дата редакции">
-	    			<i class="far fa-clock"></i>
-	    			{{ article.updated_at|raw }}
-	    		</div>
-	    	{% endif %#}
+            {% include 'components/published_at.twig' with { 'entity': article } only %}
+	        {% include 'components/creator.twig' with { 'entity': article } only %}
 	    	{% if article.origin %}
-	    		<div class="glyphicon-block" title="Источник">
+	    		<div class="glyphicon-block">
 	    			<i class="far fa-copyright"></i>
 	    			<a href="{{ article.origin }}">Источник</a>
 	    		</div>
 	    	{% endif %}
-            {% include 'components/tags.twig' with { 'tags': article.tags } only %}
+            {% include 'components/tags.twig' with { 'tags': article.tag_links } only %}
 	    </div>
 	</div>
 {% endblock %}

@@ -20,8 +20,8 @@
 {% endmacro %}
 
 {% macro panel_game_header(game, title, data = null) %}
-	<div class="panel-heading panel-title heading-{{ game.alias }}">
-		<i class="game-icon icon-{{ game.alias }}" title="{{ game.name }}"></i>
+	<div class="panel-heading panel-title heading-{{ game.result_alias }}">
+		<i class="game-icon icon-{{ game.result_alias }}-md" title="{{ game.name }}"></i>
 		<header>
 			{% if data.url %}
 				<a href="{{ data.url }}">{{ title|raw }}</a>

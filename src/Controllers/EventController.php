@@ -4,7 +4,11 @@ namespace App\Controllers;
 
 use Plasticode\Util\Sort;
 
-class EventController extends BaseController
+use App\Models\Event;
+use App\Models\EventType;
+use App\Models\Game;
+
+class EventController extends Controller
 {
 	private $eventsTitle;
 	
@@ -17,16 +21,13 @@ class EventController extends BaseController
 
 	public function index($request, $response, $args)
 	{
-		$rows = $this->db->getEvents();
-		$events = $this->builder->buildEvents($rows);
-
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => $this->eventsTitle,
-				'events' => $events,
-				'event_games' => $this->db->getGames(),
-				'event_types' => $this->db->getEventTypes(),
+				'events' => Event::getGroups(),
+				'event_games' => Game::getAll(),
+				'event_types' => EventType::getAll(),
 			],
 		]);
 	
@@ -36,26 +37,32 @@ class EventController extends BaseController
 	public function item($request, $response, $args)
 	{
 		$id = $args['id'];
+		
 		$rebuild = $request->getQueryParam('rebuild', false);
 
-		$row = $this->db->getEvent($id);
+		$event = Event::getProtected($id);
 
-		if (!$row) {
+		if (!$event) {
 			return $this->notFound($request, $response);
 		}
 
-		$event = $this->builder->buildEvent($row, $rebuild);
+        if ($rebuild) {
+            $event->resetDescription();
+        }
+        
+        $description = $event->parsedDescription();
 
 		$params = $this->buildParams([
-			'game' => $event['game'],
+			'game' => $event->game(),
 			'global_context' => true,
 			'sidebar' => [ 'stream', 'gallery', 'news' ],
-			'large_image' => $event['parsed']['large_image'],
-			'image' => $event['parsed']['image'],
+			'large_image' => $description['large_image'],
+			'image' => $description['image'],
 			'params' => [
 				'event' => $event,
-				'title' => $event['name'],
+				'title' => $event->name,
 				'events_title' => $this->eventsTitle,
+				'page_description' => $this->makePageDescription($description['text'], 'events.description_limit'),
 			],
 		]);
 

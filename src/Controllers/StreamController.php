@@ -2,7 +2,11 @@
 
 namespace App\Controllers;
 
-class StreamController extends BaseController
+use App\Jobs\UpdateStreamsJob;
+use App\Models\Stream;
+use App\Services\StreamStatsService;
+
+class StreamController extends Controller
 {
 	private $streamsTitle;
 	
@@ -15,9 +19,8 @@ class StreamController extends BaseController
 
 	public function index($request, $response, $args)
 	{
-	    $rows = $this->db->getStreams();
-		$streams = $this->builder->buildSortedStreams($rows);
-		$groups = $this->builder->buildStreamGroups($streams);
+		$streams = Stream::getAllSorted();
+		$groups = Stream::getGroups();
 
 		$params = $this->buildParams([
 			'sidebar' => [ 'gallery' ],
@@ -35,22 +38,21 @@ class StreamController extends BaseController
 	{
 		$alias = $args['alias'];
 
-		$row = $this->db->getStreamByAlias($alias);
+		$stream = Stream::getPublishedByAlias($alias);
 		
-		if (!$row) {
+		if (!$stream) {
 			return $this->notFound($request, $response);
 		}
 		
-		$stream = $this->builder->buildStream($row);
-		$stats = $this->builder->buildStreamStats($stream);
-
+		$statsService = new StreamStatsService();
+		
 		$params = $this->buildParams([
 			'sidebar' => [ 'gallery' ],
-			'image' => $stream['remote_logo'],
+			'image' => $stream->remoteLogo,
 			'params' => [
 				'stream' => $stream,
-				'stats' => $stats,
-				'title' => $stream['title'],
+				'stats' => $statsService->build($stream),
+				'title' => $stream->title,
 				'streams_title' => $this->streamsTitle,
 			],
 		]);
@@ -62,15 +64,11 @@ class StreamController extends BaseController
 	{
 		$log = $request->getQueryParam('log', false);
 		$notify = $request->getQueryParam('notify', true);
-
-		$rows = $this->db->getStreams();
 		
-		$streamData = array_map(function($row) use ($notify) {
-			return $this->builder->updateStreamData($row, $notify);
-		}, $rows);
+		$job = new UpdateStreamsJob($this->container, $notify);
 
 		$params = [ 
-			'data' => $streamData,
+			'data' => $job->run(),
 			'log' => $log,
 		];
 

@@ -2,26 +2,31 @@
 
 namespace App\Controllers;
 
-class RecipeController extends BaseController {
+use App\Models\Game;
+use App\Models\Recipe;
+use App\Models\Skill;
+
+class RecipeController extends Controller {
 	private $recipesTitle;
 	private $game;
-	
+
 	public function __construct($container) {
 		parent::__construct($container);
 
 		$this->recipesTitle = $this->getSettings('recipes.title');
 
 		$gameAlias = $this->getSettings('recipes.game');
-		$this->game = $this->db->getGameByAlias($gameAlias);
+		$this->game = Game::getPublishedByAlias($gameAlias);
 	}
 	
 	public function index($request, $response, $args) {
 		$skillAlias = $args['skill'];
+		
 		$page = $request->getQueryParam('page', 1);
 		$query = $request->getQueryParam('q', null);
 		$rebuild = $request->getQueryParam('rebuild', false);
 
-		$skill = $this->db->getSkillByAlias($skillAlias);
+		$skill = Skill::getByAlias($skillAlias);
 
 		$pageSize = $this->getSettings('recipes.page_size');
 
@@ -30,6 +35,8 @@ class RecipeController extends BaseController {
 			: $this->recipesTitle;
 
 		if ($skill) {
+		    $skillId = $skill->getId();
+		    
 			$titleEn = $skill['name'];
 			$breadcrumbs = [
 				[
@@ -40,27 +47,24 @@ class RecipeController extends BaseController {
 		}
 
 		// paging
-		$count = $this->db->getRecipeCount($skill['id'], $query);
+		
+		$count = Recipe::count($skillId, $query);
 		$url = $this->linker->recipes($skill);
 
 		if ($query) {
 			$url .= '?q=' . htmlspecialchars($query);
 		}
 		
-		$paging = $this->builder->buildComplexPaging($url, $count, $page, $pageSize);
+		$paging = $this->pagination->complex($url, $count, $page, $pageSize);
 
-		$skillRows = $this->db->getSkills();
-
-		$skills = array_map(function($s) {
-			return $this->builder->buildSkill($s);
-		}, $skillRows);
+		$offset = ($page - 1) * $pageSize;
+		$recipes = Recipe::getAllFiltered($skillId, $query, $offset, $pageSize);
 		
-		$cursorStart = ($page - 1) * $pageSize;
-		$rows = $this->db->getRecipes($cursorStart, $pageSize, $skill['id'], $query);
-
-		$recipes = array_map(function($r) {
-			return $this->builder->buildRecipe($r, $rebuild === false);
-		}, $rows);
+		if ($rebuild) {
+		    $recipes->apply(function ($r) {
+		        $r->reset();
+		    });
+		}
 
 		$params = $this->buildParams([
 			'game' => $this->game,
@@ -69,7 +73,7 @@ class RecipeController extends BaseController {
 				'disqus_url' => $this->linker->disqusRecipes($skill),
 				'disqus_id' => 'recipes' . ($skill ? '_' . $skill['alias'] : ''),
 				'base_url' => $this->linker->recipes(),
-				'skills' => $skills,
+				'skills' => Skill::getAllActive(),
 				'skill' => $skill,
 				'recipes' => $recipes,
 				'title' => $title,
@@ -86,21 +90,19 @@ class RecipeController extends BaseController {
 	
 	public function item($request, $response, $args) {
 		$id = $args['id'];
+		
 		$rebuild = $request->getQueryParam('rebuild', false);
 		
-		$row = $this->db->getRecipe($id);
+		$recipe = Recipe::get($id);
 
-		if (!$row) {
+		if (!$recipe) {
 			return $this->notFound($request, $response);
 		}
 		
-		$recipe = $this->builder->buildRecipe($row, $rebuild);
-		
-		$title = $recipe['name_ru'];
-		if (isset($recipe['name']) && $recipe['name'] != $recipe['name_ru']) {
-			$title .= ' (' . $recipe['name'] . ')';
+		if ($rebuild) {
+		    $recipe->reset();
 		}
-
+		
 		$params = $this->buildParams([
 			'game' => $this->game,
 			'sidebar' => [ 'stream', 'gallery' ],
@@ -110,7 +112,7 @@ class RecipeController extends BaseController {
 				'recipes_title' => $this->recipesTitle,
 				//'breadcrumbs' => $breadcrumbs,
 				'recipe' => $recipe,
-				'title' => $title,
+				'title' => $recipe->title(),
 			],
 		]);
 

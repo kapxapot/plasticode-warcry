@@ -100,7 +100,7 @@ comic_publishers:
 comic_series:
   table: comic_series
   api: full
-  name_field: name_ru
+  name_field: name_en
   sort: created_at
   reverse: true
   public:
@@ -183,6 +183,7 @@ events:
     - updated_at
     - updated_by
     - address
+    - important
   private:
     - published
     - published_at
@@ -296,6 +297,7 @@ games:
     - icon
     - parent_id
     - autotags
+    - twitch_name
 
 genders:
   table: gender
@@ -310,9 +312,6 @@ genders:
 
 items:
   table: wow_items_new
-
-locations:
-  table: enc_loc
 
 menus:
   table: wow_menu_sections
@@ -362,12 +361,6 @@ news:
   private:
     - published
     - published_at
-
-npc:
-  table: enc_npc
-
-quests:
-  table: enc_spells
 
 recipes:
   table: wow_recipes

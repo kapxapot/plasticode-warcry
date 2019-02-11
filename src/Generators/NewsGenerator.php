@@ -2,17 +2,13 @@
 
 namespace App\Generators;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Data\Taggable;
-
-class NewsGenerator extends EntityGenerator
+class NewsGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::NEWS;
-	
+
 	public function beforeSave($data, $id = null)
 	{
 		$data['cache'] = null;

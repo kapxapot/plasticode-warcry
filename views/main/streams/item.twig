@@ -20,43 +20,69 @@
 		}) }}
 	  	<div class="panel-body panel-body--nopad mb-1">
 			<div class="embed-responsive embed-responsive-16by9">
-				<iframe class="embed-responsive-item" src="https://player.twitch.tv/?channel={{ stream.stream_id }}" allowfullscreen="true" frameborder="0" scrolling="no" width="620" height="378"></iframe>
+				<iframe class="embed-responsive-item" src="https://player.twitch.tv/?channel={{ stream.stream_id }}" allowfullscreen="true" frameborder="0" scrolling="no"></iframe>
 			</div>
 		</div>
-		<div class="panel-body body-nopad stream-footer">
+		<div class="panel-body body-nopad stream-footer" ng-cloak>
 			<ul class="nav nav-tabs" role="tablist">
-				{{ m.tab('about', 'Описание', true) }}
-				{{ m.tab('chat', 'Чат') }}
+				{{ m.tab('about', 'Описание', true, '<i class="fas fa-info-circle"></i> <b>Описание</b>') }}
+				{{ m.tab('chat', 'Чат', false, '<i class="fas fa-comments"></i> <b>Чат</b>') }}
 				{% if stats.viewers %}
-					{{ m.tab('viewers', 'Статистика по зрителям за последние сутки', false, gm.gi('stats') ~ ' Зрители') }}
+					{{ m.tab('viewers', 'Статистика по зрителям за последние сутки', false, '<i class="fas fa-chart-area"></i> <b>День</b>') }}
 				{% endif %}
-				{# turned off #}
-				{% if stats.bars %}
-					{{ m.tab('bars', 'Статистика по зрителям', false, gm.gi('stats') ~ ' Колонки') }}
+				{% if stats.daily %}
+					{{ m.tab('daily', 'Стастистика по дням за последний месяц', false, '<i class="fas fa-chart-bar"></i> <b>Месяц</b>') }}
 				{% endif %}
 				{% if stats.games %} 
-					{{ m.tab('games', 'Статистика по играм за последние 30 дней', false, gm.gi('stats') ~ ' Игры') }}
+					{{ m.tab('games', 'Статистика по играм за последний месяц' ~ (stats.games|length == 1 ? ". [Спойлер]: это " ~ stats.games[0].remote_game : ''), false, '<i class="fas fa-chart-pie"></i> <b>Игры</b>') }}
+				{% endif %}
+				{% if stats.logs %}
+				    {{ m.tab('log', 'Журнал трансляций за последний месяц', false, '<i class="fas fa-history"></i> <b>Журнал</b>') }}
 				{% endif %}
 			</ul>
 			<div class="tab-content">
 				<div role="tabpanel" class="tab-pane fade in active" id="about">
-					{% if stream.remote_logo %}
+					{#% if stream.remote_logo %}
 						<img src="{{ stream.remote_logo }}" class="stream-logo" />
-					{% endif %}
-					<p><b>Канал:</b> {% if stream.stream_url %}<a href="{{ stream.stream_url }}">{% endif %}{% if stream.remote_title %}{{ stream.remote_title }}{% else %}{{ stream.title }}{% endif %}{% if stream.stream_url %}</a>{% endif %}</p>
-					{% if stream.remote_online %}
-						<p><b>Зрители:</b> {{ stream.remote_viewers }}</p>
-					{% else %}
-						<p>Офлайн</p>
-					{% endif %}
-					{% if stream.remote_game %}
-						<p><b>Игра:</b> {{ stream.remote_game }}</p>
-					{% endif %}
-					{% if stream.remote_status %}
-					    <p><b>Статус:</b> {{ stream.remote_status }}</p>
-					{% endif %}
-					{% if stream.description %}
-					    {{ stream.description|raw }}
+					{% endif %#}
+
+					{% set s = stream %}
+					
+				    <div class="card-body__title lh-12 grey-5">
+		    		    {% if stream.stream_url %}<a href="{{ stream.stream_url }}">{% endif %}{% if stream.remote_title %}{{ stream.remote_title }}{% else %}{{ stream.title }}{% endif %}{% if stream.stream_url %}</a>{% endif %}
+		    		    {% if s.remote_online_at %}
+                            {% if s.channel %}
+    				    		{% if s.remote_online %}
+    				    			транслирует
+    				    		{% else %}
+    				    			{{ s.verbs.broadcasted }}
+    				    		{% endif %}
+                            {% else %}
+        			    		{% if s.remote_online %}
+        			    			играет
+        			    		{% else %}
+        			    			{{ s.verbs.played }}
+        			    		{% endif %}
+        			    		в
+        			    	{% endif %}
+        			    	{{ s.remote_game }}
+    			    	{% else %}
+    			    	    спит
+    			    	{% endif %}
+		    		</div>
+	    			{% if s.remote_online_at %}
+			    		{% if s.remote_online %}
+			    		    <div class="card-body__number mt-1">{{ s.remote_viewers }} <span class="gray-9">{{ s.nouns.viewers }}</span></div>
+			    		{% else %}
+			    			<div class="grey-7 mt-1">{{ gm.moment_from_now(s.remote_online_at_iso) }}</div>
+			    		{% endif %}
+		    		    <div class="mt-1">{{ s.remote_status }}</div>
+			    	{% else %}
+			    	    <div class="card-body__action">zzZzZz...</div>
+			    	{% endif %}
+
+					{% if stream.parsed_description %}
+					    <div class="card-body__description mt-3">{{ stream.parsed_description|raw }}</div>
 					{% endif %}
 				</div>
 				<div role="tabpanel" class="tab-pane fade" id="chat">
@@ -70,15 +96,15 @@
 						</div>
 					</div>
 				{% endif %}
-				{# turned off #}
-				{% if stats.bars %}
-					<div role="tabpanel" class="tab-pane fade" id="bars">
+				{% if stats.daily %}
+					<div role="tabpanel" class="tab-pane fade" id="daily">
+						<div id="legendDaily" class="mt-1"></div>
 						<div class="chart-container">
-							<canvas id="chartBars"></canvas>
+							<canvas id="chartDaily"></canvas>
 						</div>
-						<div class="chart-footer">
-							<p>Среднее число зрителей в разбивке по часам за последние сутки (время <a href="https://www.timeanddate.com/time/zones/msk">московское</a>).</p>
-						</div>
+						{#<div class="chart-footer">
+							<p>Daily stats for last month (UTC).</p>
+						</div>#}
 					</div>
 				{% endif %}
 				{% if stats.games %}
@@ -89,11 +115,27 @@
 						</div>
 					</div>
 				{% endif %}
+				{% if stats.logs %}
+    				<div role="tabpanel" class="tab-pane fade linkblock-big linkblock--spaced" id="log">
+					    {% for log in stats.logs %}
+							<div class="icon-lg{% if not log.game.default %} icon-{{ log.game.result_alias }}-lg{% endif %} flex flex-v">
+							    {#% if log.game.default %#}
+							        <div class="linkblock-title">{{ log.remote_game }}</div>
+							    {#% endif %#}
+								<div>{{ log.remote_status }}</div>
+								<div class="linkblock-subtext" title="{{ log.start_iso }} - {{ log.end_iso }}">
+								    {{ gm.moment(log.start_iso, 'D MMMM, H:mm') }} – {{ gm.moment(log.end_iso, 'H:mm') }}
+								    ({% if stream.remote_online and loop.first %}live{% else %}{{ gm.moment_from_now(log.end_iso) }}{% endif %})
+								</div>
+							</div>
+					    {% endfor %}
+    				</div>
+				{% endif %}
 			</div>
 	    </div>
-		{% if stream.tags %}
+		{% if stream.tag_links %}
 			<div class="panel-footer">
-                {% include 'components/tags.twig' with { 'tags': stream.tags } only %}
+                {% include 'components/tags.twig' with { 'tags': stream.tag_links } only %}
 			</div>
 		{% endif %}
 	</div>
@@ -101,6 +143,8 @@
 
 {% block more_js %}
 	<script>
+	    moment.locale('{{ lang }}');
+	
 		{% if stats.viewers %}
 			var ctxViewers = $('#chartViewers')[0].getContext('2d');
 			var chartViewers = new Chart(ctxViewers, {
@@ -121,8 +165,8 @@
 							        		'{{ r.remote_status|e('js')|raw }}'{% if not loop.last %},{% endif %}
 							        	{% endfor %}
 						            ],
-				            		backgroundColor: pickColor({{ loop.parent.loop.index }} - 1, 0, 0.2),
-				            		borderColor: pickColor({{ loop.parent.loop.index }} - 1, 0),
+				            		backgroundColor: pickColor({{ loop.parent.loop.index }}, 0, 0.2),
+				            		borderColor: pickColor({{ loop.parent.loop.index }}, 0),
 				            		pointRadius: 2,
 				            		pointHitRadius: 2,
 				            		pointHoverRadius: 2,
@@ -174,12 +218,6 @@
                     			
                     			return moment(dataset.data[index].x).format('DD.MM.Y H:mm');
 		                    }
-		                    {#label: function(tooltipItem, data) {
-		                        var dataset = data.datasets[tooltipItem.datasetIndex];
-                    			var index = tooltipItem.index;
-                    			
-                    			return dataset.statuses[index];
-		                    }#}
 		                }
 		            },
 		            legend: {
@@ -191,46 +229,68 @@
 		                {% for v_game, v_sets in stats.viewers.data %}
 		                    text.push('<li>');
 		                    {#text.push('<span style="background-color: ' + pickColor({{ loop.index }}, 0) + '">&nbsp;</span>');#}
-		                    text.push('<span style="border-color: ' + pickColor({{ loop.index }} - 1, 0) + '; background-color: ' + pickColor({{ loop.index }} - 1, 0, 0.2) + '">&nbsp;</span>');
+		                    text.push('<span style="border-color: ' + pickColor({{ loop.index }}, 0) + '; background-color: ' + pickColor({{ loop.index }}, 0, 0.2) + '">&nbsp;</span>');
 	                        text.push('{{ v_game }}');
 		                    text.push('</li>');
 			        	{% endfor %}
 		                text.push('</ul>');
 		                return text.join('');
-                	}
+                	},
+                    annotation: {
+                        annotations: [
+                            {
+                                drawTime: "afterDatasetsDraw",
+                                id: "today",
+                                type: "line",
+                                mode: "vertical",
+                                scaleID: "x-axis-0",
+                                value: moment().startOf('day'),
+                                borderColor: "#ff666666",
+                                borderWidth: 2,
+                                label: {
+                                    backgroundColor: "#77777766",
+                                    content: "Сегодня",
+                                    enabled: false/*,
+                                    position: "top"*/
+                                }
+                            }
+                        ]
+                    }
 			    }
 			});
 
 			$('#legendViewers').html(chartViewers.generateLegend());
 		{% endif %}
 		
-		{% if stats.bars %}
-			var ctxBars = $('#chartBars')[0].getContext('2d');
-			var chartBars = new Chart(ctxBars, {
+		{% if stats.daily %}
+			var ctxDaily = $('#chartDaily')[0].getContext('2d');
+			var chartDaily = new Chart(ctxDaily, {
 			    type: 'bar',
 			    data: {
 			        labels: [
-			        	{% for r in stats.bars %}
-			        		'{{ r.hour }}'{% if not loop.last %},{% endif %}
+			        	{% for r in stats.daily %}
+			        		moment('{{ r.date }}').format('D MMM'){% if not loop.last %},{% endif %}
 			        	{% endfor %}
 			        ],
 			        datasets: [{
 			            label: 'Зрители',
 			            data: [
-				        	{% for r in stats.bars %}
-				        		{{ r.viewers }}{% if not loop.last %},{% endif %}
+				        	{% for r in stats.daily %}
+				        		{{ r.peak_viewers }}{% if not loop.last %},{% endif %}
 				        	{% endfor %}
 			            ],
-			            backgroundColor: [
-				        	{% for r in stats.bars %}
-				        		pickColor(1, 0, 0.2){% if not loop.last %},{% endif %}
+			            weekDays: [
+				        	{% for r in stats.daily %}
+				        		moment('{{ r.date }}').format('ddd, D MMM'){% if not loop.last %},{% endif %}
 				        	{% endfor %}
 			            ],
-			            borderColor: [
-				        	{% for r in stats.bars %}
-				        		pickColor(1, 0){% if not loop.last %},{% endif %}
+			            statuses: [
+				        	{% for r in stats.daily %}
+				        		'{{ r.peak_status|e('js')|raw }}'{% if not loop.last %},{% endif %}
 				        	{% endfor %}
 			            ],
+			            backgroundColor: pickColor(1, 0, 0.2),
+			            borderColor: pickColor(1, 0),
 			            borderWidth: 1
 			        }]
 			    },
@@ -246,14 +306,72 @@
 								autoSkip: true,
 								maxRotation: 0,
           						minRotation: 0
-          					}
+    						}
 						}]
 			        },
+		            tooltips: {
+		                callbacks: {
+		                    footer: function(tooltipItems, data) {
+		                    	var tooltipItem = tooltipItems[0];
+		                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                    			var index = tooltipItem.index;
+                    			
+                    			return dataset.statuses[index];
+		                    },
+		                    title: function(tooltipItems, data) {
+		                    	var tooltipItem = tooltipItems[0];
+		                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                    			var index = tooltipItem.index;
+                    			
+                    			return dataset.weekDays[index];
+		                    }
+		                }
+		            },
 		            legend: {
 		            	display: false
-		            }
+		            },
+		            legendCallback: function(chart) {
+		                var text = [];
+		                text.push('<ul class="legend legend-line">');
+		                
+		                {% set legend = [{ 'index': 1, 'text': 'Зрители (пик)' }] %}
+		                
+		                {% for l in legend %}
+		                    text.push('<li>');
+		                    text.push('<span style="border-color: ' + pickColor({{ l.index }}, 0) + '; background-color: ' + pickColor({{ l.index }}, 0, 0.2) + '">&nbsp;</span>');
+	                        text.push('{{ l.text }}');
+		                    text.push('</li>');
+			        	{% endfor %}
+		                text.push('</ul>');
+		                return text.join('');
+                	},
+                    annotation: {
+                        annotations: [
+                            {% for i in 1..4 %}
+                            {
+                                drawTime: "afterDatasetsDraw",
+                                id: "week{{ i }}",
+                                type: "line",
+                                mode: "vertical",
+                                scaleID: "x-axis-0",
+                                value: moment().startOf('isoWeek'){% if not loop.first %}.add(-{{ loop.index0 }}, 'weeks'){% endif %}.format('D MMM'),
+                                borderColor: "#ff666666",
+                                borderWidth: 1,
+                                label: {
+                                    backgroundColor: "#77777766",
+                                    content: "Mon{{ loop.index }}",
+                                    enabled: false/*,
+                                    position: "top"*/
+                                }
+                            }{% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        ]
+                    }
+
 			    }
 			});
+			
+			$('#legendDaily').html(chartDaily.generateLegend());
 		{% endif %}
 		
 		{% if stats.games %}
@@ -294,13 +412,7 @@
 				        		'{{ b.label }}'{% if not loop.last %},{% endif %}
 				        	{% endfor %}
        				    ]
-				    }]{#,
-				
-				    labels: [
-			        	{% for game in stats.games %}
-			        		'{{ game.remote_game }}'{% if not loop.last %},{% endif %}
-			        	{% endfor %}
-				    ]#}
+				    }]
 				},
 		        options: {
 		            maintainAspectRatio: false,

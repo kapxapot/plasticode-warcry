@@ -16,18 +16,25 @@
 	
 				<div class="tab-content">
 					{% for part in parts %}
-						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}{% if not part.component %} linkblock-big{% endif %}" id="{{ part.id }}">
+						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}{% if part.component != 'gallery_pictures' and part.component != 'comics' and part.component != 'streams' %} linkblock-big{% endif %}" id="{{ part.id }}">
 							{% if part.component == 'gallery_pictures' %}
 			                    {% include 'components/gallery.twig' with { 'pictures': part.values } only %}
 							{% elseif part.component == 'streams' %}
 			                    {% include 'components/streams.twig' with { 'streams': part.values } only %}
 							{% elseif part.component == 'comics' %}
 			                    {% include 'components/comics.twig' with { 'comics': part.values } only %}
+							{% elseif part.component == 'events' %}
+			                    {% include 'components/events.twig' with { 'events': part.values } only %}
+							{% elseif part.component == 'news' %}
+			                    {% include 'components/news.twig' with { 'news': part.values } only %}
+							{% elseif part.component == 'articles' %}
+			                    {% include 'components/articles.twig' with { 'articles': part.values } only %}
 							{% else %}
 								{% for v in part.values %}
-									<div class="icon-{{ v.game.alias }}">
+									<div class="icon-lg icon-{{ v.game.result_alias }}-lg">
+									    {% set v_title = v.display_title ?? v.title %}
 										<div>
-											<a title="[{{ v.game.name }}] {{ v.title|raw }}" href="{{ v.url }}">{{ v.title|raw }}</a>
+											<a title="[{{ v.game.name }}] {{ v_title|raw }}" href="{{ v.url }}">{{ v_title|raw }}</a>
 										</div>
 										<div>
 											{{ v.subtitle|raw }}

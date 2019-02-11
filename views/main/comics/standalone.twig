@@ -1,5 +1,6 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'macros.twig' as gm %}
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
@@ -16,11 +17,11 @@
 			{% if comic.publisher %}
 	  			<p><b>Издательство:</b> <a href="{{ comic.publisher.website }}">{{ comic.publisher.name }}</a></p>
 			{% endif %}
-			{% if comic.issued_ui %}
-	  			<p><b>Дата выхода:</b> {{ comic.issued_ui|raw }}</p>
+			{% if comic.issued_on %}
+	  			<p ng-cloak><b>Дата выхода:</b> {{ gm.moment_local_short(comic.issued_on) }}</p>
 			{% endif %}
-			{% if comic.description %}
-	  			<p>{{ comic.description|raw }}</p>
+			{% if comic.parsed_description %}
+	  			<p>{{ comic.parsed_description|raw }}</p>
 			{% endif %}
 			{% include 'components/comics_pages.twig' with { 'pages': pages } only %}
 		</div>

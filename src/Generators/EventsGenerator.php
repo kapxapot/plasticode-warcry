@@ -2,17 +2,15 @@
 
 namespace App\Generators;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Data\Taggable;
+use App\Models\Event;
 
-class EventsGenerator extends EntityGenerator
+class EventsGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::EVENTS;
-	
+
 	public function beforeSave($data, $id = null)
 	{
 		$data['cache'] = null;

@@ -1,0 +1,13 @@
+{% import 'macros.twig' as gm %}
+
+<div class="panel-footer">
+    {% include 'components/published_at.twig' with { 'entity': news_item } only %}
+    {% include 'components/creator.twig' with { 'entity': news_item } only %}
+	{% if news_item.forum_url %}
+		<div class="glyphicon-block">
+			<i class="fas fa-comments"></i>
+			<a href="{{ news_item.forum_url }}" title="Комментарии на форуме">{{ news_item.posts }}</a>
+		</div>
+	{% endif %}
+    {% include 'components/tags.twig' with { 'tags': news_item.tag_links } only %}
+</div>

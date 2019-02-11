@@ -5,8 +5,6 @@ addContentLengthHeader: false
 log_errors: true
 debug: {DEBUG}
 
-language: ru
-
 db:
   host: {DB_HOST}
   database: {DB_DATABASE}
@@ -116,20 +114,18 @@ news:
 
 events:
   title: События
+  description_limit: 1000
 
 news_limit: 7
 rss_limit: 20
 
 sidebar:
   article_limit: 7
-  forum_topic_limit: 7
   latest_news_limit: 7
   future_events_days: 7
   latest_gallery_pictures_limit: 4
 
 default_game_id: 5
-hidden_forum_ids:
-  - 3
 
 twitch:
   client_id: {TWITCH_CLIENT_ID}
@@ -143,8 +139,8 @@ twitter:
   access_token: {TWITTER_ACCESS_TOKEN}
   access_key: {TWITTER_ACCESS_KEY}
 
-date_format: %d.%m.%Y
-time_format: %d.%m.%Y %H:%M
+date_format: %Y-%m-%d
+time_format: %Y-%m-%d %H:%M:%S
 
 webdb_link: 'http://wowhead.com/'
 webdb_ru_link: 'http://ru.wowhead.com/'

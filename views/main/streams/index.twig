@@ -21,17 +21,19 @@
 				{% for g in groups %}
 					<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}" id="{{ g.id }}">
 						{% if g.streams %}
-		                    {% include 'components/streams.twig' with { 'streams': g.streams } only %}
+        				    {% for part in g.streams %}
+                                {% include 'components/streams.twig' with { 'streams': part } only %}
+                            {% endfor %}
 						{% else %}
 							<p class="nostreams">Сейчас никто не стримит. :(</p>
 						{% endif %}
 						
-						{% if g.telegram %}
+						{#% if g.telegram %}
 							<div class="flex flex-v mt-2">
 								<i class="fab fa-telegram fa-2x mr-2 telegram-icon"></i>
 								<span><a href="//t.me/{{ g.telegram }}">Подписаться</a> на объявления о начале {{ g.telegram_label ?? 'стримов' }}</span>
 							</div>
-						{% endif %}
+						{% endif %#}
 					</div>
 				{% endfor %}
 			</div>

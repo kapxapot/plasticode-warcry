@@ -1,5 +1,6 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'macros.twig' as gm %}
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
@@ -7,19 +8,19 @@
 	<div class="panel panel-primary comic">
 		{% set breadcrumbs = [
 			{ 'url': path_for('main.comics'), 'text': comics_title },
-			{ 'url': path_for('main.comics.series', { 'alias': series.alias }), 'text': series.name_ru }
+			{ 'url': path_for('main.comics.series', { 'alias': series.alias }), 'text': series.name }
 		] %}
-		{{ lm.panel_header(_context, series.name_ru ~ ' ' ~ comic.number_str, {
-			'subtitle': series.name_en ?? comic.name_en,
+		{{ lm.panel_header(_context, series.name ~ ' ' ~ comic.number_str, {
+			'subtitle': series.sub_name ?? comic.sub_name,
 			'bc_title': 'Выпуск ' ~ comic.number_str,
 			'buttons': [ m.edit_button('comic_issues', comic, { 'id': series.id }) ]
 		}) }}
 	  	<div class="panel-body">
-			{% if comic.issued_ui %}
-	  			<p><b>Дата выхода:</b> {{ comic.issued_ui|raw }}</p>
+			{% if comic.issued_on %}
+	  			<p ng-cloak><b>Дата выхода:</b> {{ gm.moment_local_short(comic.issued_on) }}</p>
 			{% endif %}
-			{% if comic.description %}
-	  			<p>{{ comic.description|raw }}</p>
+			{% if comic.parsed_description %}
+	  			<p>{{ comic.parsed_description|raw }}</p>
 			{% endif %}
 			{% include 'components/comics_pages.twig' with { 'pages': pages } only %}
 		</div>

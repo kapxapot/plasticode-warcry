@@ -7,14 +7,28 @@ use Plasticode\RSS\FeedItem;
 use Plasticode\RSS\RSSCreator20;
 use Plasticode\Util\Sort;
 
-class NewsController extends BaseController
+use App\Models\ForumTopic;
+use App\Models\Game;
+use App\Models\News;
+use App\Services\NewsAggregatorService;
+
+class NewsController extends Controller
 {
+    private $newsAggregatorService;
+    
+    public function __construct($container)
+    {
+        parent::__construct($container);
+        
+        $this->newsAggregatorService = new NewsAggregatorService;
+    }
+    
 	public function index($request, $response, $args)
 	{
 		if ($args['game']) {
-			$filterByGame = $this->db->getGameByAlias($args['game']);
+			$game = Game::getPublishedByAlias($args['game']);
 			
-			if (!$filterByGame) {
+			if (!$game) {
 				return $this->notFound($request, $response);
 			}
 		}
@@ -22,16 +36,16 @@ class NewsController extends BaseController
 		$page = $request->getQueryParam('page', 1);
 		$pageSize = $request->getQueryParam('pagesize', $this->getSettings('news_limit'));
 
-		$news = $this->builder->buildAllNews($filterByGame, $page, $pageSize);
+		$news = $this->newsAggregatorService->getPage($game, $page, $pageSize);
 		
 		// paging
-		$count = $this->db->getAllNewsCount($filterByGame);
-		$url = $this->linker->game($filterByGame);
+		$count = $this->newsAggregatorService->getByGame($game)->count();
+		$url = $this->linker->game($game);
 		
-		$paging = $this->builder->buildComplexPaging($url, $count, $page, $pageSize);
-
+		$paging = $this->pagination->complex($url, $count, $page, $pageSize);
+		
 		$params = $this->buildParams([
-			'game' => $filterByGame,
+			'game' => $game,
 			'sidebar' => [ 'stream', 'gallery', 'events', 'articles' ],
 			'params' => [
 				'news' => $news,
@@ -39,7 +53,7 @@ class NewsController extends BaseController
 			],
 		]);
 		
-		return $this->view->render($response, 'main/news/index.twig', $params);
+		return $this->render($response, 'main/news/index.twig', $params);
 	}
 
 	public function item($request, $response, $args)
@@ -47,29 +61,31 @@ class NewsController extends BaseController
 		$id = $args['id'];
 		$rebuild = $request->getQueryParam('rebuild', false);
 
-		$forumNewsRow = $this->db->getForumNews($id);
-		$newsRow = $this->db->getNews($id);
+		$forumNews = ForumTopic::getNews($id);
+		$news = News::getProtected($id);
 		
-		if (!$forumNewsRow && !$newsRow) {
+		if (!$forumNews && !$news) {
 			return $this->notFound($request, $response);
 		}
+		
+		if ($news && $rebuild) {
+            $news->resetDescription();
+        }
 
-		$news = $forumNewsRow
-			? $this->builder->buildForumNews($forumNewsRow, true)
-			: $this->builder->buildNews($newsRow, true, $rebuild);
+		$news = $news ?? $forumNews;
 
 		$params = $this->buildParams([
-			'game' => $news['game'],
+			'game' => $news->game(),
 			'sidebar' => [ 'stream', 'gallery', 'news', 'events' ],
 			'news_id' => $id,
-			'large_image' => $news['parsed']['large_image'],
-			'image' => $news['parsed']['image'],
+			'large_image' => $news->largeImage(),
+			'image' => $news->image(),
 			'params' => [
 				'disqus_url' => $this->linker->disqusNews($id),
 				'disqus_id' => 'news' . $id,
 				'news_item' => $news,
-				'title' => $news['title'],
-				'page_description' => $news['description'],
+				'title' => $news->title,
+				'page_description' => $this->makePageDescription($news->shortText, 'news.description_limit'),
 			],
 		]);
 		
@@ -78,12 +94,12 @@ class NewsController extends BaseController
 
 	public function archiveIndex($request, $response, $args)
 	{
-		$years = $this->builder->buildNewsYears();
+		$years = $this->newsAggregatorService->getYears();
 		
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
-				'title' => 'Архив новостей', 
+				'title' => 'Архив новостей',
 				'years' => $years,
 			],
 		]);
@@ -95,12 +111,12 @@ class NewsController extends BaseController
 	{
 		$year = $args['year'];
 
-		$monthly = $this->builder->buildNewsArchive($year);
+		$monthly = $this->newsAggregatorService->getByYear($year);
 		
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
-				'title' => "Архив новостей за {$year} год", 
+				'title' => "Архив новостей за {$year} год",
 				'archive_year' => $year,
 				'monthly' => $monthly,
 			],
@@ -113,7 +129,7 @@ class NewsController extends BaseController
 	{
 		$limit = $this->getSettings('rss_limit');
 		
-		$news = $this->builder->buildAllNews(null, 1, $limit);
+		$news = $this->newsAggregatorService->getTop($limit);
 
 		$fileName = __DIR__ . $this->getSettings('folders.rss_cache') . 'rss.xml';
 
@@ -147,7 +163,7 @@ class NewsController extends BaseController
 			$item = new FeedItem();
 			$item->title = $n['title'];
 			$item->link = $this->linker->n($n['id']);
-			$item->description = $n['text'];
+			$item->description = $this->parser->makeAbsolute($n['text']);
 			$item->date = $n['pub_date'];
 			$item->author = $n['starter_name'];
 			$item->category = array_map(function($t) {

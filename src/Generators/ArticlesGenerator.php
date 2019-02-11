@@ -4,18 +4,16 @@ namespace App\Generators;
 
 use Respect\Validation\Validator as v;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 use Plasticode\Util\Strings;
 
-use App\Data\Taggable;
+use App\Models\Article;
 
-class ArticlesGenerator extends EntityGenerator
+class ArticlesGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::ARTICLES;
-	
+
 	public function getRules($data, $id = null)
 	{
 	    $rules = parent::getRules($data, $id);
@@ -44,37 +42,41 @@ class ArticlesGenerator extends EntityGenerator
 	
 	public function afterLoad($item)
 	{
-		$item['name_en_esc'] = Strings::fromSpaces($item['name_en']);
+	    $item = parent::afterLoad($item);
+	    
+	    $article = Article::get($item['id']);
+	    
+		$item['name_en_esc'] = Strings::fromSpaces($article->nameEn);
+
+		$cat = $article->category();
 		
-		if ($item['cat'] > 0) {
-			$cat = $this->db->getCat($item['cat']);
-			if ($cat) {
-				$item['cat_ru'] = $cat['name_ru'];
-				$item['cat_en'] = $cat['name_en'];
-				$item['cat_en_esc'] = Strings::fromSpaces($cat['name_en']);
-			}
+		if ($cat) {
+			$item['cat_ru'] = $cat->nameRu;
+			$item['cat_en'] = $cat->nameEn;
+			$item['cat_en_esc'] = Strings::fromSpaces($cat->nameEn);
 		}
 		
-		$game = $this->db->getRootGame($item['game_id']);
-		$parent = $this->db->getArticle($item['parent_id']);
-		
-		$parts = [ $game['name'] ];
-		
-		if ($parent && $parent['no_breadcrumb'] != 1) {
-	        $parentParent = $this->db->getArticle($parent['parent_id']);
-	        if ($parentParent && $parentParent['no_breadcrumb'] != 1) {
+		$game = $article->game();
+		$parts = [ $game->name ];
+
+		$parent = $article->parent();
+
+		if ($parent && $parent->noBreadcrumb != 1) {
+	        $parentParent = $parent->parent();
+	        
+	        if ($parentParent && $parentParent->noBreadcrumb != 1) {
 	            $parts[] = '...';
 	        }
 
-		    $parts[] = $parent['name_ru'];
+		    $parts[] = $parent->nameRu;
 		}
 		
-		$parts[] = $item['name_ru'];
+		$parts[] = $article->nameRu;
 		$partsStr = implode(' » ', $parts);
 		
-		$item['select_title'] = "[{$item['id']}] {$partsStr}";
+		$item['select_title'] = "[{$article->getId()}] {$partsStr}";
 		
-		$item['tokens'] = $game['name'] . ' ' . $item['name_ru'];
+		$item['tokens'] = $game->name . ' ' . $article->nameRu;
 
 		return $item;
 	}
@@ -103,9 +105,10 @@ class ArticlesGenerator extends EntityGenerator
 	{
 		if ($this->isJustPublished($item, $data) && $item->announce == 1) {
 			if ($item->cat) {
-				$catObj = $this->db->getCat($item->cat);
-				if ($catObj) {
-					$catName = $catObj['name_en'];
+				$cat = ArticleCategory::get($item->cat);
+				
+				if ($cat) {
+					$catName = $cat->nameEn;
 				}
 			}
 			

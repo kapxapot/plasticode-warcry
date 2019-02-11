@@ -4,7 +4,10 @@ namespace App\Controllers;
 
 use Plasticode\Util\Sort;
 
-class TagController extends BaseController
+use App\Services\NewsAggregatorService;
+use App\Services\TagPartsProviderService;
+
+class TagController extends Controller
 {
 	public function item($request, $response, $args)
 	{
@@ -14,7 +17,10 @@ class TagController extends BaseController
 			return $this->notFound($request, $response);
 		}
 		
-		$parts = $this->builder->buildTagParts($tag);
+		$newsAggregatorService = new NewsAggregatorService;
+		$tagPartsProviderService = new TagPartsProviderService($newsAggregatorService);
+		
+		$parts = $tagPartsProviderService->getParts($tag);
 
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream', 'gallery' ],

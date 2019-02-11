@@ -4,7 +4,10 @@ namespace App\Controllers;
 
 use Illuminate\Support\Arr;
 
-class GalleryController extends BaseController
+use App\Models\GalleryAuthor;
+use App\Models\GalleryPicture;
+
+class GalleryController extends Controller
 {
 	private $galleryTitle;
 	
@@ -17,7 +20,7 @@ class GalleryController extends BaseController
 
 	public function index($request, $response, $args)
 	{
-		$groups = $this->builder->buildGalleryAuthorGroups();
+		$groups = GalleryAuthor::getGroups();
 
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream' ],
@@ -34,18 +37,16 @@ class GalleryController extends BaseController
 	{
 		$alias = $args['alias'];
 
-		$row = $this->db->getGalleryAuthorByAlias($alias);
+		$author = GalleryAuthor::getPublishedByAlias($alias);
 
-		if (!$row) {
+		if (!$author) {
 			return $this->notFound($request, $response);
 		}
 		
-		$id = $row['id'];
-
-		$author = $this->builder->buildGalleryAuthor($row);
+		$id = $author->id;
 
 		// paging...
-		$totalCount = $author['count'];
+		$totalCount = $author->count();
 		$picsPerPage = $this->getSettings('gallery.pics_per_page');
 		$totalPages = ceil($totalCount / $picsPerPage);
 	
@@ -61,33 +62,22 @@ class GalleryController extends BaseController
 		}
 		
 		// paging itself
-		$baseUrl = $author['page_url'];
-		$paging = $this->builder->buildPaging($baseUrl, $totalPages, $page);
+		$baseUrl = $author->pageUrl;
+		$paging = $this->pagination->simple($baseUrl, $totalPages, $page);
 
 		// pics
 		$offset = ($page - 1) * $picsPerPage;
-		
-		$picRows = $this->db->getGalleryPictures($id, $offset, $picsPerPage);
-		
-		$pictures = [];
-		
-		foreach ($picRows as $picRow) {
-			$pictures[] = $this->builder->buildGalleryPicture($picRow, $author);
-		}
-		
-		$title = $author['name'];
-		if (isset($author['subname'])) {
-		    $title .= ' (' . $author['subname'] . ')';
-		}
 
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream' ],
-			'image' => $this->linker->abs($author['last_thumb_url']),
+			'image' => $author->displayPicture()
+			    ? $this->linker->abs($author->displayPicture()->thumbUrl())
+			    : null,
 			'params' => [
 				'author' => $author,
-				'pictures' => $pictures,
+				'pictures' => $author->pictures($offset, $picsPerPage),
 				'paging' => $paging,
-				'title' => $title,
+				'title' => $author->fullName(),
 				'gallery_title' => $this->galleryTitle,
 				'disqus_url' => $this->linker->disqusGalleryAuthor($author),
 				'disqus_id' => 'galleryauthor' . $id,
@@ -102,31 +92,27 @@ class GalleryController extends BaseController
 		$alias = $args['alias'];
 		$id = $args['id'];
 
-		$authorRow = $this->db->getGalleryAuthorByAlias($alias);
+		$author = GalleryAuthor::getPublishedByAlias($alias);
 		
-		if (!$authorRow) {
+		if (!$author) {
 			return $this->notFound($request, $response);
 		}
 		
-		$author = $this->builder->buildGalleryAuthor($authorRow);
+		$picture = GalleryPicture::getPublished($id);
 		
-		$row = $this->db->getGalleryPicture($id);
-		
-		if (!$row) {
+		if (!$picture) {
 			return $this->notFound($request, $response);
 		}
-
-		$picture = $this->builder->buildGalleryPicture($row);
 
 		$params = $this->buildParams([
-			'game' => $picture['game'],
+			'game' => $picture->game(),
 			'global_context' => true,
-			'image' => $this->linker->abs($picture['thumb']),
-			'description' => $author['name'],
+			'image' => $this->linker->abs($picture->thumbUrl()),
+			'description' => $author->fullName(),
 			'params' => [
 				'author' => $author,
 				'picture' => $picture,
-				'title' => $picture['comment'],
+				'title' => $picture->comment,
 				'gallery_title' => $this->galleryTitle,
 				'rel_prev' => Arr::get($picture, 'prev.page_url'),
 				'rel_next' => Arr::get($picture, 'next.page_url'),

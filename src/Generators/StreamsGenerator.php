@@ -2,17 +2,15 @@
 
 namespace App\Generators;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Data\Taggable;
+use App\Models\Stream;
 
-class StreamsGenerator extends EntityGenerator
+class StreamsGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::STREAMS;
-	
+
 	public function getRules($data, $id = null)
 	{
 	    $rules = parent::getRules($data, $id);

@@ -23,11 +23,16 @@
 						<div class="flex-wrapper gallery">
 							{% for a in part.values %}
 								<div class="flex-item flex-item-shaded overlay-wrapper">
-									{% if a.last_thumb_url %}
-										<a href="{{ a.page_url }}" title="{{ a.name }}: {{ a.count }} {{ a.pictures_str }}">
-											<img src="{{ a.last_thumb_url }}" class="card-image" />
-											<span class="overlay overlay-full">{{ a.name }}{% if a.subname %} ({{ a.subname }}){% endif %}{# ({{ a.count }})#}</span>
+								    {% set display_name %}
+								        {{ a.full_name }}{# ({{ a.count }})#}
+								    {% endset %}
+									{% if a.display_picture %}
+										<a href="{{ a.page_url }}" title="{{ a.display_name }}: {{ a.pictures_str }}">
+											<img src="{{ a.display_picture.thumb_url }}" class="card-image" />
+											<span class="overlay overlay-full">{{ display_name }}</span>
 										</a>
+									{% else %}
+										<a href="{{ a.page_url }}">{{ display_name }}</a>
 									{% endif %}
 								</div>
 							{% endfor %}

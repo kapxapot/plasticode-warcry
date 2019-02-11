@@ -52,6 +52,13 @@
 	height: 32px;
 	margin-top: 1px;
 	margin-right: 10px;
+	background-size: 32px 32px;
+}
+
+.linkblock-big > .icon-lg {
+    background-size: 48px 48px;
+    padding-left: 69px;
+    min-height: 58px;
 }
 
 .fansite {
@@ -59,57 +66,95 @@
 	text-align: center;
 }
 
-.icon-starcraft {
-    background-image: url(/images/scicon.png);
+.icon-blizzard {
+    background-image: url(/images/icons/games/small/blizzard.svg);
+    background-size: 24px auto !important;
 }
 
-.panel-primary > .heading-starcraft {
-	background-color: #29353d;
-	background-color: hsl(215, 20%, 20%);
+.icon-blizzard-md {
+    background-image: url(/images/icons/games/small/blizzard.png);
 }
 
-.icon-warcraft {
-    background-image: url(/images/wowicon.png);
+.icon-blizzard-lg {
+    background-image: url(/images/icons/games/large/blizzard.svg);
+    background-size: 48px auto !important;
 }
 
-.panel-primary > .heading-warcraft {
-	background-color: #2c3d29;
-	background-color: hsl(110, 20%, 20%);
+/* diablo immortal */
+.icon-di,
+.icon-di-md,
+.icon-di-lg {
+    background-image: url(/images/icons/games/medium/di.png);
 }
 
 .icon-diablo {
-    background-image: url(/images/diabloicon.png);
+    background-image: url(/images/icons/games/small/diablo3.png);
 }
 
-.panel-primary > .heading-diablo {
-	background-color: #3d2c29;
-	background-color: hsl(10, 20%, 20%);
+.icon-diablo-md,
+.icon-diablo-lg {
+    background-image: url(/images/icons/games/large/diablo3.png);
 }
 
-.icon-overwatch {
-    background-image: url(/images/overwatchicon.png);
+.icon-hearthstone,
+.icon-hearthstone-md,
+.icon-hearthstone-lg {
+    background-image: url(/images/icons/games/medium/hs.png);
 }
 
-.panel-primary > .heading-overwatch {
-	background-color: #293d33;
-	background-color: hsl(150, 20%, 20%);
+/*.icon-hearthstone-lg {
+    background-image: url(/images/icons/games/large/hearthstone.png);
+}*/
+
+.icon-heroesofthestorm,
+.icon-heroesofthestorm-md,
+.icon-heroesofthestorm-lg {
+    background-image: url(/images/icons/games/large/hots.png);
 }
 
-.icon-warcryru {
-    background-image: url(/images/warcryicon.png);
+.icon-overwatch,
+.icon-overwatch-md,
+.icon-overwatch-lg {
+    background-image: url(/images/icons/games/large/overwatch.png);
 }
 
-.panel-primary > .heading-warcryru {
-	background-color: #3d3329;
-	background-color: hsl(30, 20%, 20%);
+/* starcraft remastered */
+.icon-scr,
+.icon-scr-md,
+.icon-scr-lg {
+    background-image: url(/images/icons/games/medium/scr.png);
 }
 
-.icon-titan {
-    background-image: url(/images/titanicon.png);
+.icon-starcraft,
+.icon-starcraft-md,
+.icon-starcraft-lg {
+    background-image: url(/images/icons/games/large/starcraft2.png);
 }
 
-.icon-blizzard {
-    background-image: url(/images/blizzicon.png);
+.icon-titan,
+.icon-titan-md,
+.icon-titan-lg {
+    background-image: url(/images/icons/games/small/titan.png);
+}
+
+.icon-warcraft,
+.icon-warcraft-md,
+.icon-warcraft-lg {
+    background-image: url(/images/icons/games/large/wow.png);
+}
+
+.icon-warcryru,
+.icon-warcryru-md,
+.icon-warcryru-lg {
+    background-image: url(/images/icons/games/medium/wcru.png);
+    /*background-image: url(/images/icons/games/small/warcryru.png);*/
+}
+
+/* warcraft iii: reforged */
+.icon-wc3r,
+.icon-wc3r-md,
+.icon-wc3r-lg {
+    background-image: url(/images/icons/games/medium/wc3r.png);
 }
 
 .panel-primary > .heading-blizzard {
@@ -117,8 +162,15 @@
 	background-color: hsl(185, 20%, 20%);
 }
 
-.icon-heroesofthestorm {
-    background-image: url(/images/hotsicon.png);
+.panel-primary > .heading-diablo,
+.panel-primary > .heading-di {
+	background-color: #3d2c29;
+	background-color: hsl(10, 20%, 20%);
+}
+
+.panel-primary > .heading-hearthstone {
+	background-color: #3d3529;
+	background-color: hsl(35, 20%, 20%);
 }
 
 .panel-primary > .heading-heroesofthestorm {
@@ -126,13 +178,26 @@
 	background-color: hsl(300, 20%, 20%);
 }
 
-.icon-hearthstone {
-    background-image: url(/images/hearthicon.png);
+.panel-primary > .heading-overwatch {
+	background-color: #293d33;
+	background-color: hsl(150, 20%, 20%);
 }
 
-.panel-primary > .heading-hearthstone {
-	background-color: #3d3529;
-	background-color: hsl(35, 20%, 20%);
+.panel-primary > .heading-starcraft,
+.panel-primary > .heading-scr {
+	background-color: #29353d;
+	background-color: hsl(215, 20%, 20%);
+}
+
+.panel-primary > .heading-warcraft,
+.panel-primary > .heading-wc3r {
+	background-color: #2c3d29;
+	background-color: hsl(110, 20%, 20%);
+}
+
+.panel-primary > .heading-warcryru {
+	background-color: #3d3329;
+	background-color: hsl(30, 20%, 20%);
 }
 
 /* streams */
@@ -141,9 +206,29 @@
 	margin-top: 5px;
 }*/
 
-@media (min-width: 600px) {
+.streams .flex-item {
+	width: 100%;
+}
+
+@media (min-width: 640px) {
     .streams .flex-item {
-    	width: 270px;
+    	width: 280px;
+    }
+}
+
+@media (min-width: 768px) {
+    .streams .flex-item {
+    	width: 336px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .streams .flex-item {
+    	width: 404px;
+    }
+
+    .streams .stream--no-logo {
+    	width: 264px;
     }
 }
 
@@ -172,14 +257,14 @@
 	height: 400px;
 }
 
+.telegram-icon {
+    color: #3bb8e4;
+}
+
 .stream-logo {
 	width: 100px;
 	float: right;
 	margin: 4px 0 15px 10px;
-}
-
-.telegram-icon {
-    color: #3bb8e4;
 }
 
 /* map */

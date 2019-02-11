@@ -1,0 +1,9 @@
+{% extends 'admin/layout.twig' %}
+
+{% block content %}
+    {% for result in results %}
+        <div>
+            <b><a href="{{ result.url }}"{% if not result.on %} class="red"{% endif %}>{{ result.url }}</a></b>: {{ result.on ? 'On' : 'Off' }}
+        </div>
+    {% endfor %}
+{% endblock %}

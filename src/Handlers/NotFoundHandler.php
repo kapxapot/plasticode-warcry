@@ -2,20 +2,11 @@
 
 namespace App\Handlers;
 
-use App\Controllers\BaseController;
+use Plasticode\Handlers\Traits\NotFound;
 
-class NotFoundHandler extends BaseController {
-	public function __invoke($request, $response) {
-		$params = $this->buildParams([
-			'params' => [
-				'text' => 'Страница не найдена или перемещена.',
-				'title' => 'Ошибка 404',
-				'no_disqus' => 1,
-				'no_social' => 1,
-			],
-		]);
+use App\Controllers\Controller;
 
-		return $this->view->render($response, 'main/generic.twig', $params)
-			->withStatus(404);
-	}
+class NotFoundHandler extends Controller
+{
+    use NotFound;
 }

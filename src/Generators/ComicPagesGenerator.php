@@ -2,6 +2,8 @@
 
 namespace App\Generators;
 
+use App\Models\Game;
+
 class ComicPagesGenerator extends ComicPagesBaseGenerator
 {
     protected function getPageUrl($item)
@@ -33,7 +35,7 @@ class ComicPagesGenerator extends ComicPagesBaseGenerator
 		$comic = $this->db->getComicIssue($comicId);
 		$seriesId = $comic['series_id'];
 		$series = $this->db->getComicSeries($seriesId, true);
-		$game = $this->db->getGame($series['game_id']);
+		$game = Game::get($series['game_id']);
 
 		$params['source'] = "comic_issues/{$comicId}/comic_pages";
 		$params['breadcrumbs'] = [

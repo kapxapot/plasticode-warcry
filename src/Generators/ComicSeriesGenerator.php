@@ -2,17 +2,15 @@
 
 namespace App\Generators;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Data\Taggable;
+use App\Models\ComicSeries;
 
-class ComicSeriesGenerator extends EntityGenerator
+class ComicSeriesGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::COMIC_SERIES;
-	
+
 	public function beforeSave($data, $id = null)
 	{
 		$data = $this->publishIfNeeded($data);		
@@ -22,7 +20,11 @@ class ComicSeriesGenerator extends EntityGenerator
 
 	public function afterLoad($item)
 	{
-		$item['page_url'] = $this->linker->comicSeries($item['alias']);
+	    $item = parent::afterLoad($item);
+	    
+	    $series = ComicSeries::get($item['id']);
+	    
+		$item['page_url'] = $this->linker->comicSeries($series);
 
 		return $item;
 	}

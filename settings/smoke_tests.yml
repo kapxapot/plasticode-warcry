@@ -1,0 +1,47 @@
+-
+  route: main.index
+
+-
+  route: main.tag
+  args:
+    tag: Warcraft
+
+-
+  route: main.news
+  args:
+    id: 10253
+
+-
+  route: main.news
+  args:
+    id: 9094
+
+-
+  route: main.gallery
+
+-
+  route: main.events
+
+-
+  route: main.event
+  args:
+    id: 123
+
+-
+  route: main.streams
+
+-
+  route: main.article
+  args:
+    id: Khadgar
+
+-
+  route: main.article
+  args:
+    id: Argus
+
+-
+  route: main.article
+  args:
+    id: Zandalari_Trolls
+    cat: Race

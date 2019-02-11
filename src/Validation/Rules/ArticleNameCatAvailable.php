@@ -4,7 +4,7 @@ namespace App\Validation\Rules;
 
 use Plasticode\Validation\Rules\ContainerRule;
 
-use App\Data\Tables;
+use App\Models\Article;
 
 class ArticleNameCatAvailable extends ContainerRule {
 	private $cat;
@@ -16,20 +16,23 @@ class ArticleNameCatAvailable extends ContainerRule {
 	}
 
 	public function validate($input) {
-		$query = $this->container->db->forTable(TABLES::ARTICLES)
-			->where('name_en', $input);
-		
-		if ($this->cat) {
-			$query = $query->where('cat', $this->cat);
-		}
-		else {
-			$query = $query->whereNull('cat');
-		}
-		
-		if ($this->id) {
-			$query = $query->whereNotEqual('id', $this->id);
-		}
+	    $article = Article::getBy(function ($query) use ($input) {
+    		$query = $query->where('name_en', $input);
+    		
+    		if ($this->cat) {
+    			$query = $query->where('cat', $this->cat);
+    		}
+    		else {
+    			$query = $query->whereNull('cat');
+    		}
+    		
+    		if ($this->id) {
+    			$query = $query->whereNotEqual('id', $this->id);
+    		}
+    		
+    		return $query;
+	    });
 
-		return $query->count() == 0;
+		return $article === null;
 	}
 }

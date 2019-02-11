@@ -2,16 +2,14 @@
 
 namespace App\Generators;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Data\Taggable;
+use App\Models\ComicStandalone;
 
-class ComicStandalonesGenerator extends EntityGenerator
+class ComicStandalonesGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::COMIC_STANDALONES;
 
 	public function getOptions()
 	{
@@ -36,7 +34,9 @@ class ComicStandalonesGenerator extends EntityGenerator
 	{
 	    $item = parent::afterLoad($item);
 	    
-		$item['page_url'] = $this->linker->comicStandalone($item['alias']);
+	    $comic = ComicStandalone::get($item['id']);
+	    
+		$item['page_url'] = $this->linker->comicStandalone($comic);
 		$item['context_field'] = 'comic_standalone_id';
 
 		return $item;

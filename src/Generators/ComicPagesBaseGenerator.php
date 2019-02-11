@@ -19,6 +19,8 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
 
 	public function afterLoad($item)
 	{
+	    $item = parent::afterLoad($item);
+	    
 		$item['picture'] = $this->comics->getPictureUrl($item);
 		$item['thumb'] = $this->comics->getThumbUrl($item);
 		

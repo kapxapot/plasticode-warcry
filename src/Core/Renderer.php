@@ -2,26 +2,17 @@
 
 namespace App\Core;
 
-use Plasticode\Core\Decorator as DecoratorBase;
+use Plasticode\Core\Renderer as RendererBase;
 
-class Decorator extends DecoratorBase
+class Renderer extends RendererBase
 {
-	private function articleBase($template)
-	{
-		return $template
-			? "%article%"
-			: $this->getSettings('legacy.articles.page');
-	}
-
-	public function articleUrlBare($name, $cat, $template = false)
+	protected function articleUrlBare($name, $cat, $template = false)
 	{
 		if ($cat) {
 			$cat = '/' . $cat;
 		}
 
-		$url = $this->articleBase($template);
-
-		return $url . '/' . $name . $cat;
+		return '%article%/' . $name . $cat;
 	}
 
 	public function articleUrl($nameRu, $nameEn, $nameEsc, $cat, $catEsc, $template = false, $style = "nd_article")
@@ -46,7 +37,11 @@ class Decorator extends DecoratorBase
 			$cat = " ({$cat})";
 		}
 
-		return "<font class=\"nd_noarticle\" data-toggle=\"tooltip\" title=\"{$nameEn}{$cat}\">{$nameRu}</font>";
+		return $this->component('span', [
+		    'text' => $nameRu,
+		    'title' => $nameEn . $cat,
+		    'style' => 'nd_noarticle',
+		]);
 	}
 	
 	public function entityUrl($url, $text, $title = null)
@@ -59,14 +54,13 @@ class Decorator extends DecoratorBase
 		]);
 	}
 
-	public function recipePageUrl($id, $title, $rel = null, $content = '[~]')
+	public function recipePageUrl($url, $title, $rel = null, $content = '[~]')
 	{
-		$url = $this->linker->recipe($id);
-		
-		if ($rel) {
-			$rel = " rel=\"{$rel}\"";
-		}
-
-		return "<a href=\"{$url}\" data-toggle=\"tooltip\" title=\"{$title}\"{$rel}>{$content}</a>";
+		return $this->component('url', [
+		    'url' => $url,
+		    'text' => $content,
+		    'title' => $title,
+		    'rel' => $rel,
+		]);
 	}
 }

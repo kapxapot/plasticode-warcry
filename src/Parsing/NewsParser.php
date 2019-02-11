@@ -10,7 +10,7 @@ class NewsParser extends Contained {
 		return strtr($str, array_flip(get_html_translation_table(HTML_SPECIALCHARS)));
 	}
 	
-	public function beforeParsePost($post, $tid, $full = false) {
+	public function beforeParsePost($post, $tid) {
 		$post = str_replace(" target='_blank'", "", $post);
 		$post = str_replace(" target=\"_blank\"", "", $post);
 		//$post = str_replace("<a", "<noindex><a", $post);
@@ -32,8 +32,6 @@ class NewsParser extends Contained {
 	
 			$url = $this->linker->news($tid);
 			$url = $this->linker->abs($url);
-
-			$post = $this->parser->parseCut($post, $url, $full);
 		}
 	
 		return $post;

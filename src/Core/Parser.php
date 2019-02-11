@@ -2,9 +2,13 @@
 
 namespace App\Core;
 
+use Plasticode\Collection;
 use Plasticode\Core\Parser as ParserBase;
 use Plasticode\Util\Arrays;
 use Plasticode\Util\Strings;
+
+use App\Models\Article;
+use App\Models\GalleryPicture;
 
 class Parser extends ParserBase
 {
@@ -62,11 +66,11 @@ class Parser extends ParserBase
 
 			$idEsc = Strings::fromSpaces($id);
 			$catEsc = Strings::fromSpaces($cat);
-			$article = $this->db->getArticle($id, $cat);
+			$article = Article::getByName($id, $cat);
 
 			$text = ($article && $this->db->isPublished($article))
-				? $this->decorator->articleUrl($name, $id, $idEsc, $cat, $catEsc, true)
-				: $this->decorator->noArticleUrl($name, $id, $cat);
+				? $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc, true)
+				: $this->renderer->noArticleUrl($name, $id, $cat);
 		} else {
 			// тег с id
 			// [[npc:27412|Слинкин Демогном]]
@@ -82,7 +86,7 @@ class Parser extends ParserBase
 				$dbTag = $mappings[$tag] ?? $tag;
 				$urlChunk = $dbTag . '=' . $id;
 				$url = $this->getWebDbLink($urlChunk);
-				$text = $this->decorator->component('url', [
+				$text = $this->render('url', [
 				    'url' => $url,
 				    'text' => $content,
 				    'data' => [ 'wowhead' => $urlChunk ],
@@ -98,7 +102,8 @@ class Parser extends ParserBase
 								$title = 'Рецепт: ' . $recipeData['name_ru'];
 								$rel = 'spell=' . $recipeData['id'] . '&amp;domain=ru';
 								
-								$recipeUrl = $this->decorator->recipePageUrl($recipeData['id'], $title, $rel);
+								$url = $this->linker->recipe($recipeData['id']);
+								$recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel);
 					
 								// adding
 								$text .= '&nbsp;' . $recipeUrl;
@@ -114,7 +119,8 @@ class Parser extends ParserBase
 						if ($recipe) {
 							$title = 'Рецепт: ' . $content; // $id
 							$rel = 'spell=' . $id . '&amp;domain=ru';
-							$recipeUrl = $this->decorator->recipePageUrl($id, $title, $rel, $content);
+							$url = $this->linker->recipe($id);
+							$recipeUrl = $this->renderer->recipePageUrl($id, $title, $rel, $content);
 					
 							// rewriting default
 							$text = $recipeUrl;
@@ -141,7 +147,7 @@ class Parser extends ParserBase
 								}
 								
 								$url = $this->getWebDbLink('maps?data=' . $id . $coords);
-								$text = $this->decorator->component('url', [
+								$text = $this->render('url', [
 								    'url' => $url,
 								    'text' => $coordsText,
 								]);
@@ -152,7 +158,7 @@ class Parser extends ParserBase
 
 					case 'card':
 						$url = $this->getSettings('hsdb_ru_link') . 'cards/' . $id;
-						$text = $this->decorator->component('url', [
+						$text = $this->render('url', [
 						    'url' => $url,
 						    'text' => $content,
 						    'style' => 'hh-ttp',
@@ -162,34 +168,35 @@ class Parser extends ParserBase
 					case 'news':
 					case 'event':
 					case 'stream':
-						$text = $this->decorator->entityUrl("%{$tag}%/{$id}", $content);
+						$text = $this->renderer->entityUrl("%{$tag}%/{$id}", $content);
 						break;
 
 					case 'tag':
 						$id = Strings::fromSpaces($id, '+');
-						$text = $this->decorator->entityUrl("%{$tag}%/{$id}", $content);
+						$text = $this->renderer->entityUrl("%{$tag}%/{$id}", $content);
 						break;
                     
                     case 'gallery':
-                        $pictures = [];
+                        $pictures = Collection::make();
                         
                         $ids = explode(',', $id);
                         
                         foreach ($ids as $id) {
                             if (is_numeric($id)) {
-                                $pic = $this->db->getGalleryPicture($id);
+                                $pic = GalleryPicture::get($id);
+                                
                                 if ($pic) {
-                                    $pictures[] = $this->builder->buildGalleryPicture($pic);
+                                    $pictures = $pictures->add($pic);
                                 }
                             } else {
-                                $tagPics = $this->builder->buildGalleryPicturesByTag($id);
-                                $pictures = array_merge($pictures, $tagPics ?? []);
+                                $tagPics = GalleryPicture::getByTag($id);
+                                $pictures = $pictures->addMany($tagPics);
                             }
                         }
 
-                        $text = !empty($pictures)
-                            ? $this->decorator->component('gallery', [
-                                'pictures' => Arrays::distinctBy($pictures),
+                        $text = $pictures->any()
+                            ? $this->render('gallery', [
+                                'pictures' => $pictures->distinct(),
                                 'lightbox' => true
                             ])
                             : null;

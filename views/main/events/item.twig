@@ -1,5 +1,6 @@
 {% extends 'main/layout.twig' %}
 
+{% import 'macros.twig' as gm %}
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
@@ -17,13 +18,13 @@
 			'published': event.published
 		}) }}
 	  	<div class="panel-body">
-	 		<p><b>Начало:</b> {{ event.start_ui|raw }}</p>
-			{% if event.ends_at or event.unknown_end %}
-	  			<p><b>Конец:</b> {% if event.ends_at %}{{ event.end_ui|raw }}{% endif %}{% if event.unknown_end %}неизвестно{% endif %}</p>
+	 		<p ng-cloak><b>Начало:</b> {{ gm.moment_smart(event.start) }}{% if not event.started %} ({{ gm.moment_from_now(event.start.iso) }}){% endif %}</p>
+			{% if event.end or event.unknown_end %}
+	  			<p ng-cloak><b>Конец:</b> {% if event.end %}{{ gm.moment_smart(event.end) }}{% endif %}{% if event.unknown_end %}неизвестно{% endif %}</p>
 			{% endif %}
 			<p><b>Тип:</b> {{ event.type.name }}</p>
 			{% if event.region %}
-				<p><b>Место проведения:</b> {{ event.region.title }}</p>
+				<p><b>Место проведения:</b> {{ event.region.display_name }}</p>
 			{% endif %}
 			{% if event.address %}
 				<p><b>Адрес:</b> {{ event.address }}</p>
@@ -32,15 +33,15 @@
 	  			<p><a href="{{ event.website }}">{{ event.website }}</a></p>
 			{% endif %}
 		</div>
-		{% if event.description %}
+		{% if event.parsed_description %}
 			<div class="panel-body article">
-	  			{{ event.description|raw }}
+	  			{{ event.parsed_description.text|raw }}
 			</div>
 		{% endif %}
-		{% if event.tags %}
-			<div class="panel-footer">
-                {% include 'components/tags.twig' with { 'tags': event.tags } only %}
-			</div>
-		{% endif %}
+		<div class="panel-footer">
+            {% include 'components/published_at.twig' with { 'entity': event } only %}
+	        {% include 'components/creator.twig' with { 'entity': event } only %}
+            {% include 'components/tags.twig' with { 'tags': event.tag_links } only %}
+		</div>
 	</div>
 {% endblock %}

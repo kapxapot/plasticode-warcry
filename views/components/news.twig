@@ -1,0 +1,13 @@
+{% import 'macros.twig' as gm %}
+
+{% for n in news %}
+	<div class="icon-lg icon-{{ n.game.result_alias }}-lg">
+	    {% set n_title = n.display_title ?? n.title %}
+		<div>
+			<a title="[{{ n.game.name }}] {{ n_title|raw }}" href="{{ path_for('main.news', { 'id': n.get_id }) }}">{{ n_title }}</a>
+		</div>
+		<div ng-cloak>
+			{{ gm.moment_local(n.published_at_iso) }}
+		</div>
+	</div>
+{% endfor %}

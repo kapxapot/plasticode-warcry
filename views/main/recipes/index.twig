@@ -56,7 +56,7 @@
 								<td>{{ rm.recipe_link(r) }}</td>
 								<td>
 									<div class="flex-wrapper recipe-reagents">
-										{% for reg in r.reagents %}
+										{% for reg in r.reagents_list %}
 											{{ rm.recipe_icon(reg) }}
 										{% endfor %}
 									</div>

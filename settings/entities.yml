@@ -294,13 +294,13 @@ comic_series:
 
     name_ru:
       name: Название
-      template: >
-        '<a href="' + row.page_url + '">' + row.name_ru + '</a>'
+      attributes: [ nullable, hidden ]
 
     name_en:
-      name: Eng. Title
+      name: Name
       form_name: Английское название
-      attributes: [ hidden ]
+      template: >
+        '<a href="' + row.page_url + '">' + row.name_en + '</a>'
 
     alias:
       name: Алиас
@@ -557,6 +557,11 @@ events:
       type: bool
       access: publish
 
+    important:
+      name: Важное
+      type: bool
+      access: publish
+
     published:
       name: Опубликовано
       form_name: Опубликовать
@@ -778,11 +783,15 @@ games:
     pic:
       name: Иконка
       template: >
-        '<img src="' + row.icon + '">'
+        row.icon ? '<img src="' + row.icon + '" width="32" height="32">' : ''
       attributes: [ no_sort, readonly ]
 
     name:
       name: Название
+    
+    twitch_name:
+      name: Название в Twitch
+      attributes: [ nullable, hidden ]
     
     parent_id:
       name: Родительская игра

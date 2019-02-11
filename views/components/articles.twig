@@ -1,0 +1,12 @@
+{% import 'macros.twig' as gm %}
+
+{% for article in articles %}
+	<div class="icon-lg icon-{{ article.game.result_alias }}-lg">
+		<div>
+			<a title="[{{ article.game.name }}] {{ article.title|raw }}" href="{{ article.url }}">{{ article.title }}</a>
+		</div>
+		<div ng-cloak>
+			{{ gm.moment_local(article.published_at_iso) }}
+		</div>
+	</div>
+{% endfor %}

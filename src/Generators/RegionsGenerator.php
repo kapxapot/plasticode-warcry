@@ -6,6 +6,8 @@ use Respect\Validation\Validator as v;
 
 use Plasticode\Generators\EntityGenerator;
 
+use App\Models\Region;
+
 class RegionsGenerator extends EntityGenerator
 {
 	public function getRules($data, $id = null)
@@ -19,15 +21,17 @@ class RegionsGenerator extends EntityGenerator
 	
 	public function afterLoad($item)
 	{
+	    $item = parent::afterLoad($item);
+	    
 		$parts = [];
-		$cur = $item;
+		$cur = Region::get($item['id']);
 		
 		while ($cur != null) {
-		    $parts[] = $cur['name_ru'];
+		    $parts[] = $cur->nameRu;
 		    
-	        $cur = $cur['terminal']
+	        $cur = $cur->terminal
 		        ? null
-		        : $this->db->getRegion($cur['parent_id']);
+		        : $cur->parent();
 		}
 
 		$item['select_title'] = implode(' » ', array_reverse($parts));

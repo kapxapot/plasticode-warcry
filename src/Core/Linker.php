@@ -5,6 +5,8 @@ namespace App\Core;
 use Plasticode\Core\Linker as LinkerBase;
 use Plasticode\Util\Strings;
 
+use App\Models\GalleryPicture;
+
 class Linker extends LinkerBase
 {
 	// urls
@@ -44,8 +46,8 @@ class Linker extends LinkerBase
 	{
 		$params = [];
 		
-		if (!$game['default']) {
-			$params['game'] = $game['alias'];
+		if ($game && !$game->default()) {
+			$params['game'] = $game->alias;
 		}
 		
 		return $this->router->pathFor('main.index', $params);
@@ -94,12 +96,12 @@ class Linker extends LinkerBase
 		return $this->forumUrl('showuser=' . $id);
 	}
 	
-	public function forumNewsIndex()
+	/*public function forumNewsIndex()
 	{
 		$index = $this->getSettings('forum.news_index');
 	
 		return $this->forumUrl('showforum=' . $index);
-	}
+	}*/
 	
 	public function forumTopic($id, $new = false)
 	{
@@ -119,16 +121,16 @@ class Linker extends LinkerBase
 		return $this->router->pathFor('main.gallery.author', [ 'alias' => $alias ]);
 	}
 
-	public function galleryPictureImg($picture)
+	public function galleryPictureImg(GalleryPicture $picture)
 	{
-		$ext = $this->getExtension($picture['picture_type']);
-		return $this->getSettings('folders.gallery_pictures_public') . $picture['id'] . '.' . $ext;
+		$ext = $this->getExtension($picture->pictureType);
+		return $this->getSettings('folders.gallery_pictures_public') . $picture->id . '.' . $ext;
 	}
 	
-	public function galleryThumbImg($picture)
+	public function galleryThumbImg(GalleryPicture $picture)
 	{
-		$ext = $this->getExtension($picture['thumb_type']);
-		return $this->getSettings('folders.gallery_thumbs_public') . $picture['id'] . '.' . $ext;
+		$ext = $this->getExtension($picture->thumbType);
+		return $this->getSettings('folders.gallery_thumbs_public') . $picture->id . '.' . $ext;
 	}
 	
 	public function galleryPicture($alias, $id)
@@ -150,48 +152,77 @@ class Linker extends LinkerBase
 	}
 	
 	// comics
-	public function comicSeries($alias)
+	public function comicSeries($series)
 	{
-		return $this->router->pathFor('main.comics.series', [ 'alias' => $alias ]);
+		return $this->router->pathFor('main.comics.series', [ 'alias' => $series->alias ]);
 	}
 
-	public function comicIssue($alias, $comicNumber)
+	public function comicIssue($comic)
 	{
-		return $this->router->pathFor('main.comics.issue', [ 'alias' => $alias, 'number' => $comicNumber ]);
-	}
-
-	public function comicIssuePage($alias, $comicNumber, $pageNumber)
-	{
-		return $this->router->pathFor('main.comics.issue.page', [
-			'alias' => $alias,
-			'number' => $comicNumber,
-			'page' => $pageNumber,
+	    $series = $comic->series();
+	    
+	    if (is_null($series)) {
+	        throw new \Exception("Comic issue {$comic} has no comic series.");
+	    }
+	    
+		return $this->router->pathFor('main.comics.issue', [
+		    'alias' => $series->alias,
+		    'number' => $comic->number,
 		]);
 	}
 
-	public function comicStandalone($alias)
+	public function comicIssuePage($page)
 	{
-		return $this->router->pathFor('main.comics.standalone', [ 'alias' => $alias ]);
+	    $comic = $page->comic();
+	    
+	    if (is_null($comic)) {
+	        dd($page);
+	        
+	        throw new \Exception("Comic issue page {$page} has no comic issue.");
+	    }
+	    
+	    $series = $comic->series();
+	    
+	    if (is_null($series)) {
+	        throw new \Exception("Comic issue {$comic} has no comic series.");
+	    }
+	    
+		return $this->router->pathFor('main.comics.issue.page', [
+			'alias' => $series->alias,
+			'number' => $comic->number,
+			'page' => $page->number,
+		]);
 	}
 
-	public function comicStandalonePage($alias, $pageNumber)
+	public function comicStandalone($comic)
 	{
+		return $this->router->pathFor('main.comics.standalone', [ 'alias' => $comic->alias ]);
+	}
+
+	public function comicStandalonePage($page)
+	{
+	    $comic = $page->comic();
+	    
+	    if (is_null($comic)) {
+	        throw new \Exception("Comic standalone page {$page} has no comic standalone.");
+	    }
+	    
 		return $this->router->pathFor('main.comics.standalone.page', [
-			'alias' => $alias,
-			'page' => $pageNumber,
+			'alias' => $comic->alias,
+			'page' => $page->number,
 		]);
 	}
 
 	public function comicPageImg($page)
 	{
-		$ext = $this->getExtension($page['type']);
-		return $this->getSettings('folders.comics_pages_public') . $page['id'] . '.' . $ext;
+		$ext = $this->getExtension($page->type);
+		return $this->getSettings('folders.comics_pages_public') . $page->id . '.' . $ext;
 	}
 	
 	public function comicThumbImg($page)
 	{
-		$ext = $this->getExtension($page['type']);
-		return $this->getSettings('folders.comics_thumbs_public') . $page['id'] . '.' . $ext;
+		$ext = $this->getExtension($page->type);
+		return $this->getSettings('folders.comics_thumbs_public') . $page->id . '.' . $ext;
 	}
 	
 	// recipes

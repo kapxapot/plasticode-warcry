@@ -21,9 +21,9 @@
 	       	{{ rm.total_count(recipe.total_min, recipe.total_max) }}
 	    </div>
 	
-		{% if recipe.reagents %}
+		{% if recipe.reagents_list %}
 			<ul>
-			    {% for r in recipe.reagents %}
+			    {% for r in recipe.reagents_list %}
 			        <li>
 			        	<div{% if r.recipe %} id="item_{{ r.recipe.node_id }}"{% endif%} class="flex-wrapper{% if not r.recipe %} recipe-tree-leaf{% endif %}">
 			        		{% if r.recipe %}

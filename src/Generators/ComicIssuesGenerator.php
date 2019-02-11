@@ -2,17 +2,16 @@
 
 namespace App\Generators;
 
-use Plasticode\Generators\EntityGenerator;
+use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Data\Taggable;
+use App\Models\ComicIssue;
+use App\Models\ComicSeries;
 
-class ComicIssuesGenerator extends EntityGenerator
+class ComicIssuesGenerator extends TaggableEntityGenerator
 {
 	use Publishable;
-	
-	protected $taggable = Taggable::COMIC_ISSUES;
-	
+
 	public function getOptions()
 	{
 	    $options = parent::getOptions();
@@ -32,8 +31,11 @@ class ComicIssuesGenerator extends EntityGenerator
 		$data = $this->publishIfNeeded($data);		
 		
 		if (($data['number'] ?? 0) <= 0) {
-		    $seriesId = $data['series_id'];
-		    $data['number'] = $this->db->getMaxComicIssueNumber($seriesId, $id) + 1;
+		    $series = ComicSeries::get($data['series_id']);
+		    
+		    if ($series) {
+		        $data['number'] = $series->maxIssueNumber($id) + 1;
+		    }
 		}
 
 		return $data;
@@ -43,12 +45,14 @@ class ComicIssuesGenerator extends EntityGenerator
 	{
 	    $item = parent::afterLoad($item);
 	    
-		$series = $this->db->getComicSeries($item['series_id']);
+	    $comic = new ComicIssue($item);
+		$series = $comic->series();
+		
 		if ($series) {
-			$item['series_alias'] = $series['alias'];
-    		$item['page_url'] = $this->linker->comicIssue($series['alias'], $item['number']);
+			$item['series_alias'] = $series->alias;
 		}
 		
+		$item['page_url'] = $this->linker->comicIssue($comic);
 		$item['context_field'] = 'comic_issue_id';
 
 		return $item;
@@ -59,14 +63,14 @@ class ComicIssuesGenerator extends EntityGenerator
 		$params = parent::getAdminParams($args);
 		
 		$seriesId = $args['id'];
-		$series = $this->db->getComicSeries($seriesId, true);
-		$game = $this->db->getGame($series['game_id']);
+		$series = ComicSeries::get($seriesId);
+		$game = $series->game();
 		
 		$params['source'] = "comic_series/{$seriesId}/comic_issues";
 		$params['breadcrumbs'] = [
 			[ 'text' => 'Серии', 'link' => $this->router->pathFor('admin.entities.comic_series') ],
-			[ 'text' => $game ? $game['name'] : '(нет игры)' ],
-			[ 'text' => $series['name_ru'] ],
+			[ 'text' => $game ? $game->name : '(нет игры)' ],
+			[ 'text' => $series->name() ],
 			[ 'text' => 'Выпуски' ],
 		];
 		

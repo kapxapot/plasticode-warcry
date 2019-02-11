@@ -6,6 +6,8 @@ use Respect\Validation\Validator as v;
 
 use Plasticode\Generators\EntityGenerator;
 
+use App\Models\Game;
+
 class GamesGenerator extends EntityGenerator
 {
 	public function getRules($data, $id = null)
@@ -25,6 +27,8 @@ class GamesGenerator extends EntityGenerator
 	
 	public function afterLoad($item)
 	{
+	    $item = parent::afterLoad($item);
+	    
 		$item['tags'] = $this->buildAutoTags($item);
 
 		$parts = [];
@@ -32,10 +36,17 @@ class GamesGenerator extends EntityGenerator
 		
 		while ($cur != null) {
 		    $parts[] = $cur['name'];
-		    $cur = $this->db->getGame($cur['parent_id']);
+		    $cur = Game::get($cur['parent_id']);
 		}
 
 		$item['select_title'] = implode(' » ', array_reverse($parts));
+		
+		$game = Game::get($item['id']);
+		if (!$game) {
+		    dd($item);
+		}
+		
+		//$item['result_icon'] = $game->resultIcon();
 
 		return $item;
 	}
@@ -49,7 +60,7 @@ class GamesGenerator extends EntityGenerator
 	    $parentId = $item['parent_id'];
 	    
 	    while ($parentId) {
-	        $parent = $this->db->getGame($parentId);
+	        $parent = Game::get($parentId);
 	        if ($parent) {
 	            $parts[] = $parent['autotags'];
 	        }

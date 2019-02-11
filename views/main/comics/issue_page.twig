@@ -7,17 +7,17 @@
 	<div class="panel panel-primary">
 		{% set breadcrumbs = [
 			{ 'url': path_for('main.comics'), 'text': comics_title },
-			{ 'url': path_for('main.comics.series', { 'alias': series.alias }), 'text': series.name_ru },
+			{ 'url': path_for('main.comics.series', { 'alias': series.alias }), 'text': series.name },
 	  		{ 'url': path_for('main.comics.issue', { 'alias': series.alias, 'number': comic.number }), 'text': 'Выпуск ' ~ comic.number_str }
 		] %}
-		{{ lm.panel_header(_context, series.name_ru ~ ' ' ~ comic.number_str, {
-			'subtitle': series.name_en ?? comic.name_en,
+		{{ lm.panel_header(_context, series.name ~ ' ' ~ comic.number_str, {
+			'subtitle': series.sub_name ?? comic.sub_name,
 			'bc_title': 'Страница ' ~ page.number_str,
 			'buttons': [ m.edit_button('comic_pages', page, { 'id': comic.id }) ]
 		}) }}
 	  	<div class="panel-body gallery-picture">
 	  		<div>
-	  			{% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: Выпуск {{ page.next.comic_number_str }}, Страница {{ page.next.number_str }}">{% endif %}
+	  			{% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: {% if comic.number != page.prev.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}">{% endif %}
 	  				<img src="{{ page.url }}" class="center img-responsive" />
 	  			{% if page.next %}</a>{% endif %}
 	  		</div>
@@ -25,16 +25,16 @@
 	</div>
   	<div class="gallery-picture-nav pagination-flex">
 		{% if page.prev %}
-			<a href="{{ page.prev.page_url }}" title="Назад: Выпуск {{ page.prev.comic_number_str }}, Страница {{ page.prev.number_str }}" class="btn btn-default btn-lg">
+			<a href="{{ page.prev.page_url }}" title="Назад: {% if comic.number != page.prev.comic.number %}Выпуск {{ page.prev.comic.number_str }}, {% endif %}Страница {{ page.prev.number_str }}" class="btn btn-default btn-lg">
 			    {% include 'components/prev.twig' %}
 				<span class="hidden-md hidden-lg">#{{ page.prev.comic.number }}-{{ page.prev.number_str }}</span>
-				<span class="hidden-xs hidden-sm">Выпуск {{ page.prev.comic_number_str }}, Страница {{ page.prev.number_str }}</span>
+				<span class="hidden-xs hidden-sm">{% if comic.number != page.prev.comic.number %}Выпуск {{ page.prev.comic.number_str }}, {% endif %}Страница {{ page.prev.number_str }}</span>
 			</a>
 		{% endif %}
 		{% if page.next %}
-			<a href="{{ page.next.page_url }}" title="Вперед: Выпуск {{ page.next.comic_number_str }}, Страница {{ page.next.number_str }}" class="btn btn-default btn-lg">
+			<a href="{{ page.next.page_url }}" title="Вперед: {% if comic.number != page.next.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}" class="btn btn-default btn-lg">
 				<span class="hidden-md hidden-lg">#{{ page.next.comic.number }}-{{ page.next.number_str }}</span>
-				<span class="hidden-xs hidden-sm">Выпуск {{ page.next.comic_number_str }}, Страница {{ page.next.number_str }}</span>
+				<span class="hidden-xs hidden-sm">{% if comic.number != page.next.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}</span>
 			    {% include 'components/next.twig' %}
 			</a>
 		{% endif %}

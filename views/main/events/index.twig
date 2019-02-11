@@ -77,16 +77,7 @@
 				<div class="tab-content">
 					{% for group in events if group.items|length > 0 %}
 						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %} linkblock-big" id="{{ group.id }}">
-							{% for e in group.items %}
-								<div class="icon-{{ e.game.alias }}">
-									<div>
-										<a title="[{{ e.game.name }}] {{ e.name|raw }}" href="{{ path_for('main.event', { 'id': e.id }) }}">{{ e.name }}</a>
-									</div>
-									<div>
-										{{ e.type.name }}, {{ e.interval_ui|raw }}
-									</div>
-								</div>
-							{% endfor %}
+		                    {% include 'components/events.twig' with { 'events': group.items } only %}
 						</div>
 					{% endfor %}
 				</div>

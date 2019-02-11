@@ -1,4 +1,12 @@
-{% extends 'main/includes/sidebar/linkpanel.twig' %}
-
-{% set linkpanel_links = sidebar.articles %}
-{% set linkpanel_title = 'Последние статьи' %}
+{% if sidebar.articles.any %}
+	<div class="panel-secondary-heading">Последние статьи</div>
+	<div class="panel panel-secondary">
+		<div class="panel-body linkblock">
+			{% for a in sidebar.articles %}
+				<div class="icon-{{ a.game.result_alias }}">
+					<a title="[{{ a.game.name }}] {{ a.title }}" href="{{ a.url }}">{{ a.name_ru }}</a>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endif %}

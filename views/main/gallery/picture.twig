@@ -8,7 +8,7 @@
 	<div class="panel panel-primary">
 		{% set breadcrumbs = [
 			{ 'url': path_for('main.gallery'), 'text': gallery_title },
-			{ 'url': path_for('main.gallery.author', { 'alias': author.alias }), 'text': author.name }
+			{ 'url': path_for('main.gallery.author', { 'alias': author.alias }), 'text': author.display_name }
 		] %}
 		{{ lm.panel_header(_context, title, {
 			'buttons': [ m.edit_button('gallery_pictures', picture, { 'id': author.id }) ]
@@ -19,22 +19,19 @@
 	  				<img src="{{ picture.url }}" class="center img-responsive" />
 	  			{% if picture.next %}</a>{% endif %}
 	  		</div>
-	  		{% if picture.description %}
-	  			<div class="gallery-picture-description">{{ picture.description|raw }}</div>
+	  		{% if picture.parsed_description %}
+	  			<div class="gallery-picture-description">{{ picture.parsed_description|raw }}</div>
 	  		{% endif %}
 	   	</div>
 	    <div class="panel-footer">
-	    	<div class="glyphicon-block" title="Дата публикации">
-	    		<i class="far fa-clock"></i>
-	    		{{ picture.published_ui|raw }}
-	    	</div>
+            {% include 'components/published_at.twig' with { 'entity': picture } only %}
 	    	{% if picture.official %}
 	    		<div class="glyphicon-block">
 	    			<i class="far fa-copyright"></i>
 	    			Официальный арт
 	    		</div>
 	    	{% endif %}
-            {% include 'components/tags.twig' with { 'tags': picture.tags } only %}
+            {% include 'components/tags.twig' with { 'tags': picture.tag_links } only %}
 	    </div>
 	</div>
   	<div class="pagination-flex">
@@ -44,7 +41,7 @@
   				<span class="hidden-xs">{{ picture.prev.comment }}</span>
   			</a>
   		{% endif %}
-  		<a href="{{ picture.url }}" download="{{ author.name }} - {{ picture.comment }} ({{ site_name }}).{{ picture.ext }}" class="btn btn-default btn-lg">
+  		<a href="{{ picture.url }}" download="{{ author.display_name }} - {{ picture.comment }} ({{ site_name }}).{{ picture.ext }}" class="btn btn-default btn-lg">
   			{{ gm.gi('save', 'Скачать') }}
   			<span class="hidden-xs">Скачать</span>
   		</a>

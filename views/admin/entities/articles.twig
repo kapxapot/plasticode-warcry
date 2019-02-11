@@ -5,16 +5,17 @@
 		init();
 	}
 	else {
-		var textField = $('#entityForm').find('#text');
+		/* var textField = $('#entityForm').find('#text');
 	
-		textField.prop('disabled', true);
+		textField.prop('disabled', true); */
 		
 		$scope.loading = true;
 	
 		$http.get('{{ api }}articles/' + $scope.itemId).success(function(data) {
-			textField.val(data['text']);
-			textField.prop('disabled', false);
+			/* textField.val(data['text']);
+			textField.prop('disabled', false); */
 			
+			$scope.item.text = data['text'];
 			$scope.loading = false;
 			
 			init();
