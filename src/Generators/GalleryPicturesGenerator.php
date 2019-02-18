@@ -6,7 +6,6 @@ use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
 use App\Models\GalleryAuthor;
-use App\Models\GalleryPicture;
 
 class GalleryPicturesGenerator extends TaggableEntityGenerator
 {

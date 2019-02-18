@@ -710,7 +710,7 @@ gallery_pictures:
     pic:
       name: Картинка
       template: >
-        '<a href="' + row.picture + '"><img src="' + row.thumb + '" width="50"></a>'
+        '<a href="' + row.picture + '"><img src="' + row.thumb + '" width="100"></a>'
       attributes: [ no_sort, readonly ]
 
     game_id:

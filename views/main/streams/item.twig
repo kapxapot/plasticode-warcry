@@ -76,7 +76,7 @@
 			    		{% else %}
 			    			<div class="grey-7 mt-1">{{ gm.moment_from_now(s.remote_online_at_iso) }}</div>
 			    		{% endif %}
-		    		    <div class="mt-1">{{ s.remote_status }}</div>
+		    		    <div class="mt-1 br-word">{{ s.display_remote_status }}</div>
 			    	{% else %}
 			    	    <div class="card-body__action">zzZzZz...</div>
 			    	{% endif %}
@@ -122,7 +122,7 @@
 							    {#% if log.game.default %#}
 							        <div class="linkblock-title">{{ log.remote_game }}</div>
 							    {#% endif %#}
-								<div>{{ log.remote_status }}</div>
+								<div>{{ log.display_remote_status }}</div>
 								<div class="linkblock-subtext" title="{{ log.start_iso }} - {{ log.end_iso }}">
 								    {{ gm.moment(log.start_iso, 'D MMMM, H:mm') }} – {{ gm.moment(log.end_iso, 'H:mm') }}
 								    ({% if stream.remote_online and loop.first %}live{% else %}{{ gm.moment_from_now(log.end_iso) }}{% endif %})
@@ -162,7 +162,7 @@
 						            ],
 						            statuses: [
 							        	{% for r in v_data %}
-							        		'{{ r.remote_status|e('js')|raw }}'{% if not loop.last %},{% endif %}
+							        		'{{ r.display_remote_status|e('js')|raw }}'{% if not loop.last %},{% endif %}
 							        	{% endfor %}
 						            ],
 				            		backgroundColor: pickColor({{ loop.parent.loop.index }}, 0, 0.2),

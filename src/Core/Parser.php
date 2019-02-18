@@ -5,10 +5,13 @@ namespace App\Core;
 use Plasticode\Collection;
 use Plasticode\Core\Parser as ParserBase;
 use Plasticode\Util\Arrays;
+use Plasticode\Util\Numbers;
 use Plasticode\Util\Strings;
 
 use App\Models\Article;
 use App\Models\GalleryPicture;
+use App\Models\Location;
+use App\Models\Recipe;
 
 class Parser extends ParserBase
 {
@@ -68,7 +71,7 @@ class Parser extends ParserBase
 			$catEsc = Strings::fromSpaces($cat);
 			$article = Article::getByName($id, $cat);
 
-			$text = ($article && $this->db->isPublished($article))
+			$text = ($article && $article->isPublished())
 				? $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc, true)
 				: $this->renderer->noArticleUrl($name, $id, $cat);
 		} else {
@@ -96,13 +99,15 @@ class Parser extends ParserBase
 				switch ($tag) {
 					case 'item':
 						if ($id > 0) {
-							$sources = $this->db->getRecipesByItemId($id);
-							if (is_array($sources) && count($sources) > 0) {
-								$recipeData = $sources[0];
-								$title = 'Рецепт: ' . $recipeData['name_ru'];
-								$rel = 'spell=' . $recipeData['id'] . '&amp;domain=ru';
+							$sources = Recipe::getAllByItemId($id);
+							
+							if ($sources->any()) {
+								$recipe = $sources->first();
 								
-								$url = $this->linker->recipe($recipeData['id']);
+								$title = 'Рецепт: ' . $recipe->nameRu;
+								$rel = 'spell=' . $recipe->getId() . '&amp;domain=ru';
+								
+								$url = $this->linker->recipe($recipe->getId());
 								$recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel);
 					
 								// adding
@@ -114,13 +119,13 @@ class Parser extends ParserBase
 
 					case 'spell':
 						// is spell is a recipe, link it to our recipe page
-						$recipe = $this->db->getRecipe($id);
+						$recipe = Recipe::get($id);
 						
 						if ($recipe) {
 							$title = 'Рецепт: ' . $content; // $id
 							$rel = 'spell=' . $id . '&amp;domain=ru';
 							$url = $this->linker->recipe($id);
-							$recipeUrl = $this->renderer->recipePageUrl($id, $title, $rel, $content);
+							$recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel, $content);
 					
 							// rewriting default
 							$text = $recipeUrl;
@@ -137,11 +142,19 @@ class Parser extends ParserBase
 							$coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
 	
 							if (!is_numeric($id)) {
-								$id = $this->db->getLocationId($id);
+								$location = Location::getByName($id);
+								
+								if ($location) {
+								    $id = $location->getId();
+								}
 							}
 	
 							if ($id > 0) {
 								$coords = '';
+								
+								$x = Numbers::parseFloat($x);
+								$y = Numbers::parseFloat($y);
+								
 								if ($x > 0 && $y > 0) {
 									$coords = ':' . ($x * 10) . ($y * 10);
 								}
@@ -177,7 +190,7 @@ class Parser extends ParserBase
 						break;
                     
                     case 'gallery':
-                        $pictures = Collection::make();
+                        $pictures = Collection::makeEmpty();
                         
                         $ids = explode(',', $id);
                         
@@ -190,7 +203,7 @@ class Parser extends ParserBase
                                 }
                             } else {
                                 $tagPics = GalleryPicture::getByTag($id);
-                                $pictures = $pictures->addMany($tagPics);
+                                $pictures = $pictures->concat($tagPics);
                             }
                         }
 

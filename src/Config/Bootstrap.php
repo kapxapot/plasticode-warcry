@@ -17,6 +17,10 @@ class Bootstrap extends BootstrapBase
                     return \App\Models\User::class;
                 },
 
+                'menuClass' => function ($container) {
+                    return \App\Models\Menu::class;
+                },
+
                 'menuItemClass' => function ($container) {
                     return \App\Models\MenuItem::class;
                 },
@@ -51,8 +55,8 @@ class Bootstrap extends BootstrapBase
                 	$comicsSettings = [
                 		'base_dir' => $this->dir,
                 		'fields' => [
-                			'picture_type' => 'type',
-                			'thumb_type' => 'type',
+                			'picture_type' => 'pic_type',
+                			'thumb_type' => 'pic_type',
                 		],
                 		'folders' => [
                 			'picture' => [

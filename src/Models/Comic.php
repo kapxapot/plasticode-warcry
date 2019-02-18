@@ -13,7 +13,7 @@ use App\Models\Traits\Names;
 abstract class Comic extends DbModel
 {
     use Description, FullPublish, Stamps, Tags, Names;
-
+    
     // PROPS
 
     public abstract function pages();

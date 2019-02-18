@@ -24,6 +24,7 @@ class RegionsGenerator extends EntityGenerator
 	    $item = parent::afterLoad($item);
 	    
 		$parts = [];
+		
 		$cur = Region::get($item['id']);
 		
 		while ($cur != null) {

@@ -31,7 +31,7 @@ class UpdateStreamsJob extends Contained
 	{
 		$id = $stream->streamId;
 		
-		switch ($stream->type) {
+		switch ($stream->typeId) {
 			// Twitch
 			case 1:
 				$data = $this->twitch->getStreamData($id);
@@ -49,7 +49,7 @@ class UpdateStreamsJob extends Contained
 						$ch = $s['channel'];
 
 						$stream->remoteTitle = $ch['display_name'];
-						$stream->remoteStatus = $ch['status'];
+						$stream->remoteStatus = urlencode($ch['status']);
 						$stream->remoteLogo = $ch['logo'];
 					}
 					
@@ -65,7 +65,7 @@ class UpdateStreamsJob extends Contained
 				break;
 			
 			default:
-				throw new \Exception('Unsupported stream type: ' . $stream->type);
+				throw new \Exception('Unsupported stream type: ' . $stream->typeId);
 		}
 		
 		$now = Date::dbNow();
@@ -78,7 +78,7 @@ class UpdateStreamsJob extends Contained
 
 		// save
 		$stream->save();
-		
+
 		// stats
 		$this->updateStreamStats($stream);
 		
@@ -113,6 +113,7 @@ class UpdateStreamsJob extends Contained
 		}
 		
 		if ($refresh) {
+	        $stats = StreamStat::fromStream($stream);
 			$stats->save();
 		}
 	}

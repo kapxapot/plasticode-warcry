@@ -12,4 +12,11 @@ class Menu extends MenuBase
     {
         return self::getAllByField('game_id', $gameId);
     }
+    
+    // props
+    
+    public function game()
+    {
+        return Game::get($this->gameId);
+    }
 }

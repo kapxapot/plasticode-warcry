@@ -4,8 +4,6 @@ namespace App\Generators;
 
 use Plasticode\Generators\MenuItemsGenerator as MenuItemsBaseGenerator;
 
-use App\Models\Game;
-
 class MenuItemsGenerator extends MenuItemsBaseGenerator
 {
 	public function getOptions()
@@ -22,13 +20,13 @@ class MenuItemsGenerator extends MenuItemsBaseGenerator
 		$params = parent::getAdminParams($args);
 
 		$menuId = $args['id'];
-		$menu = $this->db->getMenu($menuId);
-		$game = Game::get($menu['game_id']);
 		
+		$menu = $this->menuRepository->get($menuId);
+
 		$params['breadcrumbs'] = [
 			[ 'text' => 'Меню', 'link' => $this->router->pathFor('admin.entities.menus') ],
-			[ 'text' => $game ? $game['name'] : '(нет игры)' ],
-			[ 'text' => $menu['text'] ],
+			[ 'text' => $menu->game()->name ],
+			[ 'text' => $menu->text ],
 			[ 'text' => 'Элементы меню' ],
 		];
 		

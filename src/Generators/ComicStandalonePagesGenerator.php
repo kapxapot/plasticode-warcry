@@ -2,16 +2,16 @@
 
 namespace App\Generators;
 
-use App\Models\Game;
+use App\Models\ComicStandalone;
 
 class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
 {
     protected function getPageUrl($item)
     {
-        $comic = $this->db->getComicStandalone($item['comic_standalone_id']);
-        if ($comic) {
-            return $this->linker->comicStandalonePage($comic['alias'], $item['number']);
-        }
+        $comic = ComicStandalone::get($item['comic_standalone_id']);
+        $page = $comic->pageByNumber($item['number']);
+        
+        return $this->linker->comicStandalonePage($page);
     }
     
 	public function getOptions()
@@ -29,14 +29,14 @@ class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
 		$params = parent::getAdminParams($args);
 
 		$comicId = $args['id'];
-		$comic = $this->db->getComicStandalone($comicId, true);
-		$game = Game::get($comic['game_id']);
+		
+		$comic = ComicStandalone::get($comicId);
 
 		$params['source'] = "comic_standalones/{$comicId}/comic_standalone_pages";
 		$params['breadcrumbs'] = [
 			[ 'text' => 'Комиксы', 'link' => $this->router->pathFor('admin.entities.comic_standalones') ],
-			[ 'text' => $game ? $game['name'] : '(нет игры)' ],
-			[ 'text' => $comic['name_ru'] ],
+			[ 'text' => $comic->game()->name ],
+			[ 'text' => $comic->nameRu ],
 			[ 'text' => 'Страницы' ],
 		];
 		

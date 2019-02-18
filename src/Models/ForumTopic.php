@@ -33,16 +33,9 @@ class ForumTopic extends DbModel
     }
     
     // getters - many
-    
-	public static function getLatestNews($game = null, $offset = 0, $limit = 0, $exceptId = null, $year = null) {
-		$forumIds = Game::getNewsForumIds($game);
 
-        if ($forumIds->empty()) {
-            //throw new \Exception('Empty forum ids list.');
-            return Collection::makeEmpty();
-        }
-
-        return self::getMany(function ($query) use ($forumIds, $offset, $limit, $exceptId, $year) {
+	private static function getNewsQuery(Collection $forumIds, $offset = 0, $limit = 0, $exceptId = null, $year = null) {
+        return function ($query) use ($forumIds, $offset, $limit, $exceptId, $year) {
     		$query = $query->whereIn('forum_id', $forumIds->toArray());
     
     		if ($exceptId) {
@@ -62,7 +55,18 @@ class ForumTopic extends DbModel
     		}
             
             return $query;
-        });
+        };
+	}
+    
+	public static function getLatestNews($game = null, $offset = 0, $limit = 0, $exceptId = null, $year = null) {
+		$forumIds = Game::getNewsForumIds($game);
+
+        if ($forumIds->empty()) {
+            return Collection::makeEmpty();
+        }
+
+        $query = self::getNewsQuery($forumIds, $offset, $limit, $exceptId, $year);
+        return self::getMany($query);
 	}
 	
 	public static function getNewsByYear($year)
@@ -73,6 +77,18 @@ class ForumTopic extends DbModel
 	public static function getNewsByGame($game, $exceptId = null)
 	{
 	    return self::getLatestNews($game, 0, 0, $exceptId);
+	}
+	
+	public static function newsCount($game, $exceptId = null, $year = null)
+	{
+		$forumIds = Game::getNewsForumIds($game);
+
+        if ($forumIds->empty()) {
+            return Collection::makeEmpty();
+        }
+
+        $query = self::getNewsQuery($forumIds, $offset, $limit, $exceptId, $year);
+        return self::getCount($query);
 	}
 	
 	public static function getNewsByTag($tag)
@@ -130,12 +146,7 @@ class ForumTopic extends DbModel
     {
         return Forum::get($this->forumId);
     }
-    
-    public function displayTitle()
-    {
-        return self::$container->newsParser->decodeTopicTitle($this->title);
-    }
-    
+
     public function url()
     {
         return self::$linker->news($this->getId());
@@ -243,12 +254,8 @@ class ForumTopic extends DbModel
         return $this->createdAtIso();
     }
     
-    // events
-    
-	protected function afterMake()
-	{
-	    parent::afterMake();
-	    
-	    $this->title = self::$container->newsParser->decodeTopicTitle($this->title);
-	}
+    public function displayTitle()
+    {
+        return self::$container->newsParser->decodeTopicTitle($this->title);
+    }
 }

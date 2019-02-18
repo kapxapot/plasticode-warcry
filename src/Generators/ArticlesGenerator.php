@@ -9,6 +9,7 @@ use Plasticode\Traits\Publishable;
 use Plasticode\Util\Strings;
 
 use App\Models\Article;
+use App\Models\ArticleCategory;
 
 class ArticlesGenerator extends TaggableEntityGenerator
 {

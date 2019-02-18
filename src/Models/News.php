@@ -21,9 +21,9 @@ class News extends DbModel
     
     // getters - many
     
-	public static function getLatest($game = null, $offset = 0, $limit = 0, $exceptId = null, $year = null)
+	private static function getQuery($game = null, $offset = 0, $limit = 0, $exceptId = null, $year = null)
 	{
-		return self::getAllPublished(function($query) use ($game, $offset, $limit, $exceptId, $year) {
+		return function($query) use ($game, $offset, $limit, $exceptId, $year) {
 			if ($exceptId) {
 				$query = $query->whereNotEqual(static::$idField, $exceptId);
 			}
@@ -45,7 +45,13 @@ class News extends DbModel
 			}
 			
 			return $query;
-		});
+		};
+	}
+
+	public static function getLatest($game = null, $offset = 0, $limit = 0, $exceptId = null, $year = null)
+	{
+	    $query = self::getQuery($game, $offset, $limit, $exceptId, $year);
+		return self::getAllPublished($query);
 	}
 	
 	public static function getByYear($year)
@@ -56,6 +62,12 @@ class News extends DbModel
 	public static function getByGame($game, $exceptId = null)
 	{
 	    return self::getLatest($game, 0, 0, $exceptId);
+	}
+	
+	public static function count($game, $exceptId = null, $year = null)
+	{
+	    $query = self::getQuery($game, 0, 0, $exceptId, $year);
+		return self::getCount($query);
 	}
 
     // props
@@ -106,5 +118,10 @@ class News extends DbModel
         return $this->lazy(__FUNCTION__, function () {
             return self::$parser->parseCut($this->parsedText(), $this->url(), false);
         });
+    }
+    
+    public function displayTitle()
+    {
+        return $this->title;
     }
 }

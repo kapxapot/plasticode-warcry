@@ -78,21 +78,12 @@ class Recipe extends DbModel
 		});
 	}
 
-	// events
-	
-	public function afterMake()
-	{
-	    parent::afterMake();
-	    
-		if ($this->learnedat == 9999) {
-			$this->learnedat = '??';
-		}
-
-		$this->skillId = $this->skill;
-        $this->skill = Skill::get($this->skillId);
-	}
-	
 	// props
+	
+	public function skill()
+	{
+	    return Skill::get($this->skillId);
+	}
 
 	public function title()
 	{

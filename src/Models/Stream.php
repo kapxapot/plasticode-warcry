@@ -13,10 +13,26 @@ use Plasticode\Util\Date;
 
 class Stream extends DbModel
 {
-    use Description, FullPublish, Stamps, Tags;
+    use Description, FullPublish, Stamps;
+
+    use Tags
+    {
+        Tags::getByTag as protected parentGetByTag;
+    }
     
     protected static $sortField = 'remote_viewers';
     protected static $sortReverse = true;
+    
+    // traits
+    
+	public static function getByTag($tag, $where = null)
+	{
+	    $streams = self::parentGetByTag($tag, $where);
+
+	    return self::arrange(self::sort($streams));
+	}
+
+    // misc
     
 	public static function getGroups()
 	{
@@ -67,7 +83,7 @@ class Stream extends DbModel
 	
 	private static function arrange(Collection $streams)
 	{
-	    return [
+	    return array_filter([
 	        $streams->where(function ($s) {
 	            return $s->isOnline();
 	        }),
@@ -77,26 +93,33 @@ class Stream extends DbModel
 	        $streams->where(function ($s) {
 	            return !$s->isOnline() && !$s->hasLogo();
 	        }),
-        ];
+        ], function ($a) {
+            return count($a) > 0;
+        });
 	}
 	
 	// GETTERS - MANY
 	
+	private static function sort(Collection $streams)
+	{
+		$sorts = [
+			'remote_online' => [ 'dir' => 'desc' ],
+			'official_ru' => [ 'dir' => 'desc' ],
+			'official' => [ 'dir' => 'desc' ],
+			'priority' => [ 'dir' => 'desc' ],
+			'priority_game' => [ 'dir' => 'desc' ],
+			'remote_viewers' => [ 'dir' => 'desc' ],
+			'remote_online_at' => [ 'dir' => 'desc', 'type' => 'string' ],
+			'title' => [ 'dir' => 'asc', 'type' => 'string' ],
+		];
+    
+	    return $streams->multiSort($sorts);
+	}
+	
 	public static function getAllSorted()
 	{
 	    return self::staticLazy(__FUNCTION__, function() {
-    		$sorts = [
-    			'remote_online' => [ 'dir' => 'desc' ],
-    			'official_ru' => [ 'dir' => 'desc' ],
-    			'official' => [ 'dir' => 'desc' ],
-    			'priority' => [ 'dir' => 'desc' ],
-    			'priority_game' => [ 'dir' => 'desc' ],
-    			'remote_viewers' => [ 'dir' => 'desc' ],
-    			'remote_online_at' => [ 'dir' => 'desc', 'type' => 'string' ],
-    			'title' => [ 'dir' => 'asc', 'type' => 'string' ],
-    		];
-    
-    	    return self::getAllPublished()->multiSort($sorts);
+	        return self::sort(self::getAllPublished());
 	    });
 	}
 	
@@ -111,22 +134,6 @@ class Stream extends DbModel
 	    }
 	    
 	    return $online;
-	}
-	
-	// event overrides
-	
-	protected function beforeSave()
-	{
-	    parent::beforeSave();
-	    
-		$this->remoteStatus = urlencode($this->remoteStatus);
-	}
-
-	protected function afterMake()
-	{
-	    parent::afterMake();
-	    
-		$this->remoteStatus = urldecode($this->remoteStatus);
 	}
 
 	// GETTERS - ONE
@@ -257,4 +264,9 @@ class Stream extends DbModel
     {
         return strlen($this->remoteLogo) > 0;
     }
+
+	public function displayRemoteStatus()
+	{
+	    return urldecode($this->remoteStatus);
+	}
 }

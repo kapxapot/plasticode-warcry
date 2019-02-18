@@ -20,7 +20,9 @@
 							{% if part.component == 'gallery_pictures' %}
 			                    {% include 'components/gallery.twig' with { 'pictures': part.values } only %}
 							{% elseif part.component == 'streams' %}
-			                    {% include 'components/streams.twig' with { 'streams': part.values } only %}
+	        				    {% for part in part.values %}
+                                    {% include 'components/streams.twig' with { 'streams': part } only %}
+                                {% endfor %}
 							{% elseif part.component == 'comics' %}
 			                    {% include 'components/comics.twig' with { 'comics': part.values } only %}
 							{% elseif part.component == 'events' %}

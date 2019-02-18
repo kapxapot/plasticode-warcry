@@ -21,6 +21,9 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 			$captcha = $this->captcha->generate($settings['captcha_digits'], true);
 			return Core::json($response, [ 'captcha' => $captcha['captcha'] ]);
 		});
+
+    	$this->get('/search/{query}', \App\Controllers\SearchController::class . ':search')
+    	    ->setName('api.search');
 	});
 	
 	$this->group('/api/v1', function () use ($settings, $access, $container) {
@@ -85,9 +88,6 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 	$this->get('/events/{id:\d+}', \App\Controllers\EventController::class . ':item')->setName('main.event');
 
 	$this->get('/tags/{tag}', \App\Controllers\TagController::class . ':item')->setName('main.tag');
-
-	$this->get('/search/{query}', \App\Controllers\SearchController::class . ':search')
-	    ->setName('main.search');
 
 	$this->get($trueRoot ? '/[{game}]' : '[/{game}]', \App\Controllers\NewsController::class . ':index')->setName('main.index');
 

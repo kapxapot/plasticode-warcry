@@ -47,7 +47,7 @@
     			    		{% else %}
     			    			<div class="grey-7 mt-1">{{ gm.moment_from_now(s.remote_online_at_iso) }}</div>
     			    		{% endif %}
-			    		    <div class="mt-1">{{ s.remote_status }}</div>
+			    		    <div class="mt-1 br-word">{{ s.display_remote_status }}</div>
     			    	{% else %}
     			    	    <div class="card-body__action">zzZzZz...</div>
     			    	{% endif %}

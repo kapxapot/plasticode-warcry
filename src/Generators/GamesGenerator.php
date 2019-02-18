@@ -32,40 +32,28 @@ class GamesGenerator extends EntityGenerator
 		$item['tags'] = $this->buildAutoTags($item);
 
 		$parts = [];
-		$cur = $item;
+
+		$cur = Game::get($item['id']);
 		
-		while ($cur != null) {
-		    $parts[] = $cur['name'];
-		    $cur = Game::get($cur['parent_id']);
+		while ($cur) {
+		    $parts[] = $cur->name;
+		    $cur = $cur->parent();
 		}
 
 		$item['select_title'] = implode(' » ', array_reverse($parts));
 		
-		$game = Game::get($item['id']);
-		if (!$game) {
-		    dd($item);
-		}
-		
-		//$item['result_icon'] = $game->resultIcon();
-
 		return $item;
 	}
 	
 	private function buildAutoTags($item)
 	{
-	    $parts = [
-	        $item['autotags']
-        ];
+	    $parts = [];
+        
+        $cur = Game::get($item['id']);
 	    
-	    $parentId = $item['parent_id'];
-	    
-	    while ($parentId) {
-	        $parent = Game::get($parentId);
-	        if ($parent) {
-	            $parts[] = $parent['autotags'];
-	        }
-	        
-	        $parentId = $parent['parent_id'] ?? null;
+	    while ($cur) {
+            $parts[] = $cur->autotags;
+	        $cur = $cur->parent();
 	    }
 	    
 	    return implode(', ', array_reverse($parts));

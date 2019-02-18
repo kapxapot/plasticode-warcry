@@ -39,11 +39,12 @@ class NewsController extends Controller
 		$news = $this->newsAggregatorService->getPage($game, $page, $pageSize);
 		
 		// paging
-		$count = $this->newsAggregatorService->getByGame($game)->count();
+		$count = $this->newsAggregatorService->count($game);
+		
 		$url = $this->linker->game($game);
 		
 		$paging = $this->pagination->complex($url, $count, $page, $pageSize);
-		
+
 		$params = $this->buildParams([
 			'game' => $game,
 			'sidebar' => [ 'stream', 'gallery', 'events', 'articles' ],
@@ -84,7 +85,7 @@ class NewsController extends Controller
 				'disqus_url' => $this->linker->disqusNews($id),
 				'disqus_id' => 'news' . $id,
 				'news_item' => $news,
-				'title' => $news->title,
+				'title' => $news->displayTitle(),
 				'page_description' => $this->makePageDescription($news->shortText, 'news.description_limit'),
 			],
 		]);
@@ -158,17 +159,17 @@ class NewsController extends Controller
 		$image->link = $siteUrl;
 		$image->description = $siteDescription;
 		$rss->image = $image;
-
+		
 		foreach ($news as $n) {
 			$item = new FeedItem();
-			$item->title = $n['title'];
-			$item->link = $this->linker->n($n['id']);
-			$item->description = $this->parser->makeAbsolute($n['text']);
-			$item->date = $n['pub_date'];
-			$item->author = $n['starter_name'];
+			$item->title = $n->displayTitle();
+			$item->link = $this->linker->n($n->getId());
+			$item->description = $this->parser->makeAbsolute($n->shortText());
+			$item->date = $n->publishedAtIso();
+			$item->author = $n->creator()->displayName();
 			$item->category = array_map(function($t) {
-				return $t['text'];
-			}, $n['tags']);
+				return $t->tag;
+			}, $n->tagLinks());
 			
 			$rss->addItem($item);
 		}

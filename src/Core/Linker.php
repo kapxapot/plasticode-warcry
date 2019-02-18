@@ -61,10 +61,10 @@ class Linker extends LinkerBase
 	
 	public function disqusArticle($article)
 	{
-		$id = $article['name_en'];
+		$id = $article->nameEn;
 		
-		if ($article['cat'] != null) {
-			$cat = $article['cat']['name_en'];
+		if ($article->category() != null) {
+			$cat = $article->category()->nameEn;
 		}
 
 		return $this->abs($this->article($id, $cat));

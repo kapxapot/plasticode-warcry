@@ -28,12 +28,17 @@ class NewsAggregatorService
     
     public function getByGame($game, $exceptNewsId = null)
     {
-        $byGame = Collection::merge(
-            News::getByGame($game, $exceptNewsId),
-            ForumTopic::getNewsByGame($game, $exceptNewsId)
-        );
-        
+        $news = News::getByGame($game, $exceptNewsId);
+        $forumNews = ForumTopic::getNewsByGame($game, $exceptNewsId);
+
+        $byGame = Collection::merge($news, $forumNews);
+
         return $this->sort($byGame);
+    }
+    
+    public function count($game, $exceptNewsId = null)
+    {
+        return News::count($game, $exceptNewsId) + ForumTopic::newsCount($game, $exceptNewsId);
     }
     
 	public function getLatest($game, $limit, $exceptNewsId = null)

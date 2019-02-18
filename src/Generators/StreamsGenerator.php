@@ -5,8 +5,6 @@ namespace App\Generators;
 use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Models\Stream;
-
 class StreamsGenerator extends TaggableEntityGenerator
 {
 	use Publishable;

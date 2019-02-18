@@ -5,8 +5,6 @@ namespace App\Generators;
 use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 
-use App\Models\Event;
-
 class EventsGenerator extends TaggableEntityGenerator
 {
 	use Publishable;

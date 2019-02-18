@@ -80,7 +80,7 @@ comic_pages:
     - updated_at
     - updated_by
     - published
-    - type
+    - pic_type
 
 comic_publishers:
   table: comic_publisher
@@ -159,7 +159,7 @@ comic_standalone_pages:
     - updated_at
     - updated_by
     - published
-    - type
+    - pic_type
 
 events:
   table: events
@@ -313,6 +313,9 @@ genders:
 items:
   table: wow_items_new
 
+locations:
+  table: enc_loc
+
 menus:
   table: wow_menu_sections
   api: full
@@ -414,7 +417,7 @@ streams:
     - id
     - stream_id
     - stream_alias
-    - type
+    - type_id
     - title
     - description
     - created_at

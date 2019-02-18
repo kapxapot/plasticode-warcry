@@ -5,6 +5,9 @@ namespace App\Generators;
 use Plasticode\Generators\EntityGenerator;
 use Plasticode\Util\Arrays;
 
+use App\Models\ComicIssue;
+use App\Models\ComicStandalone;
+
 abstract class ComicPagesBaseGenerator extends EntityGenerator
 {
 	public function getRules($data, $id = null)
@@ -48,8 +51,21 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
 		}
 				
 		if (($data['number'] ?? 0) <= 0) {
-		    $context = Arrays::filterKeys($data, [ 'comic_issue_id', 'comic_standalone_id' ]);
-		    $data['number'] = $this->db->getMaxComicPageNumber($context, $id) + 1;
+		    if (isset($data['comic_issue_id'])) {
+		        $comic = ComicIssue::get($data['comic_issue_id']);
+		    }
+		    elseif (isset($data['comic_standalone_id'])) {
+		        $comic = ComicStandalone::get($data['comic_standalone_id']);
+		    }
+		    else {
+		        throw new \InvalidArgumentException('Either comic_issue_id or comic_standalone_id must be provided.');
+		    }
+		    
+		    if (!$comic) {
+		        throw new \InvalidArgumentException('Comic not found!');
+		    }
+		    
+		    $data['number'] = $comic->maxPageNumber() + 1;
 		}
 
 		return $data;

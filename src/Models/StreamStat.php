@@ -7,6 +7,16 @@ use Plasticode\Util\Date;
 
 class StreamStat extends DbModel
 {
+	public static function fromStream(Stream $stream)
+    {
+		return new static([
+            'stream_id' => $stream->getId(),
+            'remote_game' => $stream->remoteGame,
+            'remote_viewers' => $stream->remoteViewers,
+            'remote_status' => $stream->remoteStatus,
+        ]);
+    }
+
     // getters - one
     
 	public static function getLast($streamId)
@@ -16,22 +26,6 @@ class StreamStat extends DbModel
 			    ->where('stream_id', $streamId)
 			    ->orderByDesc('created_at');
 		});
-	}
-
-	// event overrides
-	
-	protected function beforeSave()
-	{
-	    parent::beforeSave();
-	    
-		$this->remoteStatus = urlencode($this->remoteStatus);
-	}
-
-	protected function afterMake()
-	{
-	    parent::afterMake();
-	    
-		$this->remoteStatus = urldecode($this->remoteStatus);
 	}
 
     // methods
@@ -82,5 +76,12 @@ class StreamStat extends DbModel
 				->whereGte('created_at', Date::formatDb($from))
 				->orderByAsc('created_at');
 		});
+	}
+	
+	// props
+	
+	public function displayRemoteStatus()
+	{
+	    return urldecode($this->remoteStatus);
 	}
 }
