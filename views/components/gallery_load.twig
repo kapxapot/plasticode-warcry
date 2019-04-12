@@ -1,0 +1,89 @@
+{# AngularJS script for auto-loading more gallery pictures #}
+
+$scope.gridId = '{{ grid_id }}';
+$scope.loadMoreUrl = '{{ url }}';
+
+$scope.gridObserver = new IntersectionObserver(
+    function(entries) {
+        if (entries[0].isIntersecting) {
+            $scope.gridSentinel.unset();
+            $scope.loadMore();
+        }
+    },
+    { threshold: 0 }
+);
+
+$scope.gridSentinel = {
+    el: null,
+    set: function(element) {
+        this.el = element;
+        $scope.gridObserver.observe(this.el);
+    },
+    unset: function() {
+        if (!this.el) {
+            return;
+        }
+        
+        $scope.gridObserver.unobserve(this.el);
+        this.el = null;
+    }
+};
+
+$scope.updateSentinel = function() {
+	const last = getLastChild($scope.gridId);
+    $scope.gridSentinel.set(last);
+};
+
+$scope.getBorderId = function() {
+	const last = getLastChild($scope.gridId);
+	return last.dataset.id;
+};
+
+$scope.finishLoading = function() {
+    $scope.gridSentinel.unset();
+};
+
+$scope.loadMore = function() {
+    let url = $scope.loadMoreUrl;
+
+    const borderId = $scope.getBorderId(); 
+
+    if (borderId > 0) {
+        url += '/' + borderId;
+    }
+	
+	{% if params|length > 0 %}
+	    url += '?';
+	    
+	    {% for param, value in params %}
+	        {% if not loop.first %}
+	            url += '&';
+            {% endif %}
+            
+	        url += '{{ param }}={{ value }}';
+	    {% endfor %}
+	{% endif %}
+
+	$scope.gallery_loading = true;
+    
+    $scope.ajax({
+        method: 'get',
+		url: url,
+	    noSuccessMessage: true,
+		onSuccess: function(data) {
+		    $scope.gallery_loading = false;
+		    
+		    $('#' + $scope.gridId).append(data);
+
+        	$scope.updateSentinel();
+		    
+		    updateUI();
+		},
+		onError: function() {
+		    $scope.gallery_loading = false;
+		    $scope.finishLoading();
+		}
+	});
+};
+
+$scope.updateSentinel();

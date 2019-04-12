@@ -32,6 +32,7 @@ articles:
     - published
     - published_at
     - no_breadcrumb
+    - aliases
 
 article_categories:
   table: enc_cat

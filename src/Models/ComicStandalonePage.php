@@ -8,7 +8,7 @@ class ComicStandalonePage extends ComicPageBase
 
     // PROPS
     
-    public function comic()
+    public function comic() : ComicStandalone
     {
         return ComicStandalone::get($this->{static::$comicIdField});
     }

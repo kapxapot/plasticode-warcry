@@ -17,15 +17,19 @@
 			{% for news_item in news %}
 				<div class="panel panel-primary">
 					{{ lm.panel_game_header(news_item.game, news_item.display_title, {
-						'url': path_for('main.news', { 'id': news_item.id }),
-						'buttons': [ m.edit_button('news', news_item) ]
+						'url': news_item.url,
+						'buttons': [ m.edit_button(news_item.entity_alias, news_item) ]
 					}) }}
 					
-					<div class="panel-body article news">
-	                    {{ news_item.short_text|raw }}
-                    </div>
-
-				    {% include 'main/news/footer.twig' %}
+					{% if news_item.entity_alias == 'events' %}
+			            {% include 'components/event_bodyfooter.twig' with { 'event': news_item } only %}
+			        {% else %}
+    					<div class="panel-body article news">
+    	                    {{ news_item.short_text|raw }}
+                        </div>
+    
+    				    {% include 'main/news/footer.twig' %}
+    				{% endif %}
 				</div>
 			{% endfor %}
 		{% else %}

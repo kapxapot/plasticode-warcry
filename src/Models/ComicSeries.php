@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Plasticode\Collection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublish;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
-use Plasticode\Util\Sort;
 
 use App\Models\Traits\Names;
 
@@ -17,18 +17,18 @@ class ComicSeries extends DbModel
     
     protected static $tagsEntityType = 'comics';
     
-    // GETTERS - ONE
+    // getters - one
 
 	public static function getPublishedByAlias($alias)
 	{
-		return self::getPublishedWhere(function($q) use ($alias) {
-    		return $q->where('alias', $alias);
-		});
+		return self::getPublished()
+    		->where('alias', $alias)
+    		->one();
 	}
 
     // GETTERS - MANY
     
-	public static function getAllSorted()
+	public static function getAllSorted() : Collection
 	{
 	    $sorts = [
             'last_issued_on' => [ 'dir' => 'desc', 'type' => 'string' ],
@@ -49,39 +49,40 @@ class ComicSeries extends DbModel
 	    return self::$linker->comicSeries($this);
 	}
 	
-    public function issues()
+    public function issues() : Collection
     {
         return $this->lazy(__FUNCTION__, function () {
-            return ComicIssue::getBySeries($this->id);
+            return ComicIssue::getBySeries($this->id)
+                ->all();
         });
     }
     
-    public function issueByNumber($number)
+    public function issueByNumber($number) : ComicIssue
     {
         return $this->issues()->where('number', $number)->first();
     }
     
-    public function count()
+    public function count() : int
     {
         return $this->issues()->count();
     }
     
-    public function countStr()
+    public function countStr() : string
     {
 		return self::$cases->caseForNumber('выпуск', $this->count());
     }
     
-    public function first()
+    public function first() : ComicIssue
     {
         return $this->issues()->first();
     }
     
-    public function last()
+    public function last() : ComicIssue
     {
         return $this->issues()->last();
     }
     
-    public function cover()
+    public function cover() : ComicPageBase
     {
         return $this->first()
             ? $this->first()->cover()
@@ -95,7 +96,7 @@ class ComicSeries extends DbModel
             : null;
     }
     
-    public function publisher()
+    public function publisher() : ComicPublisher
     {
         return ComicPublisher::get($this->publisherId);
     }

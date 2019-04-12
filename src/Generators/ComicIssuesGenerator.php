@@ -28,6 +28,8 @@ class ComicIssuesGenerator extends TaggableEntityGenerator
 	
 	public function beforeSave($data, $id = null)
 	{
+	    $data = parent::beforeSave($data, $id);
+	    
 		$data = $this->publishIfNeeded($data);		
 		
 		if (($data['number'] ?? 0) <= 0) {

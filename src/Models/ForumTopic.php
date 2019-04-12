@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Plasticode\Collection;
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Date;
+use Plasticode\Util\Strings;
 
-class ForumTopic extends DbModel
+use App\Models\Interfaces\NewsSourceInterface;
+
+class ForumTopic extends DbModel implements NewsSourceInterface
 {
     use Tags;
     
@@ -23,100 +27,45 @@ class ForumTopic extends DbModel
         return News::getTable();
     }
     
-    protected function getTags()
+    protected function getTags() : array
     {
-        $tags = $this->tags();
+        $tags = $this->tags()
+            ->extract('tag_text')
+            ->toArray();
         
-        return array_map(function ($t) {
-           return trim($t['tag_text']); 
-        }, $tags->toArray());
+        return Strings::trimArray($tags);
     }
-    
-    // getters - many
 
-	private static function getNewsQuery(Collection $forumIds, $offset = 0, $limit = 0, $exceptId = null, $year = null) {
-        return function ($query) use ($forumIds, $offset, $limit, $exceptId, $year) {
-    		$query = $query->whereIn('forum_id', $forumIds->toArray());
-    
-    		if ($exceptId) {
-    			$query = $query->whereNotEqual(static::$idField, $exceptId);
-    		}
-    		
-    		$query = $query->orderByDesc('start_date');
-    			
-    		if ($offset > 0 || $limit > 0) {
-    			$query = $query
-    				->offset($offset)
-    				->limit($limit);
-    		}
-    		
-    		if ($year > 0) {
-    			$query = $query->whereRaw('(year(from_unixtime(start_date)) = ?)', [ $year ]);
-    		}
-            
-            return $query;
-        };
-	}
-    
-	public static function getLatestNews($game = null, $offset = 0, $limit = 0, $exceptId = null, $year = null) {
-		$forumIds = Game::getNewsForumIds($game);
-
-        if ($forumIds->empty()) {
-            return Collection::makeEmpty();
-        }
-
-        $query = self::getNewsQuery($forumIds, $offset, $limit, $exceptId, $year);
-        return self::getMany($query);
-	}
-	
-	public static function getNewsByYear($year)
-	{
-		return self::getLatestNews(null, 0, 0, null, $year);
-	}
-	
-	public static function getNewsByGame($game, $exceptId = null)
-	{
-	    return self::getLatestNews($game, 0, 0, $exceptId);
-	}
-	
-	public static function newsCount($game, $exceptId = null, $year = null)
-	{
-		$forumIds = Game::getNewsForumIds($game);
-
-        if ($forumIds->empty()) {
-            return Collection::makeEmpty();
-        }
-
-        $query = self::getNewsQuery($forumIds, $offset, $limit, $exceptId, $year);
-        return self::getCount($query);
-	}
-	
-	public static function getNewsByTag($tag)
+	public static function filterByTag($query, $tag) : Query
 	{
 		$ids = ForumTag::getForumTopicIdsByTag($tag);
 		
 		if ($ids->empty()) {
-			return Collection::makeEmpty();
+			return Query::empty();
 		}
-		
-		$forumIds = Game::getNewsForumIds();
-		
-        if ($forumIds->empty()) {
-            throw new \Exception('Empty forum ids list.');
-        }
 
-        return self::getMany(function ($q) use ($ids, $forumIds) {
-		    return $q
-			    ->whereIn('forum_id', $forumIds->toArray())
-			    ->whereIn('tid', $ids->toArray());
-        });
+	    return $query->whereIn('tid', $ids);
 	}
-	
-	public static function getAllNews()
+
+	public static function getByTag($tag) : Query
 	{
-	    return self::getLatestNews();
+	    return self::filterByTag(self::query(), $tag);
 	}
-	
+    
+    // queries
+    
+    private static function getNewsQuery($game = null) : Query
+    {
+		$forumIds = Game::getNewsForumIds($game);
+
+        if ($forumIds->empty()) {
+            throw new \Exception('No game forum ids found.');
+        }
+        
+		return self::query()
+		    ->whereIn('forum_id', $forumIds);
+    }
+
 	// getters - one
 	
 	public static function getNews($id)
@@ -147,11 +96,6 @@ class ForumTopic extends DbModel
         return Forum::get($this->forumId);
     }
 
-    public function url()
-    {
-        return self::$linker->news($this->getId());
-    }
-    
     public function forumUrl()
     {
         return self::$linker->forumTopic($this->getId());
@@ -186,24 +130,10 @@ class ForumTopic extends DbModel
     		return $post;
         });
     }
-    
-    public function fullText()
-    {
-        return $this->lazy(__FUNCTION__, function () {
-            return self::$parser->parseCut($this->parsedPost());
-        });
-    }
-    
-    public function shortText()
-    {
-        return $this->lazy(__FUNCTION__, function () {
-            return self::$parser->parseCut($this->parsedPost(), $this->url(), false);
-        });
-    }
-    
+
     public function tags()
     {
-        return ForumTag::getByForumTopic($this->getId());
+        return ForumTag::getByForumTopic($this->getId())->all();
     }
     
     public function largeImage()
@@ -253,9 +183,72 @@ class ForumTopic extends DbModel
     {
         return $this->createdAtIso();
     }
+
+    // LinkableInterface
+    
+    public function url()
+    {
+        return self::$linker->news($this->getId());
+    }
+
+    // NewsSourceInterface
+    
+	public static function getNewsByTag($tag) : Query
+	{
+	    return self::filterByTag(self::getNewsQuery(), $tag);
+	}
+	
+	public static function getLatestNews($game = null, $exceptNewsId = null) : Query
+	{
+		$query = self::getNewsQuery($game);
+
+		if ($exceptNewsId) {
+			$query = $query->whereNotEqual(static::$idField, $exceptNewsId);
+		}
+
+        return $query;
+	}
+	
+	public static function getNewsBefore($game, $date) : Query
+	{
+	    $convertedDate = strtotime($date);
+	    
+		return self::getNewsQuery($game)
+		    ->whereLt('start_date', $convertedDate)
+		    ->orderByDesc('start_date');
+	}
+	
+	public static function getNewsAfter($game, $date) : Query
+	{
+	    $convertedDate = strtotime($date);
+	    
+		return self::getNewsQuery($game)
+		    ->whereGt('start_date', $convertedDate)
+		    ->orderByAsc('start_date');
+	}
+
+	public static function getNewsByYear($year) : Query
+	{
+		return self::getNewsQuery()
+		    ->whereRaw('(year(from_unixtime(start_date)) = ?)', [ $year ]);
+	}
     
     public function displayTitle()
     {
         return self::$container->newsParser->decodeTopicTitle($this->title);
+    }
+    
+    public function fullText()
+    {
+        return $this->lazy(__FUNCTION__, function () {
+            return self::$parser->parseCut($this->parsedPost());
+        });
+    }
+    
+    public function shortText()
+    {
+        return $this->lazy(__FUNCTION__, function () {
+            return self::$parser->parseCut($this->parsedPost(), $this->url(), false);
+        });
     }
 }

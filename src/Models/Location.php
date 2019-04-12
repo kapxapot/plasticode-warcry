@@ -8,9 +8,10 @@ class Location extends DbModel
 {
     // getters - one
 
-	public static function getByName($name) {
-		return self::getAll()
+	public static function getByName($name)
+	{
+		return self::query()
 		    ->where('name', $name)
-		    ->first();
+		    ->one();
 	}
 }

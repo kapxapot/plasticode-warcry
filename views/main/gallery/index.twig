@@ -3,6 +3,8 @@
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
+{% set grid_id = 'grid-autoloaded' %}
+
 {% if can('gallery_authors', 'create') %}
     {% set sidebar_buttons = [ m.create_button('gallery_authors', 'Добавить автора') ] %}
 {% endif %}
@@ -10,36 +12,21 @@
 {% block content %}
 	<div class="panel panel-primary">
 		{{ lm.panel_header(_context) }}
-	  	<div class="panel-body body-nopad">
-  			<ul class="nav nav-tabs" role="tablist">
-		  		{% for part in parts %}
-		  			{{ m.tab(part.id, part.label, loop.first) }}
-				{% endfor %}
-			</ul>
-
-			<div class="tab-content">
-				{% for part in parts %}
-					<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}" id="{{ part.id }}">
-						<div class="flex-wrapper gallery">
-							{% for a in part.values %}
-								<div class="flex-item flex-item-shaded overlay-wrapper">
-								    {% set display_name %}
-								        {{ a.full_name }}{# ({{ a.count }})#}
-								    {% endset %}
-									{% if a.display_picture %}
-										<a href="{{ a.page_url }}" title="{{ a.display_name }}: {{ a.pictures_str }}">
-											<img src="{{ a.display_picture.thumb_url }}" class="card-image" />
-											<span class="overlay overlay-full">{{ display_name }}</span>
-										</a>
-									{% else %}
-										<a href="{{ a.page_url }}">{{ display_name }}</a>
-									{% endif %}
-								</div>
-							{% endfor %}
-						</div>
-					</div>
-				{% endfor %}
-			</div>
+		
+	  	<div class="panel-body">
+			{% include 'components/gallery_grid.twig' with {
+			    'grid_id': grid_id,
+			    'pictures': pictures,
+			    'show_author': true
+			} only %}
 	    </div>
 	</div>
 {% endblock %}
+
+{% set more_angular %}
+    {% include 'components/gallery_load.twig' with {
+        'grid_id': grid_id,
+        'url': api ~ 'gallery/chunk',
+        'params': { 'show_author': 'true' }
+    } only %}
+{% endset %}

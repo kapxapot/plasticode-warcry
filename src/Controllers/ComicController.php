@@ -26,7 +26,7 @@ class ComicController extends Controller
 			'params' => [
 				'title' => $this->comicsTitle,
 				'series' => ComicSeries::getAllSorted(),
-				'standalones' => ComicStandalone::getAllPublished(),
+				'standalones' => ComicStandalone::getPublished()->all(),
 			],
 		]);
 	

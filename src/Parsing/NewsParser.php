@@ -227,7 +227,7 @@ class NewsParser extends Contained {
 					$label = $matches[1];
 				}
 				
-				$newstr .= $this->decorator->component('spoiler', [
+				$newstr .= $this->renderer->component('spoiler', [
                     'id' => Numbers::generate(10),
                     'title' => $label,
                     'body' => $content,

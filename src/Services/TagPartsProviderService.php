@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Plasticode\Collection;
-use Plasticode\Util\Sort;
 
 use App\Models\Article;
 use App\Models\Event;
@@ -12,19 +11,28 @@ use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
 use App\Models\GalleryPicture;
 use App\Models\Stream;
+use App\Services\GalleryService;
 use App\Services\NewsAggregatorService;
+use App\Services\StreamService;
 
 class TagPartsProviderService
 {
+    private $galleryService;
     private $newsAggregatorService;
-    
-    public function __construct(NewsAggregatorService $newsAggregatorService)
+    private $streamService;
+
+    public function __construct(NewsAggregatorService $newsAggregatorService, StreamService $streamService, GalleryService $galleryService)
     {
+        $this->galleryService = $galleryService;
         $this->newsAggregatorService = $newsAggregatorService;
+        $this->streamService = $streamService;
     }
     
 	public function getParts($tag)
 	{
+	    $picturesQuery = GalleryPicture::getByTag($tag);
+	    $pictures = $this->galleryService->getPage($picturesQuery)->all();
+	    
 		$parts = [];
 		
 		$groups = [
@@ -37,35 +45,39 @@ class TagPartsProviderService
 			[
 				'id' => 'articles',
 				'label' => 'Статьи',
-				'values' => Article::getByTag($tag)->desc('published_at', Sort::DATE),
+				'values' => Article::getByTag($tag)
+				    ->orderByDesc('published_at')
+				    ->all(),
 				'component' => 'articles'
 			],
 			[
 				'id' => 'gallery_pictures',
 				'label' => 'Галерея',
-				'values' => GalleryPicture::getByTag($tag),
+				'values' => $pictures,
 				'component' => 'gallery_pictures'
 			],
 			[
 				'id' => 'comics',
 				'label' => 'Комиксы',
 				'values' => Collection::merge(
-				    ComicIssue::getByTag($tag),
-				    ComicSeries::getByTag($tag),
-				    ComicStandalone::getByTag($tag)
+				    ComicIssue::getByTag($tag)->all(),
+				    ComicSeries::getByTag($tag)->all(),
+				    ComicStandalone::getByTag($tag)->all()
 				),
 				'component' => 'comics'
 			],
 			[
 				'id' => 'streams',
 				'label' => 'Стримы',
-				'values' => Stream::getByTag($tag),
+				'values' => $this->streamService->getByTag($tag),
 				'component' => 'streams'
 			],
 			[
 				'id' => 'events',
 				'label' => 'События',
-				'values' => Event::getByTag($tag)->desc('starts_at', Sort::DATE),
+				'values' => Event::getByTag($tag)
+				    ->orderByDesc('starts_at')
+				    ->all(),
 				'component' => 'events'
 			],
 		];

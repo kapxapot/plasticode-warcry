@@ -7,9 +7,9 @@ use Plasticode\Models\DbModel;
 
 class Forum extends DbModel
 {
-    // getters - many
+    // queries
     
-	public static function getAllByGame($gameId)
+	public static function getAllByGame($gameId) : Collection
 	{
 		$result = Collection::make();
 
@@ -30,6 +30,7 @@ class Forum extends DbModel
 	
 	public function isNewsForum()
 	{
-        return Game::getNewsForumIds()->contains($this->getId());
+        return Game::getNewsForumIds()
+            ->contains($this->getId());
 	}
 }

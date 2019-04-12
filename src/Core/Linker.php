@@ -123,14 +123,16 @@ class Linker extends LinkerBase
 
 	public function galleryPictureImg(GalleryPicture $picture)
 	{
-		$ext = $this->getExtension($picture->pictureType);
-		return $this->getSettings('folders.gallery_pictures_public') . $picture->id . '.' . $ext;
+	    return $this->gallery->getPictureUrl($picture);
+		/*$ext = $this->getExtension($picture->pictureType);
+		return $this->getSettings('folders.gallery_pictures_public') . $picture->id . '.' . $ext;*/
 	}
 	
 	public function galleryThumbImg(GalleryPicture $picture)
 	{
-		$ext = $this->getExtension($picture->thumbType);
-		return $this->getSettings('folders.gallery_thumbs_public') . $picture->id . '.' . $ext;
+	    return $this->gallery->getThumbUrl($picture);
+		/*$ext = $this->getExtension($picture->thumbType);
+		return $this->getSettings('folders.gallery_thumbs_public') . $picture->id . '.' . $ext;*/
 	}
 	
 	public function galleryPicture($alias, $id)
@@ -282,5 +284,11 @@ class Linker extends LinkerBase
 	public function wowheadItemRuXml($id)
 	{
 		return $this->wowheadItemRu($id) . '&xml';
+	}
+	
+	// hs
+	public function hsCard($id)
+	{
+		return $this->getSettings('hsdb_ru_link') . 'cards/' . $id;
 	}
 }

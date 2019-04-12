@@ -11,6 +11,8 @@ class EventsGenerator extends TaggableEntityGenerator
 
 	public function beforeSave($data, $id = null)
 	{
+	    $data = parent::beforeSave($data, $id);
+
 		$data['cache'] = null;
 
 		$data = $this->publishIfNeeded($data);		

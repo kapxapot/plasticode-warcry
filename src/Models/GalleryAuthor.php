@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Plasticode\Collection;
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\Publish;
+use Plasticode\Util\Strings;
 
 class GalleryAuthor extends DbModel
 {
@@ -21,7 +23,7 @@ class GalleryAuthor extends DbModel
 			if ($cat->authors()->any()) {
 				$sorts = [
 					//'count' => [ 'dir' => 'desc' ],
-					'name' => [ 'dir' => 'asc', 'type' => 'string' ],
+					'display_name' => [ 'dir' => 'asc', 'type' => 'string' ],
 				];
 		
 				$groups[] = [
@@ -39,24 +41,34 @@ class GalleryAuthor extends DbModel
 	
 	public static function getAllPublishedByCategory($categoryId)
 	{
-	    return self::getAllPublished(
-	        self::where('category_id', $categoryId)
-        );
+	    return self::getPublished()
+	        ->where('category_id', $categoryId)
+	        ->all();
     }
 
 	// GETTERS - ONE
 
 	public static function getPublishedByAlias($alias)
 	{
-		return self::getPublishedWhere(function($q) use ($alias) {
-    		return $q->whereAnyIs([
+		return self::getPublished()
+    		->whereAnyIs([
                 [ 'alias' => $alias ],
                 [ 'id' => $alias ],
-            ]);
-		});
+            ])
+            ->one();
 	}
 
     // PROPS
+    
+    public function category()
+    {
+        return GalleryAuthorCategory::get($this->categoryId);
+    }
+    
+    public function url()
+    {
+        return $this->pageUrl();
+    }
     
     public function pageUrl()
     {
@@ -85,13 +97,45 @@ class GalleryAuthor extends DbModel
         
         return $fullName;
     }
+
+    private function getSiblings() : Query
+    {
+        return self::getBasePublished();
+            //->where('category_id', $this->category()->getId());
+    }
+    
+	public function prev()
+	{
+	    return $this->lazy(__FUNCTION__, function () {
+    		return self::getSiblings()
+    		    ->all()
+    		    ->descStr('display_name')
+    		    ->where(function ($item) {
+    		        return Strings::compare($item->displayName(), $this->displayName()) < 0;
+                })
+                ->first();
+	    });
+	}
+	
+	public function next()
+	{
+	    return $this->lazy(__FUNCTION__, function () {
+    		return self::getSiblings()
+    		    ->all()
+    		    ->ascStr('display_name')
+    		    ->where(function ($item) {
+    		        return Strings::compare($item->displayName(), $this->displayName()) > 0;
+                })
+                ->first();
+	    });
+	}
     
     /**
      * Returns author's pictures, sorted in REVERSE chronological order.
      */
-    public function pictures($offset = 0, $limit = 0)
+    public function pictures() : Query
     {
-        return GalleryPicture::getPublishedByAuthor($this->id, $offset, $limit);
+        return GalleryPicture::getPublishedByAuthor($this->id);
     }
     
     public function count()
@@ -102,7 +146,7 @@ class GalleryAuthor extends DbModel
     public function latestPicture()
     {
         // sorted in reverse, so first
-        return $this->pictures()->first();
+        return $this->pictures()->one();
     }
     
     public function displayPicture()

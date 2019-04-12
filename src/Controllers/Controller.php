@@ -6,14 +6,11 @@ use Plasticode\Controllers\Controller as BaseController;
 use Plasticode\Exceptions\ApplicationException;
 use Plasticode\Util\Strings;
 
-use App\Models\Event;
-use App\Models\ForumTopic;
 use App\Models\Game;
-use App\Models\GalleryPicture;
 use App\Models\Menu;
-use App\Models\Stream;
 use App\Services\NewsAggregatorService;
 use App\Services\SidebarPartsProviderService;
+use App\Services\StreamService;
 
 class Controller extends BaseController
 {
@@ -25,14 +22,18 @@ class Controller extends BaseController
 		parent::__construct($container);
 		
 		$this->defaultGame = Game::getDefault();
-		$this->sidebarPartsProviderService = new SidebarPartsProviderService($container, new NewsAggregatorService);
+		$this->sidebarPartsProviderService = new SidebarPartsProviderService(
+		    $container,
+		    new NewsAggregatorService(),
+		    new StreamService($container->cases)
+		);
 	}
 
 	protected function buildParams($settings)
 	{
 		$params = parent::buildParams($settings);
 		
-		$params['games'] = Game::getAllPublished();
+		$params['games'] = Game::getPublished()->all();
 		$params['game'] = $this->getGame($settings) ?? $this->defaultGame;
 		$params['menu_game'] = $this->getMenuGame($settings);
 
@@ -43,7 +44,7 @@ class Controller extends BaseController
 	{
 		$menuGame = $this->getMenuGame($settings);
 		
-		return Menu::getAllByGame($menuGame->id);
+		return Menu::getByGame($menuGame->id)->all();
 	}
 	
 	protected function getMenuGame($settings)

@@ -21,7 +21,9 @@ class StreamsGenerator extends TaggableEntityGenerator
 	
 	public function beforeSave($data, $id = null)
 	{
-		$data = $this->publishIfNeeded($data);		
+	    $data = parent::beforeSave($data, $id);
+
+		$data = $this->publishIfNeeded($data);
 
 		return $data;
 	}

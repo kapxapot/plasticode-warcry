@@ -40,7 +40,7 @@ class EventController extends Controller
 		
 		$rebuild = $request->getQueryParam('rebuild', false);
 
-		$event = Event::getProtected($id);
+		$event = Event::getProtected()->find($id);
 
 		if (!$event) {
 			return $this->notFound($request, $response);

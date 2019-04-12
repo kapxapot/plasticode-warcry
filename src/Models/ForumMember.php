@@ -12,7 +12,9 @@ class ForumMember extends DbModel
 
     public static function getByName($name)
     {
-        return self::getByField('name', $name);
+        return self::query()
+            ->where('name', $name)
+            ->one();
     }
     
     // PROPS

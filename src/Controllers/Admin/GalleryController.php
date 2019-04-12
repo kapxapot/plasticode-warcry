@@ -4,26 +4,27 @@ namespace App\Controllers\Admin;
 
 use Plasticode\Controllers\Admin\ImageUploadController;
 use Plasticode\IO\File;
+use Plasticode\IO\Image;
 
-use App\Data\Tables;
+use App\Models\GalleryPicture;
 
 class GalleryController extends ImageUploadController
 {
 	/**
 	 * Adds gallery pictures to gallery author.
 	 */
-	protected function addImage($context, $image, $fileName)
+	protected function addImage($context, Image $image, $fileName)
 	{
-	    $item = $this->db->create(Tables::GALLERY_PICTURES, $context);
-	    $item->comment = File::getName($fileName);
-	    $item->picture_type = $image->imgType;
-	    $item->thumb_type = $image->imgType;
-	    //$item->published = 1;
+	    $picture = GalleryPicture::create($context);
+	    
+	    $picture->comment = File::getName($fileName);
+	    $picture->pictureType = $image->imgType;
+	    $picture->thumbType = $image->imgType;
 
-        $this->db->dirty(Tables::GALLERY_PICTURES, $item); // !!!!!
-        
-	    $item->save(); // !!!
+	    $picture->publish();
+        $picture->stamp();
+        $picture->save(); // !!!
 
-	    $this->gallery->saveImage($item, $image);
+	    $this->gallery->saveImage($picture, $image);
 	}
 }

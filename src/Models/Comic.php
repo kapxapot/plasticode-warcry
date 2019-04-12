@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Plasticode\Collection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublish;
@@ -16,7 +17,19 @@ abstract class Comic extends DbModel
     
     // PROPS
 
-    public abstract function pages();
+    public abstract function pages() : Collection;
+    
+    public abstract function createPage();
+    
+    public function prev()
+    {
+        return null;
+    }
+    
+    public function next()
+    {
+        return null;
+    }
 
     public function pageByNumber($number)
     {

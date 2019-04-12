@@ -201,7 +201,7 @@ class StreamStatsService
 			if (!empty($slice)) {
 				foreach ($slice as $stat) {
 					$peak = max($stat->remoteViewers, $peak);
-					$peakStatus = $stat->remoteStatus;
+					$peakStatus = $stat->displayRemoteStatus();
 				}
 			}
 			

@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use Plasticode\Util\Strings;
-
 use App\Models\Article;
 
 class ArticleController extends Controller
@@ -15,7 +13,7 @@ class ArticleController extends Controller
 
 		$rebuild = $request->getQueryParam('rebuild', false);
 
-		$article = Article::getByName($id, $cat);
+		$article = Article::getByNameOrAlias($id, $cat);
 
 		if (!$article) {
 			return $this->notFound($request, $response);
@@ -45,26 +43,4 @@ class ArticleController extends Controller
 
 		return $this->view->render($response, 'main/articles/item.twig', $params);
 	}
-	
-	/*protected function getArticle($args)
-	{
-		$id = $args['id'];
-		$cat = $args['cat'];
-
-		$id = Strings::toSpaces($id);
-		$cat = Strings::toSpaces($cat);
-
-		return $this->db->getArticle($id, $cat);
-	}
-
-	public function source($request, $response, $args)
-	{
-		$article = $this->getArticle($args);
-
-		if (!$article) {
-			return $this->notFound($request, $response);
-		}
-
-		return $article['text'];
-	}*/
 }

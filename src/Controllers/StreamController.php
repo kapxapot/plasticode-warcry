@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Jobs\UpdateStreamsJob;
 use App\Models\Stream;
+use App\Services\StreamService;
 use App\Services\StreamStatsService;
 
 class StreamController extends Controller
@@ -19,8 +20,10 @@ class StreamController extends Controller
 
 	public function index($request, $response, $args)
 	{
-		$streams = Stream::getAllSorted();
-		$groups = Stream::getGroups();
+	    $streamService = new StreamService($this->cases);
+	    
+		$streams = $streamService->getAllSorted();
+		$groups = $streamService->getGroups();
 
 		$params = $this->buildParams([
 			'sidebar' => [ 'gallery' ],

@@ -20,13 +20,20 @@ class GalleryController extends Controller
 
 	public function index($request, $response, $args)
 	{
-		$groups = GalleryAuthor::getGroups();
+		//$groups = GalleryAuthor::getGroups();
+		
+		$query = GalleryPicture::getPublished();
+		$pictures = $this->galleryService->getPage($query)->all();
+		
+		$lastPic = $pictures->last();
 
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream' ],
+			//'sidebar' => [ 'stream' ],
 			'params' => [
 				'title' => $this->galleryTitle,
-				'parts' => $groups,
+				//'parts' => $groups,
+				'pictures' => $pictures,
+				'border_id' => $lastPic ? $lastPic->getId() : null,
 			],
 		]);
 	
@@ -45,42 +52,26 @@ class GalleryController extends Controller
 		
 		$id = $author->id;
 
-		// paging...
-		$totalCount = $author->count();
-		$picsPerPage = $this->getSettings('gallery.pics_per_page');
-		$totalPages = ceil($totalCount / $picsPerPage);
-	
-		// determine page
-		$page = $request->getQueryParam('page', 1);
+		$query = $author->pictures();
+		$pictures = $this->galleryService->getPage($query)->all();
 		
-		if (!is_numeric($page) || $page < 2) {
-			$page = 1;
-		}
-	
-		if ($page > $totalPages) {
-			$page = $totalPages;
-		}
-		
-		// paging itself
-		$baseUrl = $author->pageUrl;
-		$paging = $this->pagination->simple($baseUrl, $totalPages, $page);
-
-		// pics
-		$offset = ($page - 1) * $picsPerPage;
+		$lastPic = $pictures->last();
 
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream' ],
-			'image' => $author->displayPicture()
-			    ? $this->linker->abs($author->displayPicture()->thumbUrl())
+			//'sidebar' => [ 'stream' ],
+			'large_image' => $author->displayPicture()
+			    ? $this->linker->abs($author->displayPicture()->url())
 			    : null,
 			'params' => [
 				'author' => $author,
-				'pictures' => $author->pictures($offset, $picsPerPage),
-				'paging' => $paging,
+				'pictures' => $pictures,
+				'border_id' => $lastPic ? $lastPic->getId() : null,
 				'title' => $author->fullName(),
 				'gallery_title' => $this->galleryTitle,
 				'disqus_url' => $this->linker->disqusGalleryAuthor($author),
 				'disqus_id' => 'galleryauthor' . $id,
+				'rel_prev' => $author->prev() ? $author->prev()->url() : null,
+				'rel_next' => $author->next() ? $author->next()->url() : null,
 			],
 		]);
 
@@ -98,7 +89,7 @@ class GalleryController extends Controller
 			return $this->notFound($request, $response);
 		}
 		
-		$picture = GalleryPicture::getPublished($id);
+		$picture = GalleryPicture::getPublished()->find($id);
 		
 		if (!$picture) {
 			return $this->notFound($request, $response);
@@ -107,18 +98,49 @@ class GalleryController extends Controller
 		$params = $this->buildParams([
 			'game' => $picture->game(),
 			'global_context' => true,
-			'image' => $this->linker->abs($picture->thumbUrl()),
+			'large_image' => $this->linker->abs($picture->url()),
 			'description' => $author->fullName(),
 			'params' => [
 				'author' => $author,
 				'picture' => $picture,
 				'title' => $picture->comment,
 				'gallery_title' => $this->galleryTitle,
-				'rel_prev' => Arr::get($picture, 'prev.page_url'),
-				'rel_next' => Arr::get($picture, 'next.page_url'),
+				'rel_next' => $picture->next() ? $picture->next()->pageUrl() : null,
+				'rel_prev' => $picture->prev() ? $picture->prev()->pageUrl() : null,
 			],
 		]);
 
 		return $this->view->render($response, 'main/gallery/picture.twig', $params);
+	}
+	
+	public function chunk($request, $response, $args)
+	{
+		$borderId = $args['border_id'];
+
+		$authorId = $request->getQueryParam('author_id', null);
+		$tag = $request->getQueryParam('tag', null);
+		$showAuthor = $request->getQueryParam('show_author', false);
+
+        $borderPic = GalleryPicture::get($borderId);
+        
+		if ($authorId > 0) {
+		    $baseQuery = GalleryPicture::getBasePublishedByAuthor($authorId);
+		}
+		elseif (strlen($tag) > 0) {
+            $baseQuery = GalleryPicture::getBaseByTag($tag);
+        }
+		
+		$query = GalleryPicture::getBefore($borderPic, $baseQuery);
+
+		$pictures = $this->galleryService->getPage($query)->all();
+		
+		if ($pictures->empty()) {
+			return $this->notFound();
+		}
+
+		return $this->view->render($response, 'components/gallery_chunk.twig', [
+			'pictures' => $pictures,
+		    'show_author' => $showAuthor !== false,
+		]);
 	}
 }

@@ -27,9 +27,9 @@ folders:
   root: {ROOT_PATH}
 
   gallery_pictures: /../../../../gallery/pictures/
-  gallery_thumbs: /../../../../gallery/pictures/thumb/
+  gallery_thumbs: /../../../../gallery/pictures/thumb_uniform/
   gallery_pictures_public: /gallery/pictures/
-  gallery_thumbs_public: /gallery/pictures/thumb/
+  gallery_thumbs_public: /gallery/pictures/thumb_uniform/
   
   comics_pages: /../../../../comics/pages/
   comics_thumbs: /../../../../comics/pages/thumb/
@@ -61,7 +61,6 @@ forum:
   news_index: 6
 
 articles:
-  root_id: 0
   description_limit: 1000
 
 recipes:
@@ -74,7 +73,9 @@ recipes:
 
 gallery:
   title: Галерея
-  pics_per_page: 40
+  pics_per_page: 50
+  inline_limit: 4
+  thumb_height: 400
 
 map:
   title: Карта сайта

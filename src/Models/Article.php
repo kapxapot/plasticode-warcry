@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Plasticode\Collection;
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Interfaces\SearchableInterface;
 use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Models\Traits\Children;
 use Plasticode\Models\Traits\FullPublish;
@@ -12,7 +14,9 @@ use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
 
-class Article extends DbModel
+use App\Models\Interfaces\NewsSourceInterface;
+
+class Article extends DbModel implements SearchableInterface, NewsSourceInterface
 {
     use CachedDescription, Children, FullPublish, Stamps, Tags;
     
@@ -25,81 +29,114 @@ class Article extends DbModel
     {
         return 'text';
     }
-
+    
     // getters - many
     
-    public static function getByName($name, $cat = null)
+    public static function publishedOrphans() : Collection
+    {
+        return self::getPublished()
+            ->whereNull('parent_id')
+            ->all();
+    }
+
+    // queries
+    
+    public static function getAllByName($name, $cat = null) : Query
     {
 		$name = Strings::toSpaces($name);
 		$cat = Strings::toSpaces($cat);
 
-		return self::getProtected(null, function($q) use ($name, $cat) {
-			if (is_numeric($name)) {
-				$q = $q->where('id', $name);
-			}
-			else {
-				$q = $q->where('name_en', $name);
+		$query = self::getProtected();
+		
+		if (is_numeric($name)) {
+			return $query->where(self::$idField, $name);
+		}
+		
+		$query = $query->where('name_en', $name);
 	
-				if ($cat) {
-				    $category = ArticleCategory::getByName($cat);
-				    
-				    if ($category) {
-					    $catId = $category->id;
-				    }
-				}
-	
-				if ($catId) {
-					$q = $q
-						->whereRaw('(cat = ? or cat is null)', [ $catId ])
-						->orderByDesc('cat');
-				}
-				else {
-					$q = $q->orderByAsc('cat');
-				}
-			}
-	
-			return $q;
-		});
+		if ($cat) {
+		    $category = ArticleCategory::getByName($cat);
+		    
+		    if ($category) {
+    			return $query
+    				->whereRaw('(cat = ? or cat is null)', [ $category->id ])
+    				->orderByDesc('cat');
+		    }
+		}
+
+		return $query->orderByAsc('cat');
 	}
 
-    public static function getLatest($game, $limit, $exceptArticleId)
+    public static function getLatest($game = null, $limit = null, $exceptId = null) : Query
     {
-		return self::getAllPublished(function ($query) use ($game, $limit, $exceptArticleId) {
-		    $query = $query->where('announce', 1);
-			
-    		if ($game) {
-    			$query = $game->filter($query);
-    		}
-    		
-    		if ($exceptArticleId) {
-    			$query = $query->whereNotEqual('id', $exceptArticleId);
-    		}
-    
-    		$query = $query->limit($limit);
-    		
-    		return $query;
-		});
+		$query = self::getPublished()
+		    ->where('announce', 1);
+	
+		if ($game) {
+			$query = $game->filter($query);
+		}
+		
+		if ($exceptId) {
+			$query = $query->whereNotEqual('id', $exceptId);
+		}
+		
+		if ($limit) {
+		    $query = $query->limit($limit);
+		}
+		
+		return $query;
     }
     
-    public static function search($query)
+    /**
+     * Check article duplicates for validation.
+     */
+    public static function lookup($name, $cat, $exceptId) : Query
     {
-        return self::getMany(function ($q) use ($query) {
-			$queryParts = preg_split("/\s/", $query);
-			
-			foreach ($queryParts as $queryPart) {
-				$decor = '%' . $queryPart . '%';
-				$q = $q
-					->whereRaw('(name_en like ? or name_ru like ?)', [ $decor, $decor ]);
-			}
+	    $query = self::query()
+	        ->where('name_en', $name);
+    	
+		if (strlen($cat) > 0) {
+			$query = $query->where('cat', $cat);
+		}
+		else {
+			$query = $query->whereNull('cat');
+		}
+    		
+		if ($exceptId > 0) {
+    		$query = $query->whereNotEqual('id', $exceptId);
+    	}
+    		
+    	return $query;
+    }
+    
+    public static function getByName($name, $cat = null)
+    {
+        return self::getAllByName($name, $cat)->one();
+	}
+	
+	public static function getByAlias($name, $cat = null)
+	{
+		$name = Strings::toSpaces($name);
+		$cat = Strings::toSpaces($cat);
 
-            return $q;
-        })
-        ->multiSort([
-            'name_ru' => [ 'type' => Sort::STRING ],
-            'category' => [ 'type' => Sort::NULL ],
-        ]);
-    }
-    
+	    $aliasParts[] = $name;
+	    
+	    if (strlen($cat) > 0) {
+	        $aliasParts[] = $cat;
+	    }
+	    
+        $alias = self::$parser->joinTagParts($aliasParts);
+
+		return self::getProtected()
+		    ->whereRaw('(aliases like ?)', [ '%' . $alias . '%' ])
+		    ->one();
+	}
+	
+	public static function getByNameOrAlias($name, $cat = null)
+	{
+	    return self::getByName($name, $cat) ?? self::getByAlias($name, $cat);
+	}
+
     // props
 
     public function game()
@@ -133,16 +170,14 @@ class Article extends DbModel
         return $this->nameRu . ($en ? " ({$en})" : ''); 
     }
 
-    public function url()
-    {
-        $cat = $this->category();
-        
-        return self::$linker->article($this->nameEn, $cat ? $cat->nameEn : null);
-    }
-    
     public function parsed()
     {
         return $this->parsedDescription();
+    }
+    
+    public function parsedText()
+    {
+        return $this->parsed()['text'];
     }
     
     public function subArticles()
@@ -177,16 +212,112 @@ class Article extends DbModel
             ];
 		});
 	}
+
+    // interfaces
+
+    public static function search($searchQuery) : Collection
+    {
+        return self::getBasePublished()
+            ->search($searchQuery, '(name_en like ? or name_ru like ?)', 2)
+            ->all()
+            ->multiSort([
+                'name_ru' => [ 'type' => Sort::STRING ],
+                'category' => [ 'type' => Sort::NULL ],
+            ]);
+    }
     
     public function serialize()
     {
         $cat = $this->category();
         
         return [
-            'id' => $this->id,
+            'id' => $this->getId(),
             'name_ru' => $this->nameRu,
             'name_en' => $this->nameEn,
             'category' => $cat ? $cat->serialize() : null,
+            'tags' => Strings::toTags($this->tags),
         ];
+    }
+    
+    public function code() : string
+    {
+        $parts[] = $this->nameEn;
+        
+        if ($this->category()) {
+            $parts[] = $this->category()->nameEn;
+        }
+        
+        $parts[] = $this->nameRu;
+        
+        $code = self::$parser->joinTagParts($parts);
+        
+        return "[[{$code}]]";
+    }
+    
+    // NewsSourceInterface
+
+    public function url()
+    {
+        $cat = $this->category();
+        
+        return self::$linker->article($this->nameEn, $cat ? $cat->nameEn : null);
+    }
+    
+    private static function announced(Query $query) : Query
+    {
+        return $query->where('announce', 1);
+    }
+    
+    public static function getNewsByTag($tag) : Query
+    {
+        $query = static::getByTag($tag);
+        return self::announced($query);
+    }
+
+	public static function getLatestNews($game = null, $exceptNewsId = null) : Query
+	{
+	    $query = static::getLatest($game);
+	    return self::announced($query);
+	}
+	
+	public static function getNewsBefore($game, $date) : Query
+	{
+		return self::getLatestNews($game)
+		    ->whereLt('published_at', $date)
+		    ->orderByDesc('published_at');
+	}
+	
+	public static function getNewsAfter($game, $date) : Query
+	{
+		return self::getLatestNews($game)
+		    ->whereGt('published_at', $date)
+		    ->orderByAsc('published_at');
+	}
+	
+	public static function getNewsByYear($year) : Query
+	{
+		$query = self::getPublished()
+		    ->whereRaw('(year(published_at) = ?)', [ $year ]);
+		
+		return self::announced($query);
+	}
+
+	public function displayTitle()
+	{
+	    return $this->nameRu;
+	}
+    
+    public function fullText()
+    {
+        return $this->lazy(__FUNCTION__, function () {
+            return self::$parser->parseCut($this->parsedText());
+        });
+    }
+    
+    public function shortText()
+    {
+        return $this->lazy(__FUNCTION__, function () {
+            return self::$parser->parseCut($this->parsedText(), $this->url(), false);
+        });
     }
 }

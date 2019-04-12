@@ -4,26 +4,18 @@ namespace App\Controllers;
 
 use Plasticode\Core\Core;
 
-use App\Models\Article;
+use App\Services\SearchService;
 
-class SearchController
+class SearchController extends Controller
 {
 	public function search($request, $response, $args)
 	{
 	    $query = $args['query'];
 	    
-	    $result = [];
+	    $searchService = new SearchService($this->linker);
 	    
-	    $articles = Article::search($query)
-	        ->map(function ($article) {
-	            return [
-	                'type' => 'article',
-	                'data' => $article->serialize(),
-	            ];
-	        });
-        
-	    $result = array_merge($result, $articles->toArray());
-
+	    $result = $searchService->search($query);
+	    
 		return Core::json($response, $result);
 	}
 }

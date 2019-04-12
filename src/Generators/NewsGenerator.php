@@ -11,6 +11,8 @@ class NewsGenerator extends TaggableEntityGenerator
 
 	public function beforeSave($data, $id = null)
 	{
+	    $data = parent::beforeSave($data, $id);
+	    
 		$data['cache'] = null;
 
 		$data = $this->publishIfNeeded($data);		
@@ -20,6 +22,8 @@ class NewsGenerator extends TaggableEntityGenerator
 
 	public function afterSave($item, $data)
 	{
+	    parent::afterSave($item, $data);
+	    
 		$this->notify($item, $data);
 	}
 

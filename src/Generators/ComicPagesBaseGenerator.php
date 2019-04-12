@@ -2,14 +2,22 @@
 
 namespace App\Generators;
 
+use Plasticode\Exceptions\NotFoundException;
 use Plasticode\Generators\EntityGenerator;
-use Plasticode\Util\Arrays;
 
-use App\Models\ComicIssue;
-use App\Models\ComicStandalone;
+use App\Services\ComicService;
 
 abstract class ComicPagesBaseGenerator extends EntityGenerator
 {
+    private $comicService;
+    
+	public function __construct($container, $entity)
+	{
+		parent::__construct($container, $entity);
+		
+		$this->comicService = new ComicService();
+	}
+	
 	public function getRules($data, $id = null)
 	{
 	    $rules = parent::getRules($data, $id);
@@ -38,6 +46,8 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
 
 	public function beforeSave($data, $id = null)
 	{
+	    $data = parent::beforeSave($data, $id);
+	    
 		if (isset($data['points'])) {
 			unset($data['points']);
 		}
@@ -51,18 +61,10 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
 		}
 				
 		if (($data['number'] ?? 0) <= 0) {
-		    if (isset($data['comic_issue_id'])) {
-		        $comic = ComicIssue::get($data['comic_issue_id']);
-		    }
-		    elseif (isset($data['comic_standalone_id'])) {
-		        $comic = ComicStandalone::get($data['comic_standalone_id']);
-		    }
-		    else {
-		        throw new \InvalidArgumentException('Either comic_issue_id or comic_standalone_id must be provided.');
-		    }
-		    
+		    $comic = $this->comicService->getComicByContext($data);
+
 		    if (!$comic) {
-		        throw new \InvalidArgumentException('Comic not found!');
+		        throw new NotFoundException('Comic not found!');
 		    }
 		    
 		    $data['number'] = $comic->maxPageNumber() + 1;
@@ -73,11 +75,15 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
 	
 	public function afterSave($item, $data)
 	{
+	    parent::afterSave($item, $data);
+	    
 		$this->comics->save($item, $data);
 	}
 	
 	public function afterDelete($item)
 	{
+	    parent::afterDelete($item);
+	    
 		$this->comics->delete($item);
 	}
 }

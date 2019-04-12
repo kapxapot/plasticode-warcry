@@ -5,10 +5,10 @@ namespace App\Models;
 class ComicPage extends ComicPageBase
 {
     protected static $comicIdField = 'comic_issue_id';
-
+    
     // PROPS
     
-    public function comic()
+    public function comic() : ComicIssue
     {
         return ComicIssue::get($this->{static::$comicIdField});
     }

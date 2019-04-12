@@ -41,8 +41,8 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
 	{
 	    $item = parent::afterLoad($item);
 	    
-		$item['picture'] = $this->gallery->getPictureUrl($item);
-		$item['thumb'] = $this->gallery->getThumbUrl($item);
+		$item['picture'] = $this->linker->abs($this->gallery->getPictureUrl($item));
+		$item['thumb'] = $this->linker->abs($this->gallery->getThumbUrl($item));
 		
 		unset($item['picture_type']);
 		unset($item['thumb_type']);
@@ -88,6 +88,8 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
 	
 	public function beforeSave($data, $id = null)
 	{
+	    $data = parent::beforeSave($data, $id);
+
 		if (isset($data['points'])) {
 			$data['points'] = implode(',', $data['points']);
 		}
@@ -107,11 +109,15 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
 	
 	public function afterSave($item, $data)
 	{
+	    parent::afterSave($item, $data);
+	    
 		$this->gallery->save($item, $data);
 	}
 	
 	public function afterDelete($item)
 	{
+	    parent::afterDelete($item);
+	    
 		$this->gallery->delete($item);
 	}
 }

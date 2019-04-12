@@ -1,47 +1,56 @@
--
-  route: main.index
+- route: main.index
 
--
-  route: main.tag
+- route: main.tag
   args:
     tag: Warcraft
 
--
-  route: main.news
+- route: main.map
+
+- route: main.news
   args:
     id: 10253
 
--
-  route: main.news
+- route: main.news
   args:
     id: 9094
 
--
-  route: main.gallery
+- route: main.news
+  args:
+    id: 8963
 
--
-  route: main.events
+- route: main.news
+  args:
+    id: 8019
 
--
-  route: main.event
+- route: main.news
+  args:
+    id: 8849
+
+- route: main.comics
+
+- route: main.gallery
+
+- route: main.events
+
+- route: main.event
   args:
     id: 123
 
--
-  route: main.streams
+- route: main.streams
 
--
-  route: main.article
+- route: main.article
   args:
     id: Khadgar
 
--
-  route: main.article
+- route: main.article
   args:
     id: Argus
 
--
-  route: main.article
+- route: main.article
   args:
     id: Zandalari_Trolls
     cat: Race
+
+- route: main.recipes
+  args:
+    skill: leatherworking

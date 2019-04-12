@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Plasticode\Collection;
+
 class ComicStandalone extends Comic
 {
     protected static $tagsEntityType = 'comics';
@@ -10,16 +12,23 @@ class ComicStandalone extends Comic
         [ 'field' => 'issued_on', 'reverse' => true ],
     ];
     
-    // GETTERS - ONE
+    // getters - one
 
 	public static function getPublishedByAlias($alias)
 	{
-		return self::getPublishedWhere(function($q) use ($alias) {
-    		return $q->where('alias', $alias);
-		});
+		return self::getPublished()
+    		->where('alias', $alias)
+    		->one();
 	}
+    
+    // funcs
+    
+    public function createPage()
+    {
+        return ComicStandalonePage::createForComic($this->getId());
+    }
 
-	// PROPS
+	// props
 	
     public function game()
     {
@@ -31,14 +40,15 @@ class ComicStandalone extends Comic
 	    return self::$linker->comicStandalone($this);
 	}
     
-    public function pages()
+    public function pages() : Collection
     {
         return $this->lazy(__FUNCTION__, function () {
-            return ComicStandalonePage::getByComic($this->id);
+            return ComicStandalonePage::getByComic($this->id)
+                ->all();
         });
     }
 
-    public function publisher()
+    public function publisher() : ComicPublisher
     {
         return ComicPublisher::get($this->publisherId);
     }

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use Plasticode\Util\Sort;
 
 use App\Services\NewsAggregatorService;
+use App\Services\StreamService;
 use App\Services\TagPartsProviderService;
 
 class TagController extends Controller
@@ -17,8 +18,9 @@ class TagController extends Controller
 			return $this->notFound($request, $response);
 		}
 		
-		$newsAggregatorService = new NewsAggregatorService;
-		$tagPartsProviderService = new TagPartsProviderService($newsAggregatorService);
+		$newsAggregatorService = new NewsAggregatorService();
+		$streamService = new StreamService($this->cases);
+		$tagPartsProviderService = new TagPartsProviderService($newsAggregatorService, $streamService, $this->galleryService);
 		
 		$parts = $tagPartsProviderService->getParts($tag);
 

@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use Plasticode\Query;
 use Plasticode\Models\Menu as MenuBase;
 
 class Menu extends MenuBase
 {
-    // GETTERS - MANY
+    // queries
     
-    public static function getAllByGame($gameId)
+    public static function getByGame($gameId) : Query
     {
-        return self::getAllByField('game_id', $gameId);
+        return self::query()
+            ->where('game_id', $gameId);
     }
     
     // props

@@ -833,3 +833,57 @@ li.CodeMirror-hint-active {
   background: rgba(255, 0, 0, 0.15);
 }
 
+.CodeMirror-hint {
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 2px;
+  white-space: pre;
+  color: black;
+  cursor: pointer;
+  padding-left: 22px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.CodeMirror-hint:before {
+  position: absolute;
+  left: 5px;
+  bottom: 2px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  height: 15px;
+  width: 15px;
+  line-height: 16px;
+  text-align: center;
+  color: white;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 5px;
+}
+
+.news.CodeMirror-hint:before {
+  content: "\41D";
+  background: black;
+}
+
+.article.CodeMirror-hint:before {
+  content: "\421";
+  background: blue;
+}
+
+.tag.CodeMirror-hint:before {
+  content: "\422";
+  background: #ccc;
+}
+
+.event.CodeMirror-hint:before {
+  content: '\421';
+  background: orange;
+}
+
+.stream.CodeMirror-hint:before {
+  content: '\422';
+  background: purple;
+}
+

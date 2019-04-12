@@ -8,10 +8,9 @@ class ForumPost extends DbModel
 {
 	public static function getByForumTopic($topicId)
 	{
-		return self::getBy(function($q) use ($topicId) {
-			return $q
-				->where('topic_id', $topicId)
-				->where('new_topic', 1);
-		});
+		return self::query()
+			->where('topic_id', $topicId)
+			->where('new_topic', 1)
+			->one();
 	}
 }

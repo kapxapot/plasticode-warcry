@@ -6,7 +6,7 @@ use Plasticode\Core\Renderer as RendererBase;
 
 class Renderer extends RendererBase
 {
-	protected function articleUrlBare($name, $cat, $template = false)
+	protected function articleUrlBare($name, $cat)
 	{
 		if ($cat) {
 			$cat = '/' . $cat;
@@ -15,13 +15,13 @@ class Renderer extends RendererBase
 		return '%article%/' . $name . $cat;
 	}
 
-	public function articleUrl($nameRu, $nameEn, $nameEsc, $cat, $catEsc, $template = false, $style = "nd_article")
+	public function articleUrl($nameRu, $nameEn, $nameEsc, $cat, $catEsc, $style = "nd_article")
 	{
 		if ($cat) {
 			$cat = " ({$cat})";
 		}
 
-		$url = $this->articleUrlBare($nameEsc, $catEsc, $template);
+		$url = $this->articleUrlBare($nameEsc, $catEsc);
 
 		return $this->component('url', [
 		    'url' => $url,

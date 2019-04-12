@@ -10,7 +10,9 @@ class ArticleCategory extends DbModel
     
     public static function getByName($name)
     {
-        return self::getByField('name_en', $name);
+        return self::query()
+            ->where('name_en', $name)
+            ->one();
     }
     
     // funcs

@@ -100,9 +100,9 @@ class UpdateStreamsJob extends Contained
 			if ($online) {
 				$statsTTL = $this->getSettings('streams.stats_ttl');
 
-				$exceeds = Date::exceedsInterval($stats->createdAt, null, "PT{$statsTTL}M");
+				$expired = Date::expired($stats->createdAt, "PT{$statsTTL}M");
 	
-				if (!$exceeds && ($stream->remoteGame == $stats->remoteGame)) {
+				if (!$expired && ($stream->remoteGame == $stats->remoteGame)) {
 					$refresh = false;
 				}
 			}

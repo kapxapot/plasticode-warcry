@@ -13,12 +13,14 @@ use App\Models\Stream;
 class SidebarPartsProviderService extends Contained
 {
     private $newsAggregatorService;
+    private $streamService;
     
-    public function __construct($container, NewsAggregatorService $newsAggregatorService)
+    public function __construct($container, NewsAggregatorService $newsAggregatorService, StreamService $streamService)
     {
         parent::__construct($container);
         
         $this->newsAggregatorService = $newsAggregatorService;
+        $this->streamService = $streamService;
     }
     
     public function getPart($settings, $game, $part)
@@ -37,24 +39,24 @@ class SidebarPartsProviderService extends Contained
 				$limit = $this->getSettings('sidebar.article_limit');
 				$exceptArticleId = $settings['article_id'] ?? null;
 				
-				$result = Article::getLatest($game, $limit, $exceptArticleId);
+				$result = Article::getLatest($game, $limit, $exceptArticleId)->all();
 				break;
 			
 			case 'stream':
 				$result = [
-				    'stream' => Stream::topOnline($game),
-				    'total_online' => Stream::totalOnlineStr(),
+				    'stream' => $this->streamService->topOnline($game),
+				    'total_online' => $this->streamService->totalOnlineStr(),
 				];
 				break;
 			
 			case 'gallery':
 				$limit = $this->getSettings('sidebar.latest_gallery_pictures_limit');
-				$result = [ 'pictures' => GalleryPicture::getLatestByGame($game, $limit) ];
+				$result = [ 'pictures' => GalleryPicture::getLatestByGame($game, $limit)->all() ];
 				break;
 			
 			case 'events':
 				$days = $this->getSettings('sidebar.future_events_days');
-				$result = Event::getCurrent($game, $days);
+				$result = Event::getCurrent($game, $days)->all();
 				break;
 		}
 		

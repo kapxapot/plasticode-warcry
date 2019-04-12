@@ -4,6 +4,8 @@
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
+{% set grid_id = 'grid-autoloaded' %}
+
 {% if can('gallery_pictures', 'create') %}
     {% set sidebar_buttons = [ m.create_button('gallery_pictures', 'Добавить работу', { 'id': author.id }) ] %}
 {% endif %}
@@ -18,22 +20,53 @@
 			'buttons': [ m.edit_button('gallery_authors', author) ]
 		}) }}
 	  	<div class="panel-body gallery-author">
-	  	    {% if not (paging.page > 1) %}
-    			{% if author.forum_member %}
-    				<p>{{ gm.gi('user') }} <a href="{{ author.forum_member.page_url }}">Профиль на форуме</a></p>
-    			{% endif %}
-    			{% if author.deviant %}
-    				<p>{{ gm.gi('picture') }} <a href="//{{ author.deviant }}.deviantart.com">Портфолио на DeviantArt</a></p>
-    			{% endif %}
-    			{% if author.art_station %}
-    				<p>{{ gm.gi('picture') }} <a href="//artstation.com/artist/{{ author.art_station }}">Портфолио на ArtStation</a></p>
-    			{% endif %}
+	  	    {#% if not (paging.page > 1) %#}
+	  	        {% if author.forum_member or author.deviant or author.art_station %}
+	  	            <div class="flex">
+            			{% if author.forum_member %}
+            				<span class="flex-item mt-0 mr-2">{{ gm.gi('user') }} <a href="{{ author.forum_member.page_url }}">Профиль на форуме</a></span>
+            			{% endif %}
+            			{% if author.deviant %}
+            				<span class="flex-item mt-0 mr-2">{{ gm.gi('picture') }} <a href="//{{ author.deviant }}.deviantart.com">Портфолио на DeviantArt</a></span>
+            			{% endif %}
+            			{% if author.art_station %}
+            				<span class="flex-item mt-0 mr-2">{{ gm.gi('picture') }} <a href="//artstation.com/artist/{{ author.art_station }}">Портфолио на ArtStation</a></span>
+            			{% endif %}
+	  	            </div>
+        		{% endif %}
     			{% if author.parsed_description %}
     	  			{{ author.parsed_description|raw }}
     			{% endif %}
-			{% endif %}
-			{% include 'components/gallery.twig' with { 'pictures': pictures, 'no_tooltips': true } only %}
-			{% include 'components/paging.twig' with { 'paging': paging, 'paging_title': 'Навигация по страницам' } only %}
+			{#% endif %#}
+			{% include 'components/gallery_grid.twig' with {
+			    'grid_id': grid_id,
+			    'pictures': pictures
+			} only %}
+			{#% include 'components/paging.twig' with { 'paging': paging, 'paging_title': 'Навигация по страницам' } only %#}
 	    </div>
 	</div>
+    
+  	<div class="pagination-flex">
+		{% if author.prev %}
+			<a href="{{ author.prev.url }}" title="Предыдущий автор" class="btn btn-default btn-lg">
+			    {% include 'components/prev.twig' %}
+				{{ author.prev.display_name }}
+			</a>
+		{% endif %}
+		{% if author.next %}
+			<a href="{{ author.next.url }}" title="Следующий автор" class="btn btn-default btn-lg">
+				{{ author.next.display_name }}
+			    {% include 'components/next.twig' %}
+			</a>
+		{% endif %}
+	</div>
 {% endblock %}
+
+{% set more_angular %}
+    {% include 'components/gallery_load.twig' with {
+        'grid_id': grid_id,
+        'url': api ~ 'gallery/chunk',
+        'params': { 'author_id': author.id }
+    } only %}
+{% endset %}
+

@@ -84,6 +84,8 @@ class ArticlesGenerator extends TaggableEntityGenerator
 	
 	public function beforeSave($data, $id = null)
 	{
+	    $data = parent::beforeSave($data, $id);
+	    
 		$data['cache'] = null;
 		$data['contents_cache'] = null;
 
@@ -94,6 +96,8 @@ class ArticlesGenerator extends TaggableEntityGenerator
 
 	public function afterSave($item, $data)
 	{
+	    parent::afterSave($item, $data);
+	    
 	    if (!$item->name_en) {
     		$item->name_en = $item->name_ru;
     		$item->save();

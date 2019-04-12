@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Plasticode\Collection;
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Publish;
 use Plasticode\Models\Traits\Stamps;
@@ -9,18 +11,26 @@ use Plasticode\Models\Traits\Stamps;
 abstract class ComicPageBase extends DbModel
 {
     use Publish, Stamps;
-    
+
+    protected static $sortField = 'number';
+
     protected static $comicIdField;
 
-    // GETTERS - MANY
+    // queries
 
-    public static function getByComic($id)
+    public static function getByComic($comicId) : Query
     {
-        return self::getAllPublished(function ($q) use ($id) {
-			return $q
-			    ->where(static::$comicIdField, $id)
-			    ->orderByAsc('number');
-		});
+        return self::getPublished()
+		    ->where(static::$comicIdField, $comicId);
+    }
+    
+    // funcs
+    
+    public static function createForComic($comicId)
+    {
+        return self::create([
+            $comicIdField => $comicId
+        ]);
     }
     
     // PROPS
@@ -48,32 +58,21 @@ abstract class ComicPageBase extends DbModel
 	{
 	    return self::$linker->getExtension($this->type);
 	}
-
-	protected function genericPrev()
-	{
-		return self::getPublishedWhere(function ($q) {
-			return $q
-				->where(static::$comicIdField, $this->{static::$comicIdField})
-				->whereLt('number', $this->number)
-				->orderByDesc('number');
-		});
-	}
 	
-	protected function genericNext()
-	{
-		return self::getPublishedWhere(function ($q) {
-			return $q
-				->where(static::$comicIdField, $this->{static::$comicIdField})
-				->whereGt('number', $this->number)
-				->orderByAsc('number');
-		});
-	}
+    private function getSiblings() : Query
+    {
+        return self::getBasePublished()
+		    ->where(static::$comicIdField, $this->{static::$comicIdField});
+    }
 
 	public function prev()
 	{
 	    return $this->lazy(__FUNCTION__, function () {
-    		$prev = $this->genericPrev();
-    		
+    		$prev = $this->getSiblings()
+				->whereLt('number', $this->number)
+				->orderByDesc('number')
+				->one();
+
     		if (!$prev) {
     			$prevComic = $this->comic()->prev();
     			
@@ -89,7 +88,10 @@ abstract class ComicPageBase extends DbModel
 	public function next()
 	{
 	    return $this->lazy(__FUNCTION__, function () {
-    		$next = $this->genericNext();
+    		$next = $this->getSiblings()
+				->whereGt('number', $this->number)
+				->orderByAsc('number')
+				->one();
 
     		if (!$next) {
     			$nextComic = $this->comic()->next();

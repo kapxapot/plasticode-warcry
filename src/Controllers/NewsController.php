@@ -5,17 +5,19 @@ namespace App\Controllers;
 use Plasticode\RSS\FeedImage;
 use Plasticode\RSS\FeedItem;
 use Plasticode\RSS\RSSCreator20;
+use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
 
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\News;
+use App\Services\GalleryService;
 use App\Services\NewsAggregatorService;
 
 class NewsController extends Controller
 {
     private $newsAggregatorService;
-    
+
     public function __construct($container)
     {
         parent::__construct($container);
@@ -39,11 +41,20 @@ class NewsController extends Controller
 		$news = $this->newsAggregatorService->getPage($game, $page, $pageSize);
 		
 		// paging
-		$count = $this->newsAggregatorService->count($game);
+		$count = $this->newsAggregatorService->getCount($game);
 		
 		$url = $this->linker->game($game);
 		
 		$paging = $this->pagination->complex($url, $count, $page, $pageSize);
+		
+		// gallery
+		/*$byAuthor = $this->galleryService->getAddedPicturesSliceByAuthor($game, Date::dt()->modify('-3 month'), Date::dt());
+		
+		foreach ($byAuthor as $item) {
+		    var_dump([ $item['author']->displayName(), $item['pictures']->count() ]);
+		}
+		
+		dd();*/
 
 		$params = $this->buildParams([
 			'game' => $game,
@@ -61,19 +72,19 @@ class NewsController extends Controller
 	{
 		$id = $args['id'];
 		$rebuild = $request->getQueryParam('rebuild', false);
-
-		$forumNews = ForumTopic::getNews($id);
-		$news = News::getProtected($id);
 		
-		if (!$forumNews && !$news) {
+		$news = $this->newsAggregatorService->getNews($id);
+
+		if (!$news) {
 			return $this->notFound($request, $response);
 		}
 		
-		if ($news && $rebuild) {
+		if ($rebuild && method_exists($news, 'resetDescription')) {
             $news->resetDescription();
         }
-
-		$news = $news ?? $forumNews;
+        
+        $prev = $this->newsAggregatorService->getPrev($news);
+        $next = $this->newsAggregatorService->getNext($news);
 
 		$params = $this->buildParams([
 			'game' => $news->game(),
@@ -87,6 +98,10 @@ class NewsController extends Controller
 				'news_item' => $news,
 				'title' => $news->displayTitle(),
 				'page_description' => $this->makePageDescription($news->shortText, 'news.description_limit'),
+				'news_prev' => $prev,
+				'news_next' => $next,
+				'rel_prev' => $prev ? $prev->url() : null,
+				'rel_next' => $next ? $next->url() : null,
 			],
 		]);
 		
@@ -163,7 +178,7 @@ class NewsController extends Controller
 		foreach ($news as $n) {
 			$item = new FeedItem();
 			$item->title = $n->displayTitle();
-			$item->link = $this->linker->n($n->getId());
+			$item->link = $this->linker->abs($n->url());
 			$item->description = $this->parser->makeAbsolute($n->shortText());
 			$item->date = $n->publishedAtIso();
 			$item->author = $n->creator()->displayName();

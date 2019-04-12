@@ -2,24 +2,26 @@
 
 namespace App\Models;
 
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
 
 class Skill extends DbModel
 {
-    // getters - many
+    // queries
 
-	public static function getAllActive() {
-		return self::getAll(function ($q) {
-		    return $q->where('active', 1);    
-		});
+	public static function getActive() : Query
+	{
+		return self::query()
+		    ->where('active', 1);    
 	}
     
     // getters - one
 
-	public static function getByAlias($alias) {
-		return self::getAllActive()
+	public static function getByAlias($alias)
+	{
+		return self::getActive()
 		    ->where('alias', $alias)
-		    ->first();
+		    ->one();
 	}
 
     // props

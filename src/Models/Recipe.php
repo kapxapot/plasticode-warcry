@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Plasticode\Collection;
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
 
 class Recipe extends DbModel
@@ -17,65 +18,47 @@ class Recipe extends DbModel
     
     // getters many
     
-	public static function getAllByItemId($itemId) {
-		return self::getAll(function ($q) use ($itemId) {
-			return $q
-				->where('creates_id', $itemId)
-				->whereGt('creates_min', 0);
-		});
+	public static function getAllByItemId($itemId) : Collection
+	{
+		return self::query()
+			->where('creates_id', $itemId)
+			->whereGt('creates_min', 0)
+			->all();
 	}
 	
-	private static function getQuery($skillId = null, $searchQuery = null, $offset = 0, $limit = 0)
+	public static function getAllFiltered($skillId = null, $searchQuery = null) : Query
 	{
-	    return function ($query) use ($skillId, $searchQuery, $offset, $limit) {
-    		if ($skillId) {
-    			$query = $query->where('skill', $skillId);
-    		}
-    
-    		if ($searchQuery) {
-    			$qParts = preg_split("/\s/", $searchQuery);
-    			foreach ($qParts as $qPart) {
-    				$decor = '%' . $qPart . '%';
-    				$query = $query
-    					->whereRaw('(name like ? or name_ru like ?)', [ $decor, $decor ]);
-    			}
-    		}
-    		
-    		if ($offset > 0 || $limit > 0) {
-    			$query = $query
-    				->offset($offset)
-    				->limit($limit);
-    		}
+	    $query = self::query();
 
-    		return $query
-    			->orderByAsc('learnedat')
-    			->orderByAsc('lvl_orange')
-    			->orderByAsc('lvl_yellow')
-    			->orderByAsc('lvl_green')
-    			->orderByAsc('lvl_gray')
-    			->orderByAsc('name_ru');
-	    };
-	}
+		if ($skillId) {
+			$query = $query->where('skill_id', $skillId);
+		}
 
-	public static function getAllFiltered($skillId = null, $searchQuery = null, $offset = 0, $limit = 0)
-	{
-	    $query = self::getQuery($skillId, $searchQuery, $offset, $limit);
-	    return self::getAll($query);
+		if ($searchQuery) {
+		    $query = $query->search($searchQuery, '(name like ? or name_ru like ?)', 2);
+		}
+		
+		return $query
+			->orderByAsc('learnedat')
+			->orderByAsc('lvl_orange')
+			->orderByAsc('lvl_yellow')
+			->orderByAsc('lvl_green')
+			->orderByAsc('lvl_gray')
+			->orderByAsc('name_ru');
 	}
-    
-    public static function count($skillId = null, $searchQuery = null)
-    {
-	    $query = self::getQuery($skillId, $searchQuery);
-	    return parent::getCount($query);
-    }
 
     // getters - one
     
 	public static function getByName($name)
 	{
-		return self::getBy(function ($q) use ($name) {
-			return $q->whereRaw('(name like ? or name_ru like ?)', [ $name, $name ]);
-		});
+		return self::query()
+			->whereRaw('(name like ? or name_ru like ?)', [ $name, $name ])
+			->one();
+	}
+    
+	public static function getByItemId($itemId)
+	{
+		return self::getAllByItemId($itemId)->first();
 	}
 
 	// props

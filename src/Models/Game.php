@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Plasticode\Collection;
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Children;
 use Plasticode\Models\Traits\Publish;
@@ -17,22 +18,18 @@ class Game extends DbModel
 
 	public static function getPublishedByAlias($alias)
 	{
-		return self::getPublishedWhere(function ($q) use ($alias) {
-    		return $q->where('alias', $alias);
-		});
+		return self::getPublished()
+    		->where('alias', $alias)
+    		->one();
 	}
 
 	public static function getByTwitchName($name)
 	{
-		return self::getBy(function ($q) use ($name) {
-    		return $q->where('name', $name);
-		}) ?? self::getDefault();
-	    
-    	/*$game = $this->getBy(Tables::GAMES, function($q) use ($name) {
-    		return $q->whereRaw('(coalesce(twitch_name, name) = ?)', [ $name ]);
-    	});
-    	
-    	return $game ? $this->getGame($game['id']) : null;*/
+		return self::query()
+    		->where('name', $name)
+    		->one()
+    		
+    		?? self::getDefault();
 	}
 
 	public static function getByForumId($forumId)
@@ -43,7 +40,7 @@ class Game extends DbModel
 		$games = $cache->get($path);
 		
 		if (!$games) {
-			$games = static::getAllPublished();
+			$games = static::getPublished()->all();
 			$foundGame = null;
 
 			$curForumId = $forumId;
@@ -106,17 +103,16 @@ class Game extends DbModel
 	    });
 	}
 	
-	public function subGames()
+	public function subGames() : Collection
 	{
 	    return $this->lazy(__FUNCTION__, function () {
-    	    $subGames = [ $this ];
-    	    $children = $this->children();
-    	    
-    	    foreach ($children as $child) {
-    	        $subGames = array_merge($subGames, $child->subGames()->toArray());
+    	    $subGames = Collection::make([ $this ]);
+
+    	    foreach ($this->children() as $child) {
+    	        $subGames = $subGames->concat($child->subGames());
     	    }
     	    
-    	    return Collection::make($subGames);
+    	    return $subGames;
 	    });
 	}
 	
@@ -158,18 +154,18 @@ class Game extends DbModel
 	    return $this->alias ?? ($this->parent() ? $this->parent()->resultAlias() : null);
 	}
 	
-	public function forums()
+	public function forums() : Collection
 	{
 	    return Forum::getAllByGame($this->getId());
 	}
 
     // FUNCS
 
-	public function filter($query)
+	public function filter(Query $query) : Query
 	{
 	    $ids = $this->subTree()->ids();
 
-		return $query->whereIn('game_id', $ids->toArray());
+		return $query->whereIn('game_id', $ids);
 	}
 	
 	public static function isPriority($gameName)
@@ -187,7 +183,7 @@ class Game extends DbModel
 		return $games->extract('news_forum_id');
 	}
 
-    public function __toString()
+    public function toString()
     {
         return "[{$this->id}] {$this->name}";
     }

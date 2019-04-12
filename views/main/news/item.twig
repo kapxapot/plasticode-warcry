@@ -26,4 +26,19 @@
 
 	    {% include 'main/news/footer.twig' %}
 	</div>
+    
+  	<div class="pagination-flex">
+		{% if news_prev %}
+			<a href="{{ news_prev.url }}" title="Предыдущая новость" class="btn btn-default btn-lg">
+			    {% include 'components/prev.twig' %}
+				{{ news_prev.display_title }}
+			</a>
+		{% endif %}
+		{% if news_next %}
+			<a href="{{ news_next.url }}" title="Следующая новость" class="btn btn-default btn-lg">
+				{{ news_next.display_title }}
+			    {% include 'components/next.twig' %}
+			</a>
+		{% endif %}
+	</div>
 {% endblock %}

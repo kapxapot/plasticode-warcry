@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublish;
@@ -13,149 +12,21 @@ use Plasticode\Util\Date;
 
 class Stream extends DbModel
 {
-    use Description, FullPublish, Stamps;
+    use Description, FullPublish, Stamps, Tags;
 
-    use Tags
-    {
-        Tags::getByTag as protected parentGetByTag;
-    }
-    
     protected static $sortField = 'remote_viewers';
     protected static $sortReverse = true;
-    
-    // traits
-    
-	public static function getByTag($tag, $where = null)
-	{
-	    $streams = self::parentGetByTag($tag, $where);
-
-	    return self::arrange(self::sort($streams));
-	}
-
-    // misc
-    
-	public static function getGroups()
-	{
-	    $streams = self::getAllSorted();
-
-		$groups = [
-			[
-				'id' => 'online',
-				'label' => 'Онлайн',
-				'telegram' => 'warcry_streams',
-				'streams' => $streams->where(function ($s) {
-					return $s->remoteOnline;
-				}),
-			],
-			[
-				'id' => 'offline',
-				'label' => 'Офлайн',
-				'telegram' => 'warcry_streams',
-				'streams' => $streams->where(function ($s) {
-					return $s->alive() && !$s->remoteOnline;
-				}),
-			],
-			[
-				'id' => 'blizzard',
-				'label' => 'Blizzard EN',
-				'telegram' => 'blizzard_streams',
-				'telegram_label' => 'официальных трансляций (англ.)',
-				'streams' => $streams->where(function ($s) {
-					return $s->official;
-				}),
-			],
-			[
-				'id' => 'blizzard_ru',
-				'label' => 'Blizzard РУ',
-				'telegram' => 'blizzard_streams_ru',
-				'telegram_label' => 'официальных трансляций (рус.)',
-				'streams' => $streams->where(function ($s) {
-					return $s->officialRu;
-				}),
-			],
-		];
-		
-		return array_map(function ($g) {
-		    $g['streams'] = self::arrange($g['streams']);
-		    return $g;
-		}, $groups);
-	}
-	
-	private static function arrange(Collection $streams)
-	{
-	    return array_filter([
-	        $streams->where(function ($s) {
-	            return $s->isOnline();
-	        }),
-	        $streams->where(function ($s) {
-	            return !$s->isOnline() && $s->hasLogo();
-	        }),
-	        $streams->where(function ($s) {
-	            return !$s->isOnline() && !$s->hasLogo();
-	        }),
-        ], function ($a) {
-            return count($a) > 0;
-        });
-	}
-	
-	// GETTERS - MANY
-	
-	private static function sort(Collection $streams)
-	{
-		$sorts = [
-			'remote_online' => [ 'dir' => 'desc' ],
-			'official_ru' => [ 'dir' => 'desc' ],
-			'official' => [ 'dir' => 'desc' ],
-			'priority' => [ 'dir' => 'desc' ],
-			'priority_game' => [ 'dir' => 'desc' ],
-			'remote_viewers' => [ 'dir' => 'desc' ],
-			'remote_online_at' => [ 'dir' => 'desc', 'type' => 'string' ],
-			'title' => [ 'dir' => 'asc', 'type' => 'string' ],
-		];
-    
-	    return $streams->multiSort($sorts);
-	}
-	
-	public static function getAllSorted()
-	{
-	    return self::staticLazy(__FUNCTION__, function() {
-	        return self::sort(self::getAllPublished());
-	    });
-	}
-	
-	public static function getAllOnline($game = null)
-	{
-	    $online = self::getAllSorted()->where('remote_online', 1);
-	    
-	    if ($game) {
-	        $online = $online->where(function ($s) use ($game) {
-                return $s->belongsToGame($game);
-            });
-	    }
-	    
-	    return $online;
-	}
 
 	// GETTERS - ONE
 	
 	public static function getPublishedByAlias($alias)
 	{
-		return self::getPublishedWhere(function($q) use ($alias) {
-    		return $q->whereRaw('(stream_alias = ? or (stream_alias is null and stream_id = ?))', [ $alias, $alias ]);
-		});
-	}
-
-	// PROPS - STATIC
-	
-	public static function topOnline($game = null)
-	{
-	    return self::getAllOnline($game)->first() ?? self::getAllOnline()->first();
-	}
-	
-	public static function totalOnlineStr($game = null)
-	{
-		$totalOnline = self::getAllOnline($game)->count();
-		return $totalOnline . ' ' . self::$cases->caseForNumber('стрим', $totalOnline);
+		return self::getPublished()
+		    ->whereRaw(
+		        '(stream_alias = ? or (stream_alias is null and stream_id = ?))',
+		        [ $alias, $alias ]
+            )
+		    ->one();
 	}
 
     // PROPS
@@ -183,6 +54,8 @@ class Stream extends DbModel
     
     public function belongsToGame($game)
     {
+        //var_dump([ $this->remoteGame, $this->game()->toString(), $game->toString() ]);
+        
         if (is_null($game) || is_null($this->game())) {
             return false;
         }

@@ -2,6 +2,8 @@
 
 {% import 'main/local_macros.twig' as lm %}
 
+{% set with_swipes = true %}
+
 {% block content %}
 	<div class="panel panel-primary">
 		{% set breadcrumbs = [
@@ -15,7 +17,7 @@
 	  	<div class="panel-body gallery-picture">
 	  		<div>
 	  			{% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: Страница {{ page.next.number_str }}">{% endif %}
-	  				<img src="{{ page.url }}" class="center img-responsive" />
+	  				<img src="{{ page.url }}" class="center img-responsive swipable" />
 	  			{% if page.next %}</a>{% endif %}
 	  		</div>
 	   	</div>

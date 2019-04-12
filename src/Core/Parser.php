@@ -69,10 +69,10 @@ class Parser extends ParserBase
 
 			$idEsc = Strings::fromSpaces($id);
 			$catEsc = Strings::fromSpaces($cat);
-			$article = Article::getByName($id, $cat);
+			$article = Article::getByNameOrAlias($id, $cat);
 
 			$text = ($article && $article->isPublished())
-				? $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc, true)
+				? $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc)
 				: $this->renderer->noArticleUrl($name, $id, $cat);
 		} else {
 			// тег с id
@@ -99,15 +99,13 @@ class Parser extends ParserBase
 				switch ($tag) {
 					case 'item':
 						if ($id > 0) {
-							$sources = Recipe::getAllByItemId($id);
+							$recipe = Recipe::getByItemId($id);
 							
-							if ($sources->any()) {
-								$recipe = $sources->first();
-								
+							if ($recipe) {
 								$title = 'Рецепт: ' . $recipe->nameRu;
 								$rel = 'spell=' . $recipe->getId() . '&amp;domain=ru';
 								
-								$url = $this->linker->recipe($recipe->getId());
+								$url = $recipe->url();
 								$recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel);
 					
 								// adding
@@ -124,7 +122,8 @@ class Parser extends ParserBase
 						if ($recipe) {
 							$title = 'Рецепт: ' . $content; // $id
 							$rel = 'spell=' . $id . '&amp;domain=ru';
-							$url = $this->linker->recipe($id);
+							
+							$url = $recipe->url();
 							$recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel, $content);
 					
 							// rewriting default
@@ -170,7 +169,7 @@ class Parser extends ParserBase
 						break;
 
 					case 'card':
-						$url = $this->getSettings('hsdb_ru_link') . 'cards/' . $id;
+						$url = $this->linker->hsCard($id);
 						$text = $this->render('url', [
 						    'url' => $url,
 						    'text' => $content,
@@ -202,15 +201,19 @@ class Parser extends ParserBase
                                     $pictures = $pictures->add($pic);
                                 }
                             } else {
-                                $tagPics = GalleryPicture::getByTag($id);
-                                $pictures = $pictures->concat($tagPics);
+                                $limit = $this->getSettings('gallery.inline_limit');
+                                $query = GalleryPicture::getByTag($id);
+                                $pictures = $this->galleryService->getPage($query, 1, $limit)->all();
+                                $inlineTag = $id;
+
+                                break;
                             }
                         }
 
                         $text = $pictures->any()
-                            ? $this->render('gallery', [
-                                'pictures' => $pictures->distinct(),
-                                'lightbox' => true
+                            ? $this->render('gallery_inline', [
+                                'pictures' => $pictures,
+                                'tag_link' => $inlineTag ? $this->linker->tag($inlineTag, 'gallery_pictures') : null,
                             ])
                             : null;
 
@@ -230,15 +233,6 @@ class Parser extends ParserBase
 	    return $data;
 	}
 
-	/*protected function parseBrackets($result)
-	{
-		$result = parent::parseBrackets($result);
-
-		$result['text'] = $this->parseQuoteBB($result['text'], 'bluepost', [ $this, 'enrichBluepostData' ]);
-
-		return $result;
-	}*/
-	
 	protected function renderBBContainer($node)
 	{
 	    switch ($node['tag']) {

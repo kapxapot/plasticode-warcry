@@ -2,30 +2,33 @@
 
 namespace App\Models;
 
+use Plasticode\Query;
 use Plasticode\Models\DbModel;
 
 class ForumTag extends DbModel
 {
-    // getters - many
+    // queries
     
-	public static function getByForumTopic($topicId)
+    private static function topicQuery() : Query
+    {
+		return self::query()
+			->where('tag_meta_app', 'forums')
+			->where('tag_meta_area', 'topics');
+    }
+    
+	public static function getByForumTopic($topicId) : Query
 	{
-		return self::getMany(function($q) use ($topicId) {
-			return $q
-				->where('tag_meta_app', 'forums')
-				->where('tag_meta_area', 'topics')
-				->where('tag_meta_id', $topicId);
-		});
+		return self::topicQuery()
+			->where('tag_meta_id', $topicId);
 	}
+	
+	// getters
 	
 	public static function getForumTopicIdsByTag($tag)
 	{
-		return self::getMany(function($q) use ($tag) {
-			return $q
-				->where('tag_meta_app', 'forums')
-				->where('tag_meta_area', 'topics')
-				->whereRaw('(lcase(tag_text) = ?)', [ $tag ]);
-		})
-		->extract('tag_meta_id');
+		return self::topicQuery()
+			->whereRaw('(lcase(tag_text) = ?)', [ $tag ])
+			->all()
+    		->extract('tag_meta_id');
 	}
 }

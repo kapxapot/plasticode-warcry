@@ -3,9 +3,12 @@
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
+{% set grid_id = 'grid-autoloaded' %}
+
 {% block content %}
 	<div class="panel panel-primary">
 		{{ lm.panel_header(_context) }}
+		
 		{% if parts|length > 0 %}
 			<div class="panel-body body-nopad">
 				<ul class="nav nav-tabs" role="tablist">
@@ -18,7 +21,11 @@
 					{% for part in parts %}
 						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}{% if part.component != 'gallery_pictures' and part.component != 'comics' and part.component != 'streams' %} linkblock-big{% endif %}" id="{{ part.id }}">
 							{% if part.component == 'gallery_pictures' %}
-			                    {% include 'components/gallery.twig' with { 'pictures': part.values } only %}
+			                    {% include 'components/gallery_grid.twig' with {
+			                        'grid_id': grid_id,
+			                        'pictures': part.values,
+			                        'show_author': true
+                                } only %}
 							{% elseif part.component == 'streams' %}
 	        				    {% for part in part.values %}
                                     {% include 'components/streams.twig' with { 'streams': part } only %}
@@ -55,3 +62,11 @@
 		{% endif %}
 	</div>
 {% endblock %}
+
+{% set more_angular %}
+    {% include 'components/gallery_load.twig' with {
+        'grid_id': grid_id,
+        'url': api ~ 'gallery/chunk',
+        'params': { 'tag': tag, 'show_author': 'true' }
+    } only %}
+{% endset %}

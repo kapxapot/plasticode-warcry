@@ -53,6 +53,12 @@ articles:
       attributes: [ nullable, hidden ]
       tooltip: Не трогайте, если не знаете, зачем это.
 
+    aliases:
+      name: Алиасы
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Альтернативные адреса статьи (англ. названия). Через запятую.
+
     origin:
       name: Источник
       type: url

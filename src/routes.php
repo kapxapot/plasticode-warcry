@@ -24,6 +24,9 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 
     	$this->get('/search/{query}', \App\Controllers\SearchController::class . ':search')
     	    ->setName('api.search');
+
+    	$this->get('/gallery/chunk/{border_id}', \App\Controllers\GalleryController::class . ':chunk')
+    	    ->setName('api.gallery.chunk');
 	});
 	
 	$this->group('/api/v1', function () use ($settings, $access, $container) {

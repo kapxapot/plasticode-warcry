@@ -47,8 +47,7 @@ class RecipeController extends Controller {
 		}
 
 		// paging
-		
-		$count = Recipe::count($skillId, $query);
+		$count = Recipe::getAllFiltered($skillId, $query)->count();
 		$url = $this->linker->recipes($skill);
 
 		if ($query) {
@@ -58,7 +57,9 @@ class RecipeController extends Controller {
 		$paging = $this->pagination->complex($url, $count, $page, $pageSize);
 
 		$offset = ($page - 1) * $pageSize;
-		$recipes = Recipe::getAllFiltered($skillId, $query, $offset, $pageSize);
+		$recipes = Recipe::getAllFiltered($skillId, $query)
+		    ->slice($offset, $pageSize)
+		    ->all();
 		
 		if ($rebuild) {
 		    $recipes->apply(function ($r) {
@@ -73,7 +74,7 @@ class RecipeController extends Controller {
 				'disqus_url' => $this->linker->disqusRecipes($skill),
 				'disqus_id' => 'recipes' . ($skill ? '_' . $skill['alias'] : ''),
 				'base_url' => $this->linker->recipes(),
-				'skills' => Skill::getAllActive(),
+				'skills' => Skill::getActive()->all(),
 				'skill' => $skill,
 				'recipes' => $recipes,
 				'title' => $title,
