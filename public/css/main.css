@@ -206,24 +206,28 @@
 	margin-top: 5px;
 }*/
 
-.streams .flex-item {
+.streams .flex-item,
+.videos .flex-item {
 	width: 100%;
 }
 
 @media (min-width: 640px) {
-    .streams .flex-item {
+    .streams .flex-item,
+    .videos .flex-item {
     	width: 280px;
     }
 }
 
 @media (min-width: 768px) {
-    .streams .flex-item {
+    .streams .flex-item,
+    .videos .flex-item {
     	width: 336px;
     }
 }
 
 @media (min-width: 1200px) {
-    .streams .flex-item {
+    .streams .flex-item,
+    .videos .flex-item {
     	width: 404px;
     }
 
@@ -564,6 +568,12 @@
 .gallery-author .paging {
 	margin-top: 15px;
 	margin-bottom: -12px;
+}
+
+/* videos */
+
+#videos.tab-pane {
+    padding: 5px;
 }
 
 /* misc */

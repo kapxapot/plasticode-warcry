@@ -24,7 +24,7 @@ class RecipeController extends Controller {
 		
 		$page = $request->getQueryParam('page', 1);
 		$query = $request->getQueryParam('q', null);
-		$rebuild = $request->getQueryParam('rebuild', false);
+		$rebuild = $request->getQueryParam('rebuild', null);
 
 		$skill = Skill::getByAlias($skillAlias);
 
@@ -61,7 +61,7 @@ class RecipeController extends Controller {
 		    ->slice($offset, $pageSize)
 		    ->all();
 		
-		if ($rebuild) {
+		if ($rebuild !== null) {
 		    $recipes->apply(function ($r) {
 		        $r->reset();
 		    });

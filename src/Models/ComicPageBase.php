@@ -67,7 +67,7 @@ abstract class ComicPageBase extends DbModel
 
 	public function prev()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
     		$prev = $this->getSiblings()
 				->whereLt('number', $this->number)
 				->orderByDesc('number')
@@ -87,7 +87,7 @@ abstract class ComicPageBase extends DbModel
 	
 	public function next()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
     		$next = $this->getSiblings()
 				->whereGt('number', $this->number)
 				->orderByAsc('number')

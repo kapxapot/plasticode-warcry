@@ -57,6 +57,7 @@ admin_menu:
         - comic_series
         - comic_standalones
   - gallery_authors
+  - videos
   - group:
       title: Сайт
       items:

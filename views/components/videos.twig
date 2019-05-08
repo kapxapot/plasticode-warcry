@@ -1,0 +1,14 @@
+{% if videos|length > 0 %}
+    <div class="flex-wrapper videos mb-1">
+    	{% for v in videos %}
+    		<div class="flex-item card">
+                {% include 'components/youtube.twig' with { 'code': v.youtube_code } only %}
+    			<div class="card-body flex">
+		    		<div class="card-body__title lh-12">
+    		    		<a href="{{ v.url }}">{{ v.name }}</a>
+				    </div>
+    			</div>
+    		</div>
+    	{% endfor %}
+    </div>
+{% endif %}

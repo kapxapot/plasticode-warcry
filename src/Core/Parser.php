@@ -192,7 +192,20 @@ class Parser extends ParserBase
                         $pictures = Collection::makeEmpty();
                         
                         $ids = explode(',', $id);
-                        
+
+                        if ($chunksCount > 1) {
+                            for ($i = 1; $i < $chunksCount; $i++) {
+							    $chunk = $chunks[$i];
+							    
+							    if (is_numeric($chunk) && $chunk > 0) {
+							        $maxPictures = $chunk;
+							    }
+							    elseif (mb_strtolower($chunk) == 'grid') {
+							        $gridMode = true;
+							    }
+                            }
+                        }
+
                         foreach ($ids as $id) {
                             if (is_numeric($id)) {
                                 $pic = GalleryPicture::get($id);
@@ -201,7 +214,7 @@ class Parser extends ParserBase
                                     $pictures = $pictures->add($pic);
                                 }
                             } else {
-                                $limit = $this->getSettings('gallery.inline_limit');
+                                $limit = $maxPictures ?? $this->getSettings('gallery.inline_limit');
                                 $query = GalleryPicture::getByTag($id);
                                 $pictures = $this->galleryService->getPage($query, 1, $limit)->all();
                                 $inlineTag = $id;
@@ -214,6 +227,7 @@ class Parser extends ParserBase
                             ? $this->render('gallery_inline', [
                                 'pictures' => $pictures,
                                 'tag_link' => $inlineTag ? $this->linker->tag($inlineTag, 'gallery_pictures') : null,
+                                'grid_mode' => $gridMode === true,
                             ])
                             : null;
 

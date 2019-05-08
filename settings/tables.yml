@@ -466,3 +466,25 @@ users:
   private:
     - forum_name
     - email
+
+videos:
+  table: videos
+  api: full
+  name_field: name
+  sort: created_at
+  reverse: true
+  public:
+    - id
+    - name
+    - game_id
+    - description
+    - tags
+    - created_at
+    - created_by
+    - updated_at
+    - updated_by
+    - youtube_code
+  private:
+    - published
+    - published_at
+    - announce

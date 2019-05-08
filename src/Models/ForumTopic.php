@@ -103,14 +103,14 @@ class ForumTopic extends DbModel implements NewsSourceInterface
 
     public function forumPost()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return ForumPost::getByForumTopic($this->getId());
         });
     }
     
     public function post()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return $this->forumPost()
                 ? $this->forumPost()->post
                 : null;
@@ -119,7 +119,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     
     private function parsedPost()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
     	    $newsParser = self::$container->newsParser;
     	    $forumParser = self::$container->forumParser;
     	    
@@ -240,14 +240,14 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     
     public function fullText()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return self::$parser->parseCut($this->parsedPost());
         });
     }
     
     public function shortText()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return self::$parser->parseCut($this->parsedPost(), $this->url(), false);
         });
     }

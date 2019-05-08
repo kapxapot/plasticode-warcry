@@ -19,7 +19,7 @@
 	
 				<div class="tab-content">
 					{% for part in parts %}
-						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}{% if part.component != 'gallery_pictures' and part.component != 'comics' and part.component != 'streams' %} linkblock-big{% endif %}" id="{{ part.id }}">
+						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}{% if not part.no_linkblock %} linkblock-big{% endif %}" id="{{ part.id }}">
 							{% if part.component == 'gallery_pictures' %}
 			                    {% include 'components/gallery_grid.twig' with {
 			                        'grid_id': grid_id,
@@ -38,6 +38,8 @@
 			                    {% include 'components/news.twig' with { 'news': part.values } only %}
 							{% elseif part.component == 'articles' %}
 			                    {% include 'components/articles.twig' with { 'articles': part.values } only %}
+							{% elseif part.component == 'videos' %}
+			                    {% include 'components/videos.twig' with { 'videos': part.values } only %}
 							{% else %}
 								{% for v in part.values %}
 									<div class="icon-lg icon-{{ v.game.result_alias }}-lg">

@@ -89,7 +89,7 @@ class Game extends DbModel
 	
 	public function rootId()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
 	        return $this->parent()
 	            ? $this->parent()->rootId()
 	            : $this->id;
@@ -98,14 +98,14 @@ class Game extends DbModel
 
 	public function root()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
 	        return self::get($this->rootId());
 	    });
 	}
 	
 	public function subGames() : Collection
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
     	    $subGames = Collection::make([ $this ]);
 
     	    foreach ($this->children() as $child) {

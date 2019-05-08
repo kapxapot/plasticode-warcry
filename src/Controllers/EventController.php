@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use Plasticode\Util\Sort;
-
 use App\Models\Event;
 use App\Models\EventType;
 use App\Models\Game;
@@ -38,7 +36,7 @@ class EventController extends Controller
 	{
 		$id = $args['id'];
 		
-		$rebuild = $request->getQueryParam('rebuild', false);
+		$rebuild = $request->getQueryParam('rebuild', null);
 
 		$event = Event::getProtected()->find($id);
 
@@ -46,7 +44,7 @@ class EventController extends Controller
 			return $this->notFound($request, $response);
 		}
 
-        if ($rebuild) {
+        if ($rebuild !== null) {
             $event->resetDescription();
         }
         

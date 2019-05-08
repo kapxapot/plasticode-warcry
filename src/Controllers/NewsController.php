@@ -71,7 +71,8 @@ class NewsController extends Controller
 	public function item($request, $response, $args)
 	{
 		$id = $args['id'];
-		$rebuild = $request->getQueryParam('rebuild', false);
+		
+		$rebuild = $request->getQueryParam('rebuild', null);
 		
 		$news = $this->newsAggregatorService->getNews($id);
 
@@ -79,7 +80,8 @@ class NewsController extends Controller
 			return $this->notFound($request, $response);
 		}
 		
-		if ($rebuild && method_exists($news, 'resetDescription')) {
+		// additional check for forum news
+		if ($rebuild !== null && method_exists($news, 'resetDescription')) {
             $news->resetDescription();
         }
         
@@ -129,12 +131,19 @@ class NewsController extends Controller
 
 		$monthly = $this->newsAggregatorService->getByYear($year);
 		
+        $prev = $this->newsAggregatorService->getPrevYear($year);
+        $next = $this->newsAggregatorService->getNextYear($year);
+
 		$params = $this->buildParams([
 			'sidebar' => [ 'stream', 'gallery' ],
 			'params' => [
 				'title' => "Архив новостей за {$year} год",
 				'archive_year' => $year,
 				'monthly' => $monthly,
+				'year_prev' => $prev,
+				'year_next' => $next,
+				'rel_prev' => $prev ? $prev->url() : null,
+				'rel_next' => $next ? $next->url() : null,
 			],
 		]);
 	

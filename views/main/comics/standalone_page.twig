@@ -2,7 +2,13 @@
 
 {% import 'main/local_macros.twig' as lm %}
 
-{% set with_swipes = true %}
+{% if page.prev %}
+    {% set prev_comment %}Страница {{ page.prev.number_str }}{% endset %}
+{% endif %}
+
+{% if page.next %}
+    {% set next_comment %}Страница {{ page.next.number_str }}{% endset %}
+{% endif %}
 
 {% block content %}
 	<div class="panel panel-primary">
@@ -15,16 +21,23 @@
 			'bc_title': 'Страница ' ~ page.number_str
 		}) }}
 	  	<div class="panel-body gallery-picture">
-	  		<div>
-	  			{% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: Страница {{ page.next.number_str }}">{% endif %}
+	  		<div class="fs-picture{% if fullscreen %} fullscreen{% endif %}" id="picture">
+	  			{#% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: Страница {{ page.next.number_str }}">{% endif %#}
 	  				<img src="{{ page.url }}" class="center img-responsive swipable" />
-	  			{% if page.next %}</a>{% endif %}
+	  			{#% if page.next %}</a>{% endif %#}
+	  			
+	  			{% include 'components/fs_picture_buttons.twig' with {
+	  			    'prev': page.prev,
+	  			    'next': page.next,
+	  			    'prev_comment': prev_comment,
+	  			    'next_comment': next_comment
+	  			} only %}
 	  		</div>
 	   	</div>
 	</div>
   	<div class="gallery-picture-nav pagination-flex">
 		{% if page.prev %}
-			<a href="{{ page.prev.page_url }}" title="Назад: Страница {{ page.prev.number_str }}" class="btn btn-default btn-lg">
+			<a href="{{ page.prev.page_url }}" title="Назад: {{ prev_comment }}" class="btn btn-default btn-lg">
 			    {% include 'components/prev.twig' %}
 				<span class="hidden-xs">Страница</span>
 				<span class="visible-xs-inline">Стр.</span>
@@ -32,7 +45,7 @@
 			</a>
 		{% endif %}
 		{% if page.next %}
-			<a href="{{ page.next.page_url }}" title="Вперед: Страница {{ page.next.number_str }}" class="btn btn-default btn-lg">
+			<a href="{{ page.next.page_url }}" title="Вперед: {{ next_comment }}" class="btn btn-default btn-lg">
 				<span class="hidden-xs">Страница</span>
 				<span class="visible-xs-inline">Стр.</span>
 				{{ page.next.number_str }}
@@ -41,3 +54,7 @@
 		{% endif %}
 	</div>
 {% endblock %}
+
+{% set more_angular %}
+    {% include 'components/fs_picture_angular.twig' %}
+{% endset %}

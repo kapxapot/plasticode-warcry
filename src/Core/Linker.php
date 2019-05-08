@@ -31,10 +31,20 @@ class Linker extends LinkerBase
 	{
 		return $this->router->pathFor('main.news', [ 'id' => $id ]);
 	}
+	
+	public function newsYear(int $year)
+	{
+	    return $this->router->pathFor('main.news.archive.year', [ 'year' => $year ]);
+	}
 
 	public function event($id = null)
 	{
 		return $this->router->pathFor('main.event', [ 'id' => $id ]);
+	}
+
+	public function video($id = null)
+	{
+		return $this->router->pathFor('main.video', [ 'id' => $id ]);
 	}
 
 	public function n($id)

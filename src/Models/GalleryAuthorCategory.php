@@ -12,7 +12,7 @@ class GalleryAuthorCategory extends DbModel
 	
 	public function authors()
 	{
-	    return $this->lazy(__FUNCTION__, function() {
+	    return $this->lazy(function() {
     	    return GalleryAuthor::getAllPublishedByCategory($this->id);
 	    });
 	}

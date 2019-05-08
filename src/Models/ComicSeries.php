@@ -51,7 +51,7 @@ class ComicSeries extends DbModel
 	
     public function issues() : Collection
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return ComicIssue::getBySeries($this->id)
                 ->all();
         });

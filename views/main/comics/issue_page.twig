@@ -3,7 +3,13 @@
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
-{% set with_swipes = true %}
+{% if page.prev %}
+    {% set prev_comment %}{% if comic.number != page.prev.comic.number %}Выпуск {{ page.prev.comic.number_str }}, {% endif %}Страница {{ page.prev.number_str }}{% endset %}
+{% endif %}
+
+{% if page.next %}
+    {% set next_comment %}{% if comic.number != page.next.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}{% endset %}
+{% endif %}
 
 {% block content %}
 	<div class="panel panel-primary">
@@ -18,27 +24,38 @@
 			'buttons': [ m.edit_button('comic_pages', page, { 'id': comic.id }) ]
 		}) }}
 	  	<div class="panel-body gallery-picture">
-	  		<div>
-	  			{% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: {% if comic.number != page.prev.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}">{% endif %}
+	  		<div class="fs-picture{% if fullscreen %} fullscreen{% endif %}" id="picture">
+	  			{#% if page.next %}<a href="{{ page.next.page_url }}" title="Вперед: {% if comic.number != page.prev.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}">{% endif %#}
 	  				<img src="{{ page.url }}" class="center img-responsive swipable" />
-	  			{% if page.next %}</a>{% endif %}
+	  			{#% if page.next %}</a>{% endif %#}
+
+	  			{% include 'components/fs_picture_buttons.twig' with {
+	  			    'prev': page.prev,
+	  			    'next': page.next,
+	  			    'prev_comment': prev_comment,
+	  			    'next_comment': next_comment
+	  			} only %}
 	  		</div>
 	   	</div>
 	</div>
   	<div class="gallery-picture-nav pagination-flex">
 		{% if page.prev %}
-			<a href="{{ page.prev.page_url }}" title="Назад: {% if comic.number != page.prev.comic.number %}Выпуск {{ page.prev.comic.number_str }}, {% endif %}Страница {{ page.prev.number_str }}" class="btn btn-default btn-lg">
+			<a href="{{ page.prev.page_url }}" title="Назад: {{ prev_comment }}" class="btn btn-default btn-lg">
 			    {% include 'components/prev.twig' %}
 				<span class="hidden-md hidden-lg">#{{ page.prev.comic.number }}-{{ page.prev.number_str }}</span>
-				<span class="hidden-xs hidden-sm">{% if comic.number != page.prev.comic.number %}Выпуск {{ page.prev.comic.number_str }}, {% endif %}Страница {{ page.prev.number_str }}</span>
+				<span class="hidden-xs hidden-sm">{{ prev_comment }}</span>
 			</a>
 		{% endif %}
 		{% if page.next %}
-			<a href="{{ page.next.page_url }}" title="Вперед: {% if comic.number != page.next.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}" class="btn btn-default btn-lg">
+			<a href="{{ page.next.page_url }}" title="Вперед: {{ next_comment }}" class="btn btn-default btn-lg">
 				<span class="hidden-md hidden-lg">#{{ page.next.comic.number }}-{{ page.next.number_str }}</span>
-				<span class="hidden-xs hidden-sm">{% if comic.number != page.next.comic.number %}Выпуск {{ page.next.comic.number_str }}, {% endif %}Страница {{ page.next.number_str }}</span>
+				<span class="hidden-xs hidden-sm">{{ next_comment }}</span>
 			    {% include 'components/next.twig' %}
 			</a>
 		{% endif %}
 	</div>
 {% endblock %}
+
+{% set more_angular %}
+    {% include 'components/fs_picture_angular.twig' %}
+{% endset %}

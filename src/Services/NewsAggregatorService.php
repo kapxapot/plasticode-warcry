@@ -11,6 +11,7 @@ use App\Models\Article;
 use App\Models\Event;
 use App\Models\ForumTopic;
 use App\Models\News;
+use App\Models\NewsYear;
 
 class NewsAggregatorService
 {
@@ -175,7 +176,10 @@ class NewsAggregatorService
 	    return $this->getPage(null, 1, $limit, null, $strict);
 	}
 
-	public function getYears(bool $strict = true) : array
+    /**
+     * Descending.
+     */
+	public function getYears(bool $strict = true) : Collection
 	{
 	    $byYear = self::getAllRaw($strict)
 	        ->group(function ($item) {
@@ -183,9 +187,32 @@ class NewsAggregatorService
 	        });
 
 		$years = array_keys($byYear);
-		rsort($years);
 		
-		return $years;
+		return Collection::make($years)
+		    ->map(function ($y) {
+		        return new NewsYear($y);
+		    })
+		    ->desc('year');
+	}
+	
+	public function getPrevYear($year, bool $strict = true)
+	{
+	    return $this->getYears($strict)
+	        ->where(function ($y) use ($year) {
+	            return $y->year < $year;
+	        })
+	        ->desc('year')
+	        ->first();
+	}
+	
+	public function getNextYear($year, bool $strict = true)
+	{
+	    return $this->getYears($strict)
+	        ->where(function ($y) use ($year) {
+	            return $y->year > $year;
+	        })
+	        ->asc('year')
+	        ->first();
 	}
 	
 	public function getByYear($year, bool $strict = true) : array

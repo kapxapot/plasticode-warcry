@@ -129,7 +129,7 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
         return $this->parsed()['text'];
     }
 
-    public function __toString()
+    public function toString()
     {
         return "[{$this->id}] {$this->name}";
     }
@@ -149,7 +149,6 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
         return [
             'id' => $this->getId(),
             'name' => $this->name,
-            'tags' => $this->tags,
             'tags' => Strings::toTags($this->tags),
         ];
     }
@@ -230,14 +229,14 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     
     public function fullText()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return self::$parser->parseCut($this->parsedText());
         });
     }
     
     public function shortText()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return self::$parser->parseCut($this->parsedText(), $this->url(), false);
         });
     }

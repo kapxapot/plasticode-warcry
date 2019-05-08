@@ -11,6 +11,7 @@ use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
 use App\Models\GalleryPicture;
 use App\Models\Stream;
+use App\Models\Video;
 use App\Services\GalleryService;
 use App\Services\NewsAggregatorService;
 use App\Services\StreamService;
@@ -40,21 +41,28 @@ class TagPartsProviderService
 				'id' => 'news',
 				'label' => 'Новости',
 				'values' => $this->newsAggregatorService->getByTag($tag),
-				'component' => 'news'
+				'component' => 'news',
 			],
 			[
 				'id' => 'articles',
 				'label' => 'Статьи',
-				'values' => Article::getByTag($tag)
-				    ->orderByDesc('published_at')
+				'values' => Article::getByTag($tag)->all(),
+				'component' => 'articles',
+			],
+			[
+				'id' => 'events',
+				'label' => 'События',
+				'values' => Event::getByTag($tag)
+				    ->orderByDesc('starts_at')
 				    ->all(),
-				'component' => 'articles'
+				'component' => 'events',
 			],
 			[
 				'id' => 'gallery_pictures',
 				'label' => 'Галерея',
 				'values' => $pictures,
-				'component' => 'gallery_pictures'
+				'component' => 'gallery_pictures',
+				'no_linkblock' => true,
 			],
 			[
 				'id' => 'comics',
@@ -64,21 +72,22 @@ class TagPartsProviderService
 				    ComicSeries::getByTag($tag)->all(),
 				    ComicStandalone::getByTag($tag)->all()
 				),
-				'component' => 'comics'
+				'component' => 'comics',
+				'no_linkblock' => true,
+			],
+			[
+				'id' => 'videos',
+				'label' => 'Видео',
+				'values' => Video::getByTag($tag)->all(),
+				'component' => 'videos',
+				'no_linkblock' => true,
 			],
 			[
 				'id' => 'streams',
 				'label' => 'Стримы',
 				'values' => $this->streamService->getByTag($tag),
-				'component' => 'streams'
-			],
-			[
-				'id' => 'events',
-				'label' => 'События',
-				'values' => Event::getByTag($tag)
-				    ->orderByDesc('starts_at')
-				    ->all(),
-				'component' => 'events'
+				'component' => 'streams',
+				'no_linkblock' => true,
 			],
 		];
 

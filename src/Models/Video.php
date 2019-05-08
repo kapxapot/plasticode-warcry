@@ -5,58 +5,36 @@ namespace App\Models;
 use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Moment;
 use Plasticode\Models\Interfaces\SearchableInterface;
-use Plasticode\Models\Traits\CachedDescription;
+use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublish;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
+use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
 
 use App\Models\Interfaces\NewsSourceInterface;
 
-class News extends DbModel implements SearchableInterface, NewsSourceInterface
+class Video extends DbModel implements SearchableInterface, NewsSourceInterface
 {
-    use CachedDescription, FullPublish, Stamps, Tags;
+    use Description, FullPublish, Stamps, Tags;
     
     protected static $sortField = 'published_at';
     protected static $sortReverse = true;
-    
-    // traits
-    
-    protected static function getDescriptionField()
-    {
-        return 'text';
-    }
 
-    // props
+    // PROPS
     
     public function game()
     {
-        return Game::get($this->gameId);
+        return $this->gameId
+            ? Game::get($this->gameId)
+            : null;
     }
 
-    public function largeImage()
+    public function toString()
     {
-        $parsed = $this->parsed();
-        
-        return $parsed['large_image'];
-    }
-    
-    public function image()
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['image'];
-    }
-    
-    public function parsed()
-    {
-        return $this->parsedDescription();
-    }
-    
-    public function parsedText()
-    {
-        return $this->parsed()['text'];
+        return "[{$this->id}] {$this->name}";
     }
 
     // interfaces
@@ -64,8 +42,8 @@ class News extends DbModel implements SearchableInterface, NewsSourceInterface
     public static function search($searchQuery) : Collection
     {
         return self::getPublished()
-            ->search($searchQuery, '(title like ?)')
-            ->orderByAsc('title')
+            ->search($searchQuery, '(name like ?)')
+            ->orderByAsc('name')
             ->all();
     }
     
@@ -73,7 +51,7 @@ class News extends DbModel implements SearchableInterface, NewsSourceInterface
     {
         return [
             'id' => $this->getId(),
-            'title' => $this->displayTitle(),
+            'name' => $this->name,
             'tags' => Strings::toTags($this->tags),
         ];
     }
@@ -81,56 +59,48 @@ class News extends DbModel implements SearchableInterface, NewsSourceInterface
     public function code() : string
     {
         $parts = [
-            "news:{$this->getId()}",
-            $this->displayTitle(),
+            "video:{$this->getId()}",
+            $this->name,
         ];
         
         $code = self::$parser->joinTagParts($parts);
-
+        
         return "[[{$code}]]";
     }
     
-    // LinkableInterface
-    
+    // NewsSourceInterface
+
     public function url()
     {
-        return self::$linker->news($this->getId());
+        return self::$linker->video($this->getId());
     }
     
-    // NewsSourceInterface
+    private static function announced(Query $query) : Query
+    {
+        return $query->where('announce', 1);
+    }
     
     public static function getNewsByTag($tag) : Query
     {
-        return static::getByTag($tag);
+        $query = static::getByTag($tag);
+        return self::announced($query);
     }
     
     private static function getNewsByGame($game = null) : Query
     {
-		$query = self::getBasePublished();
+		$query = self::getPublished();
 
 		if ($game) {
 			$query = $game->filter($query);
 		}
 
-		return $query;
+		return self::announced($query);
     }
 
 	public static function getLatestNews($game = null, $exceptNewsId = null) : Query
 	{
-		$query = self::getNewsByGame($game)
-		    ->orderByDesc('published_at');
-
-		if ($exceptId) {
-			$query = $query->whereNotEqual(static::$idField, $exceptId);
-		}
-
-		return $query;
-	}
-	
-	public static function getNewsByYear($year) : Query
-	{
-		return self::getPublished()
-		    ->whereRaw('(year(published_at) = ?)', [ $year ]);
+	    return self::getNewsByGame($game)
+	        ->orderByDesc('published_at');
 	}
 	
 	public static function getNewsBefore($game, $date) : Query
@@ -146,23 +116,27 @@ class News extends DbModel implements SearchableInterface, NewsSourceInterface
 		    ->whereGt('published_at', $date)
 		    ->orderByAsc('published_at');
 	}
+	
+	public static function getNewsByYear($year) : Query
+	{
+		$query = self::getPublished()
+		    ->whereRaw('(year(published_at) = ?)', [ $year ]);
+		
+		return self::announced($query);
+	}
     
     public function displayTitle()
     {
-        return $this->title;
+        return $this->name;
     }
     
     public function fullText()
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedText());
-        });
+        return $this->description;
     }
     
     public function shortText()
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedText(), $this->url(), false);
-        });
+        return $this->description;
     }
 }

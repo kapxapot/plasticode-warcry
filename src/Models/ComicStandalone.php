@@ -42,7 +42,7 @@ class ComicStandalone extends Comic
     
     public function pages() : Collection
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return ComicStandalonePage::getByComic($this->id)
                 ->all();
         });

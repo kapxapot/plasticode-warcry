@@ -106,7 +106,7 @@ class GalleryAuthor extends DbModel
     
 	public function prev()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
     		return self::getSiblings()
     		    ->all()
     		    ->descStr('display_name')
@@ -119,7 +119,7 @@ class GalleryAuthor extends DbModel
 	
 	public function next()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
     		return self::getSiblings()
     		    ->all()
     		    ->ascStr('display_name')

@@ -1,5 +1,7 @@
 {% if pictures|length > 0 %}
-    {% include 'components/gallery_uniform.twig' with {
+    {% set component_name = grid_mode ? 'gallery_grid' : 'gallery_uniform' %}
+    
+    {% include 'components/' ~ component_name ~ '.twig' with {
         'pictures': pictures,
         'final': true,
         'show_author': true,
@@ -7,7 +9,7 @@
     } only %}
     
     {% if tag_link %}
-        <div class="center mt-3 mb-1">
+        <div class="flex-center mt-2 mb-1">
             <a class="btn btn-lg btn-default" href="{{ tag_link }}" role="button">Все картинки &raquo;&raquo;</a>
         </div>
     {% endif %}

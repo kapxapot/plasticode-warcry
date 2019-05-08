@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use Illuminate\Support\Arr;
-
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 
@@ -28,7 +26,7 @@ class GalleryController extends Controller
 		$lastPic = $pictures->last();
 
 		$params = $this->buildParams([
-			//'sidebar' => [ 'stream' ],
+			'sidebar' => [ 'stream', 'news' ],
 			'params' => [
 				'title' => $this->galleryTitle,
 				//'parts' => $groups,
@@ -58,7 +56,7 @@ class GalleryController extends Controller
 		$lastPic = $pictures->last();
 
 		$params = $this->buildParams([
-			//'sidebar' => [ 'stream' ],
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
 			'large_image' => $author->displayPicture()
 			    ? $this->linker->abs($author->displayPicture()->url())
 			    : null,
@@ -80,24 +78,33 @@ class GalleryController extends Controller
 	
 	public function picture($request, $response, $args)
 	{
-		$alias = $args['alias'];
 		$id = $args['id'];
+		$alias = $args['alias'] ?? null;
 
-		$author = GalleryAuthor::getPublishedByAlias($alias);
-		
-		if (!$author) {
-			return $this->notFound($request, $response);
-		}
-		
 		$picture = GalleryPicture::getPublished()->find($id);
 		
 		if (!$picture) {
 			return $this->notFound($request, $response);
 		}
 
+        $author = $picture->author();
+
+        if ($alias) {
+		    $aliasAuthor = GalleryAuthor::getPublishedByAlias($alias);
+		
+		    if (!$aliasAuthor || $author->getId() != $aliasAuthor->getId()) {
+			    return $this->notFound($request, $response);
+		    }
+		    
+		    $author = $aliasAuthor;
+		}
+		
+		$fullscreen = $request->getQueryParam('full', null);
+
 		$params = $this->buildParams([
 			'game' => $picture->game(),
 			'global_context' => true,
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
 			'large_image' => $this->linker->abs($picture->url()),
 			'description' => $author->fullName(),
 			'params' => [
@@ -107,6 +114,7 @@ class GalleryController extends Controller
 				'gallery_title' => $this->galleryTitle,
 				'rel_next' => $picture->next() ? $picture->next()->pageUrl() : null,
 				'rel_prev' => $picture->prev() ? $picture->prev()->pageUrl() : null,
+				'fullscreen' => $fullscreen !== null,
 			],
 		]);
 

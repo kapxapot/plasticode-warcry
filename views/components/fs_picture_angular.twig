@@ -1,0 +1,26 @@
+{% if fullscreen %}
+    fullscreenMode = true;
+{% endif %}
+
+$scope.exitFullscreen = () => {
+    $('#picture').toggleClass('fullscreen');
+    $('body').toggleClass('fullscreen');
+
+    exitFullscreen();
+};
+
+$scope.openFullscreen = () => {
+    $('#picture').toggleClass('fullscreen');
+    $('body').toggleClass('fullscreen');
+
+    openFullscreen();
+};
+
+$scope.navigateToPrev = () => navigateToPrev();
+$scope.navigateToNext = () => navigateToNext();
+
+document.addEventListener('keyup', e => {
+    if (e.keyCode === 27 && fullscreenMode === true) {
+        $scope.exitFullscreen();
+    }
+});

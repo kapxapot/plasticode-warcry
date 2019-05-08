@@ -46,7 +46,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
 		$name = Strings::toSpaces($name);
 		$cat = Strings::toSpaces($cat);
 
-		$query = self::getProtected();
+		$query = self::getBaseProtected();
 		
 		if (is_numeric($name)) {
 			return $query->where(self::$idField, $name);
@@ -146,7 +146,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
 
     public function category()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return ArticleCategory::get($this->cat);
         });
     }
@@ -309,14 +309,14 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     
     public function fullText()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return self::$parser->parseCut($this->parsedText());
         });
     }
     
     public function shortText()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return self::$parser->parseCut($this->parsedText(), $this->url(), false);
         });
     }

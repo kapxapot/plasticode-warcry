@@ -1179,3 +1179,69 @@ users:
       name: Дата регистрации
       type: date
       attributes: [ readonly ]
+
+
+videos:
+
+  name_gen: видео
+  name_accus: видео
+  title: Видео
+
+  columns:
+    id:
+      name: id
+      attributes: [ readonly ]
+
+    game_id:
+      name: Игра
+      entity: games
+      dropdown_template: '{{%item%.select_title}}'
+      attributes: [ nullable ]
+
+    name:
+      name: Название
+      template: >
+        '<a href="/videos/' + row.id + '">' + row.name + '</a>'
+
+    youtube_code:
+      name: YouTube
+      template: >
+        '<a href="//www.youtube.com/watch?v=' + row.youtube_code + '">YouTube</a>'
+      prefix: 'youtube.com/watch?v='
+
+    description:
+      name: Описание
+      type: html
+      attributes: [ nullable, hidden ]
+
+    tags:
+      name: Теги
+      attributes: [ nullable, hidden ]
+      tooltip: Через запятую.
+
+    announce:
+      name: Анонс
+      type: bool
+      access: publish
+
+    published:
+      name: Опубликовано
+      form_name: Опубликовать
+      type: bool
+      access: publish
+
+    published_at:
+      name: Дата публикации
+      type: datetime-local
+      attributes: [ nullable, hidden ]
+      access: publish
+      tooltip: Оставьте пустой для автозаполнения.
+
+    created_by_name:
+      name: Автор
+      attributes: [ readonly ]
+    
+    created_at:
+      name: Дата создания
+      type: date
+      attributes: [ readonly ]

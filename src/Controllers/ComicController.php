@@ -22,7 +22,7 @@ class ComicController extends Controller
 	public function index($request, $response, $args)
 	{
 		$params = $this->buildParams([
-			'sidebar' => [ 'stream', 'gallery' ],
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
 			'params' => [
 				'title' => $this->comicsTitle,
 				'series' => ComicSeries::getAllSorted(),
@@ -147,10 +147,13 @@ class ComicController extends Controller
 		if (!$page) {
 			return $this->notFound($request, $response);
 		}
+		
+		$fullscreen = $request->getQueryParam('full', null);
 
 		$params = $this->buildParams([
 			'game' => $series->game(),
 			'global_context' => true,
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
 			'large_image' => $this->linker->abs($page->url),
 			'params' => [
 				'series' => $series,
@@ -160,6 +163,7 @@ class ComicController extends Controller
 				'comics_title' => $this->comicsTitle,
 				'rel_prev' => $page->prev() ? $page->prev()->pageUrl() : null,
 				'rel_next' => $page->next() ? $page->next()->pageUrl() : null,
+				'fullscreen' => $fullscreen !== null,
 			],
 		]);
 
@@ -182,10 +186,13 @@ class ComicController extends Controller
 		if (!$page) {
 			return $this->notFound($request, $response);
 		}
+		
+		$fullscreen = $request->getQueryParam('full', null);
 
 		$params = $this->buildParams([
 			'game' => $comic->game(),
 			'global_context' => true,
+			'sidebar' => [ 'stream', 'gallery', 'news' ],
 			'large_image' => $this->linker->abs($page->url()),
 			'params' => [
 				'comic' => $comic,
@@ -194,6 +201,7 @@ class ComicController extends Controller
 				'comics_title' => $this->comicsTitle,
 				'rel_prev' => $page->prev() ? $page->prev()->pageUrl() : null,
 				'rel_next' => $page->next() ? $page->next()->pageUrl() : null,
+				'fullscreen' => $fullscreen !== null,
 			],
 		]);
 

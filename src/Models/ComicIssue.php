@@ -33,7 +33,7 @@ class ComicIssue extends Comic
     
     public function pages() : Collection
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return ComicPage::getByComic($this->id)
                 ->all();
         });
@@ -57,7 +57,7 @@ class ComicIssue extends Comic
 
     public function prev()
 	{
-		return $this->lazy(__FUNCTION__, function () {
+		return $this->lazy(function () {
 		    return self::getBySeries($this->seriesId)
     			->whereLt('number', $this->number)
     			->orderByDesc('number')
@@ -67,7 +67,7 @@ class ComicIssue extends Comic
     
     public function next()
 	{
-		return $this->lazy(__FUNCTION__, function () {
+		return $this->lazy(function () {
 		    return self::getBySeries($this->seriesId)
 				->whereGt('number', $this->number)
 				->orderByAsc('number')

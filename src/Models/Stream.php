@@ -45,7 +45,7 @@ class Stream extends DbModel
     
     public function game()
     {
-        return $this->lazy(__FUNCTION__, function () {
+        return $this->lazy(function () {
             return $this->remoteGame
                 ? Game::getByTwitchName($this->remoteGame)
                 : null;

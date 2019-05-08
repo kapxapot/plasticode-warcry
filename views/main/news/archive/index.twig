@@ -10,7 +10,7 @@
 		{% if years %}
 			<div class="panel-body">
 				{% for y in years %}
-					<a class="label label-default" href="{{ path_for('main.news.archive.year', { 'year': y }) }}">{{ y }} год</a>
+					<a class="label label-default" href="{{ y.url }}">{{ y.title }}</a>
 				{% endfor %}
 			</div>
 		{% else %}

@@ -116,3 +116,6 @@ rights:
 
   users:
     template: admin_strict
+
+  videos:
+    template: public

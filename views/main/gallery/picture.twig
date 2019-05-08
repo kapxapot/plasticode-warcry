@@ -4,8 +4,6 @@
 {% import 'main/macros.twig' as m %}
 {% import 'main/local_macros.twig' as lm %}
 
-{% set with_swipes = true %}
-
 {% block content %}
 	<div class="panel panel-primary">
 		{% set breadcrumbs = [
@@ -16,10 +14,17 @@
 			'buttons': [ m.edit_button('gallery_pictures', picture, { 'id': author.id }) ]
 		}) }}
 	  	<div class="panel-body gallery-picture">
-	  		<div>
+	  		<div class="fs-picture{% if fullscreen %} fullscreen{% endif %}" id="picture">
 	  			{#% if picture.next %}<a href="{{ picture.next.page_url }}" title="Вперед: {{ picture.next.comment }}">{% endif %#}
 	  				<img src="{{ picture.url }}" class="center img-responsive swipable" />
 	  			{#% if picture.next %}</a>{% endif %#}
+	  			
+	  			{% include 'components/fs_picture_buttons.twig' with {
+	  			    'prev': picture.prev,
+	  			    'next': picture.next,
+	  			    'prev_comment': picture.prev.comment,
+	  			    'next_comment': picture.next.comment
+	  			} only %}
 	  		</div>
 	  		{% if picture.parsed_description %}
 	  			<div class="gallery-picture-description">{{ picture.parsed_description|raw }}</div>
@@ -55,3 +60,7 @@
   		{% endif %}
 	</div>
 {% endblock %}
+
+{% set more_angular %}
+    {% include 'components/fs_picture_angular.twig' %}
+{% endset %}

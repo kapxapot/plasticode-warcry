@@ -72,8 +72,9 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 	$this->get('/streams/{alias}', \App\Controllers\StreamController::class . ':item')->setName('main.stream');
 
 	$this->get('/gallery', \App\Controllers\GalleryController::class . ':index')->setName('main.gallery');
+	$this->get('/gallery/{id:\d+}', \App\Controllers\GalleryController::class . ':picture')->setName('main.gallery.picture.direct');
 	$this->get('/gallery/{alias}', \App\Controllers\GalleryController::class . ':author')->setName('main.gallery.author');
-	$this->get('/gallery/{alias}/{id}', \App\Controllers\GalleryController::class . ':picture')->setName('main.gallery.picture');
+	$this->get('/gallery/{alias}/{id:\d+}', \App\Controllers\GalleryController::class . ':picture')->setName('main.gallery.picture');
 	
 	$this->get('/map', \App\Controllers\MapController::class . ':index')->setName('main.map');
 	
@@ -89,6 +90,9 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 
 	$this->get('/events', \App\Controllers\EventController::class . ':index')->setName('main.events');
 	$this->get('/events/{id:\d+}', \App\Controllers\EventController::class . ':item')->setName('main.event');
+
+	$this->get('/videos', \App\Controllers\VideoController::class . ':index')->setName('main.videos');
+	$this->get('/videos/{id:\d+}', \App\Controllers\VideoController::class . ':item')->setName('main.video');
 
 	$this->get('/tags/{tag}', \App\Controllers\TagController::class . ':item')->setName('main.tag');
 

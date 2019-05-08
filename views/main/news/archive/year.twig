@@ -11,7 +11,7 @@
 		    { 'url': path_for('main.news.archive'), 'text': 'Архив новостей'}
 		] %}
 		{{ lm.panel_header(_context, title, { 'bc_title': archive_year ~ ' год' }) }}
-		{% if monthly %}
+		{% if monthly|length > 0 %}
 		  	<div class="panel-body body-nopad">
 				<ul class="nav nav-tabs" role="tablist">
 			  		{% for month, value in monthly %}
@@ -42,6 +42,21 @@
 				{% if archive_year > year %}<p>Привет, будущее!</p>{% endif %}
 				{% if archive_year < year_from %}<p><b>{{ site_name }}</b> тогда еще не существовал!</p>{% endif %}
 			</div>
+		{% endif %}
+	</div>
+    
+  	<div class="pagination-flex">
+		{% if year_prev %}
+			<a href="{{ year_prev.url }}" class="btn btn-default btn-lg">
+			    {% include 'components/prev.twig' %}
+				{{ year_prev.title }}
+			</a>
+		{% endif %}
+		{% if year_next %}
+			<a href="{{ year_next.url }}" class="btn btn-default btn-lg">
+				{{ year_next.title }}
+			    {% include 'components/next.twig' %}
+			</a>
 		{% endif %}
 	</div>
 {% endblock %}

@@ -11,7 +11,7 @@ class ArticleController extends Controller
 		$id = $args['id'];
 		$cat = $args['cat'];
 
-		$rebuild = $request->getQueryParam('rebuild', false);
+		$rebuild = $request->getQueryParam('rebuild', null);
 
 		$article = Article::getByNameOrAlias($id, $cat);
 
@@ -19,7 +19,7 @@ class ArticleController extends Controller
 			return $this->notFound($request, $response);
 		}
 
-        if ($rebuild) {
+        if ($rebuild !== null) {
             $article->resetDescription();
         }
         

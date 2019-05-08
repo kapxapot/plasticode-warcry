@@ -2,9 +2,6 @@
 
 {% import 'main/local_macros.twig' as lm %}
 
-{% set no_disqus = true %}
-{% set no_social = true %}
-
 {% if can('events', 'create') %}
     {% set sidebar_buttons = [ m.create_button('events', 'Добавить событие') ] %}
 {% endif %}

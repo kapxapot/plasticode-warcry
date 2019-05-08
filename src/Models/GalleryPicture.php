@@ -71,7 +71,6 @@ class GalleryPicture extends DbModel
         return self::$linker->galleryPictureImg($this);
     }
     
-
     public function thumbUrl() : string
     {
         $this->failIfNotPersisted();
@@ -85,12 +84,17 @@ class GalleryPicture extends DbModel
     {
         $this->failIfNotPersisted();
         
-        // ensure picture has width / height
-        $this->ensureWidthHeightSet();
-
-        $ratio = new AspectRatio($this->width, $this->height);
-        
-        return $ratio->cssClasses();// . ' ' . $ratio->ratioExact() . ' ' . $ratio->ratioApprox()[0] . '-' . $ratio->ratioApprox()[1];
+        try {
+            // ensure picture has width / height
+            $this->ensureWidthHeightSet();
+            
+            $ratio = new AspectRatio($this->width, $this->height);
+            
+            return $ratio->cssClasses();// . ' ' . $ratio->ratioExact() . ' ' . $ratio->ratioApprox()[0] . '-' . $ratio->ratioApprox()[1];
+        }
+        catch (\Exception $ex) {
+            return '';
+        }
     }
     
     private function ensureWidthHeightSet()
@@ -119,9 +123,15 @@ class GalleryPicture extends DbModel
     public function bgColor() : array
     {
         $this->failIfNotPersisted();
-        $this->ensureAvgColorSet();
         
-        return Image::deserializeRGBA($this->avgColor);
+        try {
+            $this->ensureAvgColorSet();
+        
+            return Image::deserializeRGBA($this->avgColor);
+        }
+        catch (\Exception $ex) {
+            return Image::deserializeRGBA('255,255,255,1');
+        }
     }
     
     private function ensureAvgColorSet()
@@ -157,7 +167,7 @@ class GalleryPicture extends DbModel
      */
 	public function prev()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
 	        return $this->getSiblingsAfter()->one();
 		});
 	}
@@ -167,7 +177,7 @@ class GalleryPicture extends DbModel
      */
 	public function next()
 	{
-	    return $this->lazy(__FUNCTION__, function () {
+	    return $this->lazy(function () {
 	        return $this->getSiblingsBefore()->one();
 	    });
     }
