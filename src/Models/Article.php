@@ -243,11 +243,15 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     {
         $parts[] = $this->nameEn;
         
-        if ($this->category()) {
-            $parts[] = $this->category()->nameEn;
+        $cat = $this->category();
+        
+        if ($cat !== null) {
+            $parts[] = $cat->nameEn;
         }
         
-        $parts[] = $this->nameRu;
+        if ($cat !== null || $this->nameRu !== $this->nameEn) {
+            $parts[] = $this->nameRu;
+        }
         
         $code = self::$parser->joinTagParts($parts);
         

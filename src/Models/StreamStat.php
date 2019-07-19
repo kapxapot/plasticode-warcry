@@ -25,7 +25,7 @@ class StreamStat extends DbModel
     	return self::query()
 		    ->where('stream_id', $streamId)
 		    ->orderByDesc('created_at')
-		    ->one;
+		    ->one();
 	}
 
     // methods

@@ -17,6 +17,6 @@
 			'published': event.published
 		}) }}
 
-        {% include 'components/event_bodyfooter.twig' with { 'event': event } only %}
+        {% include 'components/event_bodyfooter.twig' with { 'event': event, 'full': true } only %}
 	</div>
 {% endblock %}

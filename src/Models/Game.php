@@ -134,7 +134,7 @@ class Game extends DbModel
 	    return false;
 	}
 	
-	public function default()
+	public function default() : bool
 	{
 		return $this->id == self::getDefaultId();
 	}

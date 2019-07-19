@@ -58,7 +58,7 @@ class NewsController extends Controller
 
 		$params = $this->buildParams([
 			'game' => $game,
-			'sidebar' => [ 'stream', 'gallery', 'events', 'articles' ],
+			'sidebar' => [ 'countdown', 'stream', 'gallery', 'events', 'articles' ],
 			'params' => [
 				'news' => $news,
 				'paging' => $paging,

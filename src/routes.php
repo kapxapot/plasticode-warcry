@@ -22,6 +22,13 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
 			return Core::json($response, [ 'captcha' => $captcha['captcha'] ]);
 		});
 
+		$this->get('/captcha_test', function ($request, $response, $args) use ($settings) {
+		    $digits = $request->getParam('digits', $settings['captcha_digits']);
+			$captcha = $this->captcha->generate($digits, false);
+
+			return Core::json($response, [ 'captcha' => $captcha['captcha'] ]);
+		});
+
     	$this->get('/search/{query}', \App\Controllers\SearchController::class . ':search')
     	    ->setName('api.search');
 

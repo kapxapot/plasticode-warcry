@@ -126,7 +126,13 @@ class StreamService
 	
 	public function topOnline($game = null)
 	{
-	    return $this->getAllOnline($game)->first() ?? $this->getAllOnline()->first();
+	    $stream = null;
+	    
+	    if ($game !== null && $game->default() === false) {
+	        $stream = $this->getAllOnline($game)->first();
+	    }
+	    
+	    return $stream ?? $this->getAllOnline()->first();
 	}
 	
 	public function totalOnlineStr($game = null)

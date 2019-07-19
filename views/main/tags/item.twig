@@ -21,6 +21,7 @@
 					{% for part in parts %}
 						<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}{% if not part.no_linkblock %} linkblock-big{% endif %}" id="{{ part.id }}">
 							{% if part.component == 'gallery_pictures' %}
+							    {% set with_gallery = true %}
 			                    {% include 'components/gallery_grid.twig' with {
 			                        'grid_id': grid_id,
 			                        'pictures': part.values,
@@ -65,10 +66,12 @@
 	</div>
 {% endblock %}
 
-{% set more_angular %}
-    {% include 'components/gallery_load.twig' with {
-        'grid_id': grid_id,
-        'url': api ~ 'gallery/chunk',
-        'params': { 'tag': tag, 'show_author': 'true' }
-    } only %}
-{% endset %}
+{% if with_gallery %}
+    {% set more_angular %}
+        {% include 'components/gallery_load.twig' with {
+            'grid_id': grid_id,
+            'url': api ~ 'gallery/chunk',
+            'params': { 'tag': tag, 'show_author': 'true' }
+        } only %}
+    {% endset %}
+{% endif %}

@@ -13,12 +13,16 @@
 		<p><b>Адрес:</b> {{ event.address }}</p>
 	{% endif %}
 	{% if event.website %}
-  		<p><a href="{{ event.website }}">{{ event.website }}</a></p>
+  		<p class="br-all"><a href="{{ event.website }}">{{ event.website }}</a></p>
 	{% endif %}
 </div>
 {% if event.parsed_description %}
 	<div class="panel-body article">
-  		{{ event.parsed_description.text|raw }}
+	    {% if full %}
+	        {{ event.full_text|raw }}
+        {% else %}
+  		    {{ event.short_text|raw }}
+  		{% endif %}
 	</div>
 {% endif %}
 <div class="panel-footer">

@@ -21,7 +21,8 @@ class UpdateStreamsJob extends Contained
     
     public function run()
     {
-		return Stream::getAllPublished()
+		return Stream::getPublished()
+		    ->all()
 		    ->map(function ($s) {
 		        return $this->updateStream($s);
 		    });

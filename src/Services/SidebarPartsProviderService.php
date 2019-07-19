@@ -58,6 +58,15 @@ class SidebarPartsProviderService extends Contained
 				$days = $this->getSettings('sidebar.future_events_days');
 				$result = Event::getCurrent($game, $days)->all();
 				break;
+			
+			case 'countdown':
+			    $event = Event::getImportant()->one();
+
+			    if ($event !== null) {
+			        $result = [ 'event' => $event ];
+			    }
+			    
+			    break;
 		}
 		
 		return $result;

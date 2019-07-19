@@ -31,7 +31,10 @@ $scope.gridSentinel = {
 
 $scope.updateSentinel = function() {
 	const last = getLastChild($scope.gridId);
-    $scope.gridSentinel.set(last);
+	
+	if (last) {
+        $scope.gridSentinel.set(last);
+	}
 };
 
 $scope.getBorderId = function() {

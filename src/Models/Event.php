@@ -22,17 +22,22 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     
     // queries
     
-    public static function getOrderedByStart()
+    public static function getOrderedByStart() : Query
     {
         return self::getPublished()
             ->orderByAsc('starts_at')
             ->orderByAsc('ends_at');
     }
+    
+    public static function getUnended() : Query
+    {
+        return self::getOrderedByStart()
+		    ->whereRaw('(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)');
+    }
 	
 	public static function getCurrent($game, $days) : Query
 	{
-		$query = self::getOrderedByStart()
-		    ->whereRaw('(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)')
+		$query = self::getUnended()
 			->whereRaw("(starts_at < date_add(now(), interval {$days} day) or important = 1)");
 
 		if ($game) {
@@ -40,6 +45,13 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
 		}
 		
 		return $query->where('announce', 1);
+	}
+	
+	public static function getImportant() : Query
+	{
+	    return self::getUnended()
+	        ->where('important', 1)/*
+	        ->where('announce', 1)*/;
 	}
     
     // getters - many
