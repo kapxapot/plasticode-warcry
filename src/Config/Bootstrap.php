@@ -6,7 +6,12 @@ use Plasticode\Config\Bootstrap as BootstrapBase;
 
 class Bootstrap extends BootstrapBase
 {
-    public function getMappings()
+    /**
+     * Get mappings for DI container.
+     *
+     * @return array
+     */
+    public function getMappings() : array
     {
         $mappings = parent::getMappings();
         
@@ -33,51 +38,51 @@ class Bootstrap extends BootstrapBase
                     $thumbHeight = $this->settings['gallery']['thumb_height'];
                     $thumbStrategy = new \Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy($thumbHeight);
                     
-                	$gallerySettings = [
-                		'base_dir' => $this->dir,
-                		'fields' => [
-                			'picture_type' => 'picture_type',
-                			'thumb_type' => 'picture_type',
-                		],
-                		'folders' => [
-                			'picture' => [
-                				'storage' => 'gallery_pictures',
-                				'public' => 'gallery_pictures_public',
-                			],
-                			'thumb' => [
-                				'storage' => 'gallery_thumbs',
-                				'public' => 'gallery_thumbs_public',
-                			],
-                		],
-                	];
+                    $gallerySettings = [
+                        'base_dir' => $this->dir,
+                        'fields' => [
+                            'picture_type' => 'picture_type',
+                            'thumb_type' => 'picture_type',
+                        ],
+                        'folders' => [
+                            'picture' => [
+                                'storage' => 'gallery_pictures',
+                                'public' => 'gallery_pictures_public',
+                            ],
+                            'thumb' => [
+                                'storage' => 'gallery_thumbs',
+                                'public' => 'gallery_thumbs_public',
+                            ],
+                        ],
+                    ];
                 
-                	return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $gallerySettings);
+                    return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $gallerySettings);
                 },
                 
                 'comics' => function ($container) {
                     $thumbHeight = $this->settings['comics']['thumb_height'];
                     $thumbStrategy = new \Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy($thumbHeight);
                     
-                	$comicsSettings = [
-                		'base_dir' => $this->dir,
-                		'fields' => [
-                			'picture_type' => 'pic_type',
-                			'thumb_type' => 'pic_type',
-                		],
-                		'folders' => [
-                			'picture' => [
-                				'storage' => 'comics_pages',
-                				'public' => 'comics_pages_public',
-                			],
-                			'thumb' => [
-                				'storage' => 'comics_thumbs',
-                				'public' => 'comics_thumbs_public',
-                			],
-                		],
-                		//'thumb_height' => $this->settings['comics']['thumb_height'],
-                	];
+                    $comicsSettings = [
+                        'base_dir' => $this->dir,
+                        'fields' => [
+                            'picture_type' => 'pic_type',
+                            'thumb_type' => 'pic_type',
+                        ],
+                        'folders' => [
+                            'picture' => [
+                                'storage' => 'comics_pages',
+                                'public' => 'comics_pages_public',
+                            ],
+                            'thumb' => [
+                                'storage' => 'comics_thumbs',
+                                'public' => 'comics_thumbs_public',
+                            ],
+                        ],
+                        //'thumb_height' => $this->settings['comics']['thumb_height'],
+                    ];
                 
-                	return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $comicsSettings);
+                    return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $comicsSettings);
                 },
 
                 'localization' => function ($container) {
@@ -85,29 +90,29 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'renderer' => function ($container) {
-                	return new \App\Core\Renderer($container->view);
+                    return new \App\Core\Renderer($container->view);
                 },
 
                 'linker' => function ($container) {
-                	return new \App\Core\Linker($container);
+                    return new \App\Core\Linker($container);
                 },
                 
                 'parser' => function ($container) {
-                	return new \App\Core\Parser($container, $container->parserConfig);
+                    return new \App\Core\Parser($container, $container->parserConfig);
                 },
                 
                 'newsParser' => function ($container) {
-                	return new \App\Parsing\NewsParser($container);
+                    return new \App\Parsing\NewsParser($container);
                 },
                 
                 'forumParser' => function ($container) {
-                	return new \App\Parsing\ForumParser($container);
+                    return new \App\Parsing\ForumParser($container);
                 },
                 
                 // handlers
                 
                 'notFoundHandler' => function ($container) {
-                	return new \App\Handlers\NotFoundHandler($container);
+                    return new \App\Handlers\NotFoundHandler($container);
                 },
                 
                 // services
