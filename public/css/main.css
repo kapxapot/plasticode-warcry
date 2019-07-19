@@ -1,58 +1,58 @@
 .navbar-nav > li > a {
-	margin-top: -1px;
-	line-height: 22px;
+    margin-top: -1px;
+    line-height: 22px;
 }
 
 .navbar-img {
-	width: 32px;
-	height: 32px;
-	margin: -6px 4px -3px 0;
+    width: 32px;
+    height: 32px;
+    margin: -6px 4px -3px 0;
 }
 
 .dropdown-menu > li > .icon-menu {
-	background-size: 24px 24px;
-	background-position: left 8px center;
-	background-repeat: no-repeat;
+    background-size: 24px 24px;
+    background-position: left 8px center;
+    background-repeat: no-repeat;
 }
 
 @media (min-width: 768px) {
-	.dropdown-menu > li > .icon-menu {
-		padding: 6px 10px 6px 41px;
-	}
+    .dropdown-menu > li > .icon-menu {
+        padding: 6px 10px 6px 41px;
+    }
 }
 
 @media (max-width: 767px) {
-	.navbar-nav .open .dropdown-menu > li > .icon-menu {
-		padding: 6px 10px 6px 41px;
-	}
+    .navbar-nav .open .dropdown-menu > li > .icon-menu {
+        padding: 6px 10px 6px 41px;
+    }
 }
 
 #news-pagination {
-	margin-top: 15px;
-	margin-bottom: 5px;
+    margin-top: 15px;
+    margin-bottom: 5px;
 }
 
 .news .center:last-child {
-	margin-bottom: -5px;
+    margin-bottom: -5px;
 }
 
 .news .center + ul {
-	margin-top: 20px;
+    margin-top: 20px;
 }
 
 .news div + br {
-	display: block;
-	content: "";
+    display: block;
+    content: "";
 }
 
 /* ?? */
 
 .game-icon {
-	width: 32px;
-	height: 32px;
-	margin-top: 1px;
-	margin-right: 10px;
-	background-size: 32px 32px;
+    width: 32px;
+    height: 32px;
+    margin-top: 1px;
+    margin-right: 10px;
+    background-size: 32px 32px;
 }
 
 .linkblock-big > .icon-lg {
@@ -62,8 +62,8 @@
 }
 
 .fansite {
-	margin-bottom: 15px;
-	text-align: center;
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 .icon-blizzard {
@@ -158,107 +158,107 @@
 }
 
 .panel-primary > .heading-blizzard {
-	background-color: #293a3d;
-	background-color: hsl(185, 20%, 20%);
+    background-color: #293a3d;
+    background-color: hsl(185, 20%, 20%);
 }
 
 .panel-primary > .heading-diablo,
 .panel-primary > .heading-di {
-	background-color: #3d2c29;
-	background-color: hsl(10, 20%, 20%);
+    background-color: #3d2c29;
+    background-color: hsl(10, 20%, 20%);
 }
 
 .panel-primary > .heading-hearthstone {
-	background-color: #3d3529;
-	background-color: hsl(35, 20%, 20%);
+    background-color: #3d3529;
+    background-color: hsl(35, 20%, 20%);
 }
 
 .panel-primary > .heading-heroesofthestorm {
-	background-color: #3d293d;
-	background-color: hsl(300, 20%, 20%);
+    background-color: #3d293d;
+    background-color: hsl(300, 20%, 20%);
 }
 
 .panel-primary > .heading-overwatch {
-	background-color: #293d33;
-	background-color: hsl(150, 20%, 20%);
+    background-color: #293d33;
+    background-color: hsl(150, 20%, 20%);
 }
 
 .panel-primary > .heading-starcraft,
 .panel-primary > .heading-scr {
-	background-color: #29353d;
-	background-color: hsl(215, 20%, 20%);
+    background-color: #29353d;
+    background-color: hsl(215, 20%, 20%);
 }
 
 .panel-primary > .heading-warcraft,
 .panel-primary > .heading-wc3r {
-	background-color: #2c3d29;
-	background-color: hsl(110, 20%, 20%);
+    background-color: #2c3d29;
+    background-color: hsl(110, 20%, 20%);
 }
 
 .panel-primary > .heading-warcryru {
-	background-color: #3d3329;
-	background-color: hsl(30, 20%, 20%);
+    background-color: #3d3329;
+    background-color: hsl(30, 20%, 20%);
 }
 
 /* streams */
 
 /*.tab-pane .nostreams {
-	margin-top: 5px;
+    margin-top: 5px;
 }*/
 
 .streams .flex-item,
 .videos .flex-item {
-	width: 100%;
+    width: 100%;
 }
 
 @media (min-width: 640px) {
     .streams .flex-item,
     .videos .flex-item {
-    	width: 280px;
+        width: 280px;
     }
 }
 
 @media (min-width: 768px) {
     .streams .flex-item,
     .videos .flex-item {
-    	width: 336px;
+        width: 336px;
     }
 }
 
 @media (min-width: 1200px) {
     .streams .flex-item,
     .videos .flex-item {
-    	width: 404px;
+        width: 404px;
     }
 
     .streams .stream--no-logo {
-    	width: 264px;
+        width: 264px;
     }
 }
 
 .stream-standalone, .stream-standalone .stream-image {
-	width: 100%;
+    width: 100%;
 }
 
 .stream-standalone .title {
-	padding: 5px 10px;
+    padding: 5px 10px;
 }
 
 .stream-standalone .title p {
-	margin-bottom: 7px;
+    margin-bottom: 7px;
 }
 
 .stream-standalone .title p:last-child {
-	margin-bottom: 2px;
+    margin-bottom: 2px;
 }
 
 .stream-footer #chat {
-	margin: 0;
+    margin: 0;
 }
 
 #stats svg {
-	width: 500px;
-	height: 400px;
+    width: 500px;
+    height: 400px;
 }
 
 .telegram-icon {
@@ -266,148 +266,148 @@
 }
 
 .stream-logo {
-	width: 100px;
-	float: right;
-	margin: 4px 0 15px 10px;
+    width: 100px;
+    float: right;
+    margin: 4px 0 15px 10px;
 }
 
 /* map */
 
 .map ul {
-	list-style: none;
+    list-style: none;
 }
 
 .map > ul {
-	padding-left: 0;
+    padding-left: 0;
 }
 
 .map > ul > li {
-	margin-top: 15px;
-	font-size: 125%;
+    margin-top: 15px;
+    font-size: 125%;
 }
 
 .map > ul > li > ul {
-	font-size: 80%;
+    font-size: 80%;
 }
 
 .map > ul > li:first-child {
-	margin-top: 0;
+    margin-top: 0;
 }
 
 /* recipes */
 
 .recipe-icon {
-	min-width: 44px;
-	min-height: 44px;
-	position: relative;
+    min-width: 44px;
+    min-height: 44px;
+    position: relative;
 }
 
 .recipe-icon-small, .recipe-icon-small img {
-	min-width: 22px;
-	min-height: 22px;
-	width: 22px;
-	height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    width: 22px;
+    height: 22px;
 }
 
 .recipe-icon-icon {
-	padding: 4px;
-	position: absolute;
+    padding: 4px;
+    position: absolute;
 }
 
 .recipe-icon-small .recipe-icon-icon {
-	padding: 2px;
+    padding: 2px;
 }
 
 .recipe-icon-link {
-	position: absolute;
+    position: absolute;
 }
 
 .recipe-icon-link img {
-	vertical-align: baseline;
+    vertical-align: baseline;
 }
 
 .recipe-icon-count {
-	color: white;
-	font-weight: bolder;
-	position: absolute;
-	right: 7px;
-	bottom: 2px;
-	font-size: 85%;
-	text-shadow: 2px 0 1px #000, 0 2px 1px #000, -2px 0 1px #000, 0 -2px 1px #000;
+    color: white;
+    font-weight: bolder;
+    position: absolute;
+    right: 7px;
+    bottom: 2px;
+    font-size: 85%;
+    text-shadow: 2px 0 1px #000, 0 2px 1px #000, -2px 0 1px #000, 0 -2px 1px #000;
 }
 
 .recipe-item-quantity {
-	color: white;
-	font-size: 120%;
-	padding-left: 5px;
-	padding-bottom: 18px;
+    color: white;
+    font-size: 120%;
+    padding-left: 5px;
+    padding-bottom: 18px;
 }
 
 .recipe-lvl-orange {
-	background-color: #e65a14;
+    background-color: #e65a14;
 }
 
 .recipe-lvl-yellow {
-	background-color: #ea9b00;
+    background-color: #ea9b00;
 }
 
 .recipe-lvl-green {
-	background-color: #39a239;
+    background-color: #39a239;
 }
 
 .recipe-lvl-gray {
-	background-color: #808080;
+    background-color: #808080;
 }
 
 .recipe-name, .item-name {
-	font-weight: bolder;
+    font-weight: bolder;
 }
 
 .recipe-name, .item-flat-name, .item-name {
-	font-size: 85%;
+    font-size: 85%;
 }
 
 .item-flat-name .item-name {
-	font-size: 100%;
+    font-size: 100%;
 }
 
 .recipe-subname, .item-subname {
-	color: gray;
-	font-size: 85%;
+    color: gray;
+    font-size: 85%;
 }
 
 .recipe-reagents {
-	justify-content: flex-start;
-	flex-wrap: nowrap;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
 }
 
 .recipe-hightlight {
-	background-color: #333;
+    background-color: #333;
 }
 
 #recipes-skills {
-	padding: 7px;
+    padding: 7px;
 }
 
 #recipes-skills .flex-item {
-	padding: 4px;
-	margin: 1px;
+    padding: 4px;
+    margin: 1px;
 }
 
 #recipes-skills .flex-item-active {
-	/*background-color: #89e289;*/
-	background-color: #2db32d;
-	border-radius: 8px;
+    /*background-color: #89e289;*/
+    background-color: #2db32d;
+    border-radius: 8px;
 }
 
 #recipes-table {
-	padding: 0 5px 0 5px;
-	margin-bottom: 0 !important;
+    padding: 0 5px 0 5px;
+    margin-bottom: 0 !important;
 }
 
 #recipes-table > tbody > tr > td, #recipes-table > tbody > tr >th, #recipes-table > tfoot > tr > td, #recipes-table > tfoot > tr > th, #recipes-table > thead > tr > td, #recipes-table > thead > tr > th {
-	padding: 4px;
-	vertical-align: middle;
+    padding: 4px;
+    vertical-align: middle;
 }
 
 #recipes-table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before, #recipes-table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
@@ -417,157 +417,157 @@
 }
 
 #recipes-search {
-	padding-top: 0;
-	padding-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 #recipes-pagination {
-	margin-bottom: -10px;
-	margin-top: 1.5rem;
+    margin-bottom: -10px;
+    margin-top: 1.5rem;
 }
 
 .item-q0, .item-q0:hover, .item-q0:active, .item-q0:visited {
-	color: gray;
+    color: gray;
 }
 
 .item-q1, .item-q1:hover, .item-q1:active, .item-q1:visited {
-	color: #444;
+    color: #444;
 }
 
 .item-q2, .item-q2:hover, .item-q2:active, .item-q2:visited {
-	color: #1d9200;
+    color: #1d9200;
 }
 
 .item-q3, .item-q3:hover, .item-q3:active, .item-q3:visited {
-	color: #0070dd;
+    color: #0070dd;
 }
 
 .item-q4, .item-q4:hover, .item-q4:active, .item-q4:visited {
-	color: #8810da;
+    color: #8810da;
 }
 
 .item-q5, .item-q5:hover, .item-q5:active, .item-q5:visited {
-	color: #e65a14;
+    color: #e65a14;
 }
 
 /*.item-q6 {
-	color: #e5cc80;
+    color: #e5cc80;
 }
 
 .item-q7 {
-	color: #0cf;
+    color: #0cf;
 }
 
 .item-q8 {
-	color: #0cf;
+    color: #0cf;
 }
 
 .item-q9 {
-	color: #71d5ff;
+    color: #71d5ff;
 }
 
 .item-q10 {
-	color: #ff4040;
+    color: #ff4040;
 }
 
 .item-q13 {
-	color: #ffff98;
+    color: #ffff98;
 }*/
 
 .recipe-tree, .recipe-base {
-	margin-top: 20px;
+    margin-top: 20px;
 }
 
 .recipe-tree ul, .recipe-base ul {
-	list-style: none;
+    list-style: none;
 }
 
 .recipe-required-skills {
-	margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 @media (max-width: 767px) {
-	.recipe-tree ul {
-		padding-left: 0px;
-	}
-	
-	.recipe-tree ul ul {
-		padding-left: 4px;
-	}
-	
-	.recipe-tree-leaf {
-		padding-left: 20px;
-	}
-	
-	.recipe-subname, .item-subname {
-		display: none;
-	}
+    .recipe-tree ul {
+        padding-left: 0px;
+    }
+    
+    .recipe-tree ul ul {
+        padding-left: 4px;
+    }
+    
+    .recipe-tree-leaf {
+        padding-left: 20px;
+    }
+    
+    .recipe-subname, .item-subname {
+        display: none;
+    }
 
-	.recipe-node-arrow {
-		padding-right: 4px;
-	}
+    .recipe-node-arrow {
+        padding-right: 4px;
+    }
 
-	.recipe-tree .total-count {
-		padding-left: 5px;
-	}
+    .recipe-tree .total-count {
+        padding-left: 5px;
+    }
 }
 
 @media (min-width: 768px) {
-	.recipe-tree ul {
-		padding-left: 24px;
-	}
-	
-	.recipe-tree ul ul {
-		padding-left: 51px;
-	}
-	
-	.recipe-tree-leaf {
-		padding-left: 25px;
-	}
+    .recipe-tree ul {
+        padding-left: 24px;
+    }
+    
+    .recipe-tree ul ul {
+        padding-left: 51px;
+    }
+    
+    .recipe-tree-leaf {
+        padding-left: 25px;
+    }
 
-	.recipe-node-arrow {
-		padding-right: 10px;
-	}
+    .recipe-node-arrow {
+        padding-right: 10px;
+    }
 
-	.recipe-tree .total-count {
-		padding-left: 15px;
-		font-size: 120%;
-	}
+    .recipe-tree .total-count {
+        padding-left: 15px;
+        font-size: 120%;
+    }
 }
 
 .recipe-tree ul li, .recipe-base ul li {
-	padding-top: 3px;
+    padding-top: 3px;
 }
 
 .recipe-base ul li:first-child {
-	padding-top: 0;
+    padding-top: 0;
 }
 
 .recipe-base ul {
-	padding-left: 0;
+    padding-left: 0;
 }
 
 .recipe-tree .flex-wrapper, .recipe-base .flex-wrapper {
-	justify-content: flex-start;
-	align-items: center;
-	flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
 .recipe-tree .flex-wrapper .recipe-link,
 .recipe-tree .flex-wrapper .item-link,
 .recipe-base .flex-wrapper .item-flat-name {
-	padding-left: 7px;
+    padding-left: 7px;
 }
 
 .recipe-node-arrow, .recipe-node-arrow:hover, .recipe-node-arrow:active, .recipe-node-arrow:visited {
-	color: black;
+    color: black;
 }
 
 /* gallery */
 
 .gallery-author .paging {
-	margin-top: 15px;
-	margin-bottom: -12px;
+    margin-top: 15px;
+    margin-bottom: -12px;
 }
 
 /* videos */
@@ -579,14 +579,14 @@
 /* misc */
 
 .textlogo {
-	font-family: 'Noticia Text', serif;
-	font-size: 2.3em;
-	letter-spacing: 0.07em;
-	margin-top: 1px;
+    font-family: 'Noticia Text', serif;
+    font-size: 2.3em;
+    letter-spacing: 0.07em;
+    margin-top: 1px;
 }
 
 .textlogo a {
-	color: #efdda8;
+    color: #efdda8;
 }
 
 .social-links a:hover {
@@ -620,27 +620,8 @@
 }
 
 #countdown .digit {
-    font-size: 175%;
+    font-size: 150%;
     font-weight: bolder;
-    background: rgba(0,0,0, .10);
+    background-color: #b6ff9d;
     border-radius: 10px;
-}
-
-.panel.countdown {
-	background: url("https://i.imgur.com/UtE54V0.jpg");
-    background-size: cover;
-}
-
-.panel.countdown .panel-body {
-	background: rgba(255,255,255,.50);
-	background: rgba(255,255,255,.40) -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgb(255, 255, 255) 75%);
-	background: rgba(255,255,255,.40) -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgb(255, 255, 255) 75%);
-	background: rgba(255,255,255,.40) linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgb(255, 255, 255) 75%);
-}
-
-.countdown-title, .countdown-title:hover, .countdown-title:visited {
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-	color: #000;
-	font-weight: bold;
 }

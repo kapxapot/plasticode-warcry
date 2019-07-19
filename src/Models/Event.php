@@ -32,61 +32,61 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     public static function getUnended() : Query
     {
         return self::getOrderedByStart()
-		    ->whereRaw('(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)');
+            ->whereRaw('(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)');
     }
-	
-	public static function getCurrent($game, $days) : Query
-	{
-		$query = self::getUnended()
-			->whereRaw("(starts_at < date_add(now(), interval {$days} day) or important = 1)");
+    
+    public static function getCurrent($game, $days) : Query
+    {
+        $query = self::getUnended()
+            ->whereRaw("(starts_at < date_add(now(), interval {$days} day) or important = 1)");
 
-		if ($game) {
-		    return $game->filter($query);
-		}
-		
-		return $query->where('announce', 1);
-	}
-	
-	public static function getImportant() : Query
-	{
-	    return self::getUnended()
-	        ->where('important', 1)/*
-	        ->where('announce', 1)*/;
-	}
+        if ($game) {
+            return $game->filter($query);
+        }
+        
+        return $query->where('announce', 1);
+    }
+    
+    public static function getImportant() : Query
+    {
+        return self::getUnended()
+            ->where('important', 1)/*
+            ->where('announce', 1)*/;
+    }
     
     // getters - many
     
-	public static function getGroups()
-	{
-	    $events = self::getOrderedByStart()->all();
-	    
-		$groups = [
-			[
-				'id' => 'current',
-				'label' => 'Текущие',
-				'items' => $events->where(function ($e) {
-					return $e->started() && !$e->ended();
-				}),
-			],
-			[
-				'id' => 'future',
-				'label' => 'Будущие',
-				'items' => $events->where(function($e) {
-					return !$e->started();
-				}),
-			],
-			[
-				'id' => 'past',
-				'label' => 'Прошедшие',
-				'items' => $events->where(function($e) {
-					return $e->ended();
-				}),
-			]
-		];
+    public static function getGroups()
+    {
+        $events = self::getOrderedByStart()->all();
+        
+        $groups = [
+            [
+                'id' => 'current',
+                'label' => 'Текущие',
+                'items' => $events->where(function ($e) {
+                    return $e->started() && !$e->ended();
+                }),
+            ],
+            [
+                'id' => 'future',
+                'label' => 'Будущие',
+                'items' => $events->where(function($e) {
+                    return !$e->started();
+                }),
+            ],
+            [
+                'id' => 'past',
+                'label' => 'Прошедшие',
+                'items' => $events->where(function($e) {
+                    return $e->ended();
+                }),
+            ]
+        ];
 
-		return $groups;
-	}
-	
+        return $groups;
+    }
+    
     // PROPS
     
     public function game()
@@ -111,7 +111,7 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
 
     public function ended()
     {
-		return ($this->unknownEnd != 1) && Date::happened($this->guessEndsAt());
+        return ($this->unknownEnd != 1) && Date::happened($this->guessEndsAt());
     }
     
     public function start()
@@ -197,42 +197,42 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     
     private static function getNewsByGame($game = null) : Query
     {
-		$query = self::getPublished();
+        $query = self::getPublished();
 
-		if ($game) {
-			$query = $game->filter($query);
-		}
+        if ($game) {
+            $query = $game->filter($query);
+        }
 
-		return self::announced($query);
+        return self::announced($query);
     }
 
-	public static function getLatestNews($game = null, $exceptNewsId = null) : Query
-	{
-	    return self::getNewsByGame($game)
-	        ->orderByDesc('published_at');
-	}
-	
-	public static function getNewsBefore($game, $date) : Query
-	{
-		return self::getNewsByGame($game)
-		    ->whereLt('published_at', $date)
-		    ->orderByDesc('published_at');
-	}
-	
-	public static function getNewsAfter($game, $date) : Query
-	{
-		return self::getNewsByGame($game)
-		    ->whereGt('published_at', $date)
-		    ->orderByAsc('published_at');
-	}
-	
-	public static function getNewsByYear($year) : Query
-	{
-		$query = self::getPublished()
-		    ->whereRaw('(year(published_at) = ?)', [ $year ]);
-		
-		return self::announced($query);
-	}
+    public static function getLatestNews($game = null, $exceptNewsId = null) : Query
+    {
+        return self::getNewsByGame($game)
+            ->orderByDesc('published_at');
+    }
+    
+    public static function getNewsBefore($game, $date) : Query
+    {
+        return self::getNewsByGame($game)
+            ->whereLt('published_at', $date)
+            ->orderByDesc('published_at');
+    }
+    
+    public static function getNewsAfter($game, $date) : Query
+    {
+        return self::getNewsByGame($game)
+            ->whereGt('published_at', $date)
+            ->orderByAsc('published_at');
+    }
+    
+    public static function getNewsByYear($year) : Query
+    {
+        $query = self::getPublished()
+            ->whereRaw('(year(published_at) = ?)', [ $year ]);
+        
+        return self::announced($query);
+    }
     
     public function displayTitle()
     {

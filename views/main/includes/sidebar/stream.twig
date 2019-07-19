@@ -1,33 +1,33 @@
 {% set stream_data = sidebar.stream %}
 {% if stream_data %}
     {% set s = stream_data.stream %}
-	<div class="panel-secondary-heading">Сейчас в эфире</div>
-	<div class="panel panel-secondary">
-		<div class="panel-body panel-body-bare">
-			<div class="stream-standalone">
-    		    {% if s.large_img_url %}
-    		    	<div class="overlay-wrapper stream-image">
-    			    	<a href="{{ s.page_url }}">
-    			    		<img class="card-image" src="{{ s.large_img_url }}" />
-    			    	</a>
-    		    	</div>
-    		    {% endif %}
-    			<div class="card-body flex">
-				    <div>
-    		    		<div class="">
-    		    		    <a href="{{ s.page_url }}">{{ s.title }}</a>
+    <div class="panel-secondary-heading">Сейчас в эфире</div>
+    <div class="panel panel-secondary">
+        <div class="panel-body panel-body-bare">
+            <div class="stream-standalone">
+                {% if s.large_img_url %}
+                    <div class="overlay-wrapper stream-image">
+                        <a href="{{ s.page_url }}">
+                            <img class="card-image" src="{{ s.large_img_url }}" />
+                        </a>
+                    </div>
+                {% endif %}
+                <div class="card-body flex">
+                    <div>
+                        <div class="">
+                            <a href="{{ s.page_url }}">{{ s.title }}</a>
                             {% if s.channel %}
-				    			транслирует
+                                транслирует
                             {% else %}
-    			    			играет в
-        			    	{% endif %}
-        			    	<span class="b grey-7">{{ s.remote_game }}</span>
-    		    		</div>
-		    		    <div class="mt-1"><span class="font-150 lh-12 grey-7">{{ s.remote_viewers }}</span> <span class="">{{ s.nouns.viewers }}</span></div>
-    			   		<div class="mt-1">Всего онлайн <a href="{{ path_for('main.streams') }}">{{ stream_data.total_online }}</a></div>
-				    </div>
-    			</div>
-			</div>
-		</div>
-	</div>
+                                играет в
+                            {% endif %}
+                            <span class="b grey-7">{{ s.remote_game }}</span>
+                        </div>
+                        <div class="mt-1"><span class="font-150 lh-12 grey-7">{{ s.remote_viewers }}</span> <span class="">{{ s.nouns.viewers }}</span></div>
+                           <div class="mt-1">Всего онлайн <a href="{{ path_for('main.streams') }}">{{ stream_data.total_online }}</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endif %}
