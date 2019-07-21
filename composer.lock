@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae1c7cede9b12b0aa42242b46256e9b9",
+    "content-hash": "d0202e318b7451fa9121157ec579fe9c",
     "packages": [
         {
             "name": "cakephp/cache",
@@ -616,16 +616,16 @@
         },
         {
             "name": "kapxapot/plasticode",
-            "version": "0.2.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kapxapot/plasticode.git",
-                "reference": "ccadd9f3171c3b4a2a5d871c94a15582c647f8c0"
+                "reference": "a64b17bde7a37325c094686d612a0665e70cdfbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kapxapot/plasticode/zipball/ccadd9f3171c3b4a2a5d871c94a15582c647f8c0",
-                "reference": "ccadd9f3171c3b4a2a5d871c94a15582c647f8c0",
+                "url": "https://api.github.com/repos/kapxapot/plasticode/zipball/a64b17bde7a37325c094686d612a0665e70cdfbd",
+                "reference": "a64b17bde7a37325c094686d612a0665e70cdfbd",
                 "shasum": ""
             },
             "require": {
@@ -648,7 +648,6 @@
                     "Plasticode\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -662,14 +661,18 @@
             "description": "PHP framework based on Slim framework",
             "homepage": "http://github.com/kapxapot/plasticode",
             "keywords": [
+                "API",
+                "Bootstrap",
+                "PHP",
                 "Plasticode",
-                "api",
-                "bootstrap",
-                "php",
-                "slim",
-                "twig"
+                "Slim",
+                "Twig"
             ],
-            "time": "2019-07-17T08:51:01+00:00"
+            "support": {
+                "source": "https://github.com/kapxapot/plasticode/tree/master",
+                "issues": "https://github.com/kapxapot/plasticode/issues"
+            },
+            "time": "2019-07-18T09:19:57+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -1901,7 +1904,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "kapxapot/plasticode": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
