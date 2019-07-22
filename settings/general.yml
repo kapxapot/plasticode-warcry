@@ -144,6 +144,9 @@ twitter:
   access_token: {TWITTER_ACCESS_TOKEN}
   access_key: {TWITTER_ACCESS_KEY}
 
+date_format: %Y-%m-%d
+time_format: %Y-%m-%d %H:%M:%S
+
 webdb_link: 'http://wowhead.com/'
 webdb_ru_link: 'http://ru.wowhead.com/'
 hsdb_ru_link: 'http://ru.hearthhead.com/'
