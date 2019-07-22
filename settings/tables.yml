@@ -389,7 +389,7 @@ regions:
     - terminal
 
 roles:
-  table: warcry_role
+  table: roles
   api: full
   name_field: name
   sort: name
