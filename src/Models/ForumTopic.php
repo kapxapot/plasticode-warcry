@@ -36,48 +36,48 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return Strings::trimArray($tags);
     }
 
-	public static function filterByTag($query, $tag) : Query
-	{
-		$ids = ForumTag::getForumTopicIdsByTag($tag);
-		
-		if ($ids->empty()) {
-			return Query::empty();
-		}
+    public static function filterByTag($query, $tag) : Query
+    {
+        $ids = ForumTag::getForumTopicIdsByTag($tag);
+        
+        if ($ids->empty()) {
+            return Query::empty();
+        }
 
-	    return $query->whereIn('tid', $ids);
-	}
+        return $query->whereIn('tid', $ids);
+    }
 
-	public static function getByTag($tag) : Query
-	{
-	    return self::filterByTag(self::query(), $tag);
-	}
+    public static function getByTag($tag) : Query
+    {
+        return self::filterByTag(self::query(), $tag);
+    }
     
     // queries
     
     private static function getNewsQuery($game = null) : Query
     {
-		$forumIds = Game::getNewsForumIds($game);
+        $forumIds = Game::getNewsForumIds($game);
 
         if ($forumIds->empty()) {
-            throw new \Exception('No game forum ids found.');
+            return Query::empty();
         }
         
-		return self::query()
-		    ->whereIn('forum_id', $forumIds);
+        return self::query()
+            ->whereIn('forum_id', $forumIds);
     }
 
-	// getters - one
-	
-	public static function getNews($id)
-	{
-	    $topic = self::get($id);
-	    
-	    if (!$topic || !$topic->isNews()) {
-	        return null;
-	    }
-	    
-	    return $topic;
-	}
+    // getters - one
+    
+    public static function getNews($id)
+    {
+        $topic = self::get($id);
+        
+        if (!$topic || !$topic->isNews()) {
+            return null;
+        }
+        
+        return $topic;
+    }
 
     // props
     
@@ -120,14 +120,14 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     private function parsedPost()
     {
         return $this->lazy(function () {
-    	    $newsParser = self::$container->newsParser;
-    	    $forumParser = self::$container->forumParser;
-    	    
-    		$post = $newsParser->beforeParsePost($this->post(), $this->getId());
-    		$post = $forumParser->convert([ 'TEXT' => $post, 'CODE' => 1 ]);
-    		$post = $newsParser->afterParsePost($post);
-    		
-    		return $post;
+            $newsParser = self::$container->newsParser;
+            $forumParser = self::$container->forumParser;
+            
+            $post = $newsParser->beforeParsePost($this->post(), $this->getId());
+            $post = $forumParser->convert([ 'TEXT' => $post, 'CODE' => 1 ]);
+            $post = $newsParser->afterParsePost($post);
+            
+            return $post;
         });
     }
 
@@ -164,9 +164,9 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     public function creator()
     {
         return [
-		    'forum_member' => ForumMember::get($this->starterId),
-		    'display_name' => $this->starterName,
-		];
+            'forum_member' => ForumMember::get($this->starterId),
+            'display_name' => $this->starterName,
+        ];
     }
     
     public function updater()
@@ -193,45 +193,45 @@ class ForumTopic extends DbModel implements NewsSourceInterface
 
     // NewsSourceInterface
     
-	public static function getNewsByTag($tag) : Query
-	{
-	    return self::filterByTag(self::getNewsQuery(), $tag);
-	}
-	
-	public static function getLatestNews($game = null, $exceptNewsId = null) : Query
-	{
-		$query = self::getNewsQuery($game);
+    public static function getNewsByTag($tag) : Query
+    {
+        return self::filterByTag(self::getNewsQuery(), $tag);
+    }
+    
+    public static function getLatestNews($game = null, $exceptNewsId = null) : Query
+    {
+        $query = self::getNewsQuery($game);
 
-		if ($exceptNewsId) {
-			$query = $query->whereNotEqual(static::$idField, $exceptNewsId);
-		}
+        if ($exceptNewsId) {
+            $query = $query->whereNotEqual(static::$idField, $exceptNewsId);
+        }
 
         return $query;
-	}
-	
-	public static function getNewsBefore($game, $date) : Query
-	{
-	    $convertedDate = strtotime($date);
-	    
-		return self::getNewsQuery($game)
-		    ->whereLt('start_date', $convertedDate)
-		    ->orderByDesc('start_date');
-	}
-	
-	public static function getNewsAfter($game, $date) : Query
-	{
-	    $convertedDate = strtotime($date);
-	    
-		return self::getNewsQuery($game)
-		    ->whereGt('start_date', $convertedDate)
-		    ->orderByAsc('start_date');
-	}
+    }
+    
+    public static function getNewsBefore($game, $date) : Query
+    {
+        $convertedDate = strtotime($date);
+        
+        return self::getNewsQuery($game)
+            ->whereLt('start_date', $convertedDate)
+            ->orderByDesc('start_date');
+    }
+    
+    public static function getNewsAfter($game, $date) : Query
+    {
+        $convertedDate = strtotime($date);
+        
+        return self::getNewsQuery($game)
+            ->whereGt('start_date', $convertedDate)
+            ->orderByAsc('start_date');
+    }
 
-	public static function getNewsByYear($year) : Query
-	{
-		return self::getNewsQuery()
-		    ->whereRaw('(year(from_unixtime(start_date)) = ?)', [ $year ]);
-	}
+    public static function getNewsByYear($year) : Query
+    {
+        return self::getNewsQuery()
+            ->whereRaw('(year(from_unixtime(start_date)) = ?)', [ $year ]);
+    }
     
     public function displayTitle()
     {
