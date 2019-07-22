@@ -318,7 +318,7 @@ locations:
   table: enc_loc
 
 menus:
-  table: wow_menu_sections
+  table: menus
   api: full
   name_field: text
   sort: created_at
@@ -333,7 +333,7 @@ menus:
     - updated_at
 
 menu_items:
-  table: wow_menu_items
+  table: menu_items
   api: full
   name_field: text
   sort: position
