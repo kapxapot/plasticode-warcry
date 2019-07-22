@@ -7,7 +7,7 @@ auth_tokens:
     - expires_at
 
 articles:
-  table: enc_data
+  table: articles
   api: full
   name_field: name_ru
   sort: id
