@@ -130,7 +130,7 @@ sidebar:
   future_events_days: 7
   latest_gallery_pictures_limit: 4
 
-default_game_id: 5
+default_game_id: {DEFAULT_GAME_ID}
 
 twitch:
   client_id: {TWITCH_CLIENT_ID}
@@ -143,9 +143,6 @@ twitter:
   consumer_secret: {TWITTER_CONSUMER_SECRET}
   access_token: {TWITTER_ACCESS_TOKEN}
   access_key: {TWITTER_ACCESS_KEY}
-
-# date_format: %Y-%m-%d
-# time_format: %Y-%m-%d %H:%M:%S
 
 webdb_link: 'http://wowhead.com/'
 webdb_ru_link: 'http://ru.wowhead.com/'
