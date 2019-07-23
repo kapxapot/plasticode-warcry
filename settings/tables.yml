@@ -35,7 +35,7 @@ articles:
     - aliases
 
 article_categories:
-  table: enc_cat
+  table: article_categories
   api: full
   name_field: name_ru
   sort: name_ru

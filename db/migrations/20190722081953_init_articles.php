@@ -33,7 +33,5 @@ class InitArticles extends AbstractMigration
             ->addForeignKey('updated_by', 'users', 'id', ['delete' => 'SET_NULL', 'update' => 'CASCADE'])
             ->addForeignKey('game_id', 'games', 'id', ['delete' => 'RESTRICT', 'update' => 'CASCADE'])
             ->create();
-        
-        // todo: add cat constraint
     }
 }

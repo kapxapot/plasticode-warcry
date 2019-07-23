@@ -13,7 +13,6 @@ class InitGenders extends AbstractMigration
             ->addColumn('tag', 'string', ['limit' => 20])
             ->create();
 
-
         $table
             ->insert([
                 [
