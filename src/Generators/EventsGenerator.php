@@ -7,16 +7,16 @@ use Plasticode\Traits\Publishable;
 
 class EventsGenerator extends TaggableEntityGenerator
 {
-	use Publishable;
+    use Publishable;
 
-	public function beforeSave($data, $id = null)
-	{
-	    $data = parent::beforeSave($data, $id);
+    public function beforeSave($data, $id = null)
+    {
+        $data = parent::beforeSave($data, $id);
 
-		$data['cache'] = null;
+        $data['cache'] = null;
 
-		$data = $this->publishIfNeeded($data);		
+        $data = $this->publishIfNeeded($data);
 
-		return $data;
-	}
+        return $data;
+    }
 }
