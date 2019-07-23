@@ -17,17 +17,17 @@ class Stream extends DbModel
     protected static $sortField = 'remote_viewers';
     protected static $sortReverse = true;
 
-	// GETTERS - ONE
-	
-	public static function getPublishedByAlias($alias)
-	{
-		return self::getPublished()
-		    ->whereRaw(
-		        '(stream_alias = ? or (stream_alias is null and stream_id = ?))',
-		        [ $alias, $alias ]
+    // GETTERS - ONE
+    
+    public static function getPublishedByAlias($alias)
+    {
+        return self::getPublished()
+            ->whereRaw(
+                '(stream_alias = ? or (stream_alias is null and stream_id = ?))',
+                [ $alias, $alias ]
             )
-		    ->one();
-	}
+            ->one();
+    }
 
     // PROPS
     
@@ -37,10 +37,10 @@ class Stream extends DbModel
             return false;
         }
         
-		$timeToLive = self::getSettings('streams.ttl');
-		$age = Date::age($this->remoteOnlineAt);
-			
-		return $age->days < $timeToLive;
+        $timeToLive = self::getSettings('streams.ttl');
+        $age = Date::age($this->remoteOnlineAt);
+            
+        return $age->days < $timeToLive;
     }
     
     public function game()
@@ -100,18 +100,18 @@ class Stream extends DbModel
     
     public function verbs()
     {
-		$form = [
-			'time' => Cases::PAST,
-			'person' => Cases::FIRST,
-			'number' => Cases::SINGLE,
-			'gender' => $this->genderId,
-		];
-		
-		return [
-		    'played' => self::$cases->conjugation('играть', $form),
-		    'broadcasted' => self::$cases->conjugation('транслировать', $form),
-		    'held' => self::$cases->conjugation('вести', $form),
-		];
+        $form = [
+            'time' => Cases::PAST,
+            'person' => Cases::FIRST,
+            'number' => Cases::SINGLE,
+            'gender' => $this->genderId,
+        ];
+        
+        return [
+            'played' => self::$cases->conjugation('играть', $form),
+            'broadcasted' => self::$cases->conjugation('транслировать', $form),
+            'held' => self::$cases->conjugation('вести', $form),
+        ];
     }
     
     public function nouns()
@@ -138,8 +138,8 @@ class Stream extends DbModel
         return strlen($this->remoteLogo) > 0;
     }
 
-	public function displayRemoteStatus()
-	{
-	    return urldecode($this->remoteStatus);
-	}
+    public function displayRemoteStatus()
+    {
+        return urldecode($this->remoteStatus);
+    }
 }
