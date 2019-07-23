@@ -233,7 +233,6 @@ comic_pages:
     picture:
       name: Картинка
       type: thumb
-      #tooltip: Выберите картинку и настройте ее миниатюру.
       attributes: [ hidden ]
 
     published:
@@ -470,7 +469,6 @@ comic_standalone_pages:
     picture:
       name: Картинка
       type: thumb
-      #tooltip: Выберите картинку и настройте ее миниатюру.
       attributes: [ hidden ]
 
     published:
@@ -648,7 +646,6 @@ gallery_authors:
       access: publish
       attributes: [ hidden ]
       prefix: '//warcry.ru/gallery/'
-      #tooltip: Страница автора будет http://warcry.ru/gallery/{алиас}.
 
     deviant:
       name: DeviantArt
@@ -1050,16 +1047,10 @@ streams:
       template: >
         ((row.published == 1) ? '<a href="/streams/' + (row.stream_alias ? row.stream_alias : row.stream_id) + '">' + row.title + '</a>' : row.title) + ((row.channel == 1) ? ' (канал)' : '')
 
-    #type:
-    #  name: Тип
-    #  entity: stream_types
-    #  attributes: [ hidden ]
-
     stream_id:
       name: Код
       attributes: [ hidden ]
       prefix: '//twitch.tv/'
-      #tooltip: Уникальный идентификатор стрима http://twitch.tv/{код}.
 
     stream_alias:
       name: Алиас
@@ -1071,7 +1062,6 @@ streams:
     description:
       name: Описание
       type: html
-      #tooltip: Описание также загружается (и перезаписывается) из самого стрима.
       attributes: [ nullable, hidden ]
 
     gender_id:

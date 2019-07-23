@@ -301,7 +301,7 @@ games:
     - twitch_name
 
 genders:
-  table: gender
+  table: genders
   api: list
   name_field: name
   sort: id
@@ -409,7 +409,7 @@ spell_icons:
   table: wow_spell_icons
 
 streams:
-  table: warcry_streams_items
+  table: streams
   api: full
   name_field: title
   sort: created_at
@@ -418,7 +418,6 @@ streams:
     - id
     - stream_id
     - stream_alias
-    - type_id
     - title
     - description
     - created_at
@@ -437,15 +436,6 @@ streams:
 
 stream_stats:
   table: stream_stats
-
-stream_types:
-  table: warcry_streams_types
-  api: list
-  name_field: title
-  public:
-    - id
-    - url
-    - title
 
 tags:
   table: tags
