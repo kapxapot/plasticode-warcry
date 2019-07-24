@@ -1,19 +1,9 @@
 <?php
 
-use Plasticode\Controllers\Auth\AuthController;
-use Plasticode\Controllers\Auth\PasswordController;
-use Plasticode\Controllers\ParserController;
-use Plasticode\Core\Core;
-use Plasticode\Middleware\AuthMiddleware;
-use Plasticode\Middleware\GuestMiddleware;
-use Plasticode\Middleware\AccessMiddleware;
-use Plasticode\Middleware\TokenAuthMiddleware;
-
 use App\Controllers\ArticleController;
 use App\Controllers\ComicController;
 use App\Controllers\EventController;
 use App\Controllers\GalleryController;
-use App\Controllers\IndexController;
 use App\Controllers\MapController;
 use App\Controllers\NewsController;
 use App\Controllers\RecipeController;
@@ -25,6 +15,14 @@ use App\Controllers\Admin\ComicController as AdminComicController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Controllers\Admin\PlaygroundController as AdminPlaygroundController;
 use App\Controllers\Tests\SmokeTestController;
+use Plasticode\Controllers\Auth\AuthController;
+use Plasticode\Controllers\Auth\PasswordController;
+use Plasticode\Controllers\ParserController;
+use Plasticode\Core\Core;
+use Plasticode\Middleware\AuthMiddleware;
+use Plasticode\Middleware\GuestMiddleware;
+use Plasticode\Middleware\AccessMiddleware;
+use Plasticode\Middleware\TokenAuthMiddleware;
 
 $access = function ($entity, $action, $redirect = null) use ($container) {
     return new AccessMiddleware($container, $entity, $action, $redirect);

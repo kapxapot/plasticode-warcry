@@ -1,18 +1,10 @@
-auth_tokens:
-  table: auth_tokens
-  private:
-    - id
-    - user_id
-    - token
-    - expires_at
-
 articles:
-  table: articles
   api: full
   name_field: name_ru
   sort: id
   reverse: true
-  public:
+  has: [ updated_at, created_by, updated_by ]
+  fields:
     - id
     - parent_id
     - cat
@@ -26,7 +18,6 @@ articles:
     - updated_by
     - game_id
     - tags
-  private:
     - hideeng
     - announce
     - published
@@ -35,176 +26,64 @@ articles:
     - aliases
 
 article_categories:
-  table: article_categories
   api: full
   name_field: name_ru
   sort: name_ru
-  public:
-    - id
-    - name_ru
-    - name_en
 
 comic_issues:
-  table: comic_issue
   api: full
   name_field: number
   sort: number
-  public:
-    - id
-    - series_id
-    - number
-    - issued_on
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - description
-    - origin
-    - name_ru
-    - name_en
-    - tags
-  private:
-    - published
-    - published_at
+  has: [ updated_at, created_by, updated_by ]
 
 comic_pages:
-  table: comic_page
+  table: comic_pages
   api: full
   name_field: number
   sort: number
-  public:
-    - id
-    - comic_issue_id
-    - number
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - published
-    - pic_type
+  has: [ updated_at, created_by, updated_by ]
 
 comic_publishers:
-  table: comic_publisher
   api: full
   name_field: name
   sort: name
   default: 1
-  public:
-    - id
-    - name
-    - website
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
+  has: [ updated_at, created_by, updated_by ]
 
 comic_series:
-  table: comic_series
   api: full
   name_field: name_en
   sort: created_at
   reverse: true
-  public:
-    - id
-    - game_id
-    - name_ru
-    - name_en
-    - alias
-    - publisher_id
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - description
-    - tags
-  private:
-    - published
-    - published_at
+  has: [ updated_at, created_by, updated_by ]
 
 comic_standalones:
-  table: comic_standalone
   api: full
   name_field: name_ru
   sort: created_at
   reverse: true
-  public:
-    - id
-    - name_ru
-    - name_en
-    - game_id
-    - alias
-    - publisher_id
-    - issued_on
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - description
-    - origin
-    - tags
-  private:
-    - published
-    - published_at
+  has: [ updated_at, created_by, updated_by ]
 
 comic_standalone_pages:
-  table: comic_page
+  table: comic_pages
   api: full
   name_field: number
   sort: number
-  public:
-    - id
-    - comic_standalone_id
-    - number
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - published
-    - pic_type
+  has: [ updated_at, created_by, updated_by ]
 
 events:
-  table: events
   api: full
   name_field: name
   sort: created_at
   reverse: true
-  public:
-    - id
-    - name
-    - type_id
-    - starts_at
-    - ends_at
-    - website
-    - region_id
-    - game_id
-    - description
-    - tags
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - address
-    - important
-  private:
-    - published
-    - published_at
-    - announce
-    - unknown_end
+  has: [ updated_at, created_by, updated_by ]
 
 event_types:
-  table: event_types
   api: full
   name_field: name
   sort: name
   default: 3
-  public:
-    - id
-    - name
-    - plural
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
+  has: [ updated_at, created_by, updated_by ]
 
 forums:
   table: forumforums
@@ -222,259 +101,86 @@ forum_topics:
   table: forumtopics
 
 gallery_authors:
-  table: gallery_authors
   api: full
   name_field: name
   sort: created_at
   reverse: true
-  public:
-    - id
-    - name
-    - deviant
-    - art_station
-    - alias
-    - real_name
-    - real_name_en
-    - description
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - category_id
-  private:
-    - published
+  has: [ updated_at, created_by, updated_by ]
 
 gallery_author_categories:
-  table: gallery_author_categories
   api: list
   name_field: name
   sort: position
   default: 2
-  public:
-    - id
-    - name
-    - alias
 
 gallery_pictures:
-  table: gallery_pictures
   api: full
   name_field: comment
   sort: created_at
   reverse: true
-  public:
-    - id
-    - author_id
-    - comment
-    - official
-    - description
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - points
-    - picture_type
-    - thumb_type
-    - tags
-    - game_id
-  private:
-    - published
-    - published_at
+  has: [ updated_at, created_by, updated_by ]
 
 games:
-  table: games
   api: full
   name_field: name
   sort: position
   default: 1
-  public:
-    - id
-    - name
-  private:
-    - alias
-    - news_forum_id
-    - main_forum_id
-    - published
-    - position
-    - icon
-    - parent_id
-    - autotags
-    - twitch_name
 
 genders:
-  table: genders
   api: list
   name_field: name
   sort: id
   default: 1
-  private:
-    - id
-    - name
-    - tag
-
-items:
-  table: wow_items_new
-
-locations:
-  table: enc_loc
 
 menus:
-  table: menus
   api: full
   name_field: text
   sort: created_at
   reverse: true
-  private:
-    - id
-    - link
-    - text
-    - position
-    - game_id
-    - created_at
-    - updated_at
+  has: [ updated_at ]
 
 menu_items:
-  table: menu_items
   api: full
   name_field: text
   sort: position
-  private:
-    - id
-    - section_id
-    - link
-    - text
-    - position
-    - created_at
-    - updated_at
+  has: [ updated_at ]
 
 news:
-  table: news
   api: full
   name_field: title
   sort: created_at
   reverse: true
-  public:
-    - id
-    - game_id
-    - title
-    - text
-    - tags
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-  private:
-    - published
-    - published_at
-
-recipes:
-  table: wow_recipes
-
-recipe_sources:
-  table: wow_recipe_sources
+  has: [ updated_at, created_by, updated_by ]
 
 regions:
-  table: regions
   api: full
   name_field: name_ru
   sort: name_ru
-  public:
-    - id
-    - name_ru
-    - name_en
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - parent_id
-    - terminal
+  has: [ updated_at, created_by, updated_by ]
 
 roles:
-  table: roles
   api: full
   name_field: name
   sort: name
   default: 3
-  public:
-    - id
-    - name
-    - tag
-
-skills:
-  table: wow_skills
-
-spells:
-  table: enc_spells
-
-spell_icons:
-  table: wow_spell_icons
 
 streams:
-  table: streams
   api: full
   name_field: title
   sort: created_at
   reverse: true
-  public:
-    - id
-    - stream_id
-    - stream_alias
-    - title
-    - description
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - priority
-    - gender_id
-    - channel
-    - official
-    - official_ru
-    - tags
-  private:
-    - published
-    - published_at
-
-stream_stats:
-  table: stream_stats
-
-tags:
-  table: tags
+  has: [ updated_at, created_by, updated_by ]
 
 users:
-  table: users
   api: full
   name_field: login
   sort: created_at
   reverse: true
-  public:
-    - id
-    - login
-    - name
-    - role_id
-    - created_at
-    - updated_at
-  private:
-    - forum_name
-    - email
+  has: [ updated_at ]
 
 videos:
-  table: videos
   api: full
   name_field: name
   sort: created_at
   reverse: true
-  public:
-    - id
-    - name
-    - game_id
-    - description
-    - tags
-    - created_at
-    - created_by
-    - updated_at
-    - updated_by
-    - youtube_code
-  private:
-    - published
-    - published_at
-    - announce
+  has: [ updated_at, created_by, updated_by ]

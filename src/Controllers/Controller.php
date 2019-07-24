@@ -2,22 +2,23 @@
 
 namespace App\Controllers;
 
-use Plasticode\Controllers\Controller as BaseController;
-use Plasticode\Exceptions\ApplicationException;
-use Plasticode\Util\Strings;
-
 use App\Models\Game;
 use App\Models\Menu;
 use App\Services\NewsAggregatorService;
 use App\Services\SidebarPartsProviderService;
 use App\Services\StreamService;
+use Plasticode\Collection;
+use Plasticode\Controllers\Controller as BaseController;
+use Plasticode\Exceptions\ApplicationException;
+use Plasticode\Util\Strings;
+use Psr\Container\ContainerInterface;
 
 class Controller extends BaseController
 {
     protected $defaultGame;
     protected $sidebarPartsProviderService;
 
-    public function __construct($container)
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         
@@ -29,7 +30,7 @@ class Controller extends BaseController
         );
     }
 
-    protected function buildParams($settings)
+    protected function buildParams(array $settings) : array
     {
         $params = parent::buildParams($settings);
         
@@ -40,14 +41,14 @@ class Controller extends BaseController
         return $params;
     }
     
-    protected function buildMenu($settings)
+    protected function buildMenu(array $settings) : Collection
     {
         $menuGame = $this->getMenuGame($settings);
         
         return Menu::getByGame($menuGame->id)->all();
     }
     
-    protected function getMenuGame($settings)
+    protected function getMenuGame(array $settings) : ?Game
     {
         $globalContext = $settings['global_context'] ?? false;
 
@@ -58,7 +59,7 @@ class Controller extends BaseController
         return $game ?? $this->defaultGame;
     }
     
-    protected function getRootGame($settings)
+    protected function getRootGame(array $settings) : ?Game
     {
         $game = $this->getGame($settings);
         
@@ -69,12 +70,12 @@ class Controller extends BaseController
         return $game;
     }
     
-    protected function getGame($settings)
+    protected function getGame(array $settings) : ?Game
     {
         return $settings['game'];
     }
 
-    protected function buildPart($settings, $result, $part)
+    protected function buildPart(array $settings, array $result, string $part) : ?array
     {
         $game = $this->getRootGame($settings);
         
@@ -89,7 +90,7 @@ class Controller extends BaseController
         return $result;
     }
     
-    public function makePageDescription($text, $limitVar)
+    public function makePageDescription(string $text, string $limitVar) : string
     {
         $limit = $this->getSettings($limitVar);
         
