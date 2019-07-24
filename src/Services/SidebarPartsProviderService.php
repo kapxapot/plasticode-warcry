@@ -2,20 +2,18 @@
 
 namespace App\Services;
 
-use Plasticode\Contained;
-
 use App\Models\Article;
 use App\Models\Event;
-use App\Models\ForumTopic;
 use App\Models\GalleryPicture;
-use App\Models\Stream;
+use Plasticode\Contained;
+use Psr\Container\ContainerInterface;
 
 class SidebarPartsProviderService extends Contained
 {
     private $newsAggregatorService;
     private $streamService;
     
-    public function __construct($container, NewsAggregatorService $newsAggregatorService, StreamService $streamService)
+    public function __construct(ContainerInterface $container, NewsAggregatorService $newsAggregatorService, StreamService $streamService)
     {
         parent::__construct($container);
         
