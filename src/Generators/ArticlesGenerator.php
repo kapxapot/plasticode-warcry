@@ -87,7 +87,6 @@ class ArticlesGenerator extends TaggableEntityGenerator
         $data = parent::beforeSave($data, $id);
         
         $data['cache'] = null;
-        $data['contents_cache'] = null;
 
         $data = $this->publishIfNeeded($data);		
         
