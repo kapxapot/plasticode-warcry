@@ -39,12 +39,12 @@ class Linker extends LinkerBase
 
     public function event($id = null)
     {
-        return $this->router->pathFor('main.event', [ 'id' => $id ]);
+        return $this->router->pathFor('main.event', ['id' => $id]);
     }
 
     public function video($id = null)
     {
-        return $this->router->pathFor('main.video', [ 'id' => $id ]);
+        return $this->router->pathFor('main.video', ['id' => $id]);
     }
 
     public function n($id)
@@ -98,7 +98,9 @@ class Linker extends LinkerBase
     // forum
     public function forumTag($text)
     {
-        return $this->forumUrl('app=core&module=search&do=search&search_tags=' . urlencode($text) . '&search_app=forums');
+        return $this->forumUrl(
+            'app=core&module=search&do=search&search_tags=' . urlencode($text) . '&search_app=forums'
+        );
     }
     
     public function forumUser($id)
@@ -121,7 +123,10 @@ class Linker extends LinkerBase
     // gallery
     public function galleryAuthor($alias)
     {
-        return $this->router->pathFor('main.gallery.author', [ 'alias' => $alias ]);
+        return $this->router->pathFor(
+            'main.gallery.author',
+            ['alias' => $alias]
+        );
     }
 
     public function galleryPictureImg(GalleryPicture $picture)
@@ -145,20 +150,19 @@ class Linker extends LinkerBase
     // streams
     public function stream($alias = null)
     {
-        return $this->router->pathFor('main.stream', [ 'alias' => $alias ]);
-    }
-    
-    // paging
-    function page($base, $page)
-    {
-        $delim = strpos($base, '?') !== false ? '&' : '?';
-        return $base . ($page == 1 ? '' : "{$delim}page={$page}");
+        return $this->router->pathFor(
+            'main.stream',
+            ['alias' => $alias]
+        );
     }
     
     // comics
     public function comicSeries($series)
     {
-        return $this->router->pathFor('main.comics.series', [ 'alias' => $series->alias ]);
+        return $this->router->pathFor(
+            'main.comics.series',
+            ['alias' => $series->alias]
+        );
     }
 
     public function comicIssue($comic)
@@ -169,10 +173,13 @@ class Linker extends LinkerBase
             throw new InvalidArgumentException("Comic issue {$comic} has no comic series.");
         }
         
-        return $this->router->pathFor('main.comics.issue', [
-            'alias' => $series->alias,
-            'number' => $comic->number,
-        ]);
+        return $this->router->pathFor(
+            'main.comics.issue',
+            [
+                'alias' => $series->alias,
+                'number' => $comic->number,
+            ]
+        );
     }
 
     public function comicIssuePage($page)
