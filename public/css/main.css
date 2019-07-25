@@ -67,16 +67,16 @@
 }
 
 .icon-blizzard {
-    background-image: url(/images/icons/games/small/blizzard.svg);
+    background-image: url(https://warcry.ru/images/icons/games/small/blizzard.svg);
     background-size: 24px auto !important;
 }
 
 .icon-blizzard-md {
-    background-image: url(/images/icons/games/small/blizzard.png);
+    background-image: url(https://warcry.ru/images/icons/games/small/blizzard.png);
 }
 
 .icon-blizzard-lg {
-    background-image: url(/images/icons/games/large/blizzard.svg);
+    background-image: url(https://warcry.ru/images/icons/games/large/blizzard.svg);
     background-size: 48px auto !important;
 }
 
@@ -84,77 +84,77 @@
 .icon-di,
 .icon-di-md,
 .icon-di-lg {
-    background-image: url(/images/icons/games/medium/di.png);
+    background-image: url(https://warcry.ru/images/icons/games/medium/di.png);
 }
 
 .icon-diablo {
-    background-image: url(/images/icons/games/small/diablo3.png);
+    background-image: url(https://warcry.ru/images/icons/games/small/diablo3.png);
 }
 
 .icon-diablo-md,
 .icon-diablo-lg {
-    background-image: url(/images/icons/games/large/diablo3.png);
+    background-image: url(https://warcry.ru/images/icons/games/large/diablo3.png);
 }
 
 .icon-hearthstone,
 .icon-hearthstone-md,
 .icon-hearthstone-lg {
-    background-image: url(/images/icons/games/medium/hs.png);
+    background-image: url(https://warcry.ru/images/icons/games/medium/hs.png);
 }
 
 /*.icon-hearthstone-lg {
-    background-image: url(/images/icons/games/large/hearthstone.png);
+    background-image: url(https://warcry.ru/images/icons/games/large/hearthstone.png);
 }*/
 
 .icon-heroesofthestorm,
 .icon-heroesofthestorm-md,
 .icon-heroesofthestorm-lg {
-    background-image: url(/images/icons/games/large/hots.png);
+    background-image: url(https://warcry.ru/images/icons/games/large/hots.png);
 }
 
 .icon-overwatch,
 .icon-overwatch-md,
 .icon-overwatch-lg {
-    background-image: url(/images/icons/games/large/overwatch.png);
+    background-image: url(https://warcry.ru/images/icons/games/large/overwatch.png);
 }
 
 /* starcraft remastered */
 .icon-scr,
 .icon-scr-md,
 .icon-scr-lg {
-    background-image: url(/images/icons/games/medium/scr.png);
+    background-image: url(https://warcry.ru/images/icons/games/medium/scr.png);
 }
 
 .icon-starcraft,
 .icon-starcraft-md,
 .icon-starcraft-lg {
-    background-image: url(/images/icons/games/large/starcraft2.png);
+    background-image: url(https://warcry.ru/images/icons/games/large/starcraft2.png);
 }
 
 .icon-titan,
 .icon-titan-md,
 .icon-titan-lg {
-    background-image: url(/images/icons/games/small/titan.png);
+    background-image: url(https://warcry.ru/images/icons/games/small/titan.png);
 }
 
 .icon-warcraft,
 .icon-warcraft-md,
 .icon-warcraft-lg {
-    background-image: url(/images/icons/games/large/wow.png);
+    background-image: url(https://warcry.ru/images/icons/games/large/wow.png);
 }
 
 .icon-warcryru,
 .icon-warcryru-md,
 .icon-warcryru-lg {
-    background-image: url(/images/icons/games/medium/wcru.png);
-    /*background-image: url(/images/icons/games/small/warcryru.png);*/
+    background-image: url(https://warcry.ru/images/icons/games/medium/wcru.png);
+    /*background-image: url(https://warcry.ru/images/icons/games/small/warcryru.png);*/
 }
 
 /* warcraft iii: reforged */
 .icon-wc3r,
 .icon-wc3r-md,
 .icon-wc3r-lg {
-    background-image: url(/images/icons/games/medium/wc3r.png);
+    background-image: url(https://warcry.ru/images/icons/games/medium/wc3r.png);
 }
 
 .panel-primary > .heading-blizzard {

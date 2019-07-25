@@ -4,8 +4,8 @@ site_url: 'https://warcry.ru'
 cool_site_url: '//warcry.ru'
 site_description: 'Все о World of Warcraft, Diablo III, Hearthstone, Heroes of the Storm, StarCraft II и Overwatch. Официальный фан-сайт Blizzard. Новости, аналитика, энциклопедия, руководства, творчество'
 short_site_description: 'World of Warcraft, Diablo III, Hearthstone, Overwatch'
-logo: /images/text_logo_4.png
-fav_icon: /images/icons/games/medium/wcru.png
+#logo: https://warcry.ru/images/text_logo_4.png
+fav_icon: https://warcry.ru/images/icons/games/medium/wcru.png
 twitter_card_image: 'https://warcry.ru/images/social_logo.jpg'
 touch_icon: 'https://warcry.ru/images/social_logo.jpg'
 contact_email: team[собака]warcry.ru
