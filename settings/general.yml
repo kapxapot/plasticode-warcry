@@ -130,7 +130,7 @@ sidebar:
   future_events_days: 7
   latest_gallery_pictures_limit: 4
 
-default_game_id: {DEFAULT_GAME_ID}
+default_game_id: 5
 
 twitch:
   client_id: {TWITCH_CLIENT_ID}
