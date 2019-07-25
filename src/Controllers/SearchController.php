@@ -2,20 +2,20 @@
 
 namespace App\Controllers;
 
-use Plasticode\Core\Core;
+use Plasticode\Core\Response;
 
 use App\Services\SearchService;
 
 class SearchController extends Controller
 {
-	public function search($request, $response, $args)
-	{
-	    $query = $args['query'];
-	    
-	    $searchService = new SearchService($this->linker);
-	    
-	    $result = $searchService->search($query);
-	    
-		return Core::json($response, $result);
-	}
+    public function search($request, $response, $args)
+    {
+        $query = $args['query'];
+        
+        $searchService = new SearchService($this->linker);
+        
+        $result = $searchService->search($query);
+        
+        return Response::json($response, $result);
+    }
 }

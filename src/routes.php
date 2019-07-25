@@ -18,7 +18,7 @@ use App\Controllers\Tests\SmokeTestController;
 use Plasticode\Controllers\Auth\AuthController;
 use Plasticode\Controllers\Auth\PasswordController;
 use Plasticode\Controllers\ParserController;
-use Plasticode\Core\Core;
+use Plasticode\Core\Response;
 use Plasticode\Middleware\AuthMiddleware;
 use Plasticode\Middleware\GuestMiddleware;
 use Plasticode\Middleware\AccessMiddleware;
@@ -37,14 +37,14 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
     $this->group('/api/v1', function () use ($settings) {
         $this->get('/captcha', function ($request, $response, $args) use ($settings) {
             $captcha = $this->captcha->generate($settings['captcha_digits'], true);
-            return Core::json($response, [ 'captcha' => $captcha['captcha'] ]);
+            return Response::json($response, [ 'captcha' => $captcha['captcha'] ]);
         });
 
         $this->get('/captcha_test', function ($request, $response, $args) use ($settings) {
             $digits = $request->getParam('digits', $settings['captcha_digits']);
             $captcha = $this->captcha->generate($digits, false);
 
-            return Core::json($response, [ 'captcha' => $captcha['captcha'] ]);
+            return Response::json($response, [ 'captcha' => $captcha['captcha'] ]);
         });
 
         $this->get('/search/{query}', SearchController::class . ':search')
