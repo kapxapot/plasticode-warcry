@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Plasticode\Query;
-use Plasticode\Exceptions\ApplicationException;
+use Plasticode\Exceptions\InvalidResultException;
 use Plasticode\IO\Image;
 use Plasticode\Models\AspectRatio;
 use Plasticode\Models\DbModel;
@@ -17,8 +17,8 @@ class GalleryPicture extends DbModel
     use Description, FullPublish, Stamps, Tags;
     
     protected static $sortOrder = [
-        [ 'field' => 'published_at', 'reverse' => true ],
-        [ 'field' => 'id', 'reverse' => true ],
+        ['field' => 'published_at', 'reverse' => true],
+        ['field' => 'id', 'reverse' => true],
     ];
 
     // queries
@@ -35,38 +35,38 @@ class GalleryPicture extends DbModel
             ->where('author_id', $authorId);
     }
 
-	public static function getByGame($game) : Query
-	{
-		$query = self::getPublished();
+    public static function getByGame(Game $game = null) : Query
+    {
+        $query = self::getPublished();
 
-	    if ($game) {
-		    $query = $game->filter($query);
-	    }
+        if ($game) {
+            $query = $game->filter($query);
+        }
 
-		return $query;
-	}
+        return $query;
+    }
 
-	public static function getLatestByGame($game, $limit) : Query
-	{
-		return self::getByGame($game)
-		    ->limit($limit);
-	}
+    public static function getLatestByGame(Game $game = null, int $limit = null) : Query
+    {
+        return self::getByGame($game)
+            ->limit($limit);
+    }
 
     // PROPS
 
-    public function game()
+    public function game() : ?Game
     {
         return $this->gameId
             ? Game::get($this->gameId)
             : null;
     }
     
-    public function ext()
+    public function ext() : ?string
     {
-		return self::$linker->getExtension($this->pictureType);
+        return self::$linker->getExtension($this->pictureType);
     }
 
-    public function url()
+    public function url() : string
     {
         return self::$linker->galleryPictureImg($this);
     }
@@ -90,7 +90,7 @@ class GalleryPicture extends DbModel
             
             $ratio = new AspectRatio($this->width, $this->height);
             
-            return $ratio->cssClasses();// . ' ' . $ratio->ratioExact() . ' ' . $ratio->ratioApprox()[0] . '-' . $ratio->ratioApprox()[1];
+            return $ratio->cssClasses();
         }
         catch (\Exception $ex) {
             return '';
@@ -106,7 +106,7 @@ class GalleryPicture extends DbModel
         $picture = self::$container->gallery->loadPicture($this);
         
         if (!$picture || !($picture->width > 0) || !($picture->height > 0)) {
-            throw new ApplicationException('Invalid image file for gallery picture ' . $this->toString() . '.');
+            throw new InvalidResultException('Invalid image file for gallery picture ' . $this->toString() . '.');
         }
         
         $this->width = $picture->width;
@@ -147,8 +147,8 @@ class GalleryPicture extends DbModel
     
     public function pageUrl()
     {
-	    return self::$linker->galleryPicture($this->author()->alias, $this->id);
-	}
+        return self::$linker->galleryPicture($this->author()->alias, $this->id);
+    }
 
     private function getSiblingsBefore() : Query
     {
@@ -165,48 +165,62 @@ class GalleryPicture extends DbModel
     /**
      * Reversed.
      */
-	public function prev()
-	{
-	    return $this->lazy(function () {
-	        return $this->getSiblingsAfter()->one();
-		});
-	}
-	
+    public function prev()
+    {
+        return $this->lazy(function () {
+            return $this->getSiblingsAfter()->one();
+        });
+    }
+    
     /**
      * Reversed.
      */
-	public function next()
-	{
-	    return $this->lazy(function () {
-	        return $this->getSiblingsBefore()->one();
-	    });
+    public function next()
+    {
+        return $this->lazy(function () {
+            return $this->getSiblingsBefore()->one();
+        });
     }
     
     public static function getBefore(GalleryPicture $borderPic, Query $baseQuery = null) : Query
     {
-		$query = $baseQuery ?? self::getBasePublished();
-		
-		if ($borderPic) {
-		    $query = $query
-		        ->whereRaw('(published_at < ? or (published_at = ? and id < ?))', [ $borderPic->publishedAt, $borderPic->publishedAt, $borderPic->getId() ])
-			    ->orderByDesc('published_at')
-			    ->orderByDesc('id');
-		}
-		
-		return $query;
+        $query = $baseQuery ?? self::getBasePublished();
+        
+        if ($borderPic) {
+            $query = $query
+                ->whereRaw(
+                    '(published_at < ? or (published_at = ? and id < ?))',
+                    [
+                        $borderPic->publishedAt,
+                        $borderPic->publishedAt,
+                        $borderPic->getId(),
+                    ]
+                )
+                ->orderByDesc('published_at')
+                ->orderByDesc('id');
+        }
+        
+        return $query;
     }
     
     public static function getAfter(GalleryPicture $borderPic, Query $baseQuery = null) : Query
     {
-		$query = $baseQuery ?? self::getBasePublished();
-		
-		if ($borderPic) {
-		    $query = $query
-		        ->whereRaw('(published_at > ? or (published_at = ? and id > ?))', [ $borderPic->publishedAt, $borderPic->publishedAt, $borderPic->getId() ])
-			    ->orderByAsc('published_at')
-			    ->orderByAsc('id');
-		}
-		
-		return $query;
+        $query = $baseQuery ?? self::getBasePublished();
+        
+        if ($borderPic) {
+            $query = $query
+                ->whereRaw(
+                    '(published_at > ? or (published_at = ? and id > ?))',
+                    [
+                        $borderPic->publishedAt,
+                        $borderPic->publishedAt,
+                        $borderPic->getId(),
+                    ]
+                )
+                ->orderByAsc('published_at')
+                ->orderByAsc('id');
+        }
+        
+        return $query;
     }
 }

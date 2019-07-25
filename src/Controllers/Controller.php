@@ -9,7 +9,7 @@ use App\Services\SidebarPartsProviderService;
 use App\Services\StreamService;
 use Plasticode\Collection;
 use Plasticode\Controllers\Controller as BaseController;
-use Plasticode\Exceptions\ApplicationException;
+use Plasticode\Exceptions\InvalidConfigurationException;
 use Plasticode\Util\Strings;
 use Psr\Container\ContainerInterface;
 
@@ -95,7 +95,7 @@ class Controller extends BaseController
         $limit = $this->getSettings($limitVar);
         
         if (!$limit) {
-            throw new ApplicationException('No limit settings found: ' . $limitVar);
+            throw new InvalidConfigurationException('No limit settings found: ' . $limitVar);
         }
         
         return Strings::stripTrunc($text, $limit);
