@@ -12,39 +12,62 @@ class AddGames extends AbstractMigration
             ->insert([
                 [
                     'id' => 1,
-                    'name' => 'Администратор',
-                    'tag' => 'admin',
-                ],
-                [
-                    'id' => 2,
-                    'name' => 'Редактор',
-                    'tag' => 'editor',
+                    'name' => 'Warcraft',
+                    'alias' => 'warcraft',
+                    'published' => 1,
+                    'position' => 2,
+                    'icon' => 'https://warcry.ru/images/icons/games/large/wow.png',
+                    'autotags' => 'Warcraft',
                 ],
                 [
                     'id' => 3,
-                    'name' => 'Автор',
-                    'tag' => 'author',
+                    'name' => 'Diablo',
+                    'alias' => 'diablo',
+                    'published' => 1,
+                    'position' => 3,
+                    'icon' => 'https://warcry.ru/images/icons/games/small/diablo3.png',
+                    'autotags' => 'Diablo',
+                ],
+                [
+                    'id' => 5,
+                    'name' => 'Warcry.ru',
+                    'alias' => 'warcryru',
+                    'published' => 1,
+                    'position' => 1,
+                    'icon' => 'https://warcry.ru/images/icons/games/medium/wcru.png',
+                    'autotags' => 'Warcry.ru',
+                ],
+                [
+                    'id' => 10,
+                    'name' => 'World of Warcraft',
+                    'position' => 201,
+                    'autotags' => 'WoW, World of Warcraft',
+                    'twitch_name' => 'WoW',
                 ],
             ])
             ->save();
-
-            1	Warcraft	warcraft	1	2	/images/icons/games/large/wow.png	NULL	Warcraft	NULL
-            3	Diablo	diablo	1	3	/images/icons/games/small/diablo3.png	NULL	Diablo	NULL
-            5	Warcry.ru	warcryru	1	1	/images/icons/games/medium/wcru.png	NULL	Warcry.ru	NULL
-            10	World of Warcraft	NULL	0	201	NULL	1	WoW, World of Warcraft	WoW
-
     }
 
     public function down()
     {
         $this->getQueryBuilder()
-            ->delete('menus')
-            ->where(['id' => 2])
+            ->delete('games')
+            ->where(['id' => 1])
             ->execute();
 
         $this->getQueryBuilder()
-            ->delete('menus')
-            ->where(['id' => 1])
+            ->delete('games')
+            ->where(['id' => 3])
+            ->execute();
+
+        $this->getQueryBuilder()
+            ->delete('games')
+            ->where(['id' => 5])
+            ->execute();
+
+        $this->getQueryBuilder()
+            ->delete('games')
+            ->where(['id' => 10])
             ->execute();
     }
 }
