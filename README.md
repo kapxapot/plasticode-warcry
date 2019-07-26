@@ -2,6 +2,8 @@
 
 Built on Plasticode (kapxapot/plasticode).
 
+Live: https://warcry.ru
+
 ## Installation
 
 See [Plasticode Boilerplate](https://github.com/kapxapot/plasticode-boilerplate) README.
