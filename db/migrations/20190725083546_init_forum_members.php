@@ -6,7 +6,10 @@ class InitForumMembers extends AbstractMigration
 {
     public function change()
     {
-        $table = $this->table('forummembers', ['id' => false, 'primary_key' => ['member_id']]);
+        $table = $this->table(
+            'forummembers',
+            ['id' => false, 'primary_key' => ['member_id']]
+        );
 
         $table
             ->addColumn('member_id', 'integer')

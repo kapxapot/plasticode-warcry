@@ -7,34 +7,34 @@ use Plasticode\Traits\Publishable;
 
 class NewsGenerator extends TaggableEntityGenerator
 {
-	use Publishable;
+    use Publishable;
 
-	public function beforeSave($data, $id = null)
-	{
-	    $data = parent::beforeSave($data, $id);
-	    
-		$data['cache'] = null;
+    public function beforeSave($data, $id = null)
+    {
+        $data = parent::beforeSave($data, $id);
+        
+        $data['cache'] = null;
 
-		$data = $this->publishIfNeeded($data);		
+        $data = $this->publishIfNeeded($data);
 
-		return $data;
-	}
+        return $data;
+    }
 
-	public function afterSave($item, $data)
-	{
-	    parent::afterSave($item, $data);
-	    
-		$this->notify($item, $data);
-	}
+    public function afterSave($item, $data)
+    {
+        parent::afterSave($item, $data);
+        
+        $this->notify($item, $data);
+    }
 
-	private function notify($item, $data)
-	{
-		if ($this->isJustPublished($item, $data)) {
-			$url = $this->linker->news($item->id);
-			$url = $this->linker->abs($url);
-			
-			/*$this->telegram->sendMessage('warcry', "Опубликована новость:
+    private function notify($item, $data)
+    {
+        if ($this->isJustPublished($item, $data)) {
+            $url = $this->linker->news($item->id);
+            $url = $this->linker->abs($url);
+            
+            /*$this->telegram->sendMessage('warcry', "Опубликована новость:
 <a href=\"{$url}\">{$item->title}</a>");*/
-		}
-	}
+        }
+    }
 }

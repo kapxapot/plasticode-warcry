@@ -7,7 +7,7 @@ use Plasticode\Config\Bootstrap as BootstrapBase;
 class Bootstrap extends BootstrapBase
 {
     /**
-     * Get mappings for DI container.
+     * Get mappings for DI container
      *
      * @return array
      */

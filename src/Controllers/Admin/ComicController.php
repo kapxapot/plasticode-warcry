@@ -2,9 +2,9 @@
 
 namespace App\Controllers\Admin;
 
-use Plasticode\Controllers\Admin\ImageUploadController;
-
 use App\Services\ComicService;
+use Plasticode\Controllers\Admin\ImageUploadController;
+use Plasticode\IO\Image;
 
 class ComicController extends ImageUploadController
 {
@@ -17,22 +17,22 @@ class ComicController extends ImageUploadController
         $this->comicService = new ComicService();
     }
     
-	/**
-	 * Adds pages to comic issue or comic standalone.
-	 */
-	protected function addImage($context, $image, $fileName)
-	{
-	    $comic = $this->comicService->getComicByContext($context);
-	    
-	    $page = $comic->createPage();
-	    
-	    $page->number = $comic->maxPageNumber() + 1;
-	    $page->picType = $image->imgType;
+    /**
+     * Adds pages to comic issue or comic standalone
+     */
+    protected function addImage(array $context, Image $image, string $fileName)
+    {
+        $comic = $this->comicService->getComicByContext($context);
+        
+        $page = $comic->createPage();
+        
+        $page->number = $comic->maxPageNumber() + 1;
+        $page->picType = $image->imgType;
 
-	    $page->publish();
+        $page->publish();
         $page->stamp();
-	    $page->save();
+        $page->save();
 
-	    $this->comics->saveImage($page, $image);
-	}
+        $this->comics->saveImage($page, $image);
+    }
 }

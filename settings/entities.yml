@@ -634,7 +634,7 @@ gallery_authors:
     name:
       name: Имя
       template: >
-        '<a href="/gallery/' + row.alias + '">' + row.name + '</a>'
+        '<a href="' + row.page_url + '">' + row.name + '</a>'
 
     category_id:
       name: Категория

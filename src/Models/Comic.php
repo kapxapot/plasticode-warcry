@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Names;
 use Plasticode\Collection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublish;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
-
-use App\Models\Traits\Names;
 
 abstract class Comic extends DbModel
 {
@@ -21,12 +20,12 @@ abstract class Comic extends DbModel
     
     public abstract function createPage();
     
-    public function prev()
+    public function prev() : ?self
     {
         return null;
     }
     
-    public function next()
+    public function next() : ?self
     {
         return null;
     }
@@ -36,7 +35,7 @@ abstract class Comic extends DbModel
         return $this->pages()->where('number', $number)->first();
     }
     
-    public function count()
+    public function count() : int
     {
         return $this->pages()->count();
     }
@@ -56,15 +55,17 @@ abstract class Comic extends DbModel
         return $this->first();
     }
 
-	public function maxPageNumber($exceptId = null)
-	{
-	    $max = $this->pages()
-	        ->where(function ($page) use ($exceptId) {
-	            return $page->id != $exceptId;
-	        })
-	        ->asc('number')
-	        ->last();
-	    
-	    return $max ? $max->number : 0;
-	}
+    public function maxPageNumber($exceptId = null) : int
+    {
+        $max = $this->pages()
+            ->where(
+                function ($page) use ($exceptId) {
+                    return $page->id != $exceptId;
+                }
+            )
+            ->asc('number')
+            ->last();
+        
+        return $max ? $max->number : 0;
+    }
 }

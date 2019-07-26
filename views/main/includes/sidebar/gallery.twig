@@ -1,7 +1,7 @@
 {% set s = sidebar.gallery %}
 {% if s and s.pictures|length > 0 %}
-	<div class="panel-secondary-heading">Новинки галереи</div>
-	<div class="mb-3 sidebar-gallery">
+    <div class="panel-secondary-heading">Новинки галереи</div>
+    <div class="mb-3 sidebar-gallery">
         {% include 'components/gallery.twig' with { 'pictures': s.pictures } only %}
-	</div>
+    </div>
 {% endif %}

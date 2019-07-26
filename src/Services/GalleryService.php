@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\GalleryAuthor;
+use App\Models\GalleryPicture;
 use Plasticode\Query;
 use Plasticode\Collection;
 use Plasticode\Util\Date;
-
-use App\Models\GalleryAuthor;
-use App\Models\GalleryPicture;
 
 class GalleryService
 {

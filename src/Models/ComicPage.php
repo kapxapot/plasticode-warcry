@@ -13,7 +13,7 @@ class ComicPage extends ComicPageBase
         return ComicIssue::get($this->{static::$comicIdField});
     }
     
-    public function pageUrl()
+    public function pageUrl() : string
     {
         return self::$linker->comicIssuePage($this);
     }

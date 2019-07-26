@@ -19,45 +19,47 @@ class ComicSeries extends DbModel
     
     // getters - one
 
-	public static function getPublishedByAlias($alias)
-	{
-		return self::getPublished()
-    		->where('alias', $alias)
-    		->one();
-	}
+    public static function getPublishedByAlias(string $alias) : ?self
+    {
+        return self::getPublished()
+            ->where('alias', $alias)
+            ->one();
+    }
 
     // GETTERS - MANY
     
-	public static function getAllSorted() : Collection
-	{
-	    $sorts = [
+    public static function getAllSorted() : Collection
+    {
+        $sorts = [
             'last_issued_on' => [ 'dir' => 'desc', 'type' => 'string' ],
-		];
-	    
-		return self::getAll()->multiSort($sorts);
-	}
-	
-	// PROPS
-	
-    public function game()
+        ];
+        
+        return self::getAll()->multiSort($sorts);
+    }
+    
+    // PROPS
+    
+    public function game() : Game
     {
         return Game::get($this->gameId);
     }
 
-    public function pageUrl()
+    public function pageUrl() : string
     {
-	    return self::$linker->comicSeries($this);
-	}
-	
-    public function issues() : Collection
-    {
-        return $this->lazy(function () {
-            return ComicIssue::getBySeries($this->id)
-                ->all();
-        });
+        return self::$linker->comicSeries($this);
     }
     
-    public function issueByNumber($number) : ComicIssue
+    public function issues() : Collection
+    {
+        return $this->lazy(
+            function () {
+                return ComicIssue::getBySeries($this->id)
+                    ->all();
+            }
+        );
+    }
+    
+    public function issueByNumber($number) : ?ComicIssue
     {
         return $this->issues()->where('number', $number)->first();
     }
@@ -69,20 +71,20 @@ class ComicSeries extends DbModel
     
     public function countStr() : string
     {
-		return self::$cases->caseForNumber('выпуск', $this->count());
+        return self::$cases->caseForNumber('выпуск', $this->count());
     }
     
-    public function first() : ComicIssue
+    public function first() : ?ComicIssue
     {
         return $this->issues()->first();
     }
     
-    public function last() : ComicIssue
+    public function last() : ?ComicIssue
     {
         return $this->issues()->last();
     }
     
-    public function cover() : ComicPageBase
+    public function cover() : ?ComicPageBase
     {
         return $this->first()
             ? $this->first()->cover()
@@ -101,15 +103,17 @@ class ComicSeries extends DbModel
         return ComicPublisher::get($this->publisherId);
     }
     
-	public function maxIssueNumber($exceptId = null)
-	{
-	    $max = $this->issues()
-	        ->where(function ($issue) use ($exceptId) {
-	            return $issue->id != $exceptId;
-	        })
-	        ->asc('number')
-	        ->last();
-	    
-	    return $max ? $max->number : 0;
-	}
+    public function maxIssueNumber($exceptId = null)
+    {
+        $max = $this->issues()
+            ->where(
+                function ($issue) use ($exceptId) {
+                    return $issue->id != $exceptId;
+                }
+            )
+            ->asc('number')
+            ->last();
+        
+        return $max ? $max->number : 0;
+    }
 }

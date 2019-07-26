@@ -157,7 +157,7 @@ class Linker extends LinkerBase
     }
     
     // comics
-    public function comicSeries($series)
+    public function comicSeries($series) : string
     {
         return $this->router->pathFor(
             'main.comics.series',

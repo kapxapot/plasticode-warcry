@@ -2,14 +2,12 @@
 
 namespace App\Generators;
 
-use Respect\Validation\Validator as v;
-
+use App\Models\Article;
+use App\Models\ArticleCategory;
 use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 use Plasticode\Util\Strings;
-
-use App\Models\Article;
-use App\Models\ArticleCategory;
+use Respect\Validation\Validator as v;
 
 class ArticlesGenerator extends TaggableEntityGenerator
 {
@@ -88,7 +86,7 @@ class ArticlesGenerator extends TaggableEntityGenerator
         
         $data['cache'] = null;
 
-        $data = $this->publishIfNeeded($data);		
+        $data = $this->publishIfNeeded($data);
         
         return $data;
     }

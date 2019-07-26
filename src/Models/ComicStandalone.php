@@ -14,38 +14,40 @@ class ComicStandalone extends Comic
     
     // getters - one
 
-	public static function getPublishedByAlias($alias)
-	{
-		return self::getPublished()
-    		->where('alias', $alias)
-    		->one();
-	}
+    public static function getPublishedByAlias($alias) : ?self
+    {
+        return self::getPublished()
+            ->where('alias', $alias)
+            ->one();
+    }
     
     // funcs
     
-    public function createPage()
+    public function createPage() : ComicStandalonePage
     {
         return ComicStandalonePage::createForComic($this->getId());
     }
 
-	// props
-	
-    public function game()
+    // props
+    
+    public function game() : Game
     {
         return Game::get($this->gameId);
     }
 
-    public function pageUrl()
+    public function pageUrl() : string
     {
-	    return self::$linker->comicStandalone($this);
-	}
+        return self::$linker->comicStandalone($this);
+    }
     
     public function pages() : Collection
     {
-        return $this->lazy(function () {
-            return ComicStandalonePage::getByComic($this->id)
-                ->all();
-        });
+        return $this->lazy(
+            function () {
+                return ComicStandalonePage::getByComic($this->id)
+                    ->all();
+            }
+        );
     }
 
     public function publisher() : ComicPublisher
@@ -53,7 +55,7 @@ class ComicStandalone extends Comic
         return ComicPublisher::get($this->publisherId);
     }
 
-    public function titleName()
+    public function titleName() : string
     {
         return $this->fullName();
     }

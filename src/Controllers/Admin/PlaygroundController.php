@@ -3,13 +3,17 @@
 namespace App\Controllers\Admin;
 
 use Plasticode\Controllers\Controller;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class PlaygroundController extends Controller
 {
-    public function __invoke($request, $response, $args)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $this->view->render($response, 'admin/playground/index.twig', [
-            'title' => 'Playground',
-        ]);
+        return $this->render(
+            $response,
+            'admin/playground/index.twig',
+            ['title' => 'Playground']
+        );
     }
 }

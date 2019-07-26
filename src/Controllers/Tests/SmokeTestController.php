@@ -3,21 +3,27 @@
 namespace App\Controllers\Tests;
 
 use Plasticode\Controllers\Controller;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class SmokeTestController extends Controller
 {
-    public function __invoke($request, $response, $args)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
         $pages = $this->getSettings('smoke_tests');
         $testResults = $this->test($pages);
         
-        return $this->view->render($response, 'tests/smoke.twig', [
-            'title' => 'Smoke Test',
-            'results' => $testResults,
-        ]);
+        return $this->render(
+            $response,
+            'tests/smoke.twig',
+            [
+                'title' => 'Smoke Test',
+                'results' => $testResults,
+            ]
+        );
     }
     
-    private function test(array $pages)
+    private function test(array $pages) : array
     {
         $results = [];
         

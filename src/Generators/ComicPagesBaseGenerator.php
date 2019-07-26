@@ -2,10 +2,9 @@
 
 namespace App\Generators;
 
+use App\Services\ComicService;
 use Plasticode\Exceptions\Http\NotFoundException;
 use Plasticode\Generators\EntityGenerator;
-
-use App\Services\ComicService;
 
 abstract class ComicPagesBaseGenerator extends EntityGenerator
 {
@@ -35,7 +34,7 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
         $item['picture'] = $this->comics->getPictureUrl($item);
         $item['thumb'] = $this->comics->getThumbUrl($item);
         
-        unset($item['type']);
+        unset($item['pic_type']);
 
         $item['page_url'] = $this->getPageUrl($item);
 

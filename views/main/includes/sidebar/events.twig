@@ -1,14 +1,14 @@
 {% if sidebar.events|length > 0 %}
     {% import 'macros.twig' as gm %}
-	<div class="panel-secondary-heading">События</div>
-	<div class="panel panel-secondary">
-		<div class="panel-body linkblock">
-			{% for event in sidebar.events %}
-				<div class="icon-{{ event.game.root.alias }}" ng-cloak>
-					<a{% if event.important %} class="important"{% endif %} title="[{{ event.game.name }}] {{ event.name|raw }}" href="{{ event.url }}">{{ event.name|raw }}</a>
-					{% if not event.started %}({{ gm.moment_from_now(event.start.iso) }}){% endif %}
-				</div>
-			{% endfor %}
-		</div>
-	</div>
+    <div class="panel-secondary-heading">События</div>
+    <div class="panel panel-secondary">
+        <div class="panel-body linkblock">
+            {% for event in sidebar.events %}
+                <div class="icon-{{ event.game.root.alias }}" ng-cloak>
+                    <a{% if event.important %} class="important"{% endif %} title="[{{ event.game.name }}] {{ event.name|raw }}" href="{{ event.url }}">{{ event.name|raw }}</a>
+                    {% if not event.started %}({{ gm.moment_from_now(event.start.iso) }}){% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endif %}

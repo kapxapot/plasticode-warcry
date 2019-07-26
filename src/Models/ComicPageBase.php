@@ -21,92 +21,96 @@ abstract class ComicPageBase extends DbModel
     public static function getByComic($comicId) : Query
     {
         return self::getPublished()
-		    ->where(static::$comicIdField, $comicId);
+            ->where(static::$comicIdField, $comicId);
     }
     
     // funcs
     
-    public static function createForComic($comicId)
+    public static function createForComic($comicId) : ?self
     {
-        return self::create([
-            $comicIdField => $comicId
-        ]);
+        return self::create(
+            [static::$comicIdField => $comicId]
+        );
     }
     
     // PROPS
     
     public abstract function comic();
 
-    public abstract function pageUrl();
+    public abstract function pageUrl() : string;
 
-    public function url()
+    public function url() : string
     {
         return self::$linker->comicPageImg($this);
     }
 
-    public function thumbUrl()
+    public function thumbUrl() : string
     {
         return self::$linker->comicThumbImg($this);
     }
 
-	public function numberStr()
-	{
-		return str_pad($this->number, 2, '0', STR_PAD_LEFT);
-	}
-	
-	public function ext()
-	{
-	    return self::$linker->getExtension($this->type);
-	}
-	
+    public function numberStr() : string
+    {
+        return str_pad($this->number, 2, '0', STR_PAD_LEFT);
+    }
+    
+    public function ext() : string
+    {
+        return self::$linker->getExtension($this->picType);
+    }
+    
     private function getSiblings() : Query
     {
         return self::getBasePublished()
-		    ->where(static::$comicIdField, $this->{static::$comicIdField});
+            ->where(static::$comicIdField, $this->{static::$comicIdField});
     }
 
-	public function prev()
-	{
-	    return $this->lazy(function () {
-    		$prev = $this->getSiblings()
-				->whereLt('number', $this->number)
-				->orderByDesc('number')
-				->one();
+    public function prev() : ?self
+    {
+        return $this->lazy(
+            function () {
+                $prev = $this->getSiblings()
+                    ->whereLt('number', $this->number)
+                    ->orderByDesc('number')
+                    ->one();
 
-    		if (!$prev) {
-    			$prevComic = $this->comic()->prev();
-    			
-    			if ($prevComic) {
-    			    $prev = $prevComic->last();
-    			}
-    		}
-    		
-    		return $prev;
-	    });
-	}
-	
-	public function next()
-	{
-	    return $this->lazy(function () {
-    		$next = $this->getSiblings()
-				->whereGt('number', $this->number)
-				->orderByAsc('number')
-				->one();
+                if (!$prev) {
+                    $prevComic = $this->comic()->prev();
+                    
+                    if ($prevComic) {
+                        $prev = $prevComic->last();
+                    }
+                }
+                
+                return $prev;
+            }
+        );
+    }
+    
+    public function next() : ?self
+    {
+        return $this->lazy(
+            function () {
+                $next = $this->getSiblings()
+                    ->whereGt('number', $this->number)
+                    ->orderByAsc('number')
+                    ->one();
 
-    		if (!$next) {
-    			$nextComic = $this->comic()->next();
-    			
-    			if ($nextComic) {
-    				$next = $nextComic->first();
-    			}
-    		}
-    		
-    		return $next;
-	    });
-	}
-	
-	public function titleName()
-	{
-	    return $this->numberStr() . ' - ' . $this->comic()->titleName();
-	}
+                if (!$next) {
+                    $nextComic = $this->comic()->next();
+                    
+                    if ($nextComic) {
+                        $next = $nextComic->first();
+                    }
+                }
+                
+                return $next;
+            }
+        );
+    }
+    
+    public function titleName() : string
+    {
+        return $this->numberStr() . ' - ' . $this->comic()->titleName();
+    }
 }

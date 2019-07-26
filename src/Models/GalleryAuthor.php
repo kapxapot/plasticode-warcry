@@ -13,86 +13,88 @@ class GalleryAuthor extends DbModel
 {
     use Description, Publish;
 
-	public static function getGroups()
-	{
-		$groups = [];
-		
-		$cats = GalleryAuthorCategory::getAll();
-		
-		foreach ($cats as $cat) {
-			if ($cat->authors()->any()) {
-				$sorts = [
-					//'count' => [ 'dir' => 'desc' ],
-					'display_name' => [ 'dir' => 'asc', 'type' => 'string' ],
-				];
-		
-				$groups[] = [
-					'id' => $cat->alias,
-					'label' => $cat->name,
-					'values' => $cat->authors()->multiSort($sorts),
-				];
-			}
-		}
+    public static function getGroups() : Collection
+    {
+        $groups = [];
+        
+        $cats = GalleryAuthorCategory::getAll();
+        
+        foreach ($cats as $cat) {
+            if ($cat->authors()->any()) {
+                $sorts = [
+                    //'count' => [ 'dir' => 'desc' ],
+                    'display_name' => [ 'dir' => 'asc', 'type' => 'string' ],
+                ];
+        
+                $groups[] = [
+                    'id' => $cat->alias,
+                    'label' => $cat->name,
+                    'values' => $cat->authors()->multiSort($sorts),
+                ];
+            }
+        }
 
-		return Collection::make($groups);
-	}
-	
-	// GETTERS - MANY
-	
-	public static function getAllPublishedByCategory($categoryId)
-	{
-	    return self::getPublished()
-	        ->where('category_id', $categoryId)
-	        ->all();
+        return Collection::make($groups);
+    }
+    
+    // GETTERS - MANY
+    
+    public static function getAllPublishedByCategory($categoryId) : Collection
+    {
+        return self::getPublished()
+            ->where('category_id', $categoryId)
+            ->all();
     }
 
-	// GETTERS - ONE
+    // GETTERS - ONE
 
-	public static function getPublishedByAlias($alias)
-	{
-		return self::getPublished()
-    		->whereAnyIs([
-                [ 'alias' => $alias ],
-                [ 'id' => $alias ],
-            ])
+    public static function getPublishedByAlias($alias) : ?self
+    {
+        return self::getPublished()
+            ->whereAnyIs(
+                [
+                    ['alias' => $alias],
+                    ['id' => $alias],
+                ]
+            )
             ->one();
-	}
+    }
 
     // PROPS
     
-    public function category()
+    public function category() : GalleryAuthorCategory
     {
         return GalleryAuthorCategory::get($this->categoryId);
     }
     
-    public function url()
+    public function url() : string
     {
         return $this->pageUrl();
     }
     
-    public function pageUrl()
+    public function pageUrl() : string
     {
         return self::$linker->galleryAuthor($this->alias);
     }
     
-    public function displayName()
+    public function displayName() : string
     {
-		return $this->realName ?? $this->realNameEn ?? $this->name;
+        return $this->realName ?? $this->realNameEn ?? $this->name;
     }
     
-    public function subname()
+    public function subname() : ?string
     {
         return $this->name != $this->displayName()
             ? $this->name
             : null;
     }
     
-    public function fullName()
+    public function fullName() : string
     {
         $fullName = $this->displayName();
         
         if ($this->subname()) {
-            $fillName .= " ({$this->subname()})";
+            $fullName .= ' (' . $this->subname() . ')';
         }
         
         return $fullName;
@@ -101,34 +103,47 @@ class GalleryAuthor extends DbModel
     private function getSiblings() : Query
     {
         return self::getBasePublished();
-            //->where('category_id', $this->category()->getId());
     }
     
-	public function prev()
-	{
-	    return $this->lazy(function () {
-    		return self::getSiblings()
-    		    ->all()
-    		    ->descStr('display_name')
-    		    ->where(function ($item) {
-    		        return Strings::compare($item->displayName(), $this->displayName()) < 0;
-                })
-                ->first();
-	    });
-	}
-	
-	public function next()
-	{
-	    return $this->lazy(function () {
-    		return self::getSiblings()
-    		    ->all()
-    		    ->ascStr('display_name')
-    		    ->where(function ($item) {
-    		        return Strings::compare($item->displayName(), $this->displayName()) > 0;
-                })
-                ->first();
-	    });
-	}
+    public function prev() : ?self
+    {
+        return $this->lazy(
+            function () {
+                return self::getSiblings()
+                    ->all()
+                    ->descStr('display_name')
+                    ->where(
+                        function ($item) {
+                            return Strings::compare(
+                                $item->displayName(),
+                                $this->displayName()
+                            ) < 0;
+                        }
+                    )
+                    ->first();
+            }
+        );
+    }
+    
+    public function next() : ?self
+    {
+        return $this->lazy(
+            function () {
+                return self::getSiblings()
+                    ->all()
+                    ->ascStr('display_name')
+                    ->where(
+                        function ($item) {
+                            return Strings::compare(
+                                $item->displayName(),
+                                $this->displayName()
+                            ) > 0;
+                        }
+                    )
+                    ->first();
+            }
+        );
+    }
     
     /**
      * Returns author's pictures, sorted in REVERSE chronological order.
@@ -138,28 +153,28 @@ class GalleryAuthor extends DbModel
         return GalleryPicture::getPublishedByAuthor($this->id);
     }
     
-    public function count()
+    public function count() : int
     {
         return $this->pictures()->count();
     }
     
-    public function latestPicture()
+    public function latestPicture() : ?GalleryPicture
     {
         // sorted in reverse, so first
         return $this->pictures()->one();
     }
     
-    public function displayPicture()
+    public function displayPicture() : ?GalleryPicture
     {
         return $this->latestPicture();
     }
     
-    public function picturesStr()
+    public function picturesStr() : string
     {
-		return $this->count() . ' ' . self::$cases->caseForNumber('картинка', $this->count());
+        return $this->count() . ' ' . self::$cases->caseForNumber('картинка', $this->count());
     }
     
-    public function forumMember()
+    public function forumMember() : ?ForumMember
     {
         return ForumMember::getByName($this->name);
     }
