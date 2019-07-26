@@ -603,6 +603,12 @@
     left: -5px;
 }
 
+.avatar--footer {
+    width: 28px;
+    height: 28px;
+    margin-top: -5px;
+}
+
 /** {
     outline: 1px solid red !important;
 }*/
