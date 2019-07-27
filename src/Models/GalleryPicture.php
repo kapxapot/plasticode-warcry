@@ -106,7 +106,9 @@ class GalleryPicture extends DbModel
         $picture = self::$container->gallery->loadPicture($this);
         
         if (!$picture || !($picture->width > 0) || !($picture->height > 0)) {
-            throw new InvalidResultException('Invalid image file for gallery picture ' . $this->toString() . '.');
+            throw new InvalidResultException(
+                'Invalid image file for gallery picture ' . $this->toString() . '.'
+            );
         }
         
         $this->width = $picture->width;
@@ -115,7 +117,7 @@ class GalleryPicture extends DbModel
         $this->save();
     }
     
-    public function author()
+    public function author() : GalleryAuthor
     {
         return GalleryAuthor::get($this->authorId);
     }
@@ -145,9 +147,11 @@ class GalleryPicture extends DbModel
         $this->save();
     }
     
-    public function pageUrl()
+    public function pageUrl() : string
     {
-        return self::$linker->galleryPicture($this->author()->alias, $this->id);
+        return self::$linker->galleryPicture(
+            $this->author()->alias, $this->getId()
+        );
     }
 
     private function getSiblingsBefore() : Query
@@ -163,23 +167,27 @@ class GalleryPicture extends DbModel
     }
 
     /**
-     * Reversed.
+     * Reversed
      */
-    public function prev()
+    public function prev() : ?self
     {
-        return $this->lazy(function () {
-            return $this->getSiblingsAfter()->one();
-        });
+        return $this->lazy(
+            function () {
+                return $this->getSiblingsAfter()->one();
+            }
+        );
     }
     
     /**
-     * Reversed.
+     * Reversed
      */
-    public function next()
+    public function next() : ?self
     {
-        return $this->lazy(function () {
-            return $this->getSiblingsBefore()->one();
-        });
+        return $this->lazy(
+            function () {
+                return $this->getSiblingsBefore()->one();
+            }
+        );
     }
     
     public static function getBefore(GalleryPicture $borderPic, Query $baseQuery = null) : Query
