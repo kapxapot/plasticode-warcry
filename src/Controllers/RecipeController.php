@@ -5,118 +5,141 @@ namespace App\Controllers;
 use App\Models\Game;
 use App\Models\Recipe;
 use App\Models\Skill;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-class RecipeController extends Controller {
-	private $recipesTitle;
-	private $game;
+class RecipeController extends Controller
+{
+    /**
+     * Recipes title for views
+     *
+     * @var string
+     */
+    private $recipesTitle;
 
-	public function __construct($container) {
-		parent::__construct($container);
+    /**
+     * Game
+     *
+     * @var App\Models\Game
+     */
+    private $game;
 
-		$this->recipesTitle = $this->getSettings('recipes.title');
+    public function __construct(ContainerInterface $container)
+    {
+        parent::__construct($container);
 
-		$gameAlias = $this->getSettings('recipes.game');
-		$this->game = Game::getPublishedByAlias($gameAlias);
-	}
-	
-	public function index($request, $response, $args) {
-		$skillAlias = $args['skill'];
-		
-		$page = $request->getQueryParam('page', 1);
-		$query = $request->getQueryParam('q', null);
-		$rebuild = $request->getQueryParam('rebuild', null);
+        $this->recipesTitle = $this->getSettings('recipes.title');
 
-		$skill = Skill::getByAlias($skillAlias);
+        $gameAlias = $this->getSettings('recipes.game');
+        $this->game = Game::getPublishedByAlias($gameAlias);
+    }
+    
+    public function index(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    {
+        $skillAlias = $args['skill'];
+        
+        $page = $request->getQueryParam('page', 1);
+        $query = $request->getQueryParam('q', null);
+        $rebuild = $request->getQueryParam('rebuild', null);
 
-		$pageSize = $this->getSettings('recipes.page_size');
+        $skill = Skill::getByAlias($skillAlias);
 
-		$title = $skill
-			? $skill['name_ru']
-			: $this->recipesTitle;
+        $pageSize = $this->getSettings('recipes.page_size');
 
-		if ($skill) {
-		    $skillId = $skill->getId();
-		    
-			$titleEn = $skill['name'];
-			$breadcrumbs = [
-				[
-					'url' => $this->router->pathFor('main.recipes'),
-					'text' => $this->recipesTitle,
-				]
-			];
-		}
+        $title = $skill
+            ? $skill['name_ru']
+            : $this->recipesTitle;
 
-		// paging
-		$count = Recipe::getAllFiltered($skillId, $query)->count();
-		$url = $this->linker->recipes($skill);
+        if ($skill) {
+            $skillId = $skill->getId();
+            
+            $titleEn = $skill['name'];
+            $breadcrumbs = [
+                [
+                    'url' => $this->router->pathFor('main.recipes'),
+                    'text' => $this->recipesTitle,
+                ]
+            ];
+        }
 
-		if ($query) {
-			$url .= '?q=' . htmlspecialchars($query);
-		}
-		
-		$paging = $this->pagination->complex($url, $count, $page, $pageSize);
+        // paging
+        $count = Recipe::getAllFiltered($skillId, $query)->count();
+        $url = $this->linker->recipes($skill);
 
-		$offset = ($page - 1) * $pageSize;
-		$recipes = Recipe::getAllFiltered($skillId, $query)
-		    ->slice($offset, $pageSize)
-		    ->all();
-		
-		if ($rebuild !== null) {
-		    $recipes->apply(function ($r) {
-		        $r->reset();
-		    });
-		}
+        if ($query) {
+            $url .= '?q=' . urlencode($query);
+        }
+        
+        $paging = $this->pagination->complex($url, $count, $page, $pageSize);
 
-		$params = $this->buildParams([
-			'game' => $this->game,
-			'sidebar' => [ 'stream', 'gallery' ],
-			'params' => [
-				'disqus_url' => $this->linker->disqusRecipes($skill),
-				'disqus_id' => 'recipes' . ($skill ? '_' . $skill['alias'] : ''),
-				'base_url' => $this->linker->recipes(),
-				'skills' => Skill::getActive()->all(),
-				'skill' => $skill,
-				'recipes' => $recipes,
-				'title' => $title,
-				'title_en' => $titleEn,
-				'breadcrumbs' => $breadcrumbs,
-				'query' => $query,
-				'paging' => $paging,
-				'page_size' => $pageSize,
-			],
-		]);
+        $offset = ($page - 1) * $pageSize;
+        $recipes = Recipe::getAllFiltered($skillId, $query)
+            ->slice($offset, $pageSize)
+            ->all();
+        
+        if ($rebuild !== null) {
+            $recipes->apply(
+                function ($r) {
+                    $r->reset();
+                }
+            );
+        }
 
-		return $this->view->render($response, 'main/recipes/index.twig', $params);
-	}
-	
-	public function item($request, $response, $args) {
-		$id = $args['id'];
-		
-		$rebuild = $request->getQueryParam('rebuild', false);
-		
-		$recipe = Recipe::get($id);
+        $params = $this->buildParams(
+            [
+                'game' => $this->game,
+                'sidebar' => [ 'stream', 'gallery' ],
+                'params' => [
+                    'disqus_url' => $this->linker->disqusRecipes($skill),
+                    'disqus_id' => 'recipes' . ($skill ? '_' . $skill['alias'] : ''),
+                    'base_url' => $this->linker->recipes(),
+                    'skills' => Skill::getActive()->all(),
+                    'skill' => $skill,
+                    'recipes' => $recipes,
+                    'title' => $title,
+                    'title_en' => $titleEn,
+                    'breadcrumbs' => $breadcrumbs,
+                    'query' => $query,
+                    'paging' => $paging,
+                    'page_size' => $pageSize,
+                ],
+            ]
+        );
 
-		if (!$recipe) {
-			return $this->notFound($request, $response);
-		}
-		
-		if ($rebuild) {
-		    $recipe->reset();
-		}
-		
-		$params = $this->buildParams([
-			'game' => $this->game,
-			'sidebar' => [ 'stream', 'gallery' ],
-			'params' => [
-				'disqus_url' => $this->linker->disqusRecipe($id),
-				'disqus_id' => 'recipe' . $id,
-				'recipes_title' => $this->recipesTitle,
-				//'breadcrumbs' => $breadcrumbs,
-				'recipe' => $recipe,
-				'title' => $recipe->title(),
-			],
-		]);
+        return $this->render($response, 'main/recipes/index.twig', $params);
+    }
+    
+    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    {
+        $id = $args['id'];
+        
+        $rebuild = $request->getQueryParam('rebuild', false);
+        
+        $recipe = Recipe::get($id);
 
-		return $this->view->render($response, 'main/recipes/item.twig', $params);
-	}
+        if (!$recipe) {
+            return $this->notFound($request, $response);
+        }
+        
+        if ($rebuild) {
+            $recipe->reset();
+        }
+        
+        $params = $this->buildParams(
+            [
+                'game' => $this->game,
+                'sidebar' => [ 'stream', 'gallery' ],
+                'params' => [
+                    'disqus_url' => $this->linker->disqusRecipe($id),
+                    'disqus_id' => 'recipe' . $id,
+                    'recipes_title' => $this->recipesTitle,
+                    'recipe' => $recipe,
+                    'title' => $recipe->title(),
+                ],
+            ]
+        );
+
+        return $this->render($response, 'main/recipes/item.twig', $params);
+    }
 }

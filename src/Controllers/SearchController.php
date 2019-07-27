@@ -2,13 +2,14 @@
 
 namespace App\Controllers;
 
-use Plasticode\Core\Response;
-
 use App\Services\SearchService;
+use Plasticode\Core\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class SearchController extends Controller
 {
-    public function search($request, $response, $args)
+    public function search(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $query = $args['query'];
         

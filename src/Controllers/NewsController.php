@@ -2,25 +2,33 @@
 
 namespace App\Controllers;
 
+use App\Models\Game;
+use App\Services\NewsAggregatorService;
 use Plasticode\RSS\FeedImage;
 use Plasticode\RSS\FeedItem;
 use Plasticode\RSS\RSSCreator20;
-
-use App\Models\Game;
-use App\Services\NewsAggregatorService;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Plasticode\IO\File;
 
 class NewsController extends Controller
 {
+    /**
+     * News aggregator service
+     *
+     * @var App\Services\NewsAggregatorService
+     */
     private $newsAggregatorService;
 
-    public function __construct($container)
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         
         $this->newsAggregatorService = new NewsAggregatorService;
     }
     
-    public function index($request, $response, $args)
+    public function index(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         if ($args['game']) {
             $game = Game::getPublishedByAlias($args['game']);
@@ -51,19 +59,27 @@ class NewsController extends Controller
         
         dd();*/
 
-        $params = $this->buildParams([
-            'game' => $game,
-            'sidebar' => [ 'countdown', 'stream', 'gallery', 'events', 'articles' ],
-            'params' => [
-                'news' => $news,
-                'paging' => $paging,
-            ],
-        ]);
+        $params = $this->buildParams(
+            [
+                'game' => $game,
+                'sidebar' => [
+                    'countdown',
+                    'stream',
+                    'gallery',
+                    'events',
+                    'articles',
+                ],
+                'params' => [
+                    'news' => $news,
+                    'paging' => $paging,
+                ],
+            ]
+        );
         
         return $this->render($response, 'main/news/index.twig', $params);
     }
 
-    public function item($request, $response, $args)
+    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $id = $args['id'];
         
@@ -83,44 +99,48 @@ class NewsController extends Controller
         $prev = $this->newsAggregatorService->getPrev($news);
         $next = $this->newsAggregatorService->getNext($news);
 
-        $params = $this->buildParams([
-            'game' => $news->game(),
-            'sidebar' => [ 'stream', 'gallery', 'news', 'events' ],
-            'news_id' => $id,
-            'large_image' => $news->largeImage(),
-            'image' => $news->image(),
-            'params' => [
-                'disqus_url' => $this->linker->disqusNews($id),
-                'disqus_id' => 'news' . $id,
-                'news_item' => $news,
-                'title' => $news->displayTitle(),
-                'page_description' => $this->makePageDescription($news->shortText, 'news.description_limit'),
-                'news_prev' => $prev,
-                'news_next' => $next,
-                'rel_prev' => $prev ? $prev->url() : null,
-                'rel_next' => $next ? $next->url() : null,
-            ],
-        ]);
+        $params = $this->buildParams(
+            [
+                'game' => $news->game(),
+                'sidebar' => [ 'stream', 'gallery', 'news', 'events' ],
+                'news_id' => $id,
+                'large_image' => $news->largeImage(),
+                'image' => $news->image(),
+                'params' => [
+                    'disqus_url' => $this->linker->disqusNews($id),
+                    'disqus_id' => 'news' . $id,
+                    'news_item' => $news,
+                    'title' => $news->displayTitle(),
+                    'page_description' => $this->makePageDescription($news->shortText, 'news.description_limit'),
+                    'news_prev' => $prev,
+                    'news_next' => $next,
+                    'rel_prev' => $prev ? $prev->url() : null,
+                    'rel_next' => $next ? $next->url() : null,
+                ],
+            ]
+        );
         
-        return $this->view->render($response, 'main/news/item.twig', $params);
+        return $this->render($response, 'main/news/item.twig', $params);
     }
 
-    public function archiveIndex($request, $response, $args)
+    public function archiveIndex(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $years = $this->newsAggregatorService->getYears();
         
-        $params = $this->buildParams([
-            'sidebar' => [ 'stream', 'gallery' ],
-            'params' => [
-                'title' => 'Архив новостей',
-                'years' => $years,
-            ],
-        ]);
+        $params = $this->buildParams(
+            [
+                'sidebar' => [ 'stream', 'gallery' ],
+                'params' => [
+                    'title' => 'Архив новостей',
+                    'years' => $years,
+                ],
+            ]
+        );
     
-        return $this->view->render($response, 'main/news/archive/index.twig', $params);
+        return $this->render($response, 'main/news/archive/index.twig', $params);
     }
     
-    public function archiveYear($request, $response, $args)
+    public function archiveYear(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $year = $args['year'];
 
@@ -129,29 +149,34 @@ class NewsController extends Controller
         $prev = $this->newsAggregatorService->getPrevYear($year);
         $next = $this->newsAggregatorService->getNextYear($year);
 
-        $params = $this->buildParams([
-            'sidebar' => [ 'stream', 'gallery' ],
-            'params' => [
-                'title' => "Архив новостей за {$year} год",
-                'archive_year' => $year,
-                'monthly' => $monthly,
-                'year_prev' => $prev,
-                'year_next' => $next,
-                'rel_prev' => $prev ? $prev->url() : null,
-                'rel_next' => $next ? $next->url() : null,
-            ],
-        ]);
+        $params = $this->buildParams(
+            [
+                'sidebar' => [ 'stream', 'gallery' ],
+                'params' => [
+                    'title' => "Архив новостей за {$year} год",
+                    'archive_year' => $year,
+                    'monthly' => $monthly,
+                    'year_prev' => $prev,
+                    'year_next' => $next,
+                    'rel_prev' => $prev ? $prev->url() : null,
+                    'rel_next' => $next ? $next->url() : null,
+                ],
+            ]
+        );
     
-        return $this->view->render($response, 'main/news/archive/year.twig', $params);
+        return $this->render($response, 'main/news/archive/year.twig', $params);
     }
     
-    public function rss($request, $response, $args)
+    public function rss(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $limit = $this->getSettings('rss_limit');
         
         $news = $this->newsAggregatorService->getTop($limit);
 
-        $fileName = __DIR__ . $this->getSettings('folders.rss_cache') . 'rss.xml';
+        $path = $this->getSettings('folders.rss_cache');
+        $path = File::absolutePath(__DIR__, $path);
+
+        $fileName = File::combine($path, 'rss.xml');
 
         $settings = $this->getSettings('view_globals');
         
@@ -165,7 +190,7 @@ class NewsController extends Controller
         $rss->title = $siteName;
         $rss->description = $siteDescription;
         $rss->link = $siteUrl;
-        $rss->syndicationURL = $siteUrl . '/rss';
+        $rss->syndicationURL = $this->router->pathFor('main.rss');
         $rss->encoding = "utf-8";
         $rss->language = 'ru';
         $rss->copyright = $siteName;
@@ -186,9 +211,12 @@ class NewsController extends Controller
             $item->description = $this->parser->makeAbsolute($n->shortText());
             $item->date = $n->publishedAtIso();
             $item->author = $n->creator()->displayName();
-            $item->category = array_map(function($t) {
-                return $t->tag;
-            }, $n->tagLinks());
+            $item->category = array_map(
+                function ($t) {
+                    return $t->tag;
+                },
+                $n->tagLinks()
+            );
             
             $rss->addItem($item);
         }

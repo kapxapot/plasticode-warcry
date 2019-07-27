@@ -6,75 +6,87 @@ use App\Jobs\UpdateStreamsJob;
 use App\Models\Stream;
 use App\Services\StreamService;
 use App\Services\StreamStatsService;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class StreamController extends Controller
 {
-	private $streamsTitle;
-	
-	public function __construct($container)
-	{
-		parent::__construct($container);
+    /**
+     * Streams title for views
+     *
+     * @var string
+     */
+    private $streamsTitle;
+    
+    public function __construct(ContainerInterface $container)
+    {
+        parent::__construct($container);
 
-		$this->streamsTitle = $this->getSettings('streams.title');
-	}
+        $this->streamsTitle = $this->getSettings('streams.title');
+    }
 
-	public function index($request, $response, $args)
-	{
-	    $streamService = new StreamService($this->cases);
-	    
-		$streams = $streamService->getAllSorted();
-		$groups = $streamService->getGroups();
+    public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    {
+        $streamService = new StreamService($this->cases);
+        
+        $streams = $streamService->getAllSorted();
+        $groups = $streamService->getGroups();
 
-		$params = $this->buildParams([
-			'sidebar' => [ 'gallery' ],
-			'params' => [
-				'title' => $this->streamsTitle,
-				'streams' => $streams,
-				'groups' => $groups,
-			],
-		]);
-	
-		return $this->view->render($response, 'main/streams/index.twig', $params);
-	}
+        $params = $this->buildParams(
+            [
+                'sidebar' => [ 'gallery' ],
+                'params' => [
+                    'title' => $this->streamsTitle,
+                    'streams' => $streams,
+                    'groups' => $groups,
+                ],
+            ]
+        );
+    
+        return $this->render($response, 'main/streams/index.twig', $params);
+    }
 
-	public function item($request, $response, $args)
-	{
-		$alias = $args['alias'];
+    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    {
+        $alias = $args['alias'];
 
-		$stream = Stream::getPublishedByAlias($alias);
-		
-		if (!$stream) {
-			return $this->notFound($request, $response);
-		}
-		
-		$statsService = new StreamStatsService();
-		
-		$params = $this->buildParams([
-			'sidebar' => [ 'gallery' ],
-			'image' => $stream->remoteLogo,
-			'params' => [
-				'stream' => $stream,
-				'stats' => $statsService->build($stream),
-				'title' => $stream->title,
-				'streams_title' => $this->streamsTitle,
-			],
-		]);
+        $stream = Stream::getPublishedByAlias($alias);
+        
+        if (!$stream) {
+            return $this->notFound($request, $response);
+        }
+        
+        $statsService = new StreamStatsService();
+        
+        $params = $this->buildParams(
+            [
+                'sidebar' => [ 'gallery' ],
+                'image' => $stream->remoteLogo,
+                'params' => [
+                    'stream' => $stream,
+                    'stats' => $statsService->build($stream),
+                    'title' => $stream->title,
+                    'streams_title' => $this->streamsTitle,
+                ],
+            ]
+        );
 
-		return $this->view->render($response, 'main/streams/item.twig', $params);
-	}
-	
-	public function refresh($request, $response, $args)
-	{
-		$log = $request->getQueryParam('log', false);
-		$notify = $request->getQueryParam('notify', true);
-		
-		$job = new UpdateStreamsJob($this->container, $notify);
+        return $this->render($response, 'main/streams/item.twig', $params);
+    }
+    
+    public function refresh(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    {
+        $log = $request->getQueryParam('log', false);
+        $notify = $request->getQueryParam('notify', true);
+        
+        $job = new UpdateStreamsJob($this->container, $notify);
 
-		$params = [ 
-			'data' => $job->run(),
-			'log' => $log,
-		];
+        $params = [ 
+            'data' => $job->run(),
+            'log' => $log,
+        ];
 
-		return $this->view->render($response, 'main/streams/refresh.twig', $params);
-	}
+        return $this->render($response, 'main/streams/refresh.twig', $params);
+    }
 }
