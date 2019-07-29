@@ -10,7 +10,7 @@ class ComicStandalonesGenerator extends TaggableEntityGenerator
 {
     use Publishable;
 
-    public function getOptions()
+    public function getOptions() : array
     {
         $options = parent::getOptions();
         
@@ -22,7 +22,7 @@ class ComicStandalonesGenerator extends TaggableEntityGenerator
         return $options;
     }
     
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
 
@@ -31,7 +31,7 @@ class ComicStandalonesGenerator extends TaggableEntityGenerator
         return $data;
     }
 
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
         

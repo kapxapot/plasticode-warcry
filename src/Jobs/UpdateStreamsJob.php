@@ -11,6 +11,11 @@ use Psr\Container\ContainerInterface;
 
 class UpdateStreamsJob extends Contained
 {
+    /**
+     * Notify?
+     *
+     * @var boolean
+     */
     private $notify;
     
     public function __construct(ContainerInterface $container, bool $notify)
@@ -83,7 +88,7 @@ class UpdateStreamsJob extends Contained
         ];
     }
     
-    private function updateStreamStats(Stream $stream)
+    private function updateStreamStats(Stream $stream) : void
     {
         $online = $stream->isOnline();
         $refresh = $online;

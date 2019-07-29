@@ -5,19 +5,25 @@ namespace App\Generators;
 use App\Services\ComicService;
 use Plasticode\Exceptions\Http\NotFoundException;
 use Plasticode\Generators\EntityGenerator;
+use Psr\Container\ContainerInterface;
 
 abstract class ComicPagesBaseGenerator extends EntityGenerator
 {
+    /**
+     * Comic service
+     *
+     * @var \App\Services\ComicService
+     */
     private $comicService;
     
-    public function __construct($container, $entity)
+    public function __construct(ContainerInterface $container, string $entity)
     {
         parent::__construct($container, $entity);
         
         $this->comicService = new ComicService();
     }
     
-    public function getRules($data, $id = null)
+    public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
         
@@ -27,7 +33,7 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
         return $rules;
     }
 
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
         
@@ -41,9 +47,9 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
         return $item;
     }
     
-    abstract protected function getPageUrl($item);
+    abstract protected function getPageUrl(array $item) : string;
 
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
         
@@ -72,14 +78,14 @@ abstract class ComicPagesBaseGenerator extends EntityGenerator
         return $data;
     }
     
-    public function afterSave($item, $data)
+    public function afterSave(array $item, array $data) : void
     {
         parent::afterSave($item, $data);
         
         $this->comics->save($item, $data);
     }
     
-    public function afterDelete($item)
+    public function afterDelete(array $item) : void
     {
         parent::afterDelete($item);
         

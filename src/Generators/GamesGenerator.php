@@ -4,11 +4,11 @@ namespace App\Generators;
 
 use App\Models\Game;
 use Plasticode\Generators\EntityGenerator;
-use Respect\Validation\Validator as v;
+use Respect\Validation\Validator;
 
 class GamesGenerator extends EntityGenerator
 {
-    public function getRules($data, $id = null)
+    public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
         
@@ -18,12 +18,12 @@ class GamesGenerator extends EntityGenerator
         $rules['news_forum_id'] = $this->optional('posInt');
         $rules['main_forum_id'] = $this->optional('posInt');
         $rules['position'] = $this->optional('posInt');
-        $rules['parent_id'] = v::nonRecursiveParent($this->entity, $id);
+        $rules['parent_id'] = Validator::nonRecursiveParent($this->entity, $id);
         
         return $rules;
     }
     
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
         
@@ -43,7 +43,7 @@ class GamesGenerator extends EntityGenerator
         return $item;
     }
     
-    private function buildAutoTags($item)
+    private function buildAutoTags(array $item) : string
     {
         $parts = [];
         

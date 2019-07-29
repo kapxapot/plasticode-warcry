@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
@@ -14,8 +15,6 @@ use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
 
-use App\Models\Interfaces\NewsSourceInterface;
-
 class Article extends DbModel implements SearchableInterface, NewsSourceInterface
 {
     use CachedDescription, Children, FullPublish, Stamps, Tags;
@@ -25,7 +24,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     
     // traits
     
-    protected static function getDescriptionField()
+    protected static function getDescriptionField() : string
     {
         return 'text';
     }
@@ -41,146 +40,148 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
 
     // queries
     
-    public static function getAllByName($name, $cat = null) : Query
+    public static function getAllByName(string $name, string $cat = null) : Query
     {
-		$name = Strings::toSpaces($name);
-		$cat = Strings::toSpaces($cat);
+        $name = Strings::toSpaces($name);
+        $cat = Strings::toSpaces($cat);
 
-		$query = self::getBaseProtected();
-		
-		if (is_numeric($name)) {
-			return $query->where(self::$idField, $name);
-		}
-		
-		$query = $query->where('name_en', $name);
-	
-		if ($cat) {
-		    $category = ArticleCategory::getByName($cat);
-		    
-		    if ($category) {
-    			return $query
-    				->whereRaw('(cat = ? or cat is null)', [ $category->id ])
-    				->orderByDesc('cat');
-		    }
-		}
+        $query = self::getBaseProtected();
+        
+        if (is_numeric($name)) {
+            return $query->where(self::$idField, $name);
+        }
+        
+        $query = $query->where('name_en', $name);
+    
+        if ($cat) {
+            $category = ArticleCategory::getByName($cat);
+            
+            if ($category) {
+                return $query
+                    ->whereRaw('(cat = ? or cat is null)', [ $category->id ])
+                    ->orderByDesc('cat');
+            }
+        }
 
-		return $query->orderByAsc('cat');
-	}
+        return $query->orderByAsc('cat');
+    }
 
-    public static function getLatest($game = null, $limit = null, $exceptId = null) : Query
+    public static function getLatest(Game $game = null, int $limit = null, int $exceptId = null) : Query
     {
-		$query = self::getPublished()
-		    ->where('announce', 1);
-	
-		if ($game) {
-			$query = $game->filter($query);
-		}
-		
-		if ($exceptId) {
-			$query = $query->whereNotEqual('id', $exceptId);
-		}
-		
-		if ($limit) {
-		    $query = $query->limit($limit);
-		}
-		
-		return $query;
+        $query = self::getPublished()
+            ->where('announce', 1);
+    
+        if ($game) {
+            $query = $game->filter($query);
+        }
+        
+        if ($exceptId) {
+            $query = $query->whereNotEqual('id', $exceptId);
+        }
+        
+        if ($limit) {
+            $query = $query->limit($limit);
+        }
+        
+        return $query;
     }
     
     /**
-     * Check article duplicates for validation.
+     * Check article duplicates for validation
      */
-    public static function lookup($name, $cat, $exceptId) : Query
+    public static function lookup(string $name, int $cat, int $exceptId) : Query
     {
-	    $query = self::query()
-	        ->where('name_en', $name);
-    	
-		if (strlen($cat) > 0) {
-			$query = $query->where('cat', $cat);
-		}
-		else {
-			$query = $query->whereNull('cat');
-		}
-    		
-		if ($exceptId > 0) {
-    		$query = $query->whereNotEqual('id', $exceptId);
-    	}
-    		
-    	return $query;
+        $query = self::query()
+            ->where('name_en', $name);
+        
+        if (strlen($cat) > 0) {
+            $query = $query->where('cat', $cat);
+        }
+        else {
+            $query = $query->whereNull('cat');
+        }
+            
+        if ($exceptId > 0) {
+            $query = $query->whereNotEqual('id', $exceptId);
+        }
+            
+        return $query;
     }
     
-    public static function getByName($name, $cat = null)
+    public static function getByName(string $name, string $cat = null) : ?self
     {
         return self::getAllByName($name, $cat)->one();
-	}
-	
-	public static function getByAlias($name, $cat = null)
-	{
-		$name = Strings::toSpaces($name);
-		$cat = Strings::toSpaces($cat);
+    }
+    
+    public static function getByAlias(string $name, string $cat = null) : ?self
+    {
+        $name = Strings::toSpaces($name);
+        $cat = Strings::toSpaces($cat);
 
-	    $aliasParts[] = $name;
-	    
-	    if (strlen($cat) > 0) {
-	        $aliasParts[] = $cat;
-	    }
-	    
+        $aliasParts[] = $name;
+        
+        if (strlen($cat) > 0) {
+            $aliasParts[] = $cat;
+        }
+        
         $alias = self::$parser->joinTagParts($aliasParts);
 
-		return self::getProtected()
-		    ->whereRaw('(aliases like ?)', [ '%' . $alias . '%' ])
-		    ->one();
-	}
-	
-	public static function getByNameOrAlias($name, $cat = null)
-	{
-	    return self::getByName($name, $cat) ?? self::getByAlias($name, $cat);
-	}
+        return self::getProtected()
+            ->whereRaw('(aliases like ?)', [ '%' . $alias . '%' ])
+            ->one();
+    }
+    
+    public static function getByNameOrAlias(string $name, string $cat = null) : ?self
+    {
+        return self::getByName($name, $cat) ?? self::getByAlias($name, $cat);
+    }
 
     // props
 
-    public function game()
+    public function game() : Game
     {
-    	return Game::get($this->gameId);
+        return Game::get($this->gameId);
     }
 
-    public function category()
+    public function category() : ?ArticleCategory
     {
-        return $this->lazy(function () {
-            return ArticleCategory::get($this->cat);
-        });
+        return $this->lazy(
+            function () {
+                return ArticleCategory::get($this->cat);
+            }
+        );
     }
 
-    public function title()
+    public function title() : string
     {
         $cat = $this->category();
         
-        return $this->nameRu . ($cat ? " ({$cat->nameRu})" : '');
+        return $this->nameRu . ($cat ? ' (' . $cat->nameRu . ')' : '');
     }
     
-    public function titleEn()
+    public function titleEn() : ?string
     {
         return $this->hideeng ? null : $this->nameEn;
     }
     
-    public function titleFull()
+    public function titleFull() : string
     {
         $en = $this->titleEn();
         
-        return $this->nameRu . ($en ? " ({$en})" : ''); 
+        return $this->nameRu . ($en ? ' (' . $en . ')' : ''); 
     }
 
-    public function parsed()
+    public function parsed() : array
     {
         return $this->parsedDescription();
     }
     
-    public function parsedText()
+    public function parsedText() : string
     {
         return $this->parsed()['text'];
     }
     
-    public function subArticles()
+    public function subArticles() : Collection
     {
         return $this
             ->children()
@@ -190,32 +191,36 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
             ->ascStr('name_ru');
     }
     
-    public function breadcrumbs()
-	{
-	    $breadcrumbs = Collection::makeEmpty();
-	    
-		$article = $this->parent();
-		
-		while (!is_null($article)) {
-			if (!$article->noBreadcrumb) {
-				$breadcrumbs = $breadcrumbs->add($article);
-			}
+    public function breadcrumbs() : Collection
+    {
+        $breadcrumbs = Collection::makeEmpty();
+        
+        $article = $this->parent();
+        
+        while (!is_null($article)) {
+            if (!$article->noBreadcrumb) {
+                $breadcrumbs = $breadcrumbs->add($article);
+            }
 
-			$article = $article->parent();
-		}
-		
-		return $breadcrumbs->reverse()->map(function ($a) {
-		    return [
-		        'url' => $a->url(),
-				'text' => $a->nameRu,
-				'title' => $a->titleEn()
-            ];
-		});
-	}
+            $article = $article->parent();
+        }
+        
+        return $breadcrumbs
+            ->reverse()
+            ->map(
+                function ($a) {
+                    return [
+                        'url' => $a->url(),
+                        'text' => $a->nameRu,
+                        'title' => $a->titleEn(),
+                    ];
+                }
+            );
+    }
 
     // interfaces
 
-    public static function search($searchQuery) : Collection
+    public static function search(string $searchQuery) : Collection
     {
         return self::getBasePublished()
             ->search($searchQuery, '(name_en like ? or name_ru like ?)', 2)
@@ -226,7 +231,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
             ]);
     }
     
-    public function serialize()
+    public function serialize() : ?array
     {
         $cat = $this->category();
         
@@ -260,7 +265,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     
     // NewsSourceInterface
 
-    public function url()
+    public function url() : ?string
     {
         $cat = $this->category();
         
@@ -272,56 +277,64 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
         return $query->where('announce', 1);
     }
     
-    public static function getNewsByTag($tag) : Query
+    public static function getNewsByTag(string $tag) : Query
     {
         $query = static::getByTag($tag);
         return self::announced($query);
     }
 
-	public static function getLatestNews($game = null, $exceptNewsId = null) : Query
-	{
-	    $query = static::getLatest($game);
-	    return self::announced($query);
-	}
-	
-	public static function getNewsBefore($game, $date) : Query
-	{
-		return self::getLatestNews($game)
-		    ->whereLt('published_at', $date)
-		    ->orderByDesc('published_at');
-	}
-	
-	public static function getNewsAfter($game, $date) : Query
-	{
-		return self::getLatestNews($game)
-		    ->whereGt('published_at', $date)
-		    ->orderByAsc('published_at');
-	}
-	
-	public static function getNewsByYear($year) : Query
-	{
-		$query = self::getPublished()
-		    ->whereRaw('(year(published_at) = ?)', [ $year ]);
-		
-		return self::announced($query);
-	}
-
-	public function displayTitle()
-	{
-	    return $this->nameRu;
-	}
-    
-    public function fullText()
+    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedText());
-        });
+        $query = static::getLatest($game, null, $exceptNewsId);
+        return self::announced($query);
     }
     
-    public function shortText()
+    public static function getNewsBefore(Game $game, string $date) : Query
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedText(), $this->url(), false);
-        });
+        return self::getLatestNews($game)
+            ->whereLt('published_at', $date)
+            ->orderByDesc('published_at');
+    }
+    
+    public static function getNewsAfter(Game $game, $date) : Query
+    {
+        return self::getLatestNews($game)
+            ->whereGt('published_at', $date)
+            ->orderByAsc('published_at');
+    }
+    
+    public static function getNewsByYear(int $year) : Query
+    {
+        $query = self::getPublished()
+            ->whereRaw('(year(published_at) = ?)', [ $year ]);
+        
+        return self::announced($query);
+    }
+
+    public function displayTitle() : string
+    {
+        return $this->nameRu;
+    }
+    
+    public function fullText() : string
+    {
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedText()
+                );
+            }
+        );
+    }
+    
+    public function shortText() : string
+    {
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedText(), $this->url(), false
+                );
+            }
+        );
     }
 }

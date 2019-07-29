@@ -4,7 +4,7 @@ namespace App\Config;
 
 class Captcha
 {
-    public function getReplaces()
+    public function getReplaces() : array
     {
         return [
             'ысяч' => [ 'ыщич', 'ыщ', 'ишч', 'исеч' ],

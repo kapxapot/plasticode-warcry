@@ -9,7 +9,7 @@ class StreamsGenerator extends TaggableEntityGenerator
 {
     use Publishable;
 
-    public function getRules($data, $id = null)
+    public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
         
@@ -19,7 +19,7 @@ class StreamsGenerator extends TaggableEntityGenerator
         return $rules;
     }
     
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
 

@@ -7,14 +7,14 @@ use Plasticode\Models\Interfaces\LinkableInterface;
 
 interface NewsSourceInterface extends LinkableInterface
 {
-    public static function getNewsByTag($tag) : Query;
-    public static function getLatestNews($game, $exceptNewsId) : Query;
-    public static function getNewsByYear($year) : Query;
+    public static function getNewsByTag(string $tag) : Query;
+    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query;
+    public static function getNewsByYear(int $year) : Query;
     
-    public static function getNewsBefore($game, $date) : Query;
-    public static function getNewsAfter($game, $date) : Query;
+    public static function getNewsBefore(Game $game, string $date) : Query;
+    public static function getNewsAfter(Game $game, string $date) : Query;
     
-    public function displayTitle();
-    public function fullText();
-    public function shortText();
+    public function displayTitle() : string;
+    public function fullText() : string;
+    public function shortText() : string;
 }

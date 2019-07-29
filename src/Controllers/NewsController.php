@@ -17,7 +17,7 @@ class NewsController extends Controller
     /**
      * News aggregator service
      *
-     * @var App\Services\NewsAggregatorService
+     * @var \App\Services\NewsAggregatorService
      */
     private $newsAggregatorService;
 

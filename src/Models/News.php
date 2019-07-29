@@ -106,46 +106,46 @@ class News extends DbModel implements SearchableInterface, NewsSourceInterface
     
     private static function getNewsByGame($game = null) : Query
     {
-		$query = self::getBasePublished();
+        $query = self::getBasePublished();
 
-		if ($game) {
-			$query = $game->filter($query);
-		}
+        if ($game) {
+            $query = $game->filter($query);
+        }
 
-		return $query;
+        return $query;
     }
 
-	public static function getLatestNews($game = null, $exceptNewsId = null) : Query
-	{
-		$query = self::getNewsByGame($game)
-		    ->orderByDesc('published_at');
+    public static function getLatestNews($game = null, $exceptNewsId = null) : Query
+    {
+        $query = self::getNewsByGame($game)
+            ->orderByDesc('published_at');
 
-		if ($exceptId) {
-			$query = $query->whereNotEqual(static::$idField, $exceptId);
-		}
+        if ($exceptNewsId) {
+            $query = $query->whereNotEqual(static::$idField, $exceptNewsId);
+        }
 
-		return $query;
-	}
-	
-	public static function getNewsByYear($year) : Query
-	{
-		return self::getPublished()
-		    ->whereRaw('(year(published_at) = ?)', [ $year ]);
-	}
-	
-	public static function getNewsBefore($game, $date) : Query
-	{
-		return self::getNewsByGame($game)
-		    ->whereLt('published_at', $date)
-		    ->orderByDesc('published_at');
-	}
-	
-	public static function getNewsAfter($game, $date) : Query
-	{
-		return self::getNewsByGame($game)
-		    ->whereGt('published_at', $date)
-		    ->orderByAsc('published_at');
-	}
+        return $query;
+    }
+    
+    public static function getNewsByYear($year) : Query
+    {
+        return self::getPublished()
+            ->whereRaw('(year(published_at) = ?)', [ $year ]);
+    }
+    
+    public static function getNewsBefore($game, $date) : Query
+    {
+        return self::getNewsByGame($game)
+            ->whereLt('published_at', $date)
+            ->orderByDesc('published_at');
+    }
+    
+    public static function getNewsAfter($game, $date) : Query
+    {
+        return self::getNewsByGame($game)
+            ->whereGt('published_at', $date)
+            ->orderByAsc('published_at');
+    }
     
     public function displayTitle()
     {

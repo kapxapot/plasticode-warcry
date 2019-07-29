@@ -6,7 +6,7 @@ use Plasticode\Generators\MenuItemsGenerator as MenuItemsBaseGenerator;
 
 class MenuItemsGenerator extends MenuItemsBaseGenerator
 {
-    public function getOptions()
+    public function getOptions() : array
     {
         $options = parent::getOptions();
         
@@ -15,7 +15,7 @@ class MenuItemsGenerator extends MenuItemsBaseGenerator
         return $options;
     }
     
-    public function getAdminParams($args)
+    public function getAdminParams(array $args) : array
     {
         $params = parent::getAdminParams($args);
 

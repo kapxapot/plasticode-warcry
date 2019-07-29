@@ -5,14 +5,20 @@ namespace App\Controllers\Admin;
 use App\Services\ComicService;
 use Plasticode\Controllers\Admin\ImageUploadController;
 use Plasticode\IO\Image;
+use Psr\Container\ContainerInterface;
 
 class ComicController extends ImageUploadController
 {
+    /**
+     * Comic service
+     *
+     * @var \App\Services\ComicService;
+     */
     private $comicService;
     
-    public function __construct($controller)
+    public function __construct(ContainerInterface $container)
     {
-        parent::__construct($controller);
+        parent::__construct($container);
         
         $this->comicService = new ComicService();
     }

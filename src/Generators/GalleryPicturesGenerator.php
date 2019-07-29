@@ -10,7 +10,7 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
 {
     use Publishable;
 
-    public function getRules($data, $id = null)
+    public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
         
@@ -21,7 +21,7 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
         return $rules;
     }
     
-    public function getOptions()
+    public function getOptions() : array
     {
         $options = parent::getOptions();
         
@@ -36,7 +36,7 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
         return $options;
     }
     
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
         
@@ -59,7 +59,7 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
         return $item;
     }
 
-    public function getAdminParams($args)
+    public function getAdminParams(array $args) : array
     {
         $params = parent::getAdminParams($args);
 
@@ -85,7 +85,7 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
         return $params;
     }
     
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
 
@@ -106,14 +106,14 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
         return $data;
     }
     
-    public function afterSave($item, $data)
+    public function afterSave(array $item, array $data) : void
     {
         parent::afterSave($item, $data);
         
         $this->gallery->save($item, $data);
     }
     
-    public function afterDelete($item)
+    public function afterDelete(array $item) : void
     {
         parent::afterDelete($item);
         

@@ -7,14 +7,14 @@ use Plasticode\Traits\Publishable;
 
 class VideosGenerator extends TaggableEntityGenerator
 {
-	use Publishable;
+    use Publishable;
 
-	public function beforeSave($data, $id = null)
-	{
-	    $data = parent::beforeSave($data, $id);
+    public function beforeSave(array $data, $id = null) : array
+    {
+        $data = parent::beforeSave($data, $id);
 
-		$data = $this->publishIfNeeded($data);		
+        $data = $this->publishIfNeeded($data);
 
-		return $data;
-	}
+        return $data;
+    }
 }

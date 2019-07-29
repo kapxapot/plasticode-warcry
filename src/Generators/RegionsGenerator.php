@@ -10,7 +10,7 @@ use App\Models\Region;
 
 class RegionsGenerator extends EntityGenerator
 {
-    public function getRules($data, $id = null)
+    public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
         
@@ -19,7 +19,7 @@ class RegionsGenerator extends EntityGenerator
         return $rules;
     }
     
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
         

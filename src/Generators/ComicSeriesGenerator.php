@@ -10,7 +10,7 @@ class ComicSeriesGenerator extends TaggableEntityGenerator
 {
     use Publishable;
 
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
         
@@ -19,7 +19,7 @@ class ComicSeriesGenerator extends TaggableEntityGenerator
         return $data;
     }
 
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
         

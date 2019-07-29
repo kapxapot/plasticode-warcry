@@ -7,18 +7,18 @@ use App\Models\ArticleCategory;
 use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Traits\Publishable;
 use Plasticode\Util\Strings;
-use Respect\Validation\Validator as v;
+use Respect\Validation\Validator;
 
 class ArticlesGenerator extends TaggableEntityGenerator
 {
     use Publishable;
 
-    public function getRules($data, $id = null)
+    public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
 
         $rules['name_ru'] = $this->rule('text');//->regex($cyr("'\(\):\-\.\|,\?!—«»"));
-        $rules['parent_id'] = v::nonRecursiveParent($this->entity, $id);
+        $rules['parent_id'] = Validator::nonRecursiveParent($this->entity, $id);
 
         if (array_key_exists('name_en', $data) && array_key_exists('cat', $data)) {
             $rules['name_en'] = $this->rule('text')
@@ -29,7 +29,7 @@ class ArticlesGenerator extends TaggableEntityGenerator
         return $rules;
     }
     
-    public function getOptions()
+    public function getOptions() : array
     {
         $options = parent::getOptions();
         
@@ -39,7 +39,7 @@ class ArticlesGenerator extends TaggableEntityGenerator
         return $options;
     }
     
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
         
@@ -80,7 +80,7 @@ class ArticlesGenerator extends TaggableEntityGenerator
         return $item;
     }
     
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
         
@@ -91,7 +91,7 @@ class ArticlesGenerator extends TaggableEntityGenerator
         return $data;
     }
 
-    public function afterSave($item, $data)
+    public function afterSave(array $item, array $data) : void
     {
         parent::afterSave($item, $data);
         
@@ -103,7 +103,7 @@ class ArticlesGenerator extends TaggableEntityGenerator
         $this->notify($item, $data);
     }
 
-    private function notify($item, $data)
+    private function notify(array $item, array $data) : void
     {
         if ($this->isJustPublished($item, $data) && $item->announce == 1) {
             if ($item->cat) {

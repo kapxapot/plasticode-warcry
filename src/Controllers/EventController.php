@@ -11,6 +11,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class EventController extends Controller
 {
+    /**
+     * Events title for views
+     *
+     * @var string
+     */
     private $eventsTitle;
     
     public function __construct(ContainerInterface $container)

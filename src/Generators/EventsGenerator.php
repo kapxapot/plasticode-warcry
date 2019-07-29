@@ -9,7 +9,7 @@ class EventsGenerator extends TaggableEntityGenerator
 {
     use Publishable;
 
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
 

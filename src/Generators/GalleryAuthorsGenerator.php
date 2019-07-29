@@ -7,7 +7,7 @@ use Plasticode\Generators\EntityGenerator;
 
 class GalleryAuthorsGenerator extends EntityGenerator
 {
-    public function getRules($data, $id = null)
+    public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
         
@@ -20,7 +20,7 @@ class GalleryAuthorsGenerator extends EntityGenerator
         return $rules;
     }
     
-    public function getOptions()
+    public function getOptions() : array
     {
         $options = parent::getOptions();
         
@@ -33,7 +33,7 @@ class GalleryAuthorsGenerator extends EntityGenerator
         return $options;
     }
     
-    public function afterLoad($item)
+    public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
 

@@ -9,7 +9,7 @@ class NewsGenerator extends TaggableEntityGenerator
 {
     use Publishable;
 
-    public function beforeSave($data, $id = null)
+    public function beforeSave(array $data, $id = null) : array
     {
         $data = parent::beforeSave($data, $id);
         
@@ -20,14 +20,14 @@ class NewsGenerator extends TaggableEntityGenerator
         return $data;
     }
 
-    public function afterSave($item, $data)
+    public function afterSave(array $item, array $data) : void
     {
         parent::afterSave($item, $data);
         
         $this->notify($item, $data);
     }
 
-    private function notify($item, $data)
+    private function notify(array $item, array $data) : void
     {
         if ($this->isJustPublished($item, $data)) {
             $url = $this->linker->news($item->id);

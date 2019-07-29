@@ -6,7 +6,7 @@ use App\Models\ComicStandalone;
 
 class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
 {
-    protected function getPageUrl($item)
+    protected function getPageUrl(array $item) : string
     {
         $comic = ComicStandalone::get($item['comic_standalone_id']);
         $page = $comic->pageByNumber($item['number']);
@@ -14,7 +14,7 @@ class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
         return $page->pageUrl();
     }
     
-    public function getOptions()
+    public function getOptions() : array
     {
         $options = parent::getOptions();
         
@@ -24,7 +24,7 @@ class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
         return $options;
     }
 
-    public function getAdminParams($args)
+    public function getAdminParams(array $args) : array
     {
         $params = parent::getAdminParams($args);
 
