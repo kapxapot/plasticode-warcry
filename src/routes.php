@@ -26,7 +26,16 @@ use Plasticode\Middleware\TokenAuthMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-$access = function ($entity, $action, $redirect = null) use ($container) {
+/**
+ * Creates AccessMiddleware
+ * 
+ * @var \Closure
+ */
+$access = function (
+    string $entity,
+    string $action,
+    string $redirect = null
+) use ($container) {
     return new AccessMiddleware($container, $entity, $action, $redirect);
 };
 
