@@ -2,6 +2,7 @@
 
 namespace App\Models\Interfaces;
 
+use App\Models\Game;
 use Plasticode\Query;
 use Plasticode\Models\Interfaces\LinkableInterface;
 

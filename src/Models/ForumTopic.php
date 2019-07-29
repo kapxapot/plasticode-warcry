@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
-
-use App\Models\Interfaces\NewsSourceInterface;
 
 class ForumTopic extends DbModel implements NewsSourceInterface
 {
@@ -22,7 +21,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     
     // traits
     
-    protected static function getTagsEntityType()
+    protected static function getTagsEntityType() : string
     {
         return News::getTable();
     }
@@ -36,7 +35,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return Strings::trimArray($tags);
     }
 
-    public static function filterByTag($query, $tag) : Query
+    public static function filterByTag(Query $query, string $tag) : Query
     {
         $ids = ForumTag::getForumTopicIdsByTag($tag);
         
@@ -47,14 +46,14 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return $query->whereIn('tid', $ids);
     }
 
-    public static function getByTag($tag) : Query
+    public static function getByTag(string $tag) : Query
     {
         return self::filterByTag(self::query(), $tag);
     }
     
     // queries
     
-    private static function getNewsQuery($game = null) : Query
+    private static function getNewsQuery(Game $game = null) : Query
     {
         $forumIds = Game::getNewsForumIds($game);
 
@@ -68,7 +67,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
 
     // getters - one
     
-    public static function getNews($id)
+    public static function getNews(int $id) : ?self
     {
         $topic = self::get($id);
         
@@ -81,87 +80,102 @@ class ForumTopic extends DbModel implements NewsSourceInterface
 
     // props
     
-    public function isNews()
+    public function isNews() : bool
     {
         return $this->forum()->isNewsForum();
     }
     
-    public function game()
+    public function game() : ?Game
     {
         return Game::getByForumId($this->forumId);
     }
     
-    public function forum()
+    public function forum() : Forum
     {
         return Forum::get($this->forumId);
     }
 
-    public function forumUrl()
+    public function forumUrl() : string
     {
         return self::$linker->forumTopic($this->getId());
     }
 
-    public function forumPost()
+    public function forumPost() : ForumPost
     {
-        return $this->lazy(function () {
-            return ForumPost::getByForumTopic($this->getId());
-        });
+        return $this->lazy(
+            function () {
+                return ForumPost::getByForumTopic($this->getId());
+            }
+        );
     }
     
-    public function post()
+    public function post() : ?string
     {
-        return $this->lazy(function () {
-            return $this->forumPost()
-                ? $this->forumPost()->post
-                : null;
-        });
+        return $this->lazy(
+            function () {
+                return $this->forumPost()
+                    ? $this->forumPost()->post
+                    : null;
+            }
+        );
     }
     
-    private function parsedPost()
+    private function parsedPost() : ?string
     {
-        return $this->lazy(function () {
-            $newsParser = self::$container->newsParser;
-            $forumParser = self::$container->forumParser;
-            
-            $post = $newsParser->beforeParsePost($this->post(), $this->getId());
-            $post = $forumParser->convert([ 'TEXT' => $post, 'CODE' => 1 ]);
-            $post = $newsParser->afterParsePost($post);
-            
-            return $post;
-        });
+        return $this->lazy(
+            function () {
+                $post = $this->post();
+
+                if (is_null($post)) {
+                    return null;
+                }
+
+                $newsParser = self::$container->newsParser;
+                $forumParser = self::$container->forumParser;
+                
+                $post = $newsParser->beforeParsePost($post, $this->getId());
+                $post = $forumParser->convert(['TEXT' => $post, 'CODE' => 1]);
+                $post = $newsParser->afterParsePost($post);
+                
+                return $post;
+            }
+        );
     }
 
-    public function tags()
+    public function tags() : Collection
     {
         return ForumTag::getByForumTopic($this->getId())->all();
     }
     
-    public function largeImage()
+    public function largeImage() : ?string
     {
         return null;
     }
     
-    public function image()
+    public function image() : ?string
     {
         return null;
     }
     
-    public function published()
+    public function published() : int
     {
         return 1;
     }
     
-    public function publishedAt()
+    public function publishedAt() : string
     {
-        return strftime(self::getSettings('time_format'), $this->startDate);
+        return strftime(
+            self::getSettings('time_format'),
+            $this->startDate
+        );
     }
 
-    public function publishedAtIso()
+    public function publishedAtIso() : string
     {
         return Date::iso($this->publishedAt());
     }
     
-    public function creator()
+    public function creator() : array
     {
         return [
             'forum_member' => ForumMember::get($this->starterId),
@@ -169,36 +183,36 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         ];
     }
     
-    public function updater()
+    public function updater() : array
     {
         return $this->creator();
     }
     
-    public function createdAtIso()
+    public function createdAtIso() : string
     {
         return $this->publishedAtIso();
     }
     
-    public function updatedAtIso()
+    public function updatedAtIso() : string
     {
         return $this->createdAtIso();
     }
 
     // LinkableInterface
     
-    public function url()
+    public function url() : ?string
     {
         return self::$linker->news($this->getId());
     }
 
     // NewsSourceInterface
     
-    public static function getNewsByTag($tag) : Query
+    public static function getNewsByTag(string $tag) : Query
     {
         return self::filterByTag(self::getNewsQuery(), $tag);
     }
     
-    public static function getLatestNews($game = null, $exceptNewsId = null) : Query
+    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query
     {
         $query = self::getNewsQuery($game);
 
@@ -209,7 +223,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return $query;
     }
     
-    public static function getNewsBefore($game, $date) : Query
+    public static function getNewsBefore(Game $game, string $date) : Query
     {
         $convertedDate = strtotime($date);
         
@@ -218,7 +232,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
             ->orderByDesc('start_date');
     }
     
-    public static function getNewsAfter($game, $date) : Query
+    public static function getNewsAfter(Game $game, string $date) : Query
     {
         $convertedDate = strtotime($date);
         
@@ -227,28 +241,36 @@ class ForumTopic extends DbModel implements NewsSourceInterface
             ->orderByAsc('start_date');
     }
 
-    public static function getNewsByYear($year) : Query
+    public static function getNewsByYear(int $year) : Query
     {
         return self::getNewsQuery()
-            ->whereRaw('(year(from_unixtime(start_date)) = ?)', [ $year ]);
+            ->whereRaw('(year(from_unixtime(start_date)) = ?)', [$year]);
     }
     
-    public function displayTitle()
+    public function displayTitle() : string
     {
         return self::$container->newsParser->decodeTopicTitle($this->title);
     }
     
-    public function fullText()
+    public function fullText() : string
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedPost());
-        });
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedPost()
+                );
+            }
+        );
     }
     
-    public function shortText()
+    public function shortText() : string
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedPost(), $this->url(), false);
-        });
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedPost(), $this->url(), false
+                );
+            }
+        );
     }
 }

@@ -8,7 +8,7 @@ class ArticleCategory extends DbModel
 {
     // getters - one
     
-    public static function getByName($name)
+    public static function getByName(string $name) : ?self
     {
         return self::query()
             ->where('name_en', $name)
@@ -17,7 +17,7 @@ class ArticleCategory extends DbModel
     
     // funcs
     
-    public function serialize()
+    public function serialize() : ?array
     {
         return [
             'id' => $this->id,

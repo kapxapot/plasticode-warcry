@@ -19,19 +19,19 @@ class Stream extends DbModel
 
     // GETTERS - ONE
     
-    public static function getPublishedByAlias($alias)
+    public static function getPublishedByAlias($alias) : ?self
     {
         return self::getPublished()
             ->whereRaw(
                 '(stream_alias = ? or (stream_alias is null and stream_id = ?))',
-                [ $alias, $alias ]
+                [$alias, $alias]
             )
             ->one();
     }
 
     // PROPS
     
-    public function alive()
+    public function alive() : bool
     {
         if (!$this->remoteOnlineAt) {
             return false;
@@ -43,62 +43,64 @@ class Stream extends DbModel
         return $age->days < $timeToLive;
     }
     
-    public function game()
+    public function game() : ?Game
     {
-        return $this->lazy(function () {
-            return $this->remoteGame
-                ? Game::getByTwitchName($this->remoteGame)
-                : null;
-        });
+        return $this->lazy(
+            function () {
+                return $this->remoteGame
+                    ? Game::getByTwitchName($this->remoteGame)
+                    : null;
+            }
+        );
     }
     
-    public function belongsToGame($game)
+    public function belongsToGame(Game $game) : bool
     {
-        //var_dump([ $this->remoteGame, $this->game()->toString(), $game->toString() ]);
-        
         if (is_null($game) || is_null($this->game())) {
             return false;
         }
         
-        return $game->root()->subTreeContains($this->game());
+        return $game->root()->trunkContains($this->game());
     }
     
-    public function priorityGame()
+    public function priorityGame() : bool
     {
-        return $this->official || $this->officialRu || Game::isPriority($this->remoteGame);
+        return $this->official
+            || $this->officialRu
+            || Game::isPriority($this->remoteGame);
     }
     
-    public function alias()
+    public function alias() : string
     {
         return $this->streamAlias ?? $this->streamId;
     }
     
-    public function pageUrl()
+    public function pageUrl() : string
     {
         return self::$linker->stream($this->alias());
     }
     
-    public function imgUrl()
+    public function imgUrl() : string
     {
         return self::$linker->twitchImg($this->streamId);
     }
     
-    public function largeImgUrl()
+    public function largeImgUrl() : string
     {
         return self::$linker->twitchLargeImg($this->streamId);
     }
     
-    public function twitch()
+    public function twitch() : bool
     {
         return true;
     }
     
-    public function streamUrl()
+    public function streamUrl() : string
     {
         return self::$linker->twitch($this->streamId);
     }
     
-    public function verbs()
+    public function verbs() : array
     {
         $form = [
             'time' => Cases::PAST,
@@ -114,31 +116,33 @@ class Stream extends DbModel
         ];
     }
     
-    public function nouns()
+    public function nouns() : array
     {
         return [
-            'viewers' => self::$cases->caseForNumber('зритель', $this->remoteViewers),
+            'viewers' => self::$cases->caseForNumber(
+                'зритель', $this->remoteViewers
+            ),
         ];
     }
     
-    public function remoteOnlineAtIso()
+    public function remoteOnlineAtIso() : ?string
     {
         return $this->remoteOnlineAt
             ? Date::iso($this->remoteOnlineAt)
             : null;
     }
     
-    public function isOnline()
+    public function isOnline() : bool
     {
         return $this->remoteOnline == 1;
     }
     
-    public function hasLogo()
+    public function hasLogo() : bool
     {
         return strlen($this->remoteLogo) > 0;
     }
 
-    public function displayRemoteStatus()
+    public function displayRemoteStatus() : string
     {
         return urldecode($this->remoteStatus);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
@@ -13,8 +14,6 @@ use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
-
-use App\Models\Interfaces\NewsSourceInterface;
 
 class Event extends DbModel implements SearchableInterface, NewsSourceInterface
 {
@@ -32,13 +31,17 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     public static function getUnended() : Query
     {
         return self::getOrderedByStart()
-            ->whereRaw('(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)');
+            ->whereRaw(
+                '(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)'
+            );
     }
     
-    public static function getCurrent($game, $days) : Query
+    public static function getCurrent(?Game $game, int $days) : Query
     {
         $query = self::getUnended()
-            ->whereRaw("(starts_at < date_add(now(), interval {$days} day) or important = 1)");
+            ->whereRaw(
+                '(starts_at < date_add(now(), interval ' . $days . ' day) or important = 1)'
+            );
 
         if ($game) {
             return $game->filter($query);
@@ -56,7 +59,7 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     
     // getters - many
     
-    public static function getGroups()
+    public static function getGroups() : array
     {
         $events = self::getOrderedByStart()->all();
         
@@ -64,23 +67,29 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
             [
                 'id' => 'current',
                 'label' => 'Текущие',
-                'items' => $events->where(function ($e) {
-                    return $e->started() && !$e->ended();
-                }),
+                'items' => $events->where(
+                    function ($e) {
+                        return $e->started() && !$e->ended();
+                    }
+                ),
             ],
             [
                 'id' => 'future',
                 'label' => 'Будущие',
-                'items' => $events->where(function($e) {
-                    return !$e->started();
-                }),
+                'items' => $events->where(
+                    function ($e) {
+                        return !$e->started();
+                    }
+                ),
             ],
             [
                 'id' => 'past',
                 'label' => 'Прошедшие',
-                'items' => $events->where(function($e) {
-                    return $e->ended();
-                }),
+                'items' => $events->where(
+                    function ($e) {
+                        return $e->ended();
+                    }
+                ),
             ]
         ];
 
@@ -89,66 +98,70 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     
     // PROPS
     
-    public function game()
+    public function game() : ?Game
     {
         return Game::get($this->gameId);
     }
     
-    public function region()
+    public function region() : ?Region
     {
         return Region::get($this->regionId);
     }
     
-    public function type()
+    public function type() : EventType
     {
         return EventType::get($this->typeId);
     }
 
-    public function started()
+    public function started() : bool
     {
         return Date::happened($this->startsAt);
     }
 
-    public function ended()
+    public function ended() : bool
     {
-        return ($this->unknownEnd != 1) && Date::happened($this->guessEndsAt());
+        return ($this->unknownEnd != 1)
+            && Date::happened($this->guessEndsAt());
     }
     
-    public function start()
+    public function start() : Moment
     {
         return new Moment($this->startsAt);
     }
     
-    public function end()
+    public function end() : ?Moment
     {
         return $this->endsAt
             ? new Moment($this->endsAt)
             : null;
     }
 
+    /**
+     * @return string|\DateTime
+     */
     public function guessEndsAt()
     {
         return $this->endsAt ?? Date::endOfDay($this->startsAt);
     }
 
-    public function parsed()
+    public function parsed() : array
     {
         return $this->parsedDescription();
     }
     
-    public function parsedText()
+    public function parsedText() : string
     {
         return $this->parsed()['text'];
     }
 
-    public function toString()
+    public function toString() : string
     {
-        return "[{$this->id}] {$this->name}";
+        return '[' . $this->id . '] ' . $this->name;
     }
 
     // interfaces
 
-    public static function search($searchQuery) : Collection
+    public static function search(string $searchQuery) : Collection
     {
         return self::getPublished()
             ->search($searchQuery, '(name like ?)')
@@ -156,7 +169,7 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
             ->all();
     }
     
-    public function serialize()
+    public function serialize() : ?array
     {
         return [
             'id' => $this->getId(),
@@ -168,18 +181,18 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     public function code() : string
     {
         $parts = [
-            "event:{$this->getId()}",
+            'event:' . $this->getId(),
             $this->name,
         ];
         
         $code = self::$parser->joinTagParts($parts);
         
-        return "[[{$code}]]";
+        return '[[' . $code . ']]';
     }
     
     // NewsSourceInterface
 
-    public function url()
+    public function url() : ?string
     {
         return self::$linker->event($this->id);
     }
@@ -189,13 +202,13 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
         return $query->where('announce', 1);
     }
     
-    public static function getNewsByTag($tag) : Query
+    public static function getNewsByTag(string $tag) : Query
     {
         $query = static::getByTag($tag);
         return self::announced($query);
     }
     
-    private static function getNewsByGame($game = null) : Query
+    private static function getNewsByGame(Game $game = null) : Query
     {
         $query = self::getPublished();
 
@@ -206,50 +219,58 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
         return self::announced($query);
     }
 
-    public static function getLatestNews($game = null, $exceptNewsId = null) : Query
+    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query
     {
         return self::getNewsByGame($game)
             ->orderByDesc('published_at');
     }
     
-    public static function getNewsBefore($game, $date) : Query
+    public static function getNewsBefore(Game $game, string $date) : Query
     {
         return self::getNewsByGame($game)
             ->whereLt('published_at', $date)
             ->orderByDesc('published_at');
     }
     
-    public static function getNewsAfter($game, $date) : Query
+    public static function getNewsAfter(Game $game, string $date) : Query
     {
         return self::getNewsByGame($game)
             ->whereGt('published_at', $date)
             ->orderByAsc('published_at');
     }
     
-    public static function getNewsByYear($year) : Query
+    public static function getNewsByYear(int $year) : Query
     {
         $query = self::getPublished()
-            ->whereRaw('(year(published_at) = ?)', [ $year ]);
+            ->whereRaw('(year(published_at) = ?)', [$year]);
         
         return self::announced($query);
     }
     
-    public function displayTitle()
+    public function displayTitle() : string
     {
         return $this->name;
     }
     
-    public function fullText()
+    public function fullText() : string
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedText());
-        });
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedText()
+                );
+            }
+        );
     }
     
-    public function shortText()
+    public function shortText() : string
     {
-        return $this->lazy(function () {
-            return self::$parser->parseCut($this->parsedText(), $this->url(), false);
-        });
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedText(), $this->url(), false
+                );
+            }
+        );
     }
 }

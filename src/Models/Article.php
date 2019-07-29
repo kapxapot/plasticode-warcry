@@ -96,8 +96,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
         
         if (strlen($cat) > 0) {
             $query = $query->where('cat', $cat);
-        }
-        else {
+        } else {
             $query = $query->whereNull('cat');
         }
             
@@ -185,9 +184,11 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     {
         return $this
             ->children()
-            ->where(function ($item) {
-                return $item->isPublished();
-            })
+            ->where(
+                function ($item) {
+                    return $item->isPublished();
+                }
+            )
             ->ascStr('name_ru');
     }
     
@@ -225,10 +226,12 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
         return self::getBasePublished()
             ->search($searchQuery, '(name_en like ? or name_ru like ?)', 2)
             ->all()
-            ->multiSort([
-                'name_ru' => [ 'type' => Sort::STRING ],
-                'category' => [ 'type' => Sort::NULL ],
-            ]);
+            ->multiSort(
+                [
+                    'name_ru' => ['type' => Sort::STRING],
+                    'category' => ['type' => Sort::NULL],
+                ]
+            );
     }
     
     public function serialize() : ?array
@@ -260,7 +263,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
         
         $code = self::$parser->joinTagParts($parts);
         
-        return "[[{$code}]]";
+        return '[[' . $code . ']]';
     }
     
     // NewsSourceInterface
@@ -269,7 +272,10 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     {
         $cat = $this->category();
         
-        return self::$linker->article($this->nameEn, $cat ? $cat->nameEn : null);
+        return self::$linker->article(
+            $this->nameEn,
+            $cat ? $cat->nameEn : null
+        );
     }
     
     private static function announced(Query $query) : Query
@@ -296,7 +302,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
             ->orderByDesc('published_at');
     }
     
-    public static function getNewsAfter(Game $game, $date) : Query
+    public static function getNewsAfter(Game $game, string $date) : Query
     {
         return self::getLatestNews($game)
             ->whereGt('published_at', $date)
@@ -306,7 +312,7 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     public static function getNewsByYear(int $year) : Query
     {
         $query = self::getPublished()
-            ->whereRaw('(year(published_at) = ?)', [ $year ]);
+            ->whereRaw('(year(published_at) = ?)', [$year]);
         
         return self::announced($query);
     }
