@@ -21,8 +21,5 @@ class InitGames extends AbstractMigration
             ->addColumn('twitch_name', 'string', ['limit' => 100, 'null' => true])
             ->addForeignKey('parent_id', 'games', 'id', ['delete' => 'CASCADE', 'update' => 'CASCADE'])
             ->create();
-        
-        // todo: add news_forum_id constraint
-        // todo: add main_forum_id constraint
     }
 }
