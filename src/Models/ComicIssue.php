@@ -11,6 +11,12 @@ class ComicIssue extends Comic
 
     // queries
 
+    private static function getBySeriesUnsorted($seriesId) : Query
+    {
+        return self::getBasePublished()
+            ->where('series_id', $seriesId);
+    }
+
     public static function getBySeries($seriesId) : Query
     {
         return self::getPublished()
@@ -63,7 +69,7 @@ class ComicIssue extends Comic
     {
         return $this->lazy(
             function () {
-                return self::getBySeries($this->seriesId)
+                return self::getBySeriesUnsorted($this->seriesId)
                     ->whereLt('number', $this->number)
                     ->orderByDesc('number')
                     ->one();
@@ -75,7 +81,7 @@ class ComicIssue extends Comic
     {
         return $this->lazy(
             function () {
-                return self::getBySeries($this->seriesId)
+                return self::getBySeriesUnsorted($this->seriesId)
                     ->whereGt('number', $this->number)
                     ->orderByAsc('number')
                     ->one();
