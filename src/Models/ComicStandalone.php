@@ -40,13 +40,15 @@ class ComicStandalone extends Comic
         return self::$linker->comicStandalone($this);
     }
     
-    public function pages() : Collection
+    public function pages(bool $ignoreCache = false) : Collection
     {
         return $this->lazy(
             function () {
                 return ComicStandalonePage::getByComic($this->id)
                     ->all();
-            }
+            },
+            null,
+            $ignoreCache
         );
     }
 

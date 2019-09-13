@@ -31,13 +31,15 @@ class ComicIssue extends Comic
         return ComicSeries::get($this->seriesId);
     }
     
-    public function pages() : Collection
+    public function pages(bool $ignoreCache = false) : Collection
     {
         return $this->lazy(
             function () {
                 return ComicPage::getByComic($this->id)
                     ->all();
-            }
+            },
+            null,
+            $ignoreCache
         );
     }
 
