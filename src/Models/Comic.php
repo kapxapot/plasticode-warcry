@@ -57,7 +57,7 @@ abstract class Comic extends DbModel
 
     public function maxPageNumber($exceptId = null) : int
     {
-        $max = $this->pages()
+        $max = $this->pages(true)
             ->where(
                 function ($page) use ($exceptId) {
                     return $page->id != $exceptId;
