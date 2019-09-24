@@ -12,7 +12,7 @@ use Psr\Container\ContainerInterface;
 class UpdateStreamsJob extends Contained
 {
     /**
-     * Notify?
+     * Send notification or not (Telegram, Twitter, etc.)
      *
      * @var boolean
      */
@@ -46,19 +46,26 @@ class UpdateStreamsJob extends Contained
 
         if ($s) {
             $streamStarted = !$stream->isOnline();
+            
+            $gameId = $s['game_id'];
+            $game = $this->getGameData($gameId);
+
+            $userId = $s['user_id'];
+            $user = $this->getUserData($userId);
 
             $stream->remoteOnline = 1;
-            $stream->remoteGame = $s['game'];
-            $stream->remoteViewers = $s['viewers'];
+            $stream->remoteGame = $game['name'] ?? $gameId;
+            $stream->remoteViewers = $s['viewer_count'];
+            $stream->remoteTitle = $user['display_name'] ?? null;
+            $stream->remoteStatus = urlencode($s['title']);
+            $stream->remoteLogo = $user['profile_image_url'] ?? null;
             
-            if (isset($s['channel'])) {
-                $ch = $s['channel'];
-
-                $stream->remoteTitle = $ch['display_name'];
-                $stream->remoteStatus = urlencode($ch['status']);
-                $stream->remoteLogo = $ch['logo'];
+            $description = $user['description'] ?? null;
+            
+            if (!is_null($description)) {
+                $stream->description = $description;
             }
-            
+
             if ($this->notify && $streamStarted) {
                 $message = $this->sendStreamNotifications($stream);
             }
@@ -75,10 +82,7 @@ class UpdateStreamsJob extends Contained
             $stream->remoteOnlineAt = $now;
         }
 
-        // save
         $stream->save();
-
-        // stats
         $this->updateStreamStats($stream);
         
         return [
@@ -86,6 +90,28 @@ class UpdateStreamsJob extends Contained
             'json' => json_encode($data),
             'message' => $message,
         ];
+    }
+    
+    private function getGameData(string $id)
+    {
+        return $this->cache->getCached(
+            'twitch_game_' . $id,
+            function () use ($id) {
+                $data = $this->twitch->getGameData($id);
+                return $data['data'][0] ?? null;
+            }
+        );
+    }
+    
+    private function getUserData(string $id)
+    {
+        return $this->cache->getCached(
+            'twitch_user_' . $id,
+            function () use ($id) {
+                $data = $this->twitch->getUserData($id);
+                return $data['data'][0] ?? null;
+            }
+        );
     }
     
     private function updateStreamStats(Stream $stream) : void
@@ -119,19 +145,21 @@ class UpdateStreamsJob extends Contained
     
     private function sendStreamNotifications(Stream $s) : string
     {
+        $status = $s->remoteStatus;
+
         $verb = ($s->channel == 1)
-            ? ($s->remoteStatus
-                ? "транслирует <b>{$s->remoteStatus}</b>"
+            ? ($status
+                ? "транслирует <b>{$status}</b>"
                 : 'ведет трансляцию')
             : "играет в <b>{$s->remoteGame}</b>
-{$s->remoteStatus}";
+{$status}";
 
         $verbEn = ($s->channel == 1)
-            ? ($s->remoteStatus
-                ? "is streaming <b>{$s->remoteStatus}</b>"
+            ? ($status
+                ? "is streaming <b>{$status}</b>"
                 : 'started streaming')
             : "is playing <b>{$s->remoteGame}</b>
-{$s->remoteStatus}";
+{$status}";
         
         $url = $this->linker->twitch($s->streamId);
         $source = "<a href=\"{$url}\">{$s->title}</a>";
@@ -140,11 +168,6 @@ class UpdateStreamsJob extends Contained
         $messageEn = $source . ' ' . $verbEn;
 
         $settings = [
-            /*[
-                'channel' => 'warcry',
-                'condition' => $s->priority == 1 || $s->official == 1 || $s->officialRu == 1,
-                'message' => $message,
-            ],*/
             [
                 'channel' => 'warcry_streams',
                 'condition' => true,
@@ -164,7 +187,10 @@ class UpdateStreamsJob extends Contained
 
         foreach ($settings as $setting) {
             if ($setting['condition']) {
-                $this->telegram->sendMessage($setting['channel'], $setting['message']);
+                $this->telegram->sendMessage(
+                    $setting['channel'],
+                    $setting['message']
+                );
             }
         }
 

@@ -78,7 +78,7 @@ class StreamController extends Controller
     public function refresh(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $log = $request->getQueryParam('log', false);
-        $notify = $request->getQueryParam('notify', true);
+        $notify = $request->getQueryParam('notify', false);
         
         $job = new UpdateStreamsJob($this->container, $notify);
 

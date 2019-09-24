@@ -17,7 +17,7 @@ class StreamStatsService
         
         $streamId = $stream->id;
         
-        $games = StreamStat::getGames($streamId);
+        $games = StreamStat::getGames($streamId)->toArray();
         
         if (!empty($games)) {
             $total = 0;
@@ -25,19 +25,22 @@ class StreamStatsService
                 $total += $game['count'];
             }
             
-            $games = array_map(function($game) use ($total) {
-                $game['percent'] = ($total > 0)
-                    ? round($game['count'] * 100 / $total, 1)
-                    : 0;
+            $games = array_map(
+                function($game) use ($total) {
+                    $game['percent'] = ($total > 0)
+                        ? round($game['count'] * 100 / $total, 1)
+                        : 0;
 
-                $game['priority'] = Game::isPriority($game['remote_game']);
-                
-                return $game;
-            }, $games);
+                    $game['priority'] = Game::isPriority($game['remote_game']);
+                    
+                    return $game;
+                },
+                $games
+            );
 
             $sorts = [
-                'priority' => [ 'dir' => 'desc' ],
-                'percent' => [ 'dir' => 'desc' ],
+                'priority' => ['dir' => 'desc'],
+                'percent' => ['dir' => 'desc'],
             ];
         
             $games = Sort::multi($games, $sorts);
@@ -53,8 +56,8 @@ class StreamStatsService
             $stats['blizzard_total'] = $blizzardTotal;
             
             $stats['blizzard'] = [
-                [ 'value' => $blizzardTotal, 'label' => 'Игры Blizzard' ],
-                [ 'value' => 100 - $blizzardTotal, 'label' => 'Другие игры' ]
+                ['value' => $blizzardTotal, 'label' => 'Игры Blizzard'],
+                ['value' => 100 - $blizzardTotal, 'label' => 'Другие игры']
             ];
         }
 
@@ -62,34 +65,42 @@ class StreamStatsService
         $start = Date::startOfHour($now)->modify('-23 hour');
 
         $lastDayStats = StreamStat::getFrom($streamId, $start)
-            ->map(function ($s) {
-                $cr = strtotime($s->createdAt);
-                
-                $s->stamp = strftime('%d-%H', $cr);
-                $s->iso = Date::formatIso($cr);
-                
-                return $s;
-            });
+            ->map(
+                function ($s) {
+                    $cr = strtotime($s->createdAt);
+                    $s->stamp = strftime('%d-%H', $cr);
+                    $s->iso = Date::formatIso($cr);
+                    return $s;
+                }
+            );
 
         if ($lastDayStats->any()) {
-            $stats['viewers'] = $this->buildGameStats($lastDayStats, $start, $now);
+            $stats['viewers'] = $this->buildGameStats(
+                $lastDayStats, $start, $now
+            );
         }
         
         $utc = Date::utc();
-        $monthStartUtc = Date::startOfDay($utc)->modify('-1 month')->modify('1 day');
+        $monthStartUtc = Date::startOfDay($utc)
+            ->modify('-1 month')
+            ->modify('1 day');
+        
         $monthStart = Date::fromUtc($monthStartUtc);
         
         $lastMonthStats = StreamStat::getFrom($streamId, $monthStart)
-            ->map(function ($s) {
-                $utcCreatedAt = Date::utc(Date::dt($s->createdAt));
-
-                $s->stamp = $utcCreatedAt->format('m-d');
-
-                return $s;
-            });
+            ->map(
+                function ($s) {
+                    $utcCreatedAt = Date::utc(Date::dt($s->createdAt));
+                    $s->stamp = $utcCreatedAt->format('m-d');
+                    return $s;
+                }
+            );
             
         if ($lastMonthStats->any()) {
-            $stats['daily'] = $this->buildDailyStats($lastMonthStats, $monthStart, $now);
+            $stats['daily'] = $this->buildDailyStats(
+                $lastMonthStats, $monthStart, $now
+            );
+
             $stats['logs'] = $this->buildLogs($lastMonthStats);
         }
 
@@ -120,12 +131,13 @@ class StreamStatsService
             $game = $s->remoteGame;
             
             if ($prev) {
-                $exceeds = Date::exceedsInterval($prev->createdAt, $s->createdAt, 'PT30M'); // 30 minutes
+                $exceeds = Date::exceedsInterval(
+                    $prev->createdAt, $s->createdAt, 'PT30M'
+                ); // 30 minutes
 
                 if ($exceeds) {
                     $closeSet($prevGame);
-                }
-                elseif ($prevGame != $game) {
+                } elseif ($prevGame != $game) {
                     $closeSet($prevGame);
 
                     $prev->remoteGame = $game;
@@ -199,15 +211,16 @@ class StreamStatsService
         foreach ($stats as $stat) {
             $stat->createdCmp = strtotime($stat->createdAt);
 
-            if (!$cur) {
+            if (!isset($cur)) {
                 $cur = $stat;
             } else {
-                $exceeds = Date::exceedsInterval($cur->finishedAt, $stat->createdAt, '5 minutes');
+                $exceeds = Date::exceedsInterval(
+                    $cur->finishedAt, $stat->createdAt, '5 minutes'
+                );
                 
                 if ($cur->remoteGame == $stat->remoteGame &&
                     $cur->remoteStatus == $stat->remoteStatus &&
-                    !$exceeds)
-                {
+                    !$exceeds) {
                     $cur->finishedAt = $stat->finishedAt;
                 } else {
                     $add($cur);
@@ -216,7 +229,7 @@ class StreamStatsService
             }
         }
 
-        if ($cur) {	        
+        if (isset($cur)) {
             $add($cur);
         }
         
