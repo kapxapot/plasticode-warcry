@@ -12,7 +12,7 @@
         }
     ],
     "require": {
-        "kapxapot/plasticode": "^0.3.0",
+        "kapxapot/plasticode": "^0.3.1",
         "robmorgan/phinx": "^0.10.7"
     },
     "autoload": {
