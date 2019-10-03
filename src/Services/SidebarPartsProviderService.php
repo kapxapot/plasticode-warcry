@@ -58,7 +58,7 @@ class SidebarPartsProviderService extends Contained
                 break;
             
             case 'countdown':
-                $event = Event::getImportant()->one();
+                $event = Event::getFutureImportant()->one();
                 $result = [ 'event' => $event ];
                 break;
         }

@@ -27,21 +27,34 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
             ->orderByAsc('starts_at')
             ->orderByAsc('ends_at');
     }
+
+    private static function filterUnended(Query $query) : Query
+    {
+        return $query
+            ->whereRaw('(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)');
+    }
+    
+    private static function filterCurrent(Query $query, int $days) : Query
+    {
+        return $query
+            ->whereRaw("(starts_at < date_add(now(), interval {$days} day) or important = 1)");
+    }
+    
+    private static function filterFuture(Query $query) : Query
+    {
+        return $query->whereRaw('(starts_at > now())');
+    }
     
     public static function getUnended() : Query
     {
-        return self::getOrderedByStart()
-            ->whereRaw(
-                '(coalesce(ends_at, date_add(date(starts_at), interval 24*60*60 - 1 second)) >= now() or unknown_end = 1)'
-            );
+        $query = self::getOrderedByStart();
+        return self::filterUnended($query);
     }
     
     public static function getCurrent(?Game $game, int $days) : Query
     {
-        $query = self::getUnended()
-            ->whereRaw(
-                '(starts_at < date_add(now(), interval ' . $days . ' day) or important = 1)'
-            );
+        $query = self::getUnended();
+        $query = self::filterCurrent($query, $days);
 
         if ($game) {
             return $game->filter($query);
@@ -50,11 +63,12 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
         return $query->where('announce', 1);
     }
     
-    public static function getImportant() : Query
+    public static function getFutureImportant() : Query
     {
-        return self::getUnended()
-            ->where('important', 1)/*
-            ->where('announce', 1)*/;
+        $query = self::getOrderedByStart();
+        $query = self::filterFuture($query);
+        
+        return $query->where('important', 1);
     }
     
     // getters - many
