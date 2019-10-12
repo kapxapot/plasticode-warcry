@@ -1,0 +1,1 @@
+import './warcry-admin.module';
