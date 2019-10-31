@@ -1,8 +1,8 @@
 # Warcry.ru
 
-Built on [Plasticode](https://github.com/kapxapot/plasticode).
-
 Live: https://warcry.ru
+
+Built on [Plasticode](https://github.com/kapxapot/plasticode).
 
 ## Installation
 
