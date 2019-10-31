@@ -1,6 +1,6 @@
 # Warcry.ru
 
-Built on Plasticode (kapxapot/plasticode).
+Built on [Plasticode](https://github.com/kapxapot/plasticode).
 
 Live: https://warcry.ru
 
@@ -18,6 +18,6 @@ That will update the `composer.lock` file that should be committed.
 
 ## DB migrations
 
-In the process of development there can be new DB migrations. To execute them run the following in the projects' root folder:
+In the process of development there can be new DB migrations. To execute them run the following in the project's root folder:
 
 `vendor\bin\phinx migrate`
