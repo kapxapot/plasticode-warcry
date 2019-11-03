@@ -182,9 +182,13 @@ class Game extends DbModel implements LinkableInterface
     {
         return $this->icon
             ??
-            $this->parent()
+            ($this->parent()
                 ? $this->parent()->resultIcon()
-                : null;
+                : null)
+            ??
+            (self::getDefault()
+                ? self::getDefault()->resultIcon()
+                : null);
     }
     
     public function resultAlias() : ?string
@@ -193,6 +197,10 @@ class Game extends DbModel implements LinkableInterface
             ??
             ($this->parent()
                 ? $this->parent()->resultAlias()
+                : null)
+            ??
+            (self::getDefault()
+                ? self::getDefault()->resultAlias()
                 : null);
     }
     

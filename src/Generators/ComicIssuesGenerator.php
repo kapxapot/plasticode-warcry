@@ -5,11 +5,14 @@ namespace App\Generators;
 use App\Models\ComicIssue;
 use App\Models\ComicSeries;
 use Plasticode\Generators\TaggableEntityGenerator;
-use Plasticode\Traits\Publishable;
+use Plasticode\Generators\Traits\Publishable;
 
 class ComicIssuesGenerator extends TaggableEntityGenerator
 {
-    use Publishable;
+    use Publishable
+    {
+        beforeSave as protected publishableBeforeSave;
+    }
 
     public function getOptions() : array
     {
@@ -27,7 +30,7 @@ class ComicIssuesGenerator extends TaggableEntityGenerator
     
     public function beforeSave(array $data, $id = null) : array
     {
-        $data = parent::beforeSave($data, $id);
+        $data = $this->publishableBeforeSave($data, $id);
         
         $data = $this->publishIfNeeded($data);
         
@@ -69,10 +72,13 @@ class ComicIssuesGenerator extends TaggableEntityGenerator
         
         $params['source'] = "comic_series/{$seriesId}/comic_issues";
         $params['breadcrumbs'] = [
-            [ 'text' => 'Серии', 'link' => $this->router->pathFor('admin.entities.comic_series') ],
-            [ 'text' => $game ? $game->name : '(нет игры)' ],
-            [ 'text' => $series->name() ],
-            [ 'text' => 'Выпуски' ],
+            [
+                'text' => 'Серии',
+                'link' => $this->router->pathFor('admin.entities.comic_series')
+            ],
+            ['text' => $game ? $game->name : '(нет игры)'],
+            ['text' => $series->name()],
+            ['text' => 'Выпуски'],
         ];
         
         $params['hidden'] = [

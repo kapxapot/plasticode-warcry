@@ -35,11 +35,20 @@ class ComicPagesGenerator extends ComicPagesBaseGenerator
 
         $params['source'] = "comic_issues/{$comicId}/comic_pages";
         $params['breadcrumbs'] = [
-            [ 'text' => 'Серии', 'link' => $this->router->pathFor('admin.entities.comic_series') ],
-            [ 'text' => $series->game()->name ],
-            [ 'text' => $series->nameRu, 'link' => $this->router->pathFor('admin.entities.comic_issues', [ 'id' => $series->getId() ]) ],
-            [ 'text' => '#' . $comic->number . ($comic->nameRu ? ': ' . $comic->nameRu : '') ],
-            [ 'text' => 'Страницы' ],
+            [
+                'text' => 'Серии',
+                'link' => $this->router->pathFor('admin.entities.comic_series')
+            ],
+            ['text' => $series->game()->name],
+            [
+                'text' => $series->nameRu,
+                'link' => $this->router->pathFor(
+                    'admin.entities.comic_issues',
+                    ['id' => $series->getId()]
+                )
+            ],
+            ['text' => $comic->numberStr()],
+            ['text' => 'Страницы'],
         ];
         
         $params['hidden'] = [

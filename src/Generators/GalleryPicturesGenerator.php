@@ -4,11 +4,14 @@ namespace App\Generators;
 
 use App\Models\GalleryAuthor;
 use Plasticode\Generators\TaggableEntityGenerator;
-use Plasticode\Traits\Publishable;
+use Plasticode\Generators\Traits\Publishable;
 
 class GalleryPicturesGenerator extends TaggableEntityGenerator
 {
-    use Publishable;
+    use Publishable
+    {
+        beforeSave as protected publishableBeforeSave;
+    }
 
     public function getRules(array $data, $id = null) : array
     {
@@ -68,9 +71,12 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
 
         $params['source'] = "gallery_authors/{$authorId}/gallery_pictures";
         $params['breadcrumbs'] = [
-            [ 'text' => 'Галерея', 'link' => $this->router->pathFor('admin.entities.gallery_authors') ],
-            [ 'text' => $author->name ],
-            [ 'text' => 'Картинки' ],
+            [
+                'text' => 'Галерея',
+                'link' => $this->router->pathFor('admin.entities.gallery_authors')
+            ],
+            ['text' => $author->name],
+            ['text' => 'Картинки'],
         ];
         
         $params['hidden'] = [
@@ -87,7 +93,7 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
     
     public function beforeSave(array $data, $id = null) : array
     {
-        $data = parent::beforeSave($data, $id);
+        $data = $this->publishableBeforeSave($data, $id);
 
         if (isset($data['points'])) {
             $data['points'] = implode(',', $data['points']);
@@ -101,8 +107,6 @@ class GalleryPicturesGenerator extends TaggableEntityGenerator
             unset($data['thumb']);
         }
 
-        $data = $this->publishIfNeeded($data);
-        
         return $data;
     }
     

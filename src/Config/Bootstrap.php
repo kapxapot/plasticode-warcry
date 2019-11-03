@@ -3,11 +3,12 @@
 namespace App\Config;
 
 use Plasticode\Config\Bootstrap as BootstrapBase;
+use Psr\Container\ContainerInterface;
 
 class Bootstrap extends BootstrapBase
 {
     /**
-     * Get mappings for DI container
+     * Get mappings for DI container.
      *
      * @return array
      */
@@ -18,23 +19,23 @@ class Bootstrap extends BootstrapBase
         return array_merge(
             $mappings,
             [
-                'userClass' => function ($container) {
+                'userClass' => function (ContainerInterface $container) {
                     return \App\Models\User::class;
                 },
 
-                'menuClass' => function ($container) {
+                'menuClass' => function (ContainerInterface $container) {
                     return \App\Models\Menu::class;
                 },
 
-                'menuItemClass' => function ($container) {
+                'menuItemClass' => function (ContainerInterface $container) {
                     return \App\Models\MenuItem::class;
                 },
                 
-                'captchaConfig' => function ($container) {
-                    return new \App\Config\Captcha();  
+                'captchaConfig' => function (ContainerInterface $container) {
+                    return new \App\Config\Captcha();
                 },
 
-                'gallery' => function ($container) {
+                'gallery' => function (ContainerInterface $container) {
                     $thumbHeight = $this->settings['gallery']['thumb_height'];
                     $thumbStrategy = new \Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy($thumbHeight);
                     
@@ -59,7 +60,7 @@ class Bootstrap extends BootstrapBase
                     return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $gallerySettings);
                 },
                 
-                'comics' => function ($container) {
+                'comics' => function (ContainerInterface $container) {
                     $thumbHeight = $this->settings['comics']['thumb_height'];
                     $thumbStrategy = new \Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy($thumbHeight);
                     
@@ -85,42 +86,49 @@ class Bootstrap extends BootstrapBase
                     return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $comicsSettings);
                 },
 
-                'localization' => function ($container) {
+                'localization' => function (ContainerInterface $container) {
                     return new \App\Config\Localization();
                 },
 
-                'renderer' => function ($container) {
+                'renderer' => function (ContainerInterface $container) {
                     return new \App\Core\Renderer($container->view);
                 },
 
-                'linker' => function ($container) {
+                'linker' => function (ContainerInterface $container) {
                     return new \App\Core\Linker($container);
                 },
                 
-                'parser' => function ($container) {
-                    return new \App\Core\Parser($container, $container->parserConfig);
+                'parser' => function (ContainerInterface $container) {
+                    return new \App\Core\Parser(
+                        $container,
+                        $container->parserConfig
+                    );
                 },
                 
-                'newsParser' => function ($container) {
+                'newsParser' => function (ContainerInterface $container) {
                     return new \App\Parsing\NewsParser($container);
                 },
                 
-                'forumParser' => function ($container) {
+                'forumParser' => function (ContainerInterface $container) {
                     return new \App\Parsing\ForumParser($container);
                 },
                 
                 // handlers
                 
-                'notFoundHandler' => function ($container) {
+                'notFoundHandler' => function (ContainerInterface $container) {
                     return new \App\Handlers\NotFoundHandler($container);
                 },
                 
                 // services
                 
-                'galleryService' => function ($container) {
+                'galleryService' => function (ContainerInterface $container) {
                     $pageSize = $this->settings['gallery']['pics_per_page'];
                     
                     return new \App\Services\GalleryService($pageSize);
+                },
+
+                'comicService' => function (ContainerInterface $container) {
+                    return new \App\Services\ComicService();
                 }
             ]
         );

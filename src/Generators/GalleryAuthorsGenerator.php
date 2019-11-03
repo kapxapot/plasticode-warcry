@@ -39,7 +39,7 @@ class GalleryAuthorsGenerator extends EntityGenerator
 
         $item['context_field'] = 'author_id';
 
-        $author = GalleryAuthor::get($item['id']);
+        $author = GalleryAuthor::get($item[$this->idField]);
 
         $item['page_url'] = $author->pageUrl();
 

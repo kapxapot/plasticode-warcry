@@ -18,6 +18,8 @@ class ComicService
             return ComicStandalone::get($data['comic_standalone_id']);
         }
         
-        throw new InvalidArgumentException('Either comic_issue_id or comic_standalone_id must be provided.');
+        throw new InvalidArgumentException(
+            'Either comic_issue_id or comic_standalone_id must be provided.'
+        );
     }
 }

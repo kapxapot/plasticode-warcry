@@ -8,37 +8,37 @@
 {% endif %}
 
 {% block content %}
-	<div class="panel panel-primary">
-		{{ lm.panel_header(_context, news_item.display_title, {
-			'buttons': [ m.edit_button('news', news_item) ],
-			'published': news_item.published
-		}) }}
+    <div class="panel panel-primary">
+        {{ lm.panel_header(_context, news_item.display_title, {
+            'buttons': [ m.edit_button('news', news_item) ],
+            'published': news_item.published
+        }) }}
 
-		<div class="panel-body article news">
+        <div class="panel-body article news">
             {{ news_item.full_text|raw }}
             
             {#<p>
-        		{% for t in news_item.tag_links %}
-        			<a href="{{ t.url }}" class="nd_article">#{{ t.text }}</a>
-        		{% endfor %}
+                {% for t in news_item.tag_links %}
+                    <a href="{{ t.url }}" class="nd_article">#{{ t.text }}</a>
+                {% endfor %}
             </p>#}
         </div>
 
-	    {% include 'main/news/footer.twig' %}
-	</div>
+        {% include 'main/news/footer.twig' %}
+    </div>
     
-  	<div class="pagination-flex">
-		{% if news_prev %}
-			<a href="{{ news_prev.url }}" title="Предыдущая новость" class="btn btn-default btn-lg">
-			    {% include 'components/prev.twig' %}
-				{{ news_prev.display_title }}
-			</a>
-		{% endif %}
-		{% if news_next %}
-			<a href="{{ news_next.url }}" title="Следующая новость" class="btn btn-default btn-lg">
-				{{ news_next.display_title }}
-			    {% include 'components/next.twig' %}
-			</a>
-		{% endif %}
-	</div>
+      <div class="pagination-flex">
+        {% if news_prev %}
+            <a href="{{ news_prev.url }}" title="Предыдущая новость" class="btn btn-default btn-lg">
+                {% include 'components/prev.twig' %}
+                {{ news_prev.display_title }}
+            </a>
+        {% endif %}
+        {% if news_next %}
+            <a href="{{ news_next.url }}" title="Следующая новость" class="btn btn-default btn-lg">
+                {{ news_next.display_title }}
+                {% include 'components/next.twig' %}
+            </a>
+        {% endif %}
+    </div>
 {% endblock %}

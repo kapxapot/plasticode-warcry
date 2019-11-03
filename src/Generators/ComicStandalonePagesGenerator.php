@@ -34,10 +34,13 @@ class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
 
         $params['source'] = "comic_standalones/{$comicId}/comic_standalone_pages";
         $params['breadcrumbs'] = [
-            [ 'text' => 'Комиксы', 'link' => $this->router->pathFor('admin.entities.comic_standalones') ],
-            [ 'text' => $comic->game()->name ],
-            [ 'text' => $comic->nameRu ],
-            [ 'text' => 'Страницы' ],
+            [
+                'text' => 'Комиксы',
+                'link' => $this->router->pathFor('admin.entities.comic_standalones')
+            ],
+            ['text' => $comic->game()->name],
+            ['text' => $comic->nameRu],
+            ['text' => 'Страницы'],
         ];
         
         $params['hidden'] = [

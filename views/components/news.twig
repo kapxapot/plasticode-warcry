@@ -1,12 +1,12 @@
 {% import 'macros.twig' as gm %}
 
 {% for n in news %}
-	<div class="icon-lg icon-{{ n.game.result_alias }}-lg">
-		<div>
-			<a title="[{{ n.game.name }}] {{ n.display_title|raw }}" href="{{ path_for('main.news', { 'id': n.get_id }) }}">{{ n.display_title }}</a>
-		</div>
-		<div ng-cloak>
-			{{ gm.moment_local(n.published_at_iso) }}
-		</div>
-	</div>
+    <div class="icon-lg icon-{{ n.game.result_alias }}-lg">
+        <div>
+            <a title="[{{ n.game.name }}] {{ n.display_title|raw }}" href="{{ path_for('main.news', { 'id': n.get_id }) }}">{{ n.display_title }}</a>
+        </div>
+        <div ng-cloak>
+            {{ gm.moment_local(n.published_at_iso) }}
+        </div>
+    </div>
 {% endfor %}

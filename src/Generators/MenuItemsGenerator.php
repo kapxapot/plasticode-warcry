@@ -24,10 +24,13 @@ class MenuItemsGenerator extends MenuItemsBaseGenerator
         $menu = $this->menuRepository->get($menuId);
 
         $params['breadcrumbs'] = [
-            [ 'text' => 'Меню', 'link' => $this->router->pathFor('admin.entities.menus') ],
-            [ 'text' => $menu->game()->name ],
-            [ 'text' => $menu->text ],
-            [ 'text' => 'Элементы меню' ],
+            [
+                'text' => 'Меню',
+                'link' => $this->router->pathFor('admin.entities.menus')
+            ],
+            ['text' => $menu->game()->name],
+            ['text' => $menu->text],
+            ['text' => 'Элементы меню'],
         ];
         
         $params['hidden'] = [

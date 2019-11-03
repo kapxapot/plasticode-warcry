@@ -1,59 +1,59 @@
 {% if streams|length > 0 %}
     {% import 'macros.twig' as gm %}
     <div class="flex-wrapper streams mb-2">
-    	{% for s in streams %}
-    		<div class="flex-item card{% if not s.remote_online and not s.remote_logo %} stream--no-logo{% endif %}">
-    		    {% if s.remote_online and s.large_img_url %}
-    		    	<div class="overlay-wrapper stream-image">
-    			    	<a href="{{ s.page_url }}">
-    			    		<img class="card-image" src="{{ s.large_img_url }}" />
-    			    	</a>
-    		    	</div>
-    		    {% endif %}
-    			<div class="card-body flex">
-			        {% if not s.remote_online %}
-			            {% if s.remote_logo %}
-					        <img src="{{ s.remote_logo }}" class="card-body__image-left" />
-					    {#% else %}
-					        <img src="{{ s.game.icon }}" class="card-body__image-left card-body__image-left--icon" />#}
-				        {% endif %}
-			        {% endif %}
-				    <div>
-    		    		<div class="card-body__title lh-12 grey-5">
-    		    		    <a href="{{ s.page_url }}">{{ s.title }}</a>
-    		    		    {% if s.remote_online_at %}
+        {% for s in streams %}
+            <div class="flex-item card{% if not s.remote_online and not s.remote_logo %} stream--no-logo{% endif %}">
+                {% if s.remote_online and s.large_img_url %}
+                    <div class="overlay-wrapper stream-image">
+                        <a href="{{ s.page_url }}">
+                            <img class="card-image" src="{{ s.large_img_url }}" />
+                        </a>
+                    </div>
+                {% endif %}
+                <div class="card-body flex">
+                    {% if not s.remote_online %}
+                        {% if s.remote_logo %}
+                            <img src="{{ s.remote_logo }}" class="card-body__image-left" />
+                        {#% else %}
+                            <img src="{{ s.game.icon }}" class="card-body__image-left card-body__image-left--icon" />#}
+                        {% endif %}
+                    {% endif %}
+                    <div>
+                        <div class="card-body__title lh-12 grey-5">
+                            <a href="{{ s.page_url }}">{{ s.title }}</a>
+                            {% if s.remote_online_at %}
                                 {% if s.channel %}
-        				    		{% if s.remote_online %}
-        				    			транслирует
-        				    		{% else %}
-        				    			{{ s.verbs.broadcasted }}
-        				    		{% endif %}
+                                    {% if s.remote_online %}
+                                        транслирует
+                                    {% else %}
+                                        {{ s.verbs.broadcasted }}
+                                    {% endif %}
                                 {% else %}
-            			    		{% if s.remote_online %}
-            			    			играет
-            			    		{% else %}
-            			    			{{ s.verbs.played }}
-            			    		{% endif %}
-            			    		в
-            			    	{% endif %}
-            			    	{{ s.remote_game }}
-        			    	{% else %}
-        			    	    спит
-        			    	{% endif %}
-    		    		</div>
-    	    			{% if s.remote_online_at %}
-    			    		{% if s.remote_online %}
-    			    		    <div class="card-body__number mt-1">{{ s.remote_viewers }} <span class="gray-9">{{ s.nouns.viewers }}</span></div>
-    			    		{% else %}
-    			    			<div class="grey-7 mt-1">{{ gm.moment_from_now(s.remote_online_at_iso) }}</div>
-    			    		{% endif %}
-			    		    <div class="mt-1 br-word">{{ s.display_remote_status }}</div>
-    			    	{% else %}
-    			    	    <div class="card-body__action">zzZzZz...</div>
-    			    	{% endif %}
-				    </div>
-    			</div>
-    		</div>
-    	{% endfor %}
+                                    {% if s.remote_online %}
+                                        играет
+                                    {% else %}
+                                        {{ s.verbs.played }}
+                                    {% endif %}
+                                    в
+                                {% endif %}
+                                {{ s.remote_game }}
+                            {% else %}
+                                спит
+                            {% endif %}
+                        </div>
+                        {% if s.remote_online_at %}
+                            {% if s.remote_online %}
+                                <div class="card-body__number mt-1">{{ s.remote_viewers }} <span class="gray-9">{{ s.nouns.viewers }}</span></div>
+                            {% else %}
+                                <div class="grey-7 mt-1">{{ gm.moment_from_now(s.remote_online_at_iso) }}</div>
+                            {% endif %}
+                            <div class="mt-1 br-word">{{ s.display_remote_status }}</div>
+                        {% else %}
+                            <div class="card-body__action">zzZzZz...</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </div>
 {% endif %}

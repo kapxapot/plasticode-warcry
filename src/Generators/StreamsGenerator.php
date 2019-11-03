@@ -3,7 +3,7 @@
 namespace App\Generators;
 
 use Plasticode\Generators\TaggableEntityGenerator;
-use Plasticode\Traits\Publishable;
+use Plasticode\Generators\Traits\Publishable;
 
 class StreamsGenerator extends TaggableEntityGenerator
 {
@@ -17,14 +17,5 @@ class StreamsGenerator extends TaggableEntityGenerator
         $rules['stream_id'] = $this->rule('extendedAlias')->streamIdAvailable($id);
         
         return $rules;
-    }
-    
-    public function beforeSave(array $data, $id = null) : array
-    {
-        $data = parent::beforeSave($data, $id);
-
-        $data = $this->publishIfNeeded($data);
-
-        return $data;
     }
 }

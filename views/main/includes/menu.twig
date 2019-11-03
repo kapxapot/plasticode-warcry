@@ -1,9 +1,9 @@
 <li class="dropdown">
-	<a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="{{ menu_game.icon }}" alt="{{ menu_game.name }}" class="navbar-img" /> {% if menu_game.default %}Игры{% else %}{{ menu_game.name }}{% endif %}<b class="caret"></b></a>
-	<ul class="dropdown-menu">
-		{% for g in games %}
-			<li><a href="{{ g.url }}" class="icon-menu icon-{{ g.alias }}">{% if g.default %}Все игры{% else %}{{ g.name }}{% endif %}</a></li>
-		{% endfor %}
-  </ul>
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="{{ menu_game.result_icon }}" alt="{{ menu_game.name }}" class="navbar-img" /> {% if menu_game.default %}Игры{% else %}{{ menu_game.name }}{% endif %}<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+        {% for g in games %}
+            <li><a href="{{ g.url }}" class="icon-menu icon-{{ g.result_alias }}">{% if g.default %}Все игры{% else %}{{ g.name }}{% endif %}</a></li>
+        {% endfor %}
+    </ul>
 </li>
 {% include 'main/includes/auto_menu.twig' %}

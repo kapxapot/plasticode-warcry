@@ -31,7 +31,7 @@ class GamesGenerator extends EntityGenerator
 
         $parts = [];
 
-        $cur = Game::get($item['id']);
+        $cur = Game::get($item[$this->idField]);
         
         while ($cur) {
             $parts[] = $cur->name;
@@ -47,7 +47,7 @@ class GamesGenerator extends EntityGenerator
     {
         $parts = [];
         
-        $cur = Game::get($item['id']);
+        $cur = Game::get($item[$this->idField]);
         
         while ($cur) {
             $parts[] = $cur->autotags;
