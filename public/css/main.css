@@ -96,6 +96,12 @@
     background-image: url(https://warcry.ru/images/icons/games/large/diablo3.png);
 }
 
+.icon-diablo4,
+.icon-diablo4-md,
+.icon-diablo4-lg {
+    background-image: url(https://warcry.ru/images/icons/games/small/diablo4.svg);
+}
+
 .icon-hearthstone,
 .icon-hearthstone-md,
 .icon-hearthstone-lg {
