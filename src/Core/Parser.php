@@ -8,6 +8,7 @@ use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
 use Plasticode\Core\Parser as ParserBase;
+use Plasticode\Models\Tag;
 use Plasticode\Util\Numbers;
 use Plasticode\Util\Strings;
 
@@ -41,200 +42,311 @@ class Parser extends ParserBase
         }
         
         $text = null;
+        $chunks = preg_split('/\|/', $match);
+
+        // looking for ":" in first chunk
+        $tagChunk = $chunks[0];
+        $tagParts = preg_split('/:/', $tagChunk, null, PREG_SPLIT_NO_EMPTY);
+        $tag = $tagParts[0];
         
+        // one tag part = article
+        if (count($tagParts) == 1) {
+            return $this->renderArticle($tagChunk, $chunks);
+        }
+
+        // many tag parts
+        // pattern: [[tag:id|content]]
+        // e.g.: [[npc:27412|Слинкин Демогном]]
+        $id = $tagParts[1];
+        $content = $chunks[1] ?? null;
+        $text = $this->renderCustomTag($tag, $id, $content, $chunks);
+        
+        return strlen($text) > 0
+            ? $text
+            : null;
+    }
+
+    private function renderCustomTag(string $tag, $id, string $content, array $chunks) : ?string
+    {
+        switch ($tag) {
+            case 'item':
+                return $this->renderItem($id, $content);
+
+            case 'spell':
+                return $this->renderRecipe($id, $content);
+
+            case 'coords':
+                return $this->renderCoords($id, $chunks);
+
+            case 'card':
+                return $this->renderHearthstoneCard($id, $content);
+
+            case 'news':
+            case 'event':
+            case 'stream':
+                return $this->renderEntity($tag, $id, $content);
+
+            case 'tag':
+                return $this->renderTag($id, $content);
+            
+            case 'gallery':
+                return $this->renderGallery($id, $chunks);
+        }
+
+        return $this->renderWowheadLink($tag, $id, $content);
+    }
+
+    private function renderArticle($id, array $chunks) : ?string
+    {
+        $chunksCount = count($chunks);
+
+        $cat = '';
+        $name = $chunks[$chunksCount - 1];
+
+        if ($chunksCount > 2) {
+            $cat = $chunks[1];
+        }
+
+        $idEsc = Strings::fromSpaces($id);
+        $catEsc = Strings::fromSpaces($cat);
+
+        $article = Article::getByNameOrAlias($id, $cat);
+
+        $text = null;
+
+        if ($article && $article->isPublished()) {
+            $text = $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc);
+        }
+
+        // if no cat provided and such tag exists, render as tag
+        if (!$text && strlen($cat) == 0 && Tag::exists($id)) {
+            $text = $this->renderTag($id);
+        }
+
+        return $text ?? $this->renderer->noArticleUrl($name, $id, $cat);
+    }
+
+    private function renderItem($id, string $content = null) : ?string
+    {
+        $itemLink = $this->renderWowheadLink('item', $id, $content);
+        $recipe = $this->renderItemRecipe($id);
+
+        if ($recipe) {
+            $itemLink .= '&nbsp;' . $recipe;
+        }
+
+        return $itemLink;
+    }
+
+    /**
+     * Default text for tags.
+     * 
+     *  In most cases it's exactly what's needed.
+     *
+     * @return null|string
+     */
+    private function renderWowheadLink(string $tag, $id, string $content = null) : ?string
+    {
         $mappings = [
             'ach' => 'achievement',
             'wowevent' => 'event',
         ];
-        
-        $chunks = preg_split('/\|/', $match);
-        $chunksCount = count($chunks);
 
-        // анализируем первый элемент на наличие двоеточия ":"
-        $tagChunk = $chunks[0];
-        $tagParts = preg_split('/:/', $tagChunk);
-        $tag = $tagParts[0];
-        
-        if (count($tagParts) == 1) {
-            // статья
-            $id = $tagChunk;
-            $cat = '';
-            $name = $chunks[$chunksCount - 1];
+        $dbTag = $mappings[$tag] ?? $tag;
+        $urlChunk = $dbTag . '=' . $id;
+        $url = $this->getWebDbLink($urlChunk);
 
-            if ($chunksCount > 2) {
-                $cat = $chunks[1];
+        return $this->render(
+            'url',
+            [
+                'url' => $url,
+                'text' => $content ?? $id,
+                'data' => [ 'wowhead' => $urlChunk ],
+            ]
+        );
+    }
+
+    private function renderItemRecipe($id) : ?string
+    {
+        $recipe = Recipe::getByItemId($id);
+        
+        return $recipe
+            ? $this->renderRecipeLink($recipe)
+            : null;
+    }
+
+    /**
+     * If spell is a recipe, link it to our recipe page.
+     *
+     * @return null|string
+     */
+    private function renderRecipe($id, string $content = null) : ?string
+    {
+        $recipe = Recipe::get($id);
+        
+        return $recipe
+            ? $this->renderRecipeLink($recipe, $content)
+            : null;
+    }
+
+    private function renderRecipeLink(Recipe $recipe, string $content = null) : ?string
+    {
+        $title = 'Рецепт: ' . ($content ?? $recipe->nameRu);
+        $rel = 'spell=' . $recipe->getId() . '&amp;domain=ru';
+        
+        $url = $recipe->url();
+        $recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel, $content);
+
+        return $recipeUrl;
+    }
+
+    private function renderCoords($id, array $chunks) : ?string
+    {
+        if (count($chunks) <= 2) {
+            return null;
+        }
+
+        $x = $chunks[1];
+        $y = $chunks[2];
+        
+        $coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
+
+        if (!is_numeric($id)) {
+            $location = Location::getByName($id);
+            
+            if (!$location) {
+                return null;
             }
 
-            $idEsc = Strings::fromSpaces($id);
-            $catEsc = Strings::fromSpaces($cat);
-            $article = Article::getByNameOrAlias($id, $cat);
+            $id = $location->getId();
+        }
 
-            $text = ($article && $article->isPublished())
-                ? $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc)
-                : $this->renderer->noArticleUrl($name, $id, $cat);
-        } else {
-            // тег с id
-            // [[npc:27412|Слинкин Демогном]]
-            // [[tag:id|content]]
-            
-            $id = $tagParts[1];
+        if ($id <= 0) {
+            return null;
+        }
 
-            if (strlen($id) > 0) {
-                $content = ($chunksCount > 1) ? $chunks[1] : $id;
+        $coords = '';
+        
+        $x = Numbers::parseFloat($x);
+        $y = Numbers::parseFloat($y);
+        
+        if ($x > 0 && $y > 0) {
+            $coords = ':' . ($x * 10) . ($y * 10);
+        }
+        
+        $url = $this->getWebDbLink('maps?data=' . $id . $coords);
+        
+        return $this->render(
+            'url',
+            [
+                'url' => $url,
+                'text' => $coordsText,
+            ]
+        );
+    }
 
-                // default text for tags
-                // in most cases it's exactly what's needed
-                $dbTag = $mappings[$tag] ?? $tag;
-                $urlChunk = $dbTag . '=' . $id;
-                $url = $this->getWebDbLink($urlChunk);
-                $text = $this->render('url', [
-                    'url' => $url,
-                    'text' => $content,
-                    'data' => [ 'wowhead' => $urlChunk ],
-                ]);
+    private function renderHearthstoneCard($id, string $content = null) : ?string
+    {
+        $url = $this->linker->hsCard($id);
 
-                // special treatment
-                switch ($tag) {
-                    case 'item':
-                        if ($id > 0) {
-                            $recipe = Recipe::getByItemId($id);
-                            
-                            if ($recipe) {
-                                $title = 'Рецепт: ' . $recipe->nameRu;
-                                $rel = 'spell=' . $recipe->getId() . '&amp;domain=ru';
-                                
-                                $url = $recipe->url();
-                                $recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel);
-                    
-                                // adding
-                                $text .= '&nbsp;' . $recipeUrl;
-                            }
-                        }
+        return $this->render(
+            'url',
+            [
+                'url' => $url,
+                'text' => $content ?? $id,
+                'style' => 'hh-ttp',
+            ]
+        );
+    }
 
-                        break;
+    private function renderTag($id, string $content = null) : ?string
+    {
+        $id = Strings::fromSpaces($id, '+');
+        return $this->renderEntity('tag', $id, $content);
+    }
 
-                    case 'spell':
-                        // is spell is a recipe, link it to our recipe page
-                        $recipe = Recipe::get($id);
-                        
-                        if ($recipe) {
-                            $title = 'Рецепт: ' . $content; // $id
-                            $rel = 'spell=' . $id . '&amp;domain=ru';
-                            
-                            $url = $recipe->url();
-                            $recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel, $content);
-                    
-                            // rewriting default
-                            $text = $recipeUrl;
-                        }
+    private function renderEntity(string $tag, $id, string $content = null) : ?string
+    {
+        return $this->renderer->entityUrl(
+            '%' . $tag . '%/' . $id,
+            $content ?? $id
+        );
+    }
 
-                        break;
+    private function renderGallery($id, array $chunks) : ?string
+    {
+        $pictures = Collection::makeEmpty();
+        
+        $ids = explode(',', $id);
 
-                    case 'coords':
-                        if ($chunksCount > 2) {
-                            $x = $chunks[1];
-                            $y = $chunks[2];
-                            
-                            $coordsLink = null;
-                            $coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
-    
-                            if (!is_numeric($id)) {
-                                $location = Location::getByName($id);
-                                
-                                if ($location) {
-                                    $id = $location->getId();
-                                }
-                            }
-    
-                            if ($id > 0) {
-                                $coords = '';
-                                
-                                $x = Numbers::parseFloat($x);
-                                $y = Numbers::parseFloat($y);
-                                
-                                if ($x > 0 && $y > 0) {
-                                    $coords = ':' . ($x * 10) . ($y * 10);
-                                }
-                                
-                                $url = $this->getWebDbLink('maps?data=' . $id . $coords);
-                                $text = $this->render('url', [
-                                    'url' => $url,
-                                    'text' => $coordsText,
-                                ]);
-                            }
-                        }
+        $chunksCount = count($chunks);
 
-                        break;
-
-                    case 'card':
-                        $url = $this->linker->hsCard($id);
-                        $text = $this->render('url', [
-                            'url' => $url,
-                            'text' => $content,
-                            'style' => 'hh-ttp',
-                        ]);
-                        break;
-
-                    case 'news':
-                    case 'event':
-                    case 'stream':
-                        $text = $this->renderer->entityUrl("%{$tag}%/{$id}", $content);
-                        break;
-
-                    case 'tag':
-                        $id = Strings::fromSpaces($id, '+');
-                        $text = $this->renderer->entityUrl("%{$tag}%/{$id}", $content);
-                        break;
-                    
-                    case 'gallery':
-                        $pictures = Collection::makeEmpty();
-                        
-                        $ids = explode(',', $id);
-
-                        if ($chunksCount > 1) {
-                            for ($i = 1; $i < $chunksCount; $i++) {
-                                $chunk = $chunks[$i];
-                                
-                                if (is_numeric($chunk) && $chunk > 0) {
-                                    $maxPictures = $chunk;
-                                }
-                                elseif (mb_strtolower($chunk) == 'grid') {
-                                    $gridMode = true;
-                                }
-                            }
-                        }
-
-                        foreach ($ids as $id) {
-                            if (is_numeric($id)) {
-                                $pic = GalleryPicture::get($id);
-                                
-                                if ($pic) {
-                                    $pictures = $pictures->add($pic);
-                                }
-                            } else {
-                                $limit = $maxPictures ?? $this->getSettings('gallery.inline_limit');
-                                $query = GalleryPicture::getByTag($id);
-                                $pictures = $this->galleryService->getPage($query, 1, $limit)->all();
-                                $inlineTag = $id;
-
-                                break;
-                            }
-                        }
-
-                        $text = $pictures->any()
-                            ? $this->render('gallery_inline', [
-                                'pictures' => $pictures,
-                                'tag_link' => $inlineTag ? $this->linker->tag($inlineTag, 'gallery_pictures') : null,
-                                'grid_mode' => $gridMode === true,
-                            ])
-                            : null;
-
-                        break;
+        if ($chunksCount > 1) {
+            for ($i = 1; $i < $chunksCount; $i++) {
+                $chunk = $chunks[$i];
+                
+                if (is_numeric($chunk) && $chunk > 0) {
+                    $maxPictures = $chunk;
+                }
+                elseif (mb_strtolower($chunk) == 'grid') {
+                    $gridMode = true;
                 }
             }
         }
-        
-        return (strlen($text) > 0) ? $text : null;
+
+        foreach ($ids as $id) {
+            if (is_numeric($id)) {
+                $pic = GalleryPicture::get($id);
+                
+                if ($pic) {
+                    $pictures = $pictures->add($pic);
+                }
+            } else {
+                $limit = $maxPictures ?? $this->getSettings('gallery.inline_limit');
+                $query = GalleryPicture::getByTag($id);
+                $pictures = $this->galleryService->getPage($query, 1, $limit)->all();
+                $inlineTag = $id;
+
+                break;
+            }
+        }
+
+        if ($pictures->empty()) {
+            return null;
+        }
+
+        $tagLink = $inlineTag
+            ? $this->linker->tag($inlineTag, 'gallery_pictures')
+            : null;
+
+        return $this->render(
+            'gallery_inline',
+            [
+                'pictures' => $pictures,
+                'tag_link' => $tagLink,
+                'grid_mode' => $gridMode === true,
+            ]
+        );
+    }
+
+    protected function renderBBContainer($node)
+    {
+        switch ($node['tag']) {
+            case 'bluepost':
+                return $this->renderBBNode(
+                    'quote',
+                    $node,
+                    function ($content, $attrs) {
+                        $data = $this->mapQuoteBB($content, $attrs);
+                        $data = $this->enrichBluepostData($data);
+                        
+                        return $data;
+                    }
+                );
+                
+            default:
+                return parent::renderBBContainer($node);
+        }
     }
     
     protected function enrichBluepostData($data)
@@ -244,26 +356,13 @@ class Parser extends ParserBase
         
         return $data;
     }
-
-    protected function renderBBContainer($node)
-    {
-        switch ($node['tag']) {
-            case 'bluepost':
-                return $this->renderBBNode('quote', $node, function ($content, $attrs) {
-                    $data = $this->mapQuoteBB($content, $attrs);
-                    $data = $this->enrichBluepostData($data);
-                    
-                    return $data;
-                });
-                
-            default:
-                return parent::renderBBContainer($node);
-        }
-    }
     
-    protected function getBBContainerTags()
+    protected function getBBContainerTags() : array
     {
-        return array_merge(parent::getBBContainerTags(), [ 'bluepost' ]);
+        return array_merge(
+            parent::getBBContainerTags(),
+            ['bluepost']
+        );
     }
 
     public function renderLinks(string $text) : string
