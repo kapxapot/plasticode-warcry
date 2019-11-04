@@ -1,0 +1,12 @@
+<div class="panel-body body-nopad">
+    {% include 'components/youtube.twig' with { 'code': video.youtube_code } only %}
+
+    {% if video.parsed_description %}
+        <div class="gallery-picture-description">{{ video.parsed_description|raw }}</div>
+    {% endif %}
+</div>
+
+<div class="panel-footer">
+    {% include 'components/published_at.twig' with { 'entity': video } only %}
+    {% include 'components/tags.twig' with { 'tags': video.tag_links } only %}
+</div>

@@ -23,6 +23,8 @@
                     
                     {% if news_item.entity_alias == 'events' %}
                         {% include 'components/event_bodyfooter.twig' with { 'event': news_item } only %}
+                    {% elseif news_item.entity_alias == 'videos' %}
+                        {% include 'components/video_bodyfooter.twig' with { 'video': news_item } only %}
                     {% else %}
                         <div class="panel-body article news">
                             {{ news_item.short_text|raw }}

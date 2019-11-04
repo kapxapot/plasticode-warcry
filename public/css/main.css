@@ -27,6 +27,10 @@
     }
 }
 
+#news-index .body-nopad {
+    padding: 0;
+}
+
 #news-pagination {
     margin-top: 15px;
     margin-bottom: 5px;
