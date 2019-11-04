@@ -87,9 +87,9 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
     }
     
     /**
-     * Check article duplicates for validation
+     * Check article duplicates for validation.
      */
-    public static function lookup(string $name, int $cat, int $exceptId) : Query
+    public static function lookup(string $name, int $cat = null, int $exceptId = null) : Query
     {
         $query = self::query()
             ->where('name_en', $name);
