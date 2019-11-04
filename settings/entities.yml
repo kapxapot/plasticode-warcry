@@ -17,7 +17,7 @@ articles:
     name_ru:
       name: Заголовок
       template: >
-        '<a href="/articles/' + row.name_en_esc + (row.cat ? '/' + row.cat_en_esc : '') + '">' + row.name_ru + (row.cat ? ' / ' + row.cat_ru : '') + ' (' + row.name_en + ')</a>'
+        '<a href="' + row.url + '">' + row.name_ru + (row.cat ? ' / ' + row.cat_ru : '') + ' (' + row.name_en + ')</a>'
 
     name_en:
       name: Eng. Title
@@ -508,7 +508,7 @@ events:
     name:
       name: Название
       template: >
-        '<a href="/events/' + row.id + '">' + row.name + '</a>'
+        '<a href="' + row.url + '">' + row.name + '</a>'
 
     type_id:
       name: Тип
@@ -934,7 +934,7 @@ news:
     title:
       name: Заголовок
       template: >
-        '<a href="/news/' + row.id + '">' + row.title + '</a>'
+        '<a href="' + row.url + '">' + row.title + '</a>'
 
     text:
       name: Текст
@@ -1045,7 +1045,7 @@ streams:
     title:
       name: Название
       template: >
-        ((row.published == 1) ? '<a href="/streams/' + (row.stream_alias ? row.stream_alias : row.stream_id) + '">' + row.title + '</a>' : row.title) + ((row.channel == 1) ? ' (канал)' : '')
+        ((row.published == 1) ? '<a href="' + row.page_url + '">' + row.title + '</a>' : row.title) + ((row.channel == 1) ? ' (канал)' : '')
 
     stream_id:
       name: Код
@@ -1191,7 +1191,7 @@ videos:
     name:
       name: Название
       template: >
-        '<a href="/videos/' + row.id + '">' + row.name + '</a>'
+        '<a href="' + row.url + '">' + row.name + '</a>'
 
     youtube_code:
       name: YouTube

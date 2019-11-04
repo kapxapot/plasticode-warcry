@@ -2,6 +2,7 @@
 
 namespace App\Generators;
 
+use App\Models\Event;
 use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Generators\Traits\Publishable;
 
@@ -19,5 +20,17 @@ class EventsGenerator extends TaggableEntityGenerator
         $data['cache'] = null;
 
         return $data;
+    }
+
+    public function afterLoad(array $item) : array
+    {
+        $item = parent::afterLoad($item);
+        
+        $id = $item[$this->idField];
+        $event = Event::get($id);
+        
+        $item['url'] = $event->url();
+
+        return $item;
     }
 }

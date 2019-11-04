@@ -78,8 +78,8 @@ class ArticlesGenerator extends TaggableEntityGenerator
         $partsStr = implode(' » ', $parts);
         
         $item['select_title'] = '[' . $article->getId() . '] ' . $partsStr;
-        
         $item['tokens'] = $game->name . ' ' . $article->nameRu;
+        $item['url'] = $article->url();
 
         return $item;
     }

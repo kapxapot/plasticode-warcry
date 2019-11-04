@@ -40,4 +40,16 @@ class NewsGenerator extends TaggableEntityGenerator
             // );
         }
     }
+
+    public function afterLoad(array $item) : array
+    {
+        $item = parent::afterLoad($item);
+        
+        $id = $item[$this->idField];
+        $news = $this->newsAggregatorService->getNews($id);
+        
+        $item['url'] = $news->url();
+
+        return $item;
+    }
 }

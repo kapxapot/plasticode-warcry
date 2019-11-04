@@ -4,9 +4,6 @@ namespace App\Controllers;
 
 use App\Models\Game;
 use App\Models\Menu;
-use App\Services\NewsAggregatorService;
-use App\Services\SidebarPartsProviderService;
-use App\Services\StreamService;
 use Plasticode\Collection;
 use Plasticode\Controllers\Controller as BaseController;
 use Plasticode\Exceptions\InvalidConfigurationException;
@@ -16,18 +13,12 @@ use Psr\Container\ContainerInterface;
 class Controller extends BaseController
 {
     protected $defaultGame;
-    protected $sidebarPartsProviderService;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         
         $this->defaultGame = Game::getDefault();
-        $this->sidebarPartsProviderService = new SidebarPartsProviderService(
-            $container,
-            new NewsAggregatorService(),
-            new StreamService($container->cases)
-        );
     }
 
     protected function buildParams(array $settings) : array

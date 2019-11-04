@@ -6,21 +6,9 @@ use App\Models\Article;
 use App\Models\Event;
 use App\Models\GalleryPicture;
 use Plasticode\Contained;
-use Psr\Container\ContainerInterface;
 
 class SidebarPartsProviderService extends Contained
 {
-    private $newsAggregatorService;
-    private $streamService;
-    
-    public function __construct(ContainerInterface $container, NewsAggregatorService $newsAggregatorService, StreamService $streamService)
-    {
-        parent::__construct($container);
-        
-        $this->newsAggregatorService = $newsAggregatorService;
-        $this->streamService = $streamService;
-    }
-    
     public function getPart($settings, $game, $part)
     {
         $result = null;

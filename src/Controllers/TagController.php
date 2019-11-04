@@ -2,9 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Services\NewsAggregatorService;
-use App\Services\StreamService;
-use App\Services\TagPartsProviderService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -18,16 +15,7 @@ class TagController extends Controller
             return $this->notFound($request, $response);
         }
         
-        $newsAggregatorService = new NewsAggregatorService();
-        $streamService = new StreamService($this->cases);
-
-        $tagPartsProviderService = new TagPartsProviderService(
-            $newsAggregatorService,
-            $streamService,
-            $this->galleryService
-        );
-        
-        $parts = $tagPartsProviderService->getParts($tag);
+        $parts = $this->tagPartsProviderService->getParts($tag);
 
         $params = $this->buildParams(
             [

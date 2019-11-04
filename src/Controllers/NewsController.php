@@ -3,27 +3,15 @@
 namespace App\Controllers;
 
 use App\Models\Game;
-use App\Services\NewsAggregatorService;
 use Plasticode\RSS\FeedImage;
 use Plasticode\RSS\FeedItem;
 use Plasticode\RSS\RSSCreator20;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Plasticode\IO\File;
 
 class NewsController extends Controller
 {
-    /** @var \App\Services\NewsAggregatorService */
-    private $newsAggregatorService;
-
-    public function __construct(ContainerInterface $container)
-    {
-        parent::__construct($container);
-        
-        $this->newsAggregatorService = new NewsAggregatorService;
-    }
-    
     public function index(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         if ($args['game']) {

@@ -129,6 +129,22 @@ class Bootstrap extends BootstrapBase
 
                 'comicService' => function (ContainerInterface $container) {
                     return new \App\Services\ComicService();
+                },
+
+                'newsAggregatorService' => function (ContainerInterface $container) {
+                    return new \App\Services\NewsAggregatorService();
+                },
+
+                'streamService' => function (ContainerInterface $container) {
+                    return new \App\Services\StreamService($container->cases);
+                },
+
+                'sidebarPartsProviderService' => function (ContainerInterface $container) {
+                    return new \App\Services\SidebarPartsProviderService($container);
+                },
+
+                'tagPartsProviderService' => function (ContainerInterface $container) {
+                    return new \App\Services\TagPartsProviderService($container);
                 }
             ]
         );
