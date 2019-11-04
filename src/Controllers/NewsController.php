@@ -14,11 +14,7 @@ use Plasticode\IO\File;
 
 class NewsController extends Controller
 {
-    /**
-     * News aggregator service
-     *
-     * @var \App\Services\NewsAggregatorService
-     */
+    /** @var \App\Services\NewsAggregatorService */
     private $newsAggregatorService;
 
     public function __construct(ContainerInterface $container)
@@ -174,9 +170,7 @@ class NewsController extends Controller
         $news = $this->newsAggregatorService->getTop($limit);
 
         $path = $this->getSettings('folders.rss_cache');
-        $path = File::absolutePath(__DIR__, $path);
-
-        $fileName = File::combine($path, 'rss.xml');
+        $fileName = File::combine(__DIR__, $path, 'rss.xml');
 
         $settings = $this->getSettings('view_globals');
         
@@ -185,42 +179,46 @@ class NewsController extends Controller
         $siteDescription = $settings['site_description'];
         $teamMail = $settings['team_mail'];
         
-        $rss = new RSSCreator20();
-        $rss->useCached($fileName, 300);
-        $rss->title = $siteName;
-        $rss->description = $siteDescription;
-        $rss->link = $siteUrl;
-        $rss->syndicationURL = $this->router->pathFor('main.rss');
-        $rss->encoding = "utf-8";
-        $rss->language = 'ru';
-        $rss->copyright = $siteName;
-        $rss->webmaster = $teamMail;
-        $rss->ttl = 300;
-        
-        $image = new FeedImage();
-        $image->title = $siteName . " logo";
-        $image->url = $siteUrl . $settings['logo'];
-        $image->link = $siteUrl;
-        $image->description = $siteDescription;
-        $rss->image = $image;
-        
-        foreach ($news as $n) {
-            $item = new FeedItem();
-            $item->title = $n->displayTitle();
-            $item->link = $this->linker->abs($n->url());
-            $item->description = $this->parser->makeAbsolute($n->shortText());
-            $item->date = $n->publishedAtIso();
-            $item->author = $n->creator()->displayName();
-            $item->category = array_map(
-                function ($t) {
-                    return $t->tag;
-                },
-                $n->tagLinks()
-            );
+        $rss = new RSSCreator20($response);
+
+        if (!$rss->useCached($fileName, 300)) {
+            $rss->title = $siteName;
+            $rss->description = $siteDescription;
+            $rss->link = $siteUrl;
+            $rss->syndicationURL = $this->router->pathFor('main.rss');
+            $rss->encoding = "utf-8";
+            $rss->language = 'ru';
+            $rss->copyright = $siteName;
+            $rss->webmaster = $teamMail;
+            $rss->ttl = 300;
             
-            $rss->addItem($item);
+            $image = new FeedImage();
+            $image->title = $siteName . " logo";
+            $image->url = $siteUrl . $settings['logo'];
+            $image->link = $siteUrl;
+            $image->description = $siteDescription;
+            $rss->image = $image;
+            
+            foreach ($news as $n) {
+                $item = new FeedItem();
+                $item->title = $n->displayTitle();
+                $item->link = $this->linker->abs($n->url());
+                $item->description = $this->parser->makeAbsolute($n->shortText());
+                $item->date = $n->publishedAtIso();
+                $item->author = $n->creator()->displayName();
+                $item->category = array_map(
+                    function ($t) {
+                        return $t->tag;
+                    },
+                    $n->tagLinks()
+                );
+                
+                $rss->addItem($item);
+            }
+            
+            $rss->saveFeed($fileName, true);
         }
-        
-        $rss->saveFeed($fileName, true);
+
+        return $rss->getResponse();
     }
 }
