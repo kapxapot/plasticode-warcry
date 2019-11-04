@@ -66,7 +66,7 @@ class Parser extends ParserBase
             : null;
     }
 
-    private function renderCustomTag(string $tag, $id, string $content, array $chunks) : ?string
+    private function renderCustomTag(string $tag, $id, string $content = null, array $chunks) : ?string
     {
         switch ($tag) {
             case 'item':
@@ -84,6 +84,7 @@ class Parser extends ParserBase
             case 'news':
             case 'event':
             case 'stream':
+            case 'video':
                 return $this->renderEntity($tag, $id, $content);
 
             case 'tag':
@@ -118,9 +119,9 @@ class Parser extends ParserBase
             $text = $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc);
         }
 
-        // if no cat provided and such tag exists, render as tag
-        if (!$text && strlen($cat) == 0 && Tag::exists($id)) {
-            $text = $this->renderTag($id);
+        // if such tag exists, render as tag
+        if (!$text && Tag::exists($id)) {
+            $text = $this->renderTag($id, $name);
         }
 
         return $text ?? $this->renderer->noArticleUrl($name, $id, $cat);
@@ -369,8 +370,9 @@ class Parser extends ParserBase
     {
         $text = str_replace('%article%/', $this->linker->article(), $text);
         $text = str_replace('%news%/', $this->linker->news(), $text);
-        $text = str_replace('%stream%/', $this->linker->stream(), $text);
         $text = str_replace('%event%/', $this->linker->event(), $text);
+        $text = str_replace('%stream%/', $this->linker->stream(), $text);
+        $text = str_replace('%video%/', $this->linker->video(), $text);
         $text = str_replace('%tag%/', $this->linker->tag(), $text);
 
         return $text;
