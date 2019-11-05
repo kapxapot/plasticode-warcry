@@ -128,6 +128,15 @@
     background-image: url(https://warcry.ru/images/icons/games/large/overwatch.png);
 }
 
+.icon-overwatch2,
+.icon-overwatch2-lg {
+    background-image: url(https://warcry.ru/images/icons/games/small/overwatch2_dark.svg);
+}
+
+.icon-overwatch2-md {
+    background-image: url(https://warcry.ru/images/icons/games/small/overwatch2_light.svg);
+}
+
 /* starcraft remastered */
 .icon-scr,
 .icon-scr-md,
