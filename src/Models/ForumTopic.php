@@ -26,7 +26,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return News::getTable();
     }
     
-    protected function getTags() : array
+    public function getTags() : array
     {
         $tags = $this->tags()
             ->extract('tag_text')
@@ -153,6 +153,11 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     }
     
     public function image() : ?string
+    {
+        return null;
+    }
+
+    public function video() : ?string
     {
         return null;
     }

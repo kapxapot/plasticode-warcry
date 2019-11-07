@@ -13,7 +13,7 @@ use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Strings;
 
-class Video extends DbModel implements SearchableInterface, NewsSourceInterface
+class Video extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use Description, FullPublish, Stamps, Tags;
     
@@ -27,6 +27,31 @@ class Video extends DbModel implements SearchableInterface, NewsSourceInterface
         return $this->gameId
             ? Game::get($this->gameId)
             : null;
+    }
+
+    public function largeImage() : ?string
+    {
+        return null;
+    }
+
+    public function image() : ?string
+    {
+        return null;
+    }
+
+    public function video() : ?string
+    {
+        return self::$linker->youtube($this->youtubeCode);
+    }
+
+    public function parsed() : array
+    {
+        return $this->parsedDescription();
+    }
+    
+    public function parsedText() : string
+    {
+        return $this->parsed()['text'];
     }
 
     public function toString() : string
@@ -129,11 +154,23 @@ class Video extends DbModel implements SearchableInterface, NewsSourceInterface
     
     public function fullText() : string
     {
-        return $this->description;
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedText()
+                );
+            }
+        );
     }
     
     public function shortText() : string
     {
-        return $this->description;
+        return $this->lazy(
+            function () {
+                return self::$parser->parseCut(
+                    $this->parsedText(), $this->url(), false
+                );
+            }
+        );
     }
 }

@@ -24,23 +24,21 @@ class ArticleController extends Controller
         if ($rebuild !== null) {
             $article->resetDescription();
         }
-        
-        $parsed = $article->parsed();
 
         $params = $this->buildParams(
             [
                 'game' => $article->game(),
                 'sidebar' => [ 'stream', 'gallery', 'events', 'articles' ],
                 'article_id' => $article->getId(),
-                'large_image' => $parsed['large_image'],
-                'image' => $parsed['image'],
+                'large_image' => $article->largeImage(),
+                'image' => $article->image(),
                 'params' => [
                     'breadcrumbs' => $article->breadcrumbs(),
                     'disqus_url' => $this->linker->disqusArticle($article),
                     'disqus_id' => 'article' . $article->getId() . $cat,
                     'article' => $article,
                     'title' => $article->titleFull(),
-                    'page_description' => $this->makePageDescription($parsed['text'], 'articles.description_limit'),
+                    'page_description' => $this->makePageDescription($article->shortText(), 'articles.description_limit'),
                 ],
             ]
         );

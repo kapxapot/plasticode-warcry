@@ -57,21 +57,19 @@ class EventController extends Controller
         if ($rebuild !== null) {
             $event->resetDescription();
         }
-        
-        $description = $event->parsedDescription();
 
         $params = $this->buildParams(
             [
                 'game' => $event->game(),
                 'global_context' => true,
                 'sidebar' => [ 'stream', 'gallery', 'news' ],
-                'large_image' => $description['large_image'],
-                'image' => $description['image'],
+                'large_image' => $event->largeImage(),
+                'image' => $event->image(),
                 'params' => [
                     'event' => $event,
                     'title' => $event->name,
                     'events_title' => $this->eventsTitle,
-                    'page_description' => $this->makePageDescription($description['text'], 'events.description_limit'),
+                    'page_description' => $this->makePageDescription($event->shortText(), 'events.description_limit'),
                 ],
             ]
         );

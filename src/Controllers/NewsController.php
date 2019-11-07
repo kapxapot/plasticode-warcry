@@ -95,7 +95,7 @@ class NewsController extends Controller
                     'disqus_id' => 'news' . $id,
                     'news_item' => $news,
                     'title' => $news->displayTitle(),
-                    'page_description' => $this->makePageDescription($news->shortText, 'news.description_limit'),
+                    'page_description' => $this->makePageDescription($news->shortText(), 'news.description_limit'),
                     'news_prev' => $prev,
                     'news_next' => $next,
                     'rel_prev' => $prev ? $prev->url() : null,

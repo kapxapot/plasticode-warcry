@@ -47,8 +47,6 @@ class VideoController extends Controller
         if (!$video) {
             return $this->notFound($request, $response);
         }
-        
-        $description = $video->parsedDescription();
 
         $params = $this->buildParams(
             [
@@ -60,7 +58,7 @@ class VideoController extends Controller
                     'title' => $video->name,
                     'videos_title' => $this->videosTitle,
                     'page_description' => $this->makePageDescription(
-                        $description,
+                        $video->shortText(),
                         'videos.description_limit'
                     ),
                 ],

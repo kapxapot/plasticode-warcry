@@ -2,6 +2,7 @@
 
 namespace App\Generators;
 
+use App\Models\News;
 use Plasticode\Generators\TaggableEntityGenerator;
 use Plasticode\Generators\Traits\Publishable;
 
@@ -25,20 +26,18 @@ class NewsGenerator extends TaggableEntityGenerator
     {
         parent::afterSave($item, $data);
         
-        $this->notify($item, $data);
+        if ($this->isJustPublished($item, $data)) {
+            $this->notify($item);
+        }
     }
 
-    private function notify(array $item, array $data) : void
+    private function notify(array $item) : void
     {
-        if ($this->isJustPublished($item, $data)) {
-            $url = $this->linker->news($item[$this->idField]);
-            $url = $this->linker->abs($url);
-            
-            // $this->telegram->sendMessage(
-            //     'warcry',
-            //     '<a href="' . $url . '">' . $item['title'] . '</a>'
-            // );
-        }
+        $id = $item[$this->idField];
+        $news = News::get($id);
+
+        $msg = $this->twitterService->buildMessage($news);
+        $this->twitter->tweet($msg);
     }
 
     public function afterLoad(array $item) : array

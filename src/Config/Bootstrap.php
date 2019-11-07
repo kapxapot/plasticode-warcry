@@ -145,6 +145,10 @@ class Bootstrap extends BootstrapBase
 
                 'tagPartsProviderService' => function (ContainerInterface $container) {
                     return new \App\Services\TagPartsProviderService($container);
+                },
+
+                'twitterService' => function (ContainerInterface $container) {
+                    return new \App\Services\TwitterService($container);
                 }
             ]
         );

@@ -13,7 +13,7 @@ use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Strings;
 
-class News extends DbModel implements SearchableInterface, NewsSourceInterface
+class News extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use CachedDescription, FullPublish, Stamps, Tags;
     
@@ -29,7 +29,7 @@ class News extends DbModel implements SearchableInterface, NewsSourceInterface
 
     // props
     
-    public function game() : Game
+    public function game() : ?Game
     {
         return Game::get($this->gameId);
     }
@@ -46,6 +46,13 @@ class News extends DbModel implements SearchableInterface, NewsSourceInterface
         $parsed = $this->parsed();
         
         return $parsed['image'] ?? null;
+    }
+
+    public function video() : ?string
+    {
+        $parsed = $this->parsed();
+        
+        return $parsed['video'] ?? null;
     }
     
     public function parsed() : array

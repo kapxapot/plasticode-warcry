@@ -8,23 +8,7 @@
 
 - route: main.news
   args:
-    id: 10253
-
-- route: main.news
-  args:
-    id: 9094
-
-- route: main.news
-  args:
-    id: 8963
-
-- route: main.news
-  args:
-    id: 8019
-
-- route: main.news
-  args:
-    id: 8849
+    id: 1
 
 - route: main.comics
 
@@ -34,22 +18,13 @@
 
 - route: main.event
   args:
-    id: 123
+    id: 1
 
 - route: main.streams
 
 - route: main.article
   args:
-    id: Khadgar
-
-- route: main.article
-  args:
-    id: Argus
-
-- route: main.article
-  args:
-    id: Zandalari_Trolls
-    cat: Race
+    id: aaa
 
 - route: main.recipes
   args:

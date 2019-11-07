@@ -15,7 +15,7 @@ use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
 
-class Event extends DbModel implements SearchableInterface, NewsSourceInterface
+class Event extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use CachedDescription, FullPublish, Stamps, Tags;
     
@@ -115,6 +115,27 @@ class Event extends DbModel implements SearchableInterface, NewsSourceInterface
     public function game() : ?Game
     {
         return Game::get($this->gameId);
+    }
+
+    public function largeImage() : ?string
+    {
+        $parsed = $this->parsed();
+        
+        return $parsed['large_image'] ?? null;
+    }
+    
+    public function image() : ?string
+    {
+        $parsed = $this->parsed();
+        
+        return $parsed['image'] ?? null;
+    }
+
+    public function video() : ?string
+    {
+        $parsed = $this->parsed();
+        
+        return $parsed['video'] ?? null;
     }
     
     public function region() : ?Region

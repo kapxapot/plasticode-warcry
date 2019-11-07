@@ -15,7 +15,7 @@ use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
 
-class Article extends DbModel implements SearchableInterface, NewsSourceInterface
+class Article extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use CachedDescription, Children, FullPublish, Stamps, Tags;
     
@@ -137,9 +137,30 @@ class Article extends DbModel implements SearchableInterface, NewsSourceInterfac
 
     // props
 
-    public function game() : Game
+    public function game() : ?Game
     {
         return Game::get($this->gameId);
+    }
+
+    public function largeImage() : ?string
+    {
+        $parsed = $this->parsed();
+        
+        return $parsed['large_image'] ?? null;
+    }
+    
+    public function image() : ?string
+    {
+        $parsed = $this->parsed();
+        
+        return $parsed['image'] ?? null;
+    }
+
+    public function video() : ?string
+    {
+        $parsed = $this->parsed();
+        
+        return $parsed['video'] ?? null;
     }
 
     public function category() : ?ArticleCategory
