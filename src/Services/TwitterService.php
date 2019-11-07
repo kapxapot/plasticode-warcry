@@ -24,7 +24,7 @@ class TwitterService extends Contained
         $embedUrl = $news->video();
 
         if (strlen($embedUrl) > 0) {
-            $message .= ' ' . $embedUrl;
+            $message .= PHP_EOL . PHP_EOL . $embedUrl;
         }
 
         return $message;
