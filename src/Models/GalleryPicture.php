@@ -11,15 +11,20 @@ use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublish;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
+use Plasticode\Util\SortStep;
 
 class GalleryPicture extends DbModel
 {
     use Description, FullPublish, Stamps, Tags;
     
-    protected static $sortOrder = [
-        ['field' => 'published_at', 'reverse' => true],
-        ['field' => 'id', 'reverse' => true],
-    ];
+    /** @return \Plasticode\Util\SortStep[] */
+    protected static function getSortOrder() : array
+    {
+        return [
+            SortStep::createDesc('published_at'),
+            SortStep::createDesc('id')
+        ];
+    }
 
     // queries
 

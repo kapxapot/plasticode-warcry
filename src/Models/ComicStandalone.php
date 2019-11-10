@@ -6,11 +6,9 @@ use Plasticode\Collection;
 
 class ComicStandalone extends Comic
 {
+    protected static $sortField = 'issued_on';
+    protected static $sortReverse = true;
     protected static $tagsEntityType = 'comics';
-    
-    protected static $sortOrder = [
-        [ 'field' => 'issued_on', 'reverse' => true ],
-    ];
     
     // getters - one
 
