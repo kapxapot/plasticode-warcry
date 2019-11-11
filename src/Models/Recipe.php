@@ -40,11 +40,11 @@ class Recipe extends DbModel
 		
 		return $query
 			->orderByAsc('learnedat')
-			->orderByAsc('lvl_orange')
-			->orderByAsc('lvl_yellow')
-			->orderByAsc('lvl_green')
-			->orderByAsc('lvl_gray')
-			->orderByAsc('name_ru');
+			->thenByAsc('lvl_orange')
+			->thenByAsc('lvl_yellow')
+			->thenByAsc('lvl_green')
+			->thenByAsc('lvl_gray')
+			->thenByAsc('name_ru');
 	}
 
     // getters - one

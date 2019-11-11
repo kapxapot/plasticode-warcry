@@ -112,7 +112,7 @@ class News extends DbModel implements NewsSourceInterface, SearchableInterface
     
     private static function getNewsByGame(Game $game = null) : Query
     {
-        $query = self::getBasePublished();
+        $query = self::getPublished();
 
         if ($game) {
             $query = $game->filter($query);

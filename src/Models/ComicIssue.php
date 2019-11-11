@@ -9,28 +9,16 @@ class ComicIssue extends Comic
 {
     protected static $sortField = 'number';
 
-    // queries
-
-    private static function getBySeriesUnsorted($seriesId) : Query
-    {
-        return self::getBasePublished()
-            ->where('series_id', $seriesId);
-    }
-
     public static function getBySeries($seriesId) : Query
     {
         return self::getPublished()
             ->where('series_id', $seriesId);
     }
     
-    // funcs
-    
     public function createPage() : ComicPage
     {
         return ComicPage::createForComic($this->getId());
     }
-    
-    // PROPS
     
     public function series() : ComicSeries
     {
@@ -69,7 +57,7 @@ class ComicIssue extends Comic
     {
         return $this->lazy(
             function () {
-                return self::getBySeriesUnsorted($this->seriesId)
+                return self::getBySeries($this->seriesId)
                     ->whereLt('number', $this->number)
                     ->orderByDesc('number')
                     ->one();
@@ -81,7 +69,7 @@ class ComicIssue extends Comic
     {
         return $this->lazy(
             function () {
-                return self::getBySeriesUnsorted($this->seriesId)
+                return self::getBySeries($this->seriesId)
                     ->whereGt('number', $this->number)
                     ->orderByAsc('number')
                     ->one();

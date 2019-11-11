@@ -147,13 +147,13 @@ class GalleryController extends Controller
         $borderPic = GalleryPicture::get($borderId);
         
         if ($authorId > 0) {
-            $baseQuery = GalleryPicture::getBasePublishedByAuthor($authorId);
+            $query = GalleryPicture::getPublishedByAuthor($authorId);
         }
         elseif (strlen($tag) > 0) {
-            $baseQuery = GalleryPicture::getBaseByTag($tag);
+            $query = GalleryPicture::getByTag($tag);
         }
         
-        $query = GalleryPicture::getBefore($borderPic, $baseQuery);
+        $query = GalleryPicture::getBefore($borderPic, $query);
 
         $pictures = $this->galleryService->getPage($query)->all();
         

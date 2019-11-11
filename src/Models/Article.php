@@ -45,10 +45,10 @@ class Article extends DbModel implements NewsSourceInterface, SearchableInterfac
         $name = Strings::toSpaces($name);
         $cat = Strings::toSpaces($cat);
 
-        $query = self::getBaseProtected();
+        $query = self::getProtected();
         
         if (is_numeric($name)) {
-            return $query->where(self::$idField, $name);
+            return $query->find($name);
         }
         
         $query = $query->where('name_en', $name);
@@ -240,11 +240,9 @@ class Article extends DbModel implements NewsSourceInterface, SearchableInterfac
             );
     }
 
-    // interfaces
-
     public static function search(string $searchQuery) : Collection
     {
-        return self::getBasePublished()
+        return self::getPublished()
             ->search($searchQuery, '(name_en like ? or name_ru like ?)', 2)
             ->all()
             ->multiSort(

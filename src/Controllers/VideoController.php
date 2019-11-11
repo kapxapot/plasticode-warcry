@@ -42,7 +42,7 @@ class VideoController extends Controller
     {
         $id = $args['id'];
 
-        $video = Video::getProtected()->find($id);
+        $video = Video::findProtected($id);
 
         if (!$video) {
             return $this->notFound($request, $response);

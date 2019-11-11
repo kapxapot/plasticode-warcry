@@ -124,9 +124,7 @@ class NewsAggregatorService
      */
     public function getNews($newsId)
     {
-        return News::getProtected()->find($newsId)
-            ??
-            ForumTopic::getNews($newsId);
+        return News::findProtected($newsId) ?? ForumTopic::getNews($newsId);
     }
     
     public function getPrev($news, $strict = true)

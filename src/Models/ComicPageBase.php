@@ -61,7 +61,7 @@ abstract class ComicPageBase extends DbModel
     
     private function getSiblings() : Query
     {
-        return self::getBasePublished()
+        return self::getPublished()
             ->where(static::$comicIdField, $this->{static::$comicIdField});
     }
 

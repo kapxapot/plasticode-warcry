@@ -102,7 +102,7 @@ class GalleryAuthor extends DbModel
 
     private function getSiblings() : Query
     {
-        return self::getBasePublished();
+        return self::getPublished();
     }
     
     public function prev() : ?self

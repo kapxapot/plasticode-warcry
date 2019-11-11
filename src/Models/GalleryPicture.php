@@ -34,12 +34,6 @@ class GalleryPicture extends DbModel
             ->where('author_id', $authorId);
     }
 
-    public static function getBasePublishedByAuthor($authorId) : Query
-    {
-        return self::getBasePublished()
-            ->where('author_id', $authorId);
-    }
-
     public static function getByGame(Game $game = null) : Query
     {
         $query = self::getPublished();
@@ -195,9 +189,9 @@ class GalleryPicture extends DbModel
         );
     }
     
-    public static function getBefore(GalleryPicture $borderPic, Query $baseQuery = null) : Query
+    public static function getBefore(GalleryPicture $borderPic, Query $query = null) : Query
     {
-        $query = $baseQuery ?? self::getBasePublished();
+        $query = $query ?? self::getPublished();
         
         if ($borderPic) {
             $query = $query
@@ -210,15 +204,15 @@ class GalleryPicture extends DbModel
                     ]
                 )
                 ->orderByDesc('published_at')
-                ->orderByDesc('id');
+                ->thenByDesc('id');
         }
         
         return $query;
     }
     
-    public static function getAfter(GalleryPicture $borderPic, Query $baseQuery = null) : Query
+    public static function getAfter(GalleryPicture $borderPic, Query $query = null) : Query
     {
-        $query = $baseQuery ?? self::getBasePublished();
+        $query = $query ?? self::getPublished();
         
         if ($borderPic) {
             $query = $query
@@ -231,7 +225,7 @@ class GalleryPicture extends DbModel
                     ]
                 )
                 ->orderByAsc('published_at')
-                ->orderByAsc('id');
+                ->thenByAsc('id');
         }
         
         return $query;

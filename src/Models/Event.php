@@ -25,7 +25,7 @@ class Event extends DbModel implements NewsSourceInterface, SearchableInterface
     {
         return self::getPublished()
             ->orderByAsc('starts_at')
-            ->orderByAsc('ends_at');
+            ->thenByAsc('ends_at');
     }
 
     private static function filterUnended(Query $query) : Query
