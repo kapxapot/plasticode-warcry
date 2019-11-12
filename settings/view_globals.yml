@@ -1,6 +1,7 @@
 site_name: Warcry.ru
 site_bare_url: warcry.ru
 site_url: {SITE_URL}
+abs_site_url: 'https://warcry.ru'
 cool_site_url: '//warcry.ru'
 site_description: 'Все о World of Warcraft, Diablo III, Hearthstone, Heroes of the Storm, StarCraft II и Overwatch. Официальный фан-сайт Blizzard. Новости, аналитика, энциклопедия, руководства, творчество'
 short_site_description: 'World of Warcraft, Diablo III, Hearthstone, Overwatch'
