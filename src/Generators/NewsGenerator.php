@@ -16,7 +16,6 @@ class NewsGenerator extends TaggableEntityGenerator
     public function beforeSave(array $data, $id = null) : array
     {
         $data = $this->publishableBeforeSave($data, $id);
-        
         $data['cache'] = null;
 
         return $data;
