@@ -2,12 +2,17 @@
 
 namespace App\Core;
 
+use App\Core\Interfaces\LinkerInterface;
+use App\Models\Article;
+use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
+use App\Models\Game;
+use App\Models\Skill;
 use Plasticode\Core\Linker as LinkerBase;
 use Plasticode\Exceptions\InvalidArgumentException;
 use Plasticode\Util\Strings;
 
-class Linker extends LinkerBase
+class Linker extends LinkerBase implements LinkerInterface
 {
     // urls
     private function forumUrl(string $url) : string
@@ -16,43 +21,54 @@ class Linker extends LinkerBase
     }
 
     // site
-    public function article($id = null, string $cat = null)
+
+    /**
+     * Get article link.
+     *
+     * @param int|string $id
+     * @param string $cat
+     * @return string
+     */
+    public function article($id = null, ?string $cat = null) : string
     {
         $params = ['id' => Strings::fromSpaces($id)];
         
-        if ($cat) {
+        if (strlen($cat) > 0) {
             $params['cat'] = Strings::fromSpaces($cat);
         }
 
         return $this->router->pathFor('main.article', $params);
     }
 
-    public function news($id = null)
+    public function news(int $id = null) : string
     {
         return $this->router->pathFor('main.news', ['id' => $id]);
     }
     
-    public function newsYear(int $year)
+    public function newsYear(int $year) : string
     {
-        return $this->router->pathFor('main.news.archive.year', ['year' => $year]);
+        return $this->router->pathFor(
+            'main.news.archive.year',
+            ['year' => $year]
+        );
     }
 
-    public function event($id = null)
+    public function event(int $id = null) : string
     {
         return $this->router->pathFor('main.event', ['id' => $id]);
     }
 
-    public function video($id = null)
+    public function video(int $id = null) : string
     {
         return $this->router->pathFor('main.video', ['id' => $id]);
     }
 
-    public function n($id)
+    public function n(int $id) : string
     {
         return $this->abs('n/' . $id);
     }
 
-    public function game($game)
+    public function game(?Game $game) : string
     {
         $params = [];
         
@@ -64,12 +80,12 @@ class Linker extends LinkerBase
     }
     
     // disqus
-    public function disqusNews($id)
+    public function disqusNews(int $id) : string
     {
         return $this->abs($this->news($id));
     }
     
-    public function disqusArticle($article)
+    public function disqusArticle(Article $article) : string
     {
         $id = $article->nameEn;
         
@@ -80,66 +96,66 @@ class Linker extends LinkerBase
         return $this->abs($this->article($id, $cat));
     }
     
-    public function disqusGalleryAuthor($author)
+    public function disqusGalleryAuthor(GalleryAuthor $author) : string
     {
         return $this->abs($this->galleryAuthor($author));
     }
 
-    public function disqusRecipes($skill)
+    public function disqusRecipes(Skill $skill) : string
     {
         return $this->abs($this->recipes($skill));
     }
 
-    public function disqusRecipe($id)
+    public function disqusRecipe(int $id) : string
     {
         return $this->abs($this->recipe($id));
     }
 
     // forum
-    public function forumTag($text)
+    public function forumTag(string $text) : string
     {
         return $this->forumUrl(
             'app=core&module=search&do=search&search_tags=' . urlencode($text) . '&search_app=forums'
         );
     }
     
-    public function forumUser($id)
+    public function forumUser(int $id) : string
     {
         return $this->forumUrl('showuser=' . $id);
     }
     
-    public function forumTopic($id, $new = false)
+    public function forumTopic(int $id, bool $new = false) : string
     {
         $appendix = $new ? '&view=getnewpost' : '';
         
         return $this->forumUrl('showtopic=' . $id . $appendix);
     }
     
-    public function forumUpload($name)
+    public function forumUpload(string $name) : string
     {
         return $this->getSettings('forum.index') . '/uploads/' . $name;
     }
     
     // gallery
-    public function galleryAuthor($alias)
+    public function galleryAuthor(GalleryAuthor $author) : string
     {
         return $this->router->pathFor(
             'main.gallery.author',
-            ['alias' => $alias]
+            ['alias' => $author->alias]
         );
     }
 
     public function galleryPictureImg(GalleryPicture $picture)
     {
-        return $this->gallery->getPictureUrl($picture);
+        return $this->gallery->getPictureUrl($picture->toArray());
     }
     
     public function galleryThumbImg(GalleryPicture $picture)
     {
-        return $this->gallery->getThumbUrl($picture);
+        return $this->gallery->getThumbUrl($picture->toArray());
     }
     
-    public function galleryPicture($alias, $id)
+    public function galleryPicture(string $alias, int $id) : string
     {
         return $this->router->pathFor(
             'main.gallery.picture',
@@ -148,7 +164,7 @@ class Linker extends LinkerBase
     }
     
     // streams
-    public function stream($alias = null)
+    public function stream(string $alias = null) : string
     {
         return $this->router->pathFor(
             'main.stream',
@@ -305,7 +321,7 @@ class Linker extends LinkerBase
     }
     
     // hs
-    public function hsCard($id)
+    public function hsCard(string $id) : string
     {
         return $this->getSettings('hsdb_ru_link') . 'cards/' . $id;
     }

@@ -1,25 +1,47 @@
 <?php
 
-namespace App\Core;
+namespace App\Parsing;
 
+use App\Core\Interfaces\LinkerInterface;
+use App\Core\Interfaces\RendererInterface;
 use App\Models\Article;
 use App\Models\GalleryPicture;
 use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
+use Plasticode\Config\Interfaces\ParsingConfigInterface;
 use Plasticode\Core\Parser as ParserBase;
+use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Models\Tag;
 use Plasticode\Util\Numbers;
 use Plasticode\Util\Strings;
 
 class Parser extends ParserBase
 {
-    protected function getWebDbLink($appendix)
+    /** @var \App\Core\Interfaces\RendererInterface */
+    protected $renderer;
+
+    /** @var \App\Core\Interfaces\LinkerInterface */
+    protected $linker;
+
+    /** @var \Plasticode\Interfaces\SettingsProviderInterface */
+    protected $settingsProvider;
+
+    public function __construct(ParsingConfigInterface $config, RendererInterface $renderer, LinkerInterface $linker, SettingsProviderInterface $settingsProvider)
     {
-        return $this->getSettings('webdb_ru_link') . $appendix;
+        parent::__construct($config, $renderer, $linker);
+
+        $this->renderer = $renderer;
+        $this->linker = $linker;
+        $this->settingsProvider = $settingsProvider;
     }
 
-    protected function parseMore($text)
+    protected function getWebDbLink(string $appendix) : string
+    {
+        return $this->settingsProvider->getSettings('webdb_ru_link') . $appendix;
+    }
+
+    protected function parseMore(?string $text) : ?string
     {
         return preg_replace_callback(
             '/\[\[(.*)\]\]/U',
@@ -35,7 +57,7 @@ class Parser extends ParserBase
         );
     }
     
-    protected function parseDoubleBracketsMatch($match)
+    protected function parseDoubleBracketsMatch(?string $match) : ?string
     {
         if (strlen($match) == 0) {
             return null;
@@ -66,7 +88,7 @@ class Parser extends ParserBase
             : null;
     }
 
-    private function renderCustomTag(string $tag, $id, string $content = null, array $chunks) : ?string
+    private function renderCustomTag(string $tag, string $id, ?string $content, array $chunks) : ?string
     {
         switch ($tag) {
             case 'item':
@@ -97,7 +119,7 @@ class Parser extends ParserBase
         return $this->renderWowheadLink($tag, $id, $content);
     }
 
-    private function renderArticle($id, array $chunks) : ?string
+    private function renderArticle(string $id, array $chunks) : ?string
     {
         $chunksCount = count($chunks);
 
@@ -127,7 +149,7 @@ class Parser extends ParserBase
         return $text ?? $this->renderer->noArticleUrl($name, $id, $cat);
     }
 
-    private function renderItem($id, string $content = null) : ?string
+    private function renderItem(string $id, ?string $content) : ?string
     {
         $itemLink = $this->renderWowheadLink('item', $id, $content);
         $recipe = $this->renderItemRecipe($id);
@@ -142,11 +164,11 @@ class Parser extends ParserBase
     /**
      * Default text for tags.
      * 
-     *  In most cases it's exactly what's needed.
+     * In most cases it's exactly what's needed.
      *
      * @return null|string
      */
-    private function renderWowheadLink(string $tag, $id, string $content = null) : ?string
+    private function renderWowheadLink(string $tag, string $id, ?string $content) : ?string
     {
         $mappings = [
             'ach' => 'achievement',
@@ -162,12 +184,12 @@ class Parser extends ParserBase
             [
                 'url' => $url,
                 'text' => $content ?? $id,
-                'data' => [ 'wowhead' => $urlChunk ],
+                'data' => ['wowhead' => $urlChunk],
             ]
         );
     }
 
-    private function renderItemRecipe($id) : ?string
+    private function renderItemRecipe(string $id) : ?string
     {
         $recipe = Recipe::getByItemId($id);
         
@@ -181,7 +203,7 @@ class Parser extends ParserBase
      *
      * @return null|string
      */
-    private function renderRecipe($id, string $content = null) : ?string
+    private function renderRecipe(string $id, ?string $content) : ?string
     {
         $recipe = Recipe::get($id);
         
@@ -190,7 +212,7 @@ class Parser extends ParserBase
             : null;
     }
 
-    private function renderRecipeLink(Recipe $recipe, string $content = null) : ?string
+    private function renderRecipeLink(Recipe $recipe, ?string $content = null) : ?string
     {
         $title = 'Рецепт: ' . ($content ?? $recipe->nameRu);
         $rel = 'spell=' . $recipe->getId() . '&amp;domain=ru';
@@ -201,7 +223,7 @@ class Parser extends ParserBase
         return $recipeUrl;
     }
 
-    private function renderCoords($id, array $chunks) : ?string
+    private function renderCoords(string $id, array $chunks) : ?string
     {
         if (count($chunks) <= 2) {
             return null;
@@ -246,7 +268,7 @@ class Parser extends ParserBase
         );
     }
 
-    private function renderHearthstoneCard($id, string $content = null) : ?string
+    private function renderHearthstoneCard(string $id, ?string $content) : ?string
     {
         $url = $this->linker->hsCard($id);
 
@@ -260,13 +282,13 @@ class Parser extends ParserBase
         );
     }
 
-    private function renderTag($id, string $content = null) : ?string
+    private function renderTag(string $id, ?string $content) : ?string
     {
         $id = Strings::fromSpaces($id, '+');
         return $this->renderEntity('tag', $id, $content);
     }
 
-    private function renderEntity(string $tag, $id, string $content = null) : ?string
+    private function renderEntity(string $tag, string $id, string $content = null) : ?string
     {
         return $this->renderer->entityUrl(
             '%' . $tag . '%/' . $id,
@@ -274,7 +296,7 @@ class Parser extends ParserBase
         );
     }
 
-    private function renderGallery($id, array $chunks) : ?string
+    private function renderGallery(string $id, array $chunks) : ?string
     {
         $pictures = Collection::makeEmpty();
         
@@ -288,8 +310,7 @@ class Parser extends ParserBase
                 
                 if (is_numeric($chunk) && $chunk > 0) {
                     $maxPictures = $chunk;
-                }
-                elseif (mb_strtolower($chunk) == 'grid') {
+                } elseif (mb_strtolower($chunk) == 'grid') {
                     $gridMode = true;
                 }
             }
@@ -303,7 +324,9 @@ class Parser extends ParserBase
                     $pictures = $pictures->add($pic);
                 }
             } else {
-                $limit = $maxPictures ?? $this->getSettings('gallery.inline_limit');
+                $limit = $maxPictures
+                    ?? $this->settingsProvider->getSettings('gallery.inline_limit');
+                
                 $query = GalleryPicture::getByTag($id);
                 $pictures = $this->galleryService->getPage($query, 1, $limit)->all();
                 $inlineTag = $id;
@@ -330,7 +353,7 @@ class Parser extends ParserBase
         );
     }
 
-    protected function renderBBContainer($node)
+    protected function renderBBContainer(array $node) : string
     {
         switch ($node['tag']) {
             case 'bluepost':
@@ -350,7 +373,7 @@ class Parser extends ParserBase
         }
     }
     
-    protected function enrichBluepostData($data)
+    protected function enrichBluepostData(array $data) : array
     {
         $data['author'] = $data['author'] ?? 'Blizzard';
         $data['style'] = 'quote--bluepost';

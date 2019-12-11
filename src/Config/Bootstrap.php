@@ -3,6 +3,8 @@
 namespace App\Config;
 
 use Plasticode\Config\Bootstrap as BootstrapBase;
+use Plasticode\Gallery\Gallery;
+use Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy;
 use Psr\Container\ContainerInterface;
 
 class Bootstrap extends BootstrapBase
@@ -37,7 +39,7 @@ class Bootstrap extends BootstrapBase
 
                 'gallery' => function (ContainerInterface $container) {
                     $thumbHeight = $this->settings['gallery']['thumb_height'];
-                    $thumbStrategy = new \Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy($thumbHeight);
+                    $thumbStrategy = new UniformThumbStrategy($thumbHeight);
                     
                     $gallerySettings = [
                         'base_dir' => $this->dir,
@@ -57,12 +59,14 @@ class Bootstrap extends BootstrapBase
                         ],
                     ];
                 
-                    return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $gallerySettings);
+                    return new Gallery(
+                        $container, $thumbStrategy, $gallerySettings
+                    );
                 },
                 
                 'comics' => function (ContainerInterface $container) {
                     $thumbHeight = $this->settings['comics']['thumb_height'];
-                    $thumbStrategy = new \Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy($thumbHeight);
+                    $thumbStrategy = new UniformThumbStrategy($thumbHeight);
                     
                     $comicsSettings = [
                         'base_dir' => $this->dir,
@@ -83,7 +87,9 @@ class Bootstrap extends BootstrapBase
                         //'thumb_height' => $this->settings['comics']['thumb_height'],
                     ];
                 
-                    return new \Plasticode\Gallery\Gallery($container, $thumbStrategy, $comicsSettings);
+                    return new Gallery(
+                        $container, $thumbStrategy, $comicsSettings
+                    );
                 },
 
                 'localization' => function (ContainerInterface $container) {
@@ -99,9 +105,11 @@ class Bootstrap extends BootstrapBase
                 },
                 
                 'parser' => function (ContainerInterface $container) {
-                    return new \App\Core\Parser(
-                        $container,
-                        $container->parserConfig
+                    return new \App\Parsing\Parser(
+                        $container->parserConfig,
+                        $container->renderer,
+                        $container->linker,
+                        $container->settingsProvider
                     );
                 },
                 

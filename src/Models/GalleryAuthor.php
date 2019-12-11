@@ -74,7 +74,7 @@ class GalleryAuthor extends DbModel
     
     public function pageUrl() : string
     {
-        return self::$linker->galleryAuthor($this->alias);
+        return self::$linker->galleryAuthor($this);
     }
     
     public function displayName() : string

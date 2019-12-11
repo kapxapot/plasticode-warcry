@@ -149,6 +149,6 @@ twitter:
 date_format: %Y-%m-%d
 time_format: %Y-%m-%d %H:%M:%S
 
-webdb_link: 'http://wowhead.com/'
-webdb_ru_link: 'http://ru.wowhead.com/'
-hsdb_ru_link: 'http://ru.hearthhead.com/'
+webdb_link: 'https://wowhead.com/'
+webdb_ru_link: 'https://ru.wowhead.com/'
+hsdb_ru_link: 'https://hearthstonetopdecks.com/'

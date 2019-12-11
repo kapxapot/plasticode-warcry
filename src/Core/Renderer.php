@@ -2,22 +2,23 @@
 
 namespace App\Core;
 
+use App\Core\Interfaces\RendererInterface;
 use Plasticode\Core\Renderer as RendererBase;
 
-class Renderer extends RendererBase
+class Renderer extends RendererBase implements RendererInterface
 {
-    protected function articleUrlBare($name, $cat)
+    protected function articleUrlBare(string $name, ?string $cat) : string
     {
-        if ($cat) {
+        if (strlen($cat) > 0) {
             $cat = '/' . $cat;
         }
 
         return '%article%/' . $name . $cat;
     }
 
-    public function articleUrl($nameRu, $nameEn, $nameEsc, $cat, $catEsc, $style = 'nd_article')
+    public function articleUrl(string $nameRu, string $nameEn, string $nameEsc, ?string $cat, ?string $catEsc, ?string $style = null) : string
     {
-        if ($cat) {
+        if (strlen($cat) > 0) {
             $cat = ' (' . $cat . ')';
         }
 
@@ -29,14 +30,14 @@ class Renderer extends RendererBase
                 'url' => $url,
                 'text' => $nameRu,
                 'title' => $nameEn . $cat,
-                'style' => $style,
+                'style' => $style ?? 'nd_article',
             ]
         );
     }
 
-    public function noArticleUrl($nameRu, $nameEn, $cat = null)
+    public function noArticleUrl(string $nameRu, string $nameEn, ?string $cat = null) : string
     {
-        if ($cat) {
+        if (strlen($cat) > 0) {
             $cat = ' (' . $cat . ')';
         }
 
@@ -50,7 +51,7 @@ class Renderer extends RendererBase
         );
     }
     
-    public function entityUrl($url, $text, $title = null)
+    public function entityUrl(string $url, string $text, ?string $title = null) : string
     {
         return $this->component(
             'url',
@@ -63,13 +64,13 @@ class Renderer extends RendererBase
         );
     }
 
-    public function recipePageUrl($url, $title, $rel = null, $content = '[~]')
+    public function recipePageUrl(string $url, ?string $title, ?string $rel = null, ?string $content = null) : string
     {
         return $this->component(
             'url',
             [
                 'url' => $url,
-                'text' => $content,
+                'text' => $content ?? '[~]',
                 'title' => $title,
                 'rel' => $rel,
             ]
