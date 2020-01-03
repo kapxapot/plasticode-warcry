@@ -9,6 +9,7 @@ use Plasticode\RSS\RSSCreator20;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Plasticode\IO\File;
+use Plasticode\Util\Text;
 
 class NewsController extends Controller
 {
@@ -191,7 +192,12 @@ class NewsController extends Controller
                 $item = new FeedItem();
                 $item->title = $n->displayTitle();
                 $item->link = $this->linker->abs($n->url());
-                $item->description = $this->parser->makeAbsolute($n->shortText());
+
+                $item->description = Text::toAbsoluteUrls(
+                    $n->shortText(),
+                    $this->linker->abs()
+                );
+                
                 $item->date = $n->publishedAtIso();
                 $item->author = $n->creator()->displayName();
                 $item->category = array_map(

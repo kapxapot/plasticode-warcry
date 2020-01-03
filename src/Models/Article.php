@@ -2,22 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
-use Plasticode\Models\DbModel;
-use Plasticode\Models\Interfaces\SearchableInterface;
-use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Models\Traits\Children;
-use Plasticode\Models\Traits\FullPublish;
-use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
 
-class Article extends DbModel implements NewsSourceInterface, SearchableInterface
+class Article extends NewsSource
 {
-    use CachedDescription, Children, FullPublish, Stamps, Tags;
+    use Children;
     
     protected static $sortField = 'published_at';
     protected static $sortReverse = true;
@@ -123,7 +116,7 @@ class Article extends DbModel implements NewsSourceInterface, SearchableInterfac
             $aliasParts[] = $cat;
         }
         
-        $alias = self::$parser->joinTagParts($aliasParts);
+        $alias = Strings::joinTagParts($aliasParts);
 
         return self::getProtected()
             ->whereRaw('(aliases like ?)', [ '%' . $alias . '%' ])
@@ -136,32 +129,6 @@ class Article extends DbModel implements NewsSourceInterface, SearchableInterfac
     }
 
     // props
-
-    public function game() : ?Game
-    {
-        return Game::get($this->gameId);
-    }
-
-    public function largeImage() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['large_image'] ?? null;
-    }
-    
-    public function image() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['image'] ?? null;
-    }
-
-    public function video() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['video'] ?? null;
-    }
 
     public function category() : ?ArticleCategory
     {
@@ -189,16 +156,6 @@ class Article extends DbModel implements NewsSourceInterface, SearchableInterfac
         $en = $this->titleEn();
         
         return $this->nameRu . ($en ? ' (' . $en . ')' : ''); 
-    }
-
-    public function parsed() : array
-    {
-        return $this->parsedDescription();
-    }
-    
-    public function parsedText() : string
-    {
-        return $this->parsed()['text'];
     }
     
     public function subArticles() : Collection
@@ -280,9 +237,7 @@ class Article extends DbModel implements NewsSourceInterface, SearchableInterfac
             $parts[] = $this->nameRu;
         }
         
-        $code = self::$parser->joinTagParts($parts);
-        
-        return '[[' . $code . ']]';
+        return Strings::doubleBracketsTag(null, ...$parts);
     }
     
     // NewsSourceInterface
@@ -339,27 +294,5 @@ class Article extends DbModel implements NewsSourceInterface, SearchableInterfac
     public function displayTitle() : string
     {
         return $this->nameRu;
-    }
-    
-    public function fullText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText()
-                );
-            }
-        );
-    }
-    
-    public function shortText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText(), $this->url(), false
-                );
-            }
-        );
     }
 }

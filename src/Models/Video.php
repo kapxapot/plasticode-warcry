@@ -2,33 +2,17 @@
 
 namespace App\Models;
 
-use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
-use Plasticode\Models\DbModel;
-use Plasticode\Models\Interfaces\SearchableInterface;
-use Plasticode\Models\Traits\Description;
-use Plasticode\Models\Traits\FullPublish;
-use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Strings;
 
-class Video extends DbModel implements NewsSourceInterface, SearchableInterface
+class Video extends NewsSource
 {
-    use Description, FullPublish, Stamps, Tags;
-    
     protected static $sortField = 'published_at';
     protected static $sortReverse = true;
 
     // PROPS
     
-    public function game() : ?Game
-    {
-        return $this->gameId
-            ? Game::get($this->gameId)
-            : null;
-    }
-
     public function largeImage() : ?string
     {
         return null;
@@ -42,16 +26,6 @@ class Video extends DbModel implements NewsSourceInterface, SearchableInterface
     public function video() : ?string
     {
         return self::$linker->youtube($this->youtubeCode);
-    }
-
-    public function parsed() : array
-    {
-        return $this->parsedDescription();
-    }
-    
-    public function parsedText() : string
-    {
-        return $this->parsed()['text'];
     }
 
     public function toString() : string
@@ -80,14 +54,7 @@ class Video extends DbModel implements NewsSourceInterface, SearchableInterface
     
     public function code() : string
     {
-        $parts = [
-            'video:' . $this->getId(),
-            $this->name,
-        ];
-        
-        $code = self::$parser->joinTagParts($parts);
-        
-        return '[[' . $code . ']]';
+        return Strings::doubleBracketsTag('video', $this->getId(), $this->name);
     }
     
     // NewsSourceInterface
@@ -150,27 +117,5 @@ class Video extends DbModel implements NewsSourceInterface, SearchableInterface
     public function displayTitle() : string
     {
         return $this->name;
-    }
-    
-    public function fullText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText()
-                );
-            }
-        );
-    }
-    
-    public function shortText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText(), $this->url(), false
-                );
-            }
-        );
     }
 }

@@ -2,21 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
-use Plasticode\Models\DbModel;
-use Plasticode\Models\Interfaces\SearchableInterface;
-use Plasticode\Models\Traits\CachedDescription;
-use Plasticode\Models\Traits\FullPublish;
-use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Strings;
 
-class News extends DbModel implements NewsSourceInterface, SearchableInterface
+class News extends NewsSource
 {
-    use CachedDescription, FullPublish, Stamps, Tags;
-    
     protected static $sortField = 'published_at';
     protected static $sortReverse = true;
     
@@ -25,44 +16,6 @@ class News extends DbModel implements NewsSourceInterface, SearchableInterface
     protected static function getDescriptionField() : string
     {
         return 'text';
-    }
-
-    // props
-    
-    public function game() : ?Game
-    {
-        return Game::get($this->gameId);
-    }
-
-    public function largeImage() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['large_image'] ?? null;
-    }
-    
-    public function image() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['image'] ?? null;
-    }
-
-    public function video() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['video'] ?? null;
-    }
-    
-    public function parsed() : array
-    {
-        return $this->parsedDescription();
-    }
-    
-    public function parsedText() : string
-    {
-        return $this->parsed()['text'];
     }
 
     // interfaces
@@ -86,14 +39,7 @@ class News extends DbModel implements NewsSourceInterface, SearchableInterface
     
     public function code() : string
     {
-        $parts = [
-            'news:' . $this->getId(),
-            $this->displayTitle(),
-        ];
-        
-        $code = self::$parser->joinTagParts($parts);
-
-        return '[[' . $code . ']]';
+        return Strings::doubleBracketsTag('news', $this->getId(), $this->displayTitle());
     }
     
     // LinkableInterface
@@ -156,27 +102,5 @@ class News extends DbModel implements NewsSourceInterface, SearchableInterface
     public function displayTitle() : string
     {
         return $this->title;
-    }
-    
-    public function fullText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText()
-                );
-            }
-        );
-    }
-    
-    public function shortText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText(), $this->url(), false
-                );
-            }
-        );
     }
 }

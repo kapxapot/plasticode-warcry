@@ -10,6 +10,7 @@ use App\Controllers\RecipeController;
 use App\Controllers\SearchController;
 use App\Controllers\StreamController;
 use App\Controllers\TagController;
+use App\Controllers\TestController;
 use App\Controllers\VideoController;
 use App\Controllers\Admin\ComicController as AdminComicController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
@@ -23,8 +24,6 @@ use Plasticode\Middleware\AuthMiddleware;
 use Plasticode\Middleware\GuestMiddleware;
 use Plasticode\Middleware\AccessMiddleware;
 use Plasticode\Middleware\TokenAuthMiddleware;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Creates AccessMiddleware
@@ -42,7 +41,7 @@ $access = function (
 $root = $settings['root'];
 $trueRoot = (strlen($root) == 0);
 
-$app->group($root, function () use ($trueRoot, $settings, $access, $container) {
+$app->group($root, function () use ($trueRoot, $settings, $access, $container, $env) {
     
     // public api
         
@@ -201,6 +200,10 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container) {
     $this->get('/tags/{tag}', TagController::class . ':item')
         ->setName('main.tag');
 
+    if ($env->isDev()) {
+        $this->get('/test', TestController::class . ':index')->setName('main.test');
+    }
+    
     $this->get(
         $trueRoot ? '/[{game}]' : '[/{game}]',
         NewsController::class . ':index'

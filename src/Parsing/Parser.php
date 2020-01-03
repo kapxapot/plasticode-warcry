@@ -10,9 +10,10 @@ use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
 use Plasticode\Config\Interfaces\ParsingConfigInterface;
-use Plasticode\Core\Parser as ParserBase;
+use Plasticode\Parsing\Parser as ParserBase;
 use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Models\Tag;
+use Plasticode\Parsing\ParsingContext;
 use Plasticode\Util\Numbers;
 use Plasticode\Util\Strings;
 
@@ -389,8 +390,12 @@ class Parser extends ParserBase
         );
     }
 
-    public function renderLinks(string $text) : string
+    public function renderLinks(ParsingContext $context) : ParsingContext
     {
+        $context = clone $context;
+
+        $text = $context->text;
+
         $text = str_replace('%article%/', $this->linker->article(), $text);
         $text = str_replace('%news%/', $this->linker->news(), $text);
         $text = str_replace('%event%/', $this->linker->event(), $text);
@@ -398,6 +403,8 @@ class Parser extends ParserBase
         $text = str_replace('%video%/', $this->linker->video(), $text);
         $text = str_replace('%tag%/', $this->linker->tag(), $text);
 
-        return $text;
+        $context->text = $text;
+
+        return $context;
     }
 }

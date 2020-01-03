@@ -2,23 +2,14 @@
 
 namespace App\Models;
 
-use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
-use Plasticode\Models\DbModel;
 use Plasticode\Models\Moment;
-use Plasticode\Models\Interfaces\SearchableInterface;
-use Plasticode\Models\Traits\CachedDescription;
-use Plasticode\Models\Traits\FullPublish;
-use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
 
-class Event extends DbModel implements NewsSourceInterface, SearchableInterface
+class Event extends NewsSource
 {
-    use CachedDescription, FullPublish, Stamps, Tags;
-    
     // queries
     
     public static function getOrderedByStart() : Query
@@ -112,32 +103,6 @@ class Event extends DbModel implements NewsSourceInterface, SearchableInterface
     
     // PROPS
     
-    public function game() : ?Game
-    {
-        return Game::get($this->gameId);
-    }
-
-    public function largeImage() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['large_image'] ?? null;
-    }
-    
-    public function image() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['image'] ?? null;
-    }
-
-    public function video() : ?string
-    {
-        $parsed = $this->parsed();
-        
-        return $parsed['video'] ?? null;
-    }
-    
     public function region() : ?Region
     {
         return Region::get($this->regionId);
@@ -179,16 +144,6 @@ class Event extends DbModel implements NewsSourceInterface, SearchableInterface
         return $this->endsAt ?? Date::endOfDay($this->startsAt);
     }
 
-    public function parsed() : array
-    {
-        return $this->parsedDescription();
-    }
-    
-    public function parsedText() : string
-    {
-        return $this->parsed()['text'];
-    }
-
     public function toString() : string
     {
         return '[' . $this->id . '] ' . $this->name;
@@ -215,14 +170,7 @@ class Event extends DbModel implements NewsSourceInterface, SearchableInterface
     
     public function code() : string
     {
-        $parts = [
-            'event:' . $this->getId(),
-            $this->name,
-        ];
-        
-        $code = self::$parser->joinTagParts($parts);
-        
-        return '[[' . $code . ']]';
+        return Strings::doubleBracketsTag('event', $this->getId(), $this->name);
     }
     
     // NewsSourceInterface
@@ -285,27 +233,5 @@ class Event extends DbModel implements NewsSourceInterface, SearchableInterface
     public function displayTitle() : string
     {
         return $this->name;
-    }
-    
-    public function fullText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText()
-                );
-            }
-        );
-    }
-    
-    public function shortText() : string
-    {
-        return $this->lazy(
-            function () {
-                return self::$parser->parseCut(
-                    $this->parsedText(), $this->url(), false
-                );
-            }
-        );
     }
 }
