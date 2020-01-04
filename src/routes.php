@@ -242,8 +242,10 @@ $app->group($root, function () use ($trueRoot, $settings, $access, $container, $
     
     // tests
     
-    $this->group('/tests', function () {
-        $this->get('/smoke', SmokeTestController::class)
-            ->setName('tests.smoke');
-    })->add(new AuthMiddleware($container, 'main.index'));
+    if ($env->isDev()) {
+        $this->group('/tests', function () {
+            $this->get('/smoke', SmokeTestController::class)
+                ->setName('tests.smoke');
+        });
+    }
 });

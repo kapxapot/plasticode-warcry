@@ -32,7 +32,7 @@ class SmokeTestController extends Controller
             $absUrl = $this->linker->abs($url);
             
             $text = @file_get_contents($absUrl);
-
+            
             $results[] = [
                 'url' => $absUrl,
                 'on' => $text !== false,

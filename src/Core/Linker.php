@@ -101,7 +101,7 @@ class Linker extends LinkerBase implements LinkerInterface
         return $this->abs($this->galleryAuthor($author));
     }
 
-    public function disqusRecipes(Skill $skill) : string
+    public function disqusRecipes(?Skill $skill) : string
     {
         return $this->abs($this->recipes($skill));
     }
@@ -262,18 +262,18 @@ class Linker extends LinkerBase implements LinkerInterface
     }
     
     // recipes
-    public function recipes($skill = null)
+    public function recipes(?Skill $skill = null)
     {
         $params = [];
         
         if ($skill) {
-            $params['skill'] = $skill['alias'];
+            $params['skill'] = $skill->alias;
         }
         
         return $this->router->pathFor('main.recipes', $params);
     }
     
-    public function recipe($id)
+    public function recipe(int $id) : string
     {
         return $this->router->pathFor('main.recipe', ['id' => $id]);
     }

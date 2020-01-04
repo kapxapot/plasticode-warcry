@@ -5,11 +5,14 @@ namespace App\Models;
 use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\Moment;
+use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
 
 class Event extends NewsSource
 {
+    use CachedDescription;
+
     // queries
     
     public static function getOrderedByStart() : Query

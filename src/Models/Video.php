@@ -3,25 +3,18 @@
 namespace App\Models;
 
 use Plasticode\Collection;
+use Plasticode\Models\Traits\Description;
 use Plasticode\Query;
 use Plasticode\Util\Strings;
 
 class Video extends NewsSource
 {
+    use Description;
+
     protected static $sortField = 'published_at';
     protected static $sortReverse = true;
 
     // PROPS
-    
-    public function largeImage() : ?string
-    {
-        return null;
-    }
-
-    public function image() : ?string
-    {
-        return null;
-    }
 
     public function video() : ?string
     {

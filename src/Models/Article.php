@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Plasticode\Collection;
+use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Query;
 use Plasticode\Models\Traits\Children;
 use Plasticode\Util\Sort;
@@ -10,7 +11,7 @@ use Plasticode\Util\Strings;
 
 class Article extends NewsSource
 {
-    use Children;
+    use CachedDescription, Children;
     
     protected static $sortField = 'published_at';
     protected static $sortReverse = true;

@@ -34,7 +34,7 @@ class Bootstrap extends BootstrapBase
                 },
                 
                 'captchaConfig' => function (ContainerInterface $container) {
-                    return new \App\Config\Captcha();
+                    return new \App\Config\CaptchaConfig();
                 },
 
                 'gallery' => function (ContainerInterface $container) {
@@ -92,8 +92,8 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
-                'localization' => function (ContainerInterface $container) {
-                    return new \App\Config\Localization();
+                'localizationConfig' => function (ContainerInterface $container) {
+                    return new \App\Config\LocalizationConfig();
                 },
 
                 'renderer' => function (ContainerInterface $container) {
@@ -106,7 +106,7 @@ class Bootstrap extends BootstrapBase
                 
                 'parser' => function (ContainerInterface $container) {
                     return new \App\Parsing\Parser(
-                        $container->parserConfig,
+                        $container->parsingConfig,
                         $container->renderer,
                         $container->linker,
                         $container->settingsProvider
