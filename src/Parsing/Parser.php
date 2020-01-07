@@ -10,22 +10,22 @@ use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
 use Plasticode\Config\Interfaces\ParsingConfigInterface;
-use Plasticode\Parsing\Parser as ParserBase;
+use Plasticode\Parsing\CompositeParser;
 use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Models\Tag;
 use Plasticode\Parsing\ParsingContext;
 use Plasticode\Util\Numbers;
 use Plasticode\Util\Strings;
 
-class Parser extends ParserBase
+class Parser extends CompositeParser
 {
-    /** @var \App\Core\Interfaces\RendererInterface */
+    /** @var RendererInterface */
     protected $renderer;
 
-    /** @var \App\Core\Interfaces\LinkerInterface */
+    /** @var LinkerInterface */
     protected $linker;
 
-    /** @var \Plasticode\Interfaces\SettingsProviderInterface */
+    /** @var SettingsProviderInterface */
     protected $settingsProvider;
 
     public function __construct(ParsingConfigInterface $config, RendererInterface $renderer, LinkerInterface $linker, SettingsProviderInterface $settingsProvider)
@@ -180,7 +180,7 @@ class Parser extends ParserBase
         $urlChunk = $dbTag . '=' . $id;
         $url = $this->getWebDbLink($urlChunk);
 
-        return $this->render(
+        return $this->renderer->component(
             'url',
             [
                 'url' => $url,
@@ -260,7 +260,7 @@ class Parser extends ParserBase
         
         $url = $this->getWebDbLink('maps?data=' . $id . $coords);
         
-        return $this->render(
+        return $this->renderer->component(
             'url',
             [
                 'url' => $url,
@@ -273,7 +273,7 @@ class Parser extends ParserBase
     {
         $url = $this->linker->hsCard($id);
 
-        return $this->render(
+        return $this->renderer->component(
             'url',
             [
                 'url' => $url,
@@ -344,7 +344,7 @@ class Parser extends ParserBase
             ? $this->linker->tag($inlineTag, 'gallery_pictures')
             : null;
 
-        return $this->render(
+        return $this->renderer->component(
             'gallery_inline',
             [
                 'pictures' => $pictures,
