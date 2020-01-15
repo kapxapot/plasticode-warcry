@@ -27,7 +27,12 @@
                         {% include 'components/video_bodyfooter.twig' with { 'video': news_item } only %}
                     {% else %}
                         <div class="panel-body article news">
-                            {{ news_item.short_text|raw }}
+                            {% if news_item.short_text %}
+                                {{ news_item.short_text|raw }}
+                                {% include 'components/read_more.twig' with { 'url': news_item.url } only %}
+                            {% else %}
+                                {{ news_item.full_text|raw }}
+                            {% endif %}
                         </div>
     
                         {% include 'main/news/footer.twig' %}

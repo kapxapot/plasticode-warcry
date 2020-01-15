@@ -22,6 +22,6 @@ interface NewsSourceInterface extends LinkableInterface, TaggableInterface
     public function video() : ?string;
 
     public function displayTitle() : string;
-    public function fullText() : string;
-    public function shortText() : string;
+    public function fullText() : ?string;
+    public function shortText() : ?string;
 }

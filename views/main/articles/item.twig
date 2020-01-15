@@ -9,33 +9,37 @@
 {% endif %}
 
 {% block content %}
-	<div class="panel panel-primary">
-		{{ lm.panel_header(_context, article.name_ru, {
-			'subtitle': not article.hideeng ? article.name_en,
-			'buttons': [ m.edit_button('articles', article) ],
-			'published': article.published
-		}) }}
-		{% if article.sub_articles.any %}
-		  	<div class="panel-body sub-articles">
-		  		{% for sa in article.sub_articles %}
-		  			<a class="label label-default" title="{{ sa.title_en }}" href="{{ sa.url }}">{{ sa.name_ru }}</a>
-		  		{% endfor %}
-			</div>
-		{% endif %}
-		{% include 'components/contents.twig' with { 'items': article.parsed.contents } only %}
-	  	<div class="panel-body article">
-	    	{{ article.full_text|raw }}
-	    </div>
-	    <div class="panel-footer">
+    <div class="panel panel-primary">
+        {{ lm.panel_header(_context, article.name_ru, {
+            'subtitle': not article.hideeng ? article.name_en,
+            'buttons': [ m.edit_button('articles', article) ],
+            'published': article.published
+        }) }}
+
+        {% if article.sub_articles.any %}
+            <div class="panel-body sub-articles">
+                {% for sa in article.sub_articles %}
+                    <a class="label label-default" title="{{ sa.title_en }}" href="{{ sa.url }}">{{ sa.name_ru }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% include 'components/contents.twig' with { 'items': article.parsed.contents } only %}
+
+        <div class="panel-body article">
+            {{ article.full_text|raw }}
+        </div>
+
+        <div class="panel-footer">
             {% include 'components/published_at.twig' with { 'entity': article } only %}
-	        {% include 'components/creator.twig' with { 'entity': article } only %}
-	    	{% if article.origin %}
-	    		<div class="glyphicon-block">
-	    			<i class="far fa-copyright"></i>
-	    			<a href="{{ article.origin }}">Источник</a>
-	    		</div>
-	    	{% endif %}
+            {% include 'components/creator.twig' with { 'entity': article } only %}
+            {% if article.origin %}
+                <div class="glyphicon-block">
+                    <i class="far fa-copyright"></i>
+                    <a href="{{ article.origin }}">Источник</a>
+                </div>
+            {% endif %}
             {% include 'components/tags.twig' with { 'tags': article.tag_links } only %}
-	    </div>
-	</div>
+        </div>
+    </div>
 {% endblock %}

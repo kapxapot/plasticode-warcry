@@ -78,24 +78,26 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
 
     public abstract function displayTitle() : string;
     
-    public function fullText() : string
+    public function fullText() : ?string
     {
         return $this->lazy(
             function () {
-                return self::$parser->parseCut(
-                    $this->parsedText()
-                );
+                $cutParser = self::$container->cutParser;
+                $text = $this->parsedText();
+                
+                return $cutParser->full($text);
             }
         );
     }
     
-    public function shortText() : string
+    public function shortText() : ?string
     {
         return $this->lazy(
             function () {
-                return self::$parser->parseCut(
-                    $this->parsedText(), $this->url(), false
-                );
+                $cutParser = self::$container->cutParser;
+                $text = $this->parsedText();
+                
+                return $cutParser->short($text);
             }
         );
     }

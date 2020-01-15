@@ -10,28 +10,32 @@ use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
 use Plasticode\Config\Interfaces\ParsingConfigInterface;
-use Plasticode\Parsing\CompositeParser;
 use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Models\Tag;
 use Plasticode\Parsing\ParsingContext;
+use Plasticode\Parsing\Parsers\CompositeParser;
 use Plasticode\Util\Numbers;
 use Plasticode\Util\Strings;
 
 class Parser extends CompositeParser
 {
+    /** @var ParsingConfigInterface */
+    private $config;
+
     /** @var RendererInterface */
-    protected $renderer;
+    private $renderer;
 
     /** @var LinkerInterface */
-    protected $linker;
+    private $linker;
 
     /** @var SettingsProviderInterface */
-    protected $settingsProvider;
+    private $settingsProvider;
 
     public function __construct(ParsingConfigInterface $config, RendererInterface $renderer, LinkerInterface $linker, SettingsProviderInterface $settingsProvider)
     {
-        parent::__construct($config, $renderer, $linker);
+        parent::__construct();
 
+        $this->config = $config;
         $this->renderer = $renderer;
         $this->linker = $linker;
         $this->settingsProvider = $settingsProvider;
