@@ -140,7 +140,7 @@ class Game extends DbModel implements LinkableInterface
     }
     
     /**
-     * Child games WITH current game
+     * Child games WITH current game.
      *
      * @return Collection
      */

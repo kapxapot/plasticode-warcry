@@ -104,14 +104,14 @@ class Bootstrap extends BootstrapBase
                     return new \App\Core\Linker($container);
                 },
                 
-                'parser' => function (ContainerInterface $container) {
-                    return new \App\Parsing\Parser(
-                        $container->parsingConfig,
-                        $container->renderer,
-                        $container->linker,
-                        $container->settingsProvider
-                    );
-                },
+                // 'parser' => function (ContainerInterface $container) {
+                //     return new \App\Parsing\Parser(
+                //         $container->parsingConfig,
+                //         $container->renderer,
+                //         $container->linker,
+                //         $container->settingsProvider
+                //     );
+                // },
                 
                 'newsParser' => function (ContainerInterface $container) {
                     return new \App\Parsing\NewsParser($container);

@@ -24,7 +24,9 @@
             </div>
         {% endif %}
 
-        {% include 'components/contents.twig' with { 'items': article.parsed.contents } only %}
+        {% if article.parsed.contents.any %}
+            {% include 'components/contents.twig' with { 'items': article.parsed.contents } only %}
+        {% endif %}
 
         <div class="panel-body article">
             {{ article.full_text|raw }}
