@@ -48,17 +48,20 @@ user_actions:
     gallery_authors: Добавить художника
 
 admin_menu:
-  - news
-  - articles
-  - events
-  - streams
+  - group:
+      title: Лента
+      items:
+        - news
+        - articles
+        - events
+        - videos
+  - gallery_authors
   - group:
       title: Комиксы
       items:
         - comic_series
         - comic_standalones
-  - gallery_authors
-  - videos
+  - streams
   - group:
       title: Сайт
       items:
