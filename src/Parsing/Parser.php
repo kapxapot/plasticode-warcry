@@ -9,7 +9,7 @@ use App\Models\GalleryPicture;
 use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
-use Plasticode\Config\Interfaces\ParsingConfigInterface;
+use Plasticode\Config\Parsing\Interfaces\ReplacesConfigInterface;
 use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Models\Tag;
 use Plasticode\Parsing\ParsingContext;
@@ -19,7 +19,7 @@ use Plasticode\Util\Strings;
 
 class Parser extends CompositeParser
 {
-    /** @var ParsingConfigInterface */
+    /** @var ReplacesConfigInterface */
     private $config;
 
     /** @var RendererInterface */
@@ -31,7 +31,12 @@ class Parser extends CompositeParser
     /** @var SettingsProviderInterface */
     private $settingsProvider;
 
-    public function __construct(ParsingConfigInterface $config, RendererInterface $renderer, LinkerInterface $linker, SettingsProviderInterface $settingsProvider)
+    public function __construct(
+        ReplacesConfigInterface $config,
+        RendererInterface $renderer,
+        LinkerInterface $linker,
+        SettingsProviderInterface $settingsProvider
+    )
     {
         parent::__construct();
 

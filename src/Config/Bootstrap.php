@@ -101,7 +101,11 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'linker' => function (ContainerInterface $container) {
-                    return new \App\Core\Linker($container);
+                    return new \App\Core\Linker(
+                        $container->settingsProvider,
+                        $container->router,
+                        $container->gallery
+                    );
                 },
                 
                 // 'parser' => function (ContainerInterface $container) {

@@ -9,15 +9,28 @@ use App\Models\GalleryPicture;
 use App\Models\Game;
 use App\Models\Skill;
 use Plasticode\Core\Linker as LinkerBase;
-use Plasticode\Exceptions\InvalidArgumentException;
+use Plasticode\Gallery\Gallery;
+use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Strings;
+use Slim\Interfaces\RouterInterface;
+use Webmozart\Assert\Assert;
 
 class Linker extends LinkerBase implements LinkerInterface
 {
+    /** @var Gallery */
+    private $gallery;
+
+    public function __construct(SettingsProviderInterface $settingsProvider, RouterInterface $router, Gallery $gallery)
+    {
+        parent::__construct($settingsProvider, $router);
+
+        $this->gallery = $gallery;
+    }
+
     // urls
     private function forumUrl(string $url) : string
     {
-        return $this->getSettings('forum.page') . '?' . $url;
+        return $this->settingsProvider->getSettings('forum.page') . '?' . $url;
     }
 
     // site
@@ -133,7 +146,7 @@ class Linker extends LinkerBase implements LinkerInterface
     
     public function forumUpload(string $name) : string
     {
-        return $this->getSettings('forum.index') . '/uploads/' . $name;
+        return $this->settingsProvider->getSettings('forum.index') . '/uploads/' . $name;
     }
     
     // gallery
@@ -185,9 +198,10 @@ class Linker extends LinkerBase implements LinkerInterface
     {
         $series = $comic->series();
         
-        if (is_null($series)) {
-            throw new InvalidArgumentException("Comic issue {$comic} has no comic series.");
-        }
+        Assert::notNull(
+            $series,
+            'Comic issue ' . $comic . ' has no comic series.'
+        );
         
         return $this->router->pathFor(
             'main.comics.issue',
@@ -202,17 +216,17 @@ class Linker extends LinkerBase implements LinkerInterface
     {
         $comic = $page->comic();
         
-        if (is_null($comic)) {
-            dd($page);
-            
-            throw new InvalidArgumentException("Comic issue page {$page} has no comic issue.");
-        }
+        Assert::notNull(
+            $comic,
+            'Comic issue page ' . $page . ' has no comic issue.'
+        );
         
         $series = $comic->series();
         
-        if (is_null($series)) {
-            throw new InvalidArgumentException("Comic issue {$comic} has no comic series.");
-        }
+        Assert::notNull(
+            $series,
+            'Comic issue ' . $comic . ' has no comic series.'
+        );
         
         return $this->router->pathFor(
             'main.comics.issue.page',
@@ -236,9 +250,10 @@ class Linker extends LinkerBase implements LinkerInterface
     {
         $comic = $page->comic();
         
-        if (is_null($comic)) {
-            throw new InvalidArgumentException("Comic standalone page {$page} has no comic standalone.");
-        }
+        Assert::notNull(
+            $comic,
+            'Comic standalone page ' . $page . ' has no comic standalone.'
+        );
         
         return $this->router->pathFor(
             'main.comics.standalone.page',
@@ -252,16 +267,21 @@ class Linker extends LinkerBase implements LinkerInterface
     public function comicPageImg($page)
     {
         $ext = $this->getExtension($page->type);
-        return $this->getSettings('folders.comics_pages_public') . $page->id . '.' . $ext;
+
+        return $this->settingsProvider
+            ->getSettings('folders.comics_pages_public') . $page->id . '.' . $ext;
     }
     
     public function comicThumbImg($page)
     {
         $ext = $this->getExtension($page->type);
-        return $this->getSettings('folders.comics_thumbs_public') . $page->id . '.' . $ext;
+
+        return $this->settingsProvider
+            ->getSettings('folders.comics_thumbs_public') . $page->id . '.' . $ext;
     }
     
     // recipes
+
     public function recipes(?Skill $skill = null)
     {
         $params = [];
@@ -282,17 +302,17 @@ class Linker extends LinkerBase implements LinkerInterface
     public function wowheadIcon($icon)
     {
         $icon = strtolower($icon);
-        return "//static.wowhead.com/images/wow/icons/medium/{$icon}.jpg";
+        return '//static.wowhead.com/images/wow/icons/medium/' . $icon . '.jpg';
     }
     
     private function wowheadUrl($params)
     {
-        return $this->getSettings('webdb_link') . $params;
+        return $this->settingsProvider->getSettings('webdb_link') . $params;
     }
     
     private function wowheadUrlRu($params)
     {
-        return $this->getSettings('webdb_ru_link') . $params;
+        return $this->settingsProvider->getSettings('webdb_ru_link') . $params;
     }
     
     public function wowheadSpellRu($id)
@@ -321,8 +341,10 @@ class Linker extends LinkerBase implements LinkerInterface
     }
     
     // hs
+
     public function hsCard(string $id) : string
     {
-        return $this->getSettings('hsdb_ru_link') . 'cards/' . $id;
+        return $this->settingsProvider
+            ->getSettings('hsdb_ru_link') . 'cards/' . $id;
     }
 }

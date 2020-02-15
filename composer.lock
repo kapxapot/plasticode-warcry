@@ -623,27 +623,28 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kapxapot/plasticode.git",
-                "reference": "6690d049d8cd8a6c50bf5691235816100bc07c0a"
+                "reference": "5a3f5fb8c9a74bb98164a74a1afb2af8ba1460bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kapxapot/plasticode/zipball/6690d049d8cd8a6c50bf5691235816100bc07c0a",
-                "reference": "6690d049d8cd8a6c50bf5691235816100bc07c0a",
+                "url": "https://api.github.com/repos/kapxapot/plasticode/zipball/5a3f5fb8c9a74bb98164a74a1afb2af8ba1460bc",
+                "reference": "5a3f5fb8c9a74bb98164a74a1afb2af8ba1460bc",
                 "shasum": ""
             },
             "require": {
                 "j4mie/idiorm": "^1.5",
                 "jublonet/codebird-php": "^3.1",
                 "monolog/monolog": "^1.22",
-                "php": "^7.0",
+                "php": "^7.2",
                 "respect/validation": "^1.1",
                 "slim/slim": "^3.8",
-                "slim/twig-view": "^2.2",
+                "slim/twig-view": "2.5.0",
                 "symfony/yaml": "^3.3",
                 "vlucas/phpdotenv": "^2.4",
                 "webmozart/assert": "^1.5"
             },
             "require-dev": {
+                "php-coveralls/php-coveralls": "^2.2",
                 "phpunit/phpunit": "^8"
             },
             "type": "library",
@@ -686,7 +687,7 @@
                 "source": "https://github.com/kapxapot/plasticode/tree/master",
                 "issues": "https://github.com/kapxapot/plasticode/issues"
             },
-            "time": "2020-02-12T08:33:01+00:00"
+            "time": "2020-02-15T22:46:19+00:00"
         },
         {
             "name": "monolog/monolog",
