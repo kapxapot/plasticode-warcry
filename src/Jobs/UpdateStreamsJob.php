@@ -7,6 +7,7 @@ use App\Models\StreamStat;
 use Plasticode\Collection;
 use Plasticode\Contained;
 use Plasticode\Util\Date;
+use Plasticode\Util\Strings;
 use Psr\Container\ContainerInterface;
 
 class UpdateStreamsJob extends Contained
@@ -57,7 +58,10 @@ class UpdateStreamsJob extends Contained
             $stream->remoteGame = $game['name'] ?? $gameId;
             $stream->remoteViewers = $s['viewer_count'];
             $stream->remoteTitle = $user['display_name'] ?? null;
-            $stream->remoteStatus = urlencode($s['title']);
+
+            $sanitizedTitle = Strings::toUtf8($s['title']);
+            $stream->remoteStatus = urlencode($sanitizedTitle);
+
             $stream->remoteLogo = $user['profile_image_url'] ?? null;
             
             $description = $user['description'] ?? null;
@@ -92,24 +96,36 @@ class UpdateStreamsJob extends Contained
         ];
     }
     
-    private function getGameData(string $id)
+    private function getGameData(string $id) : array
     {
         return $this->cache->getCached(
             'twitch_game_' . $id,
             function () use ($id) {
                 $data = $this->twitch->getGameData($id);
-                return $data['data'][0] ?? null;
+                $game = $data['data'][0] ?? null;
+
+                if (is_null($game)) {
+                    $this->logger->debug('No game data for id = ' . $id, $data);
+                }
+
+                return $game;
             }
         );
     }
     
-    private function getUserData(string $id)
+    private function getUserData(string $id) : array
     {
         return $this->cache->getCached(
             'twitch_user_' . $id,
             function () use ($id) {
                 $data = $this->twitch->getUserData($id);
-                return $data['data'][0] ?? null;
+                $user = $data['data'][0] ?? null;
+
+                if (is_null($user)) {
+                    $this->logger->debug('No user data for id = ' . $id, $data);
+                }
+
+                return $user;
             }
         );
     }
