@@ -9,7 +9,6 @@ use App\Models\GalleryPicture;
 use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
-use Plasticode\Config\Parsing\Interfaces\ReplacesConfigInterface;
 use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Models\Tag;
 use Plasticode\Parsing\ParsingContext;
@@ -19,9 +18,6 @@ use Plasticode\Util\Strings;
 
 class Parser extends CompositeParser
 {
-    /** @var ReplacesConfigInterface */
-    private $config;
-
     /** @var RendererInterface */
     private $renderer;
 
@@ -32,7 +28,6 @@ class Parser extends CompositeParser
     private $settingsProvider;
 
     public function __construct(
-        ReplacesConfigInterface $config,
         RendererInterface $renderer,
         LinkerInterface $linker,
         SettingsProviderInterface $settingsProvider
@@ -40,7 +35,6 @@ class Parser extends CompositeParser
     {
         parent::__construct();
 
-        $this->config = $config;
         $this->renderer = $renderer;
         $this->linker = $linker;
         $this->settingsProvider = $settingsProvider;
@@ -360,42 +354,6 @@ class Parser extends CompositeParser
                 'tag_link' => $tagLink,
                 'grid_mode' => $gridMode === true,
             ]
-        );
-    }
-
-    protected function renderBBContainer(array $node) : string
-    {
-        switch ($node['tag']) {
-            case 'bluepost':
-                return $this->renderBBNode(
-                    'quote',
-                    $node,
-                    function ($content, $attrs) {
-                        $data = $this->mapQuoteBB($content, $attrs);
-                        $data = $this->enrichBluepostData($data);
-                        
-                        return $data;
-                    }
-                );
-                
-            default:
-                return parent::renderBBContainer($node);
-        }
-    }
-    
-    protected function enrichBluepostData(array $data) : array
-    {
-        $data['author'] = $data['author'] ?? 'Blizzard';
-        $data['style'] = 'quote--bluepost';
-        
-        return $data;
-    }
-    
-    protected function getBBContainerTags() : array
-    {
-        return array_merge(
-            parent::getBBContainerTags(),
-            ['bluepost']
         );
     }
 

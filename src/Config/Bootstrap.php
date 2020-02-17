@@ -2,6 +2,7 @@
 
 namespace App\Config;
 
+use App\Config\Parsing\BBContainerConfig;
 use Plasticode\Config\Bootstrap as BootstrapBase;
 use Plasticode\Gallery\Gallery;
 use Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy;
@@ -107,15 +108,10 @@ class Bootstrap extends BootstrapBase
                         $container->gallery
                     );
                 },
-                
-                // 'parser' => function (ContainerInterface $container) {
-                //     return new \App\Parsing\Parser(
-                //         $container->parsingConfig,
-                //         $container->renderer,
-                //         $container->linker,
-                //         $container->settingsProvider
-                //     );
-                // },
+
+                'bbContainerConfig' => function (ContainerInterface $container) {
+                    return new BBContainerConfig();
+                },
                 
                 'newsParser' => function (ContainerInterface $container) {
                     return new \App\Parsing\NewsParser($container);
