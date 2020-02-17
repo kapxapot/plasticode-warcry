@@ -38,7 +38,7 @@ class ArticleController extends Controller
                     'disqus_id' => 'article' . $article->getId() . $cat,
                     'article' => $article,
                     'title' => $article->titleFull(),
-                    'page_description' => $this->makePageDescription($article->shortText(), 'articles.description_limit'),
+                    'page_description' => $this->makePageDescription($article->fullText(), 'articles.description_limit'),
                 ],
             ]
         );
