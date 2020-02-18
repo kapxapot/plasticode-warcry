@@ -18,12 +18,20 @@ class UpdateStreamsJob extends Contained
      * @var boolean
      */
     private $notify;
+
+    /**
+     * Log or not
+     *
+     * @var boolean
+     */
+    private $log;
     
     public function __construct(ContainerInterface $container, bool $notify)
     {
         parent::__construct($container);
         
         $this->notify = $notify;
+        $this->log = $this->getSettings('streams.log') === true;
     }
     
     public function run() : Collection
@@ -45,10 +53,12 @@ class UpdateStreamsJob extends Contained
 
         $s = $data['streams'][0] ?? null;
 
-        if (is_null($s)) {
-            $this->logger->debug('No stream data for id = ' . $id, $data);
-        } else {
-            $this->logger->info('Loaded stream data for id = ' . $id, $s);
+        if ($this->log) {
+            if (is_null($s)) {
+                $this->logger->debug('No stream data for id = ' . $id, $data);
+            } else {
+                $this->logger->info('Loaded stream data for id = ' . $id, $s);
+            }
         }
 
         if ($s) {
@@ -110,10 +120,12 @@ class UpdateStreamsJob extends Contained
                 $data = $this->twitch->getGameData($id);
                 $game = $data['data'][0] ?? null;
 
-                if (is_null($game)) {
-                    $this->logger->debug('No game data for id = ' . $id, $data);
-                } else {
-                    $this->logger->info('Loaded game data for id = ' . $id, $game);
+                if ($this->log) {
+                    if (is_null($game)) {
+                        $this->logger->debug('No game data for id = ' . $id, $data);
+                    } else {
+                        $this->logger->info('Loaded game data for id = ' . $id, $game);
+                    }
                 }
 
                 return $game;
@@ -129,10 +141,12 @@ class UpdateStreamsJob extends Contained
                 $data = $this->twitch->getUserData($id);
                 $user = $data['data'][0] ?? null;
 
-                if (is_null($user)) {
-                    $this->logger->debug('No user data for id = ' . $id, $data);
-                } else {
-                    $this->logger->info('Loaded user data for id = ' . $id, $user);
+                if ($this->log) {
+                    if (is_null($user)) {
+                        $this->logger->debug('No user data for id = ' . $id, $data);
+                    } else {
+                        $this->logger->info('Loaded user data for id = ' . $id, $user);
+                    }
                 }
 
                 return $user;

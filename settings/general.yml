@@ -89,6 +89,8 @@ streams:
   # in minutes
   stats_ttl: 10
 
+  log: false
+
   priority_games:
     - world of warcraft
     - hearthstone
