@@ -58,7 +58,7 @@ function warPlaygroundController(mdEditorService, $sce, plEntityService, plDataS
 
     function throttledParse(text, editor) {
         vm.text = text;
-        return parser(text)
+        return parser(text, editor)
     }
 
     function search(text) {
@@ -70,9 +70,10 @@ function warPlaygroundController(mdEditorService, $sce, plEntityService, plDataS
         });
     }
 
-    function _parse(text) {
+    function _parse(text, editor) {
         return plEntityService.parse(text).then(resp => {
             vm.result = $sce.trustAsHtml(resp.text);
+            editor.codemirror.refresh();
             if(vm.afterParse) {
                 vm.afterParse({result: vm.result});
             }
