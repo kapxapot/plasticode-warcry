@@ -45,6 +45,12 @@ class UpdateStreamsJob extends Contained
 
         $s = $data['streams'][0] ?? null;
 
+        if (is_null($s)) {
+            $this->logger->debug('No stream data for id = ' . $id, $data);
+        } else {
+            $this->logger->info('Loaded stream data for id = ' . $id, $s);
+        }
+
         if ($s) {
             $streamStarted = !$stream->isOnline();
             
@@ -106,6 +112,8 @@ class UpdateStreamsJob extends Contained
 
                 if (is_null($game)) {
                     $this->logger->debug('No game data for id = ' . $id, $data);
+                } else {
+                    $this->logger->info('Loaded game data for id = ' . $id, $game);
                 }
 
                 return $game;
@@ -123,6 +131,8 @@ class UpdateStreamsJob extends Contained
 
                 if (is_null($user)) {
                     $this->logger->debug('No user data for id = ' . $id, $data);
+                } else {
+                    $this->logger->info('Loaded user data for id = ' . $id, $user);
                 }
 
                 return $user;

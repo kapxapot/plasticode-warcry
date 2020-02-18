@@ -72,7 +72,14 @@ class StreamController extends Controller
             ]
         );
 
-        return $this->render($response, 'main/streams/item.twig', $params);
+        try {
+            $rendered = $this->view->render($response, 'main/streams/item.twig', $params);
+        } catch (\Exception $ex) {
+            $this->logger->debug($ex->getMessage(), $stream);
+            return $this->notFound($request, $response);
+        }
+        
+        return $rendered;
     }
     
     public function refresh(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
