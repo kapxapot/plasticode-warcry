@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Parsing\Mappers;
+namespace App\Parsing\TagMappers;
 
 use App\ViewModels\BluepostViewModel;
-use Plasticode\Parsing\Mappers\QuoteMapper;
+use Plasticode\Parsing\TagMappers\QuoteMapper;
 
 class BluepostMapper extends QuoteMapper
 {

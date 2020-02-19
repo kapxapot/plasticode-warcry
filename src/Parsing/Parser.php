@@ -45,53 +45,6 @@ class Parser extends CompositeParser
         return $this->settingsProvider->getSettings('webdb_ru_link') . $appendix;
     }
 
-    protected function parseMore(?string $text) : ?string
-    {
-        return preg_replace_callback(
-            '/\[\[(.*)\]\]/U',
-            function ($matches) {
-                $original = $matches[0];
-                $match = $matches[1];
-                
-                $parsed = $this->parseDoubleBracketsMatch($match);
-
-                return $parsed ?? $original;
-            },
-            $text
-        );
-    }
-    
-    protected function parseDoubleBracketsMatch(?string $match) : ?string
-    {
-        if (strlen($match) == 0) {
-            return null;
-        }
-        
-        $text = null;
-        $chunks = preg_split('/\|/', $match);
-
-        // looking for ":" in first chunk
-        $tagChunk = $chunks[0];
-        $tagParts = preg_split('/:/', $tagChunk, null, PREG_SPLIT_NO_EMPTY);
-        $tag = $tagParts[0];
-        
-        // one tag part = article
-        if (count($tagParts) == 1) {
-            return $this->renderArticle($tagChunk, $chunks);
-        }
-
-        // many tag parts
-        // pattern: [[tag:id|content]]
-        // e.g.: [[npc:27412|Слинкин Демогном]]
-        $id = $tagParts[1];
-        $content = $chunks[1] ?? null;
-        $text = $this->renderCustomTag($tag, $id, $content, $chunks);
-        
-        return strlen($text) > 0
-            ? $text
-            : null;
-    }
-
     private function renderCustomTag(string $tag, string $id, ?string $content, array $chunks) : ?string
     {
         switch ($tag) {

@@ -2,8 +2,8 @@
 
 namespace App\Config\Parsing;
 
+use App\Parsing\TagMappers\BluepostMapper;
 use Plasticode\Config\Parsing\BBContainerConfig as BBContainerConfigBase;
-use App\Parsing\Mappers\BluepostMapper;
 
 class BBContainerConfig extends BBContainerConfigBase
 {
