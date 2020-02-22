@@ -17,7 +17,7 @@ class ArticleCategory extends DbModel
     
     // funcs
     
-    public function serialize() : ?array
+    public function serialize() : array
     {
         return [
             'id' => $this->id,

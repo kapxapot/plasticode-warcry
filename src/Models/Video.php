@@ -36,7 +36,7 @@ class Video extends NewsSource
             ->all();
     }
     
-    public function serialize() : ?array
+    public function serialize() : array
     {
         return [
             'id' => $this->getId(),

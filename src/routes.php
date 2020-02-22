@@ -26,7 +26,7 @@ use Plasticode\Middleware\AccessMiddleware;
 use Plasticode\Middleware\TokenAuthMiddleware;
 
 /**
- * Creates AccessMiddleware
+ * Creates AccessMiddleware.
  * 
  * @var \Closure
  */
@@ -42,7 +42,6 @@ $root = $settings['root'];
 $trueRoot = (strlen($root) == 0);
 
 $app->group($root, function () use ($trueRoot, $settings, $access, $container, $env) {
-    
     // public api
         
     $this->group('/api/v1',

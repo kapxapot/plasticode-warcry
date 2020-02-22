@@ -211,7 +211,7 @@ class Article extends NewsSource
             );
     }
     
-    public function serialize() : ?array
+    public function serialize() : array
     {
         $cat = $this->category();
         
