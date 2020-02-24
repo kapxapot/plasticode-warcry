@@ -20,7 +20,11 @@ class Linker extends LinkerBase implements LinkerInterface
     /** @var Gallery */
     private $gallery;
 
-    public function __construct(SettingsProviderInterface $settingsProvider, RouterInterface $router, Gallery $gallery)
+    public function __construct(
+        SettingsProviderInterface $settingsProvider,
+        RouterInterface $router,
+        Gallery $gallery
+    )
     {
         parent::__construct($settingsProvider, $router);
 
@@ -51,11 +55,6 @@ class Linker extends LinkerBase implements LinkerInterface
         }
 
         return $this->router->pathFor('main.article', $params);
-    }
-
-    public function news(int $id = null) : string
-    {
-        return $this->router->pathFor('main.news', ['id' => $id]);
     }
     
     public function newsYear(int $year) : string

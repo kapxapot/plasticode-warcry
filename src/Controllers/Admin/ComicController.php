@@ -9,11 +9,7 @@ use Psr\Container\ContainerInterface;
 
 class ComicController extends ImageUploadController
 {
-    /**
-     * Comic service
-     *
-     * @var \App\Services\ComicService;
-     */
+    /** @var ComicService */
     private $comicService;
     
     public function __construct(ContainerInterface $container)
@@ -24,9 +20,9 @@ class ComicController extends ImageUploadController
     }
     
     /**
-     * Adds pages to comic issue or comic standalone
+     * Adds pages to comic issue or comic standalone.
      */
-    protected function addImage(array $context, Image $image, string $fileName)
+    protected function addImage(array $context, Image $image, string $fileName) : void
     {
         $comic = $this->comicService->getComicByContext($context);
         

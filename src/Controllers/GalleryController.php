@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
+use Plasticode\Exceptions\Http\NotFoundException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -158,7 +159,7 @@ class GalleryController extends Controller
         $pictures = $this->galleryService->getPage($query)->all();
         
         if ($pictures->empty()) {
-            return $this->notFound();
+            throw new NotFoundException();
         }
 
         return $this->render(

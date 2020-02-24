@@ -15,7 +15,6 @@ interface LinkerInterface extends PlasticodeLinkerInterface
      */
     public function article($id = null, ?string $cat = null) : string;
 
-    public function news(int $id = null) : string;
     public function event(int $id = null) : string;
     public function video(int $id = null) : string;
     public function stream(string $alias = null) : string;

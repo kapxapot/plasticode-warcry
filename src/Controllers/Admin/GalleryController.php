@@ -10,9 +10,9 @@ use Plasticode\IO\Image;
 class GalleryController extends ImageUploadController
 {
     /**
-     * Adds gallery pictures to gallery author
+     * Adds gallery pictures to gallery author.
      */
-    protected function addImage(array $context, Image $image, string $fileName)
+    protected function addImage(array $context, Image $image, string $fileName) : void
     {
         $picture = GalleryPicture::create($context);
         
