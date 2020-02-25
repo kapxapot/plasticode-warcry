@@ -12,6 +12,8 @@ use Psr\Container\ContainerInterface;
 
 class Controller extends BaseController
 {
+    private const DefaultPageDescriptionLimit = 1000;
+
     protected $defaultGame;
 
     public function __construct(ContainerInterface $container)
@@ -70,7 +72,8 @@ class Controller extends BaseController
     {
         $game = $this->getRootGame($settings);
         
-        $providedPart = $this->sidebarPartsProviderService->getPart($settings, $game, $part);
+        $providedPart = $this->sidebarPartsProviderService
+            ->getPart($settings, $game, $part);
         
         if ($providedPart === null) {
             return parent::buildPart($settings, $result, $part);
@@ -83,11 +86,10 @@ class Controller extends BaseController
     
     public function makePageDescription(string $text, string $limitVar) : string
     {
-        $limit = $this->getSettings($limitVar);
-        
-        if (!$limit) {
-            throw new InvalidConfigurationException('No limit settings found: ' . $limitVar);
-        }
+        $limit = $this->getSettings(
+            $limitVar,
+            self::DefaultPageDescriptionLimit
+        );
         
         return Strings::stripTrunc($text, $limit);
     }
