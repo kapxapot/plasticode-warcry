@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Plasticode\AspectRatio;
 use Plasticode\Query;
 use Plasticode\Exceptions\InvalidResultException;
 use Plasticode\IO\Image;
-use Plasticode\Models\AspectRatio;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublish;
