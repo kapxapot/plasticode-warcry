@@ -8,8 +8,9 @@ use App\Models\Game;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Request as SlimRequest;
 
-class EventController extends Controller
+class EventController extends NewsSourceController
 {
     /**
      * Events title for views
@@ -22,7 +23,7 @@ class EventController extends Controller
     {
         parent::__construct($container);
 
-        $this->eventsTitle = $this->getSettings('events.title');
+        $this->eventsTitle = $this->getSettings('events.title') ?? 'Events';
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
@@ -42,12 +43,13 @@ class EventController extends Controller
         return $this->render($response, 'main/events/index.twig', $params);
     }
 
-    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $id = $args['id'];
         
         $rebuild = $request->getQueryParam('rebuild', null);
 
+        /** @var Event */
         $event = Event::findProtected($id);
 
         if (!$event) {
@@ -69,7 +71,7 @@ class EventController extends Controller
                     'event' => $event,
                     'title' => $event->name,
                     'events_title' => $this->eventsTitle,
-                    'page_description' => $this->makePageDescription($event->shortText(), 'events.description_limit'),
+                    'page_description' => $this->makeNewsPageDescription($event, 'events.description_limit'),
                 ],
             ]
         );

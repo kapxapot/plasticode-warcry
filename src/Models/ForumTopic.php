@@ -90,6 +90,13 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return Game::getByForumId($this->forumId);
     }
     
+    public function rootGame() : ?Game
+    {
+        return $this->game()
+            ? $this->game()->root()
+            : null;
+    }
+    
     public function forum() : Forum
     {
         return Forum::get($this->forumId);

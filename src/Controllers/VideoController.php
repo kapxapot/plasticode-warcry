@@ -7,7 +7,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class VideoController extends Controller
+class VideoController extends NewsSourceController
 {
     /**
      * Videos title for views
@@ -20,17 +20,17 @@ class VideoController extends Controller
     {
         parent::__construct($container);
 
-        $this->videosTitle = $this->getSettings('videos.title');
+        $this->videosTitle = $this->getSettings('videos.title') ?? 'Videos';
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
+                'sidebar' => ['stream', 'gallery', 'news'],
                 'params' => [
                     'title' => $this->videosTitle,
-                    'videos' => Video::getPublished()->all(),
+                    'videos' => Video::getPublished(),
                 ],
             ]
         );
@@ -42,6 +42,7 @@ class VideoController extends Controller
     {
         $id = $args['id'];
 
+        /** @var Video|null */
         $video = Video::findProtected($id);
 
         if (!$video) {
@@ -52,15 +53,12 @@ class VideoController extends Controller
             [
                 'game' => $video->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
+                'sidebar' => ['stream', 'gallery', 'news'],
                 'params' => [
                     'video' => $video,
                     'title' => $video->name,
                     'videos_title' => $this->videosTitle,
-                    'page_description' => $this->makePageDescription(
-                        $video->shortText(),
-                        'videos.description_limit'
-                    ),
+                    'page_description' => $this->makeNewsPageDescription($video, 'videos.description_limit'),
                 ],
             ]
         );

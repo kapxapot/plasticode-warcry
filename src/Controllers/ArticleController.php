@@ -4,11 +4,11 @@ namespace App\Controllers;
 
 use App\Models\Article;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Request as SlimRequest;
 
-class ArticleController extends Controller
+class ArticleController extends NewsSourceController
 {
-    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $id = $args['id'];
         $cat = $args['cat'];
@@ -38,7 +38,7 @@ class ArticleController extends Controller
                     'disqus_id' => 'article' . $article->getId() . $cat,
                     'article' => $article,
                     'title' => $article->titleFull(),
-                    'page_description' => $this->makePageDescription($article->fullText(), 'articles.description_limit'),
+                    'page_description' => $this->makeNewsPageDescription($article, 'articles.description_limit'),
                 ],
             ]
         );

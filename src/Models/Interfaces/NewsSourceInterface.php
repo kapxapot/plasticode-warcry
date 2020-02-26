@@ -7,6 +7,9 @@ use Plasticode\Query;
 use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Interfaces\TaggableInterface;
 
+/**
+ * @property string $publishedAt
+ */
 interface NewsSourceInterface extends LinkableInterface, TaggableInterface
 {
     public static function getNewsByTag(string $tag) : Query;
@@ -17,6 +20,7 @@ interface NewsSourceInterface extends LinkableInterface, TaggableInterface
     public static function getNewsAfter(Game $game, string $date) : Query;
 
     public function game() : ?Game;
+    public function rootGame() : ?Game;
     public function largeImage() : ?string;
     public function image() : ?string;
     public function video() : ?string;
@@ -24,4 +28,6 @@ interface NewsSourceInterface extends LinkableInterface, TaggableInterface
     public function displayTitle() : string;
     public function fullText() : ?string;
     public function shortText() : ?string;
+
+    public function publishedAtIso() : string;
 }

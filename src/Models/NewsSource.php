@@ -22,6 +22,13 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
             ? Game::get($this->gameId)
             : null;
     }
+    
+    public function rootGame() : ?Game
+    {
+        return $this->game()
+            ? $this->game()->root()
+            : null;
+    }
 
     public function largeImage() : ?string
     {

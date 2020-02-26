@@ -5,12 +5,15 @@ namespace App\Services;
 use App\Models\Article;
 use App\Models\Event;
 use App\Models\ForumTopic;
+use App\Models\Game;
+use App\Models\Interfaces\NewsSourceInterface;
 use App\Models\News;
 use App\Models\NewsYear;
 use App\Models\Video;
 use Plasticode\Collection;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
+use Webmozart\Assert\Assert;
 
 class NewsAggregatorService
 {
@@ -27,19 +30,40 @@ class NewsAggregatorService
         News::class,
     ];
     
-    private function getSources(bool $strict = false)
+    /**
+     * Get sources list based on the sctrictness.
+     *
+     * @param boolean $strict
+     * @return string[]
+     */
+    private function getSources(bool $strict = false) : array
     {
         return $strict
             ? $this->strictSources
             : $this->sources;
     }
     
-    private function withSources(bool $strict, callable $action) : array
+    /**
+     * Apply action to sources list.
+     *
+     * @param boolean $strict
+     * @param \Closure $action
+     * @return array
+     */
+    private function withSources(bool $strict, \Closure $action) : array
     {
         return array_map($action, $this->getSources($strict));
     }
     
-    private function collect(bool $strict, callable $action) : Collection
+    /**
+     * Returns action results as one collection.
+     * Action must return a collection.
+     *
+     * @param boolean $strict
+     * @param \Closure $action
+     * @return Collection
+     */
+    private function collect(bool $strict, \Closure $action) : Collection
     {
         return Collection::merge(...$this->withSources($strict, $action));
     }
@@ -50,9 +74,11 @@ class NewsAggregatorService
      */
     private function sort(Collection $collection, bool $reverse = false) : Collection
     {
-        return $reverse
-            ? $collection->asc('published_at', Sort::DATE)
-            : $collection->desc('published_at', Sort::DATE);
+        return $collection->orderBy(
+            'published_at',
+            $reverse ? Sort::DESC : Sort::ASC,
+            Sort::DATE
+        );
     }
     
     private function sortReverse(Collection $collection) : Collection
@@ -60,11 +86,11 @@ class NewsAggregatorService
         return $this->sort($collection, true);
     }
 
-    public function getByTag($tag, bool $strict = true) : Collection
+    public function getByTag(string $tag, bool $strict = true) : Collection
     {
         $all = $this->collect(
             $strict,
-            function ($s) use ($tag) {
+            function (string $s) use ($tag) {
                 return $s::getNewsByTag($tag)->all();
             }
         );
@@ -72,11 +98,11 @@ class NewsAggregatorService
         return $this->sort($all);
     }
 
-    public function getCount($game = null, bool $strict = false) : int
+    public function getCount(Game $game = null, bool $strict = false) : int
     {
         $counts = $this->withSources(
             $strict,
-            function ($s) use ($game) {
+            function (string $s) use ($game) {
                 return $s::getLatestNews($game)->count();
             }
         );
@@ -84,20 +110,18 @@ class NewsAggregatorService
         return array_sum($counts);
     }
     
-    public function getLatest($game, $limit, $exceptNewsId = null, bool $strict = true) : Collection
+    public function getLatest(Game $game, int $limit, int $exceptNewsId = null, bool $strict = true) : Collection
     {
         return $this->getPage($game, 1, $limit, $exceptNewsId, $strict);
     }
 
-    public function getPage($game = null, int $page = 1, int $pageSize = 7, $exceptNewsId = null, bool $strict = false) : Collection
+    public function getPage(Game $game = null, int $page = 1, int $pageSize = 7, int $exceptNewsId = null, bool $strict = false) : Collection
     {
         if ($page < 1) {
             $page = 1;
         }
         
-        if ($pageSize < 1) {
-            throw new \InvalidArgumentException('$pageSize must be a positive integer.');
-        }
+        Assert::greaterThan($pageSize, 0);
 
         $offset = ($page - 1) * $pageSize;
         
@@ -106,7 +130,7 @@ class NewsAggregatorService
 
         $all = $this->collect(
             $strict,
-            function ($s) use ($game, $exceptNewsId, $loadLimit) {
+            function (string $s) use ($game, $exceptNewsId, $loadLimit) {
                 return $s::getLatestNews($game, $exceptNewsId)
                     ->limit($loadLimit)
                     ->all();
@@ -119,23 +143,27 @@ class NewsAggregatorService
     }
     
     /**
-     * Looks for News or ForumTopic with the provided id
+     * Looks for News or ForumTopic with the provided id.
      */
-    public function getNews($newsId)
+    public function getNews(int $newsId) : ?NewsSourceInterface
     {
-        return News::findProtected($newsId) ?? ForumTopic::getNews($newsId);
+        /** @var News|null */
+        $news = News::findProtected($newsId);
+
+        /** @var ForumTopic|null */
+        $forumTopic = ForumTopic::getNews($newsId);
+
+        return $news ?? $forumTopic;
     }
     
-    public function getPrev($news, $strict = true)
+    public function getPrev(NewsSourceInterface $news, bool $strict = true) : ?NewsSourceInterface
     {
         $date = $news->publishedAt;
-        $game = $news->game
-            ? $news->game->root
-            : null;
+        $game = $news->rootGame();
 
         $allPrev = $this->collect(
             $strict,
-            function ($s) use ($game, $date) {
+            function (string $s) use ($game, $date) {
                 return $s::getNewsBefore($game, $date)
                     ->limit(1)
                     ->all();
@@ -147,16 +175,14 @@ class NewsAggregatorService
         return $allPrev->first();
     }
     
-    public function getNext($news, $strict = true)
+    public function getNext(NewsSourceInterface $news, bool $strict = true) : ?NewsSourceInterface
     {
         $date = $news->publishedAt;
-        $game = $news->game
-            ? $news->game->root
-            : null;
+        $game = $news->rootGame();
         
         $allNext = $this->collect(
             $strict,
-            function ($s) use ($game, $date) {
+            function (string $s) use ($game, $date) {
                 return $s::getNewsAfter($game, $date)
                     ->limit(1)
                     ->all();
@@ -172,13 +198,13 @@ class NewsAggregatorService
     {
         return $this->collect(
             $strict,
-            function ($s) {
+            function (string $s) {
                 return $s::getLatestNews()->all();
             }
         );
     }
     
-    public function getTop($limit, bool $strict = false) : Collection
+    public function getTop(int $limit, bool $strict = false) : Collection
     {
         return $this->getPage(null, 1, $limit, null, $strict);
     }
@@ -190,27 +216,28 @@ class NewsAggregatorService
     {
         $byYear = self::getAllRaw($strict)
             ->group(
-                function ($item) {
+                function (NewsSourceInterface $item) {
                     return Date::year($item->publishedAtIso());
                 }
             );
 
+        /** @var integer[] */
         $years = array_keys($byYear);
         
         return Collection::make($years)
             ->map(
-                function ($y) {
+                function (int $y) {
                     return new NewsYear($y);
                 }
             )
             ->desc('year');
     }
     
-    public function getPrevYear($year, bool $strict = true)
+    public function getPrevYear(int $year, bool $strict = true) : ?NewsYear
     {
         return $this->getYears($strict)
             ->where(
-                function ($y) use ($year) {
+                function (NewsYear $y) use ($year) {
                     return $y->year < $year;
                 }
             )
@@ -218,11 +245,11 @@ class NewsAggregatorService
             ->first();
     }
     
-    public function getNextYear($year, bool $strict = true)
+    public function getNextYear(int $year, bool $strict = true) : ?NewsYear
     {
         return $this->getYears($strict)
             ->where(
-                function ($y) use ($year) {
+                function (NewsYear $y) use ($year) {
                     return $y->year > $year;
                 }
             )
@@ -230,11 +257,11 @@ class NewsAggregatorService
             ->first();
     }
     
-    public function getByYear($year, bool $strict = true) : array
+    public function getByYear(int $year, bool $strict = true) : array
     {
         $byYear = $this->collect(
             $strict,
-            function ($s) use ($year) {
+            function (string $s) use ($year) {
                 return $s::getNewsByYear($year)->all();
             }
         );
@@ -243,6 +270,7 @@ class NewsAggregatorService
         
         $monthly = [];
         
+        /** @var NewsSourceInterface $s */
         foreach ($sorted as $s) {
             $month = Date::month($s->publishedAtIso());
             

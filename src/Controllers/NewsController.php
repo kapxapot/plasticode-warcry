@@ -2,7 +2,10 @@
 
 namespace App\Controllers;
 
+use App\Core\Interfaces\LinkerInterface;
 use App\Models\Game;
+use App\Services\NewsAggregatorService;
+use Plasticode\Core\Pagination;
 use Plasticode\RSS\FeedImage;
 use Plasticode\RSS\FeedItem;
 use Plasticode\RSS\RSSCreator20;
@@ -10,10 +13,16 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Plasticode\IO\File;
 use Plasticode\Util\Text;
+use Slim\Http\Request as SlimRequest;
 
-class NewsController extends Controller
+/**
+ * @property LinkerInterface $linker
+ * @property NewsAggregatorService $newsAggregatorService
+ * @property Pagination $pagination
+ */
+class NewsController extends NewsSourceController
 {
-    public function index(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function index(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         if ($args['game']) {
             $game = Game::getPublishedByAlias($args['game']);
@@ -64,7 +73,7 @@ class NewsController extends Controller
         return $this->render($response, 'main/news/index.twig', $params);
     }
 
-    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $id = $args['id'];
         
@@ -87,7 +96,7 @@ class NewsController extends Controller
         $params = $this->buildParams(
             [
                 'game' => $news->game(),
-                'sidebar' => [ 'stream', 'gallery', 'news', 'events' ],
+                'sidebar' => ['stream', 'gallery', 'news', 'events'],
                 'news_id' => $id,
                 'large_image' => $news->largeImage(),
                 'image' => $news->image(),
@@ -96,7 +105,7 @@ class NewsController extends Controller
                     'disqus_id' => 'news' . $id,
                     'news_item' => $news,
                     'title' => $news->displayTitle(),
-                    'page_description' => $this->makePageDescription($news->shortText(), 'news.description_limit'),
+                    'page_description' => $this->makeNewsPageDescription($news, 'news.description_limit'),
                     'news_prev' => $prev,
                     'news_next' => $next,
                     'rel_prev' => $prev ? $prev->url() : null,
@@ -114,7 +123,7 @@ class NewsController extends Controller
         
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'stream', 'gallery' ],
+                'sidebar' => ['stream', 'gallery'],
                 'params' => [
                     'title' => 'Архив новостей',
                     'years' => $years,
@@ -136,9 +145,9 @@ class NewsController extends Controller
 
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'stream', 'gallery' ],
+                'sidebar' => ['stream', 'gallery'],
                 'params' => [
-                    'title' => "Архив новостей за {$year} год",
+                    'title' => 'Архив новостей за ' . $year . ' год',
                     'archive_year' => $year,
                     'monthly' => $monthly,
                     'year_prev' => $prev,
@@ -154,7 +163,7 @@ class NewsController extends Controller
     
     public function rss(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        $limit = $this->getSettings('rss_limit');
+        $limit = $this->getSettings('rss_limit' ?? 10);
         
         $news = $this->newsAggregatorService->getTop($limit);
 
@@ -175,14 +184,14 @@ class NewsController extends Controller
             $rss->description = $siteDescription;
             $rss->link = $siteUrl;
             $rss->syndicationURL = $this->router->pathFor('main.rss');
-            $rss->encoding = "utf-8";
+            $rss->encoding = 'utf-8';
             $rss->language = 'ru';
             $rss->copyright = $siteName;
             $rss->webmaster = $teamMail;
             $rss->ttl = 300;
             
             $image = new FeedImage();
-            $image->title = $siteName . " logo";
+            $image->title = $siteName . ' logo';
             $image->url = $siteUrl . $settings['logo'];
             $image->link = $siteUrl;
             $image->description = $siteDescription;

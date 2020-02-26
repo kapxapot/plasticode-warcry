@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Plasticode\Collection;
 use Plasticode\Query;
-use Plasticode\Models\Moment;
+use Plasticode\Moment;
 use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
