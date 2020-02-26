@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Core\Interfaces\LinkerInterface;
 use Plasticode\Collection;
 use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Query;
@@ -9,6 +10,9 @@ use Plasticode\Models\Traits\Children;
 use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
 
+/**
+ * @property LinkerInterface $linker
+ */
 class Article extends NewsSource
 {
     use CachedDescription, Children;
@@ -41,9 +45,9 @@ class Article extends NewsSource
 
         $query = self::getProtected();
         
-        if (is_numeric($name)) {
-            return $query->find($name);
-        }
+        // if (is_numeric($name)) {
+        //     return $query->find($name);
+        // }
         
         $query = $query->where('name_en', $name);
     

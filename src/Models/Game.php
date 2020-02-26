@@ -9,6 +9,9 @@ use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Traits\Children;
 use Plasticode\Models\Traits\Publish;
 
+/**
+ * @property string|null $alias
+ */
 class Game extends DbModel implements LinkableInterface
 {
     use Children, Publish;
