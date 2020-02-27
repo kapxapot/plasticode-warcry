@@ -12,6 +12,15 @@ use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Parsing\ParsingContext;
 
+/**
+ * @property integer $published
+ * @property string|null $publishedAt
+ * @property integer|null $createdBy
+ * @property string $createdAt
+ * @property integer|null $updatedBy
+ * @property string $updatedAt
+ * @property string $tags
+ */
 abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use FullPublish, Stamps, Tags;

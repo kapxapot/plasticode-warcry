@@ -11,6 +11,19 @@ use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
 
 /**
+ * @property integer $id
+ * @property integer|null $parentId
+ * @property integer|null $cat
+ * @property string $nameRu
+ * @property string $nameEn
+ * @property integer $hideeng
+ * @property string|null $origin
+ * @property string|null $text
+ * @property string|null $cache
+ * @property integer $announce
+ * @property integer $gameId
+ * @property integer $noBreadcrumb
+ * @property string|null $aliases
  * @property LinkerInterface $linker
  */
 class Article extends NewsSource
@@ -38,6 +51,9 @@ class Article extends NewsSource
 
     // queries
     
+    /**
+     * Todo: remove
+     */
     public static function getAllByName(string $name, string $cat = null) : Query
     {
         $name = Strings::toSpaces($name);
@@ -105,11 +121,17 @@ class Article extends NewsSource
         return $query;
     }
     
+    /**
+     * Todo: remove
+     */
     public static function getByName(string $name, string $cat = null) : ?self
     {
         return self::getAllByName($name, $cat)->one();
     }
     
+    /**
+     * Todo: remove
+     */
     public static function getByAlias(string $name, string $cat = null) : ?self
     {
         $name = Strings::toSpaces($name);
@@ -124,10 +146,13 @@ class Article extends NewsSource
         $alias = Strings::joinTagParts($aliasParts);
 
         return self::getProtected()
-            ->whereRaw('(aliases like ?)', [ '%' . $alias . '%' ])
+            ->whereRaw('(aliases like ?)', ['%' . $alias . '%'])
             ->one();
     }
     
+    /**
+     * Todo: remove
+     */
     public static function getByNameOrAlias(string $name, string $cat = null) : ?self
     {
         return self::getByName($name, $cat) ?? self::getByAlias($name, $cat);

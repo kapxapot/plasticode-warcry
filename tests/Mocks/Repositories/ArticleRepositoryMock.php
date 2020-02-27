@@ -14,36 +14,79 @@ class ArticleRepositoryMock implements ArticleRepositoryInterface
 
     public function __construct()
     {
-        $this->pages = Collection::make(
+        $this->articles = Collection::make(
             [
-                new Page(
+                new Article(
                     [
                         'id' => 1,
-                        'slug' => 'about-us',
-                        'title' => 'About us',
+                        'name_ru' => 'О сайте',
+                        'name_en' => 'About Us',
                         'text' => 'We are awesome. Work with us.',
                         'published' => 1,
                         'published_at' => Date::dbNow(),
                     ]
                 ),
-                new Page(
+                new Article(
                     [
                         'id' => 2,
-                        'slug' => 'illidan-stormrage',
-                        'title' => 'Illidan Stormrage',
+                        'name_ru' => 'Иллидан Ярость Бури',
+                        'name_en' => 'Illidan Stormrage',
                         'text' => 'Illidan is a bad boy. Once a night elf, now a demon. Booo.',
                         'published' => 0,
                         'published_at' => null,
+                        'aliases' => 'Illidan',
                     ]
                 ),
             ]
         );
     }
 
-    public function getBySlug(string $slug): ?Page
+    public function getBySlugOrAlias(string $name, string $cat = null) : ?Article
     {
-        return $this->pages
-            ->where('slug', $slug)
+        return $this->articles
+            ->where(
+                function (Article $article) use ($name, $cat) {
+                    $name = Strings::toSpaces($name);
+                    $cat = Strings::toSpaces($cat);
+            
+                    $query = self::getProtected();
+                    
+                    // if (is_numeric($name)) {
+                    //     return $query->find($name);
+                    // }
+                    
+                    $query = $query->where('name_en', $name);
+                
+                    if ($cat) {
+                        $category = ArticleCategory::getByName($cat);
+                        
+                        if ($category) {
+                            return $query
+                                ->whereRaw('(cat = ? or cat is null)', [ $category->id ])
+                                ->orderByDesc('cat');
+                        }
+                    }
+            
+                    return $query->orderByAsc('cat');
+
+                    $name = Strings::toSpaces($name);
+                    $cat = Strings::toSpaces($cat);
+            
+                    $aliasParts[] = $name;
+                    
+                    if (strlen($cat) > 0) {
+                        $aliasParts[] = $cat;
+                    }
+                    
+                    $alias = Strings::joinTagParts($aliasParts);
+            
+                    return self::getProtected()
+                        ->whereRaw('(aliases like ?)', ['%' . $alias . '%'])
+                        ->one();
+            
+                    return $article->nameEn == $name
+                }
+            )
             ->first();
     }
 }
