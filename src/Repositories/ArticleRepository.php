@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Plasticode\Auth\Auth;
+use Plasticode\Data\Db;
 use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\IdiormRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublish;
@@ -22,10 +23,13 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
     private $articleCategoryRepository;
 
     public function __construct(
+        Db $db,
         Auth $auth,
         ArticleCategoryRepositoryInterface $articleCategoryRepository
     )
     {
+        parent::__construct($db);
+
         $this->auth = $auth;
         $this->articleCategoryRepository = $articleCategoryRepository;
     }
