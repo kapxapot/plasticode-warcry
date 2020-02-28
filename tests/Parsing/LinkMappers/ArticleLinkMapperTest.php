@@ -74,7 +74,7 @@ final class ArticleLinkMapperTest extends BaseRenderTestCase
             ],
             [
                 ['warcraft'],
-                '<a href="%tag%/warcraft" class="nd_article">warcraft</a>'
+                '<a href="%tag%/warcraft" class="entity-url">warcraft</a>'
             ]
         ];
     }

@@ -50,19 +50,6 @@ class Renderer extends RendererBase implements RendererInterface
             ]
         );
     }
-    
-    public function entityUrl(string $url, string $text, ?string $title = null) : string
-    {
-        return $this->component(
-            'url',
-            [
-                'url' => $url,
-                'text' => $text,
-                'title' => $title,
-                'style' => 'nd_article',
-            ]
-        );
-    }
 
     public function recipePageUrl(string $url, ?string $title, ?string $rel = null, ?string $content = null) : string
     {
