@@ -16,7 +16,7 @@ class Renderer extends RendererBase implements RendererInterface
         return '%article%/' . $name . $cat;
     }
 
-    public function articleUrl(string $nameRu, string $nameEn, string $nameEsc, ?string $cat, ?string $catEsc, ?string $style = null) : string
+    public function articleUrl(string $text, string $nameEn, string $nameEsc, ?string $cat, ?string $catEsc, ?string $style = null) : string
     {
         if (strlen($cat) > 0) {
             $cat = ' (' . $cat . ')';
@@ -28,9 +28,9 @@ class Renderer extends RendererBase implements RendererInterface
             'url',
             [
                 'url' => $url,
-                'text' => $nameRu,
+                'text' => $text,
                 'title' => $nameEn . $cat,
-                'style' => $style ?? 'nd_article',
+                'style' => $style ?? 'entity-url',
             ]
         );
     }
@@ -46,7 +46,7 @@ class Renderer extends RendererBase implements RendererInterface
             [
                 'text' => $nameRu,
                 'title' => $nameEn . $cat,
-                'style' => 'nd_noarticle',
+                'style' => 'no-url',
             ]
         );
     }

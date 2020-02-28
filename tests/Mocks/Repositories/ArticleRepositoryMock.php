@@ -3,88 +3,88 @@
 namespace App\Tests\Mocks\Repositories;
 
 use App\Models\Article;
+use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Plasticode\Collection;
-use Plasticode\Util\Date;
+use Plasticode\Tests\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Util\Strings;
 
 class ArticleRepositoryMock implements ArticleRepositoryInterface
 {
+    /** @var ArticleCategoryRepositoryInterface */
+    private $articleCategoryRepository;
+
     /** @var Collection */
     private $articles;
 
-    public function __construct()
+    public function __construct(
+        ArticleCategoryRepositoryInterface $articleCategoryRepository,
+        ArraySeederInterface $seeder
+    )
     {
-        $this->articles = Collection::make(
-            [
-                new Article(
-                    [
-                        'id' => 1,
-                        'name_ru' => 'О сайте',
-                        'name_en' => 'About Us',
-                        'text' => 'We are awesome. Work with us.',
-                        'published' => 1,
-                        'published_at' => Date::dbNow(),
-                    ]
-                ),
-                new Article(
-                    [
-                        'id' => 2,
-                        'name_ru' => 'Иллидан Ярость Бури',
-                        'name_en' => 'Illidan Stormrage',
-                        'text' => 'Illidan is a bad boy. Once a night elf, now a demon. Booo.',
-                        'published' => 0,
-                        'published_at' => null,
-                        'aliases' => 'Illidan',
-                    ]
-                ),
-            ]
-        );
+        $this->articleCategoryRepository = $articleCategoryRepository;
+
+        $this->articles = Collection::make($seeder->seed());
     }
 
-    public function getBySlugOrAlias(string $name, string $cat = null) : ?Article
+    public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
     {
-        return $this->articles
-            ->where(
-                function (Article $article) use ($name, $cat) {
-                    $name = Strings::toSpaces($name);
-                    $cat = Strings::toSpaces($cat);
-            
-                    $query = self::getProtected();
-                    
-                    // if (is_numeric($name)) {
-                    //     return $query->find($name);
-                    // }
-                    
-                    $query = $query->where('name_en', $name);
-                
-                    if ($cat) {
-                        $category = ArticleCategory::getByName($cat);
-                        
-                        if ($category) {
-                            return $query
-                                ->whereRaw('(cat = ? or cat is null)', [ $category->id ])
-                                ->orderByDesc('cat');
-                        }
-                    }
-            
-                    return $query->orderByAsc('cat');
+        return
+            $this->getBySlug($slug, $cat)
+            ??
+            $this->getByAlias($slug, $cat);
+    }
 
-                    $name = Strings::toSpaces($name);
-                    $cat = Strings::toSpaces($cat);
+    public function getBySlug(string $slug, string $cat = null) : ?Article
+    {
+        $slug = Strings::toSpaces($slug);
+        $cat = Strings::toSpaces($cat);
+
+        $query = $this
+            ->articles
+            //->protectedQuery()
+            ->where('name_en', $slug);
+    
+        if (strlen($cat) > 0) {
+            $category = $this->articleCategoryRepository->getByName($cat);
             
-                    $aliasParts[] = $name;
-                    
-                    if (strlen($cat) > 0) {
-                        $aliasParts[] = $cat;
-                    }
-                    
-                    $alias = Strings::joinTagParts($aliasParts);
-            
-                    return self::getProtected()
-                        ->whereRaw('(aliases like ?)', ['%' . $alias . '%'])
-                        ->one();
-            
-                    return $article->nameEn == $name
+            if ($category) {
+                return $query
+                    ->where(
+                        function (Article $article) use ($category) {
+                            $cat = $article->cat;
+                            return is_null($cat) || $cat == $category->getId();
+                        }
+                    )
+                    ->desc('cat')
+                    ->first();
+            }
+        }
+
+        return $query
+            ->asc('cat')
+            ->first();
+    }
+
+    public function getByAlias(string $name, string $cat = null) : ?Article
+    {
+        $name = Strings::toSpaces($name);
+        $cat = Strings::toSpaces($cat);
+
+        $aliasParts[] = $name;
+        
+        if (strlen($cat) > 0) {
+            $aliasParts[] = $cat;
+        }
+        
+        $alias = Strings::joinTagParts($aliasParts);
+
+        return $this
+            ->articles
+            //->protectedQuery()
+            ->where(
+                function (Article $article) use ($alias) {
+                    return Strings::contains($article->aliases, $alias);
                 }
             )
             ->first();

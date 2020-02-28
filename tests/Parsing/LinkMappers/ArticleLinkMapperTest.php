@@ -5,7 +5,11 @@ namespace App\Tests\Parsing\LinkMappers;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
 use App\Tests\BaseRenderTestCase;
 use App\Tests\Mocks\LinkerMock;
+use App\Tests\Mocks\Repositories\ArticleCategoryRepositoryMock;
 use App\Tests\Mocks\Repositories\ArticleRepositoryMock;
+use App\Tests\Seeders\ArticleCategorySeeder;
+use App\Tests\Seeders\ArticleSeeder;
+use App\Tests\Seeders\TagSeeder;
 use Plasticode\Parsing\LinkMappers\TagLinkMapper;
 use Plasticode\Parsing\ParsingContext;
 use Plasticode\Tests\Mocks\Repositories\TagRepositoryMock;
@@ -22,8 +26,13 @@ final class ArticleLinkMapperTest extends BaseRenderTestCase
         $linker = new LinkerMock();
 
         $this->mapper = new ArticleLinkMapper(
-            new ArticleRepositoryMock(),
-            new TagRepositoryMock(),
+            new ArticleRepositoryMock(
+                new ArticleCategoryRepositoryMock(
+                    new ArticleCategorySeeder()
+                ),
+                new ArticleSeeder()
+            ),
+            new TagRepositoryMock(new TagSeeder()),
             $this->renderer,
             $linker,
             new TagLinkMapper($this->renderer, $linker)
@@ -53,7 +62,7 @@ final class ArticleLinkMapperTest extends BaseRenderTestCase
         return [
             [
                 ['Illidan Stormrage'],
-                '<span class="no-url">Illidan Stormrage</span>'
+                '<a href="%article%/Illidan_Stormrage" class="entity-url">Illidan Stormrage</a>'
             ],
             [
                 ['illidan-stormrage', 'Illidanchick'],
@@ -61,11 +70,11 @@ final class ArticleLinkMapperTest extends BaseRenderTestCase
             ],
             [
                 ['about us'],
-                '<a href="%page%/about-us" class="entity-url">about us</a>'
+                '<span class="no-url">about us</span>'
             ],
             [
                 ['warcraft'],
-                '<a href="%tag%/warcraft" class="entity-url">warcraft</a>'
+                '<a href="%tag%/warcraft" class="nd_article">warcraft</a>'
             ]
         ];
     }
@@ -94,8 +103,8 @@ final class ArticleLinkMapperTest extends BaseRenderTestCase
 
         return [
             [
-                '<a href="%page%/about-us" class="entity-url">about us</a>',
-                '<a href="' . $linker->page() . 'about-us" class="entity-url">about us</a>'
+                '<a href="%article%/about-us" class="entity-url">about us</a>',
+                '<a href="' . $linker->article() . 'about-us" class="entity-url">about us</a>'
             ],
             [
                 '<a href="%tag%/warcraft" class="entity-url">warcraft</a>',

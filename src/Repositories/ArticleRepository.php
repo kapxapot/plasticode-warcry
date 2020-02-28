@@ -79,7 +79,7 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
         return $query->orderByAsc('cat');
     }
 
-    public static function getByAlias(string $name, string $cat = null) : ?Article
+    public function getByAlias(string $name, string $cat = null) : ?Article
     {
         $name = Strings::toSpaces($name);
         $cat = Strings::toSpaces($cat);
