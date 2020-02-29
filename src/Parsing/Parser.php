@@ -9,10 +9,8 @@ use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
 use Plasticode\Interfaces\SettingsProviderInterface;
-use Plasticode\Parsing\ParsingContext;
 use Plasticode\Parsing\Parsers\CompositeParser;
 use Plasticode\Util\Numbers;
-use Plasticode\Util\Strings;
 
 class Parser extends CompositeParser
 {
@@ -58,15 +56,6 @@ class Parser extends CompositeParser
             case 'card':
                 return $this->renderHearthstoneCard($id, $content);
 
-            case 'news':
-            case 'event':
-            case 'stream':
-            case 'video':
-                return $this->renderEntity($tag, $id, $content);
-
-            case 'tag':
-                return $this->renderTag($id, $content);
-            
             case 'gallery':
                 return $this->renderGallery($id, $chunks);
         }
@@ -207,20 +196,6 @@ class Parser extends CompositeParser
         );
     }
 
-    private function renderTag(string $id, ?string $content) : ?string
-    {
-        $id = Strings::fromSpaces($id, '+');
-        return $this->renderEntity('tag', $id, $content);
-    }
-
-    private function renderEntity(string $tag, string $id, string $content = null) : ?string
-    {
-        return $this->renderer->entityUrl(
-            '%' . $tag . '%/' . $id,
-            $content ?? $id
-        );
-    }
-
     private function renderGallery(string $id, array $chunks) : ?string
     {
         $pictures = Collection::makeEmpty();
@@ -276,23 +251,5 @@ class Parser extends CompositeParser
                 'grid_mode' => $gridMode === true,
             ]
         );
-    }
-
-    public function renderLinks(ParsingContext $context) : ParsingContext
-    {
-        $context = clone $context;
-
-        $text = $context->text;
-
-        $text = str_replace('%article%/', $this->linker->article(), $text);
-        $text = str_replace('%news%/', $this->linker->news(), $text);
-        $text = str_replace('%event%/', $this->linker->event(), $text);
-        $text = str_replace('%stream%/', $this->linker->stream(), $text);
-        $text = str_replace('%video%/', $this->linker->video(), $text);
-        $text = str_replace('%tag%/', $this->linker->tag(), $text);
-
-        $context->text = $text;
-
-        return $context;
     }
 }
