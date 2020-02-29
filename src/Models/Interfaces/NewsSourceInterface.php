@@ -13,7 +13,7 @@ use Plasticode\Models\Interfaces\TaggableInterface;
 interface NewsSourceInterface extends LinkableInterface, TaggableInterface
 {
     public static function getNewsByTag(string $tag) : Query;
-    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query;
+    public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query;
     public static function getNewsByYear(int $year) : Query;
 
     public static function getNewsBefore(Game $game, string $date) : Query;

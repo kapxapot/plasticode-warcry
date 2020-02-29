@@ -10,17 +10,21 @@
 {% endif %}
 
 {% block content %}
-	<div class="panel panel-primary">
-		{{ lm.panel_header(_context) }}
-		
-	  	<div class="panel-body">
-			{% include 'components/gallery_grid.twig' with {
-			    'grid_id': grid_id,
-			    'pictures': pictures,
-			    'show_author': true
-			} only %}
-	    </div>
-	</div>
+    <div class="panel panel-primary">
+        {{ lm.panel_header(_context) }}
+        
+        <div class="panel-body">
+            {% if pictures|length > 0 %}
+                {% include 'components/gallery_grid.twig' with {
+                    'grid_id': grid_id,
+                    'pictures': pictures,
+                    'show_author': true
+                } only %}
+            {% else %}
+                <p>Картинок пока нет. :(</p>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
 
 {% set more_angular %}

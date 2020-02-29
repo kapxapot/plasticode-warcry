@@ -225,7 +225,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return self::filterByTag(self::getNewsQuery(), $tag);
     }
     
-    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query
+    public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query
     {
         $query = self::getNewsQuery($game);
 

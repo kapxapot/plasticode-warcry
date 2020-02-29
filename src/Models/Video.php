@@ -79,7 +79,7 @@ class Video extends NewsSource
         return self::announced($query);
     }
 
-    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query
+    public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query
     {
         return self::getNewsByGame($game)
             ->orderByDesc('published_at');

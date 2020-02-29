@@ -84,7 +84,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
     
     public abstract static function getNewsByTag(string $tag) : Query;
 
-    public abstract static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query;
+    public abstract static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query;
     
     public abstract static function getNewsBefore(Game $game, string $date) : Query;
     

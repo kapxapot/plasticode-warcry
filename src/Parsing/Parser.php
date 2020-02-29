@@ -4,13 +4,11 @@ namespace App\Parsing;
 
 use App\Core\Interfaces\LinkerInterface;
 use App\Core\Interfaces\RendererInterface;
-use App\Models\Article;
 use App\Models\GalleryPicture;
 use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
 use Plasticode\Interfaces\SettingsProviderInterface;
-use Plasticode\Models\Tag;
 use Plasticode\Parsing\ParsingContext;
 use Plasticode\Parsing\Parsers\CompositeParser;
 use Plasticode\Util\Numbers;
@@ -74,36 +72,6 @@ class Parser extends CompositeParser
         }
 
         return $this->renderWowheadLink($tag, $id, $content);
-    }
-
-    private function renderArticle(string $id, array $chunks) : ?string
-    {
-        $chunksCount = count($chunks);
-
-        $cat = '';
-        $name = $chunks[$chunksCount - 1];
-
-        if ($chunksCount > 2) {
-            $cat = $chunks[1];
-        }
-
-        $idEsc = Strings::fromSpaces($id);
-        $catEsc = Strings::fromSpaces($cat);
-
-        $article = Article::getByNameOrAlias($id, $cat);
-
-        $text = null;
-
-        if ($article && $article->isPublished()) {
-            $text = $this->renderer->articleUrl($name, $id, $idEsc, $cat, $catEsc);
-        }
-
-        // if such tag exists, render as tag
-        if (!$text && Tag::exists($id)) {
-            $text = $this->renderTag($id, $name);
-        }
-
-        return $text ?? $this->renderer->noArticleUrl($name, $id, $cat);
     }
 
     private function renderItem(string $id, ?string $content) : ?string

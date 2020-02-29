@@ -33,51 +33,16 @@ class Article extends NewsSource
     protected static $sortField = 'published_at';
     protected static $sortReverse = true;
     
-    // traits
-    
     protected static function getDescriptionField() : string
     {
         return 'text';
     }
-    
-    // getters - many
     
     public static function publishedOrphans() : Collection
     {
         return self::getPublished()
             ->whereNull('parent_id')
             ->all();
-    }
-
-    // queries
-    
-    /**
-     * Todo: remove
-     */
-    public static function getAllByName(string $name, string $cat = null) : Query
-    {
-        $name = Strings::toSpaces($name);
-        $cat = Strings::toSpaces($cat);
-
-        $query = self::getProtected();
-        
-        // if (is_numeric($name)) {
-        //     return $query->find($name);
-        // }
-        
-        $query = $query->where('name_en', $name);
-    
-        if ($cat) {
-            $category = ArticleCategory::getByName($cat);
-            
-            if ($category) {
-                return $query
-                    ->whereRaw('(cat = ? or cat is null)', [ $category->id ])
-                    ->orderByDesc('cat');
-            }
-        }
-
-        return $query->orderByAsc('cat');
     }
 
     public static function getLatest(Game $game = null, int $limit = null, int $exceptId = null) : Query
@@ -119,43 +84,6 @@ class Article extends NewsSource
         }
             
         return $query;
-    }
-    
-    /**
-     * Todo: remove
-     */
-    public static function getByName(string $name, string $cat = null) : ?self
-    {
-        return self::getAllByName($name, $cat)->one();
-    }
-    
-    /**
-     * Todo: remove
-     */
-    public static function getByAlias(string $name, string $cat = null) : ?self
-    {
-        $name = Strings::toSpaces($name);
-        $cat = Strings::toSpaces($cat);
-
-        $aliasParts[] = $name;
-        
-        if (strlen($cat) > 0) {
-            $aliasParts[] = $cat;
-        }
-        
-        $alias = Strings::joinTagParts($aliasParts);
-
-        return self::getProtected()
-            ->whereRaw('(aliases like ?)', ['%' . $alias . '%'])
-            ->one();
-    }
-    
-    /**
-     * Todo: remove
-     */
-    public static function getByNameOrAlias(string $name, string $cat = null) : ?self
-    {
-        return self::getByName($name, $cat) ?? self::getByAlias($name, $cat);
     }
 
     // props
@@ -293,7 +221,7 @@ class Article extends NewsSource
         return self::announced($query);
     }
 
-    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query
+    public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query
     {
         $query = static::getLatest($game, null, $exceptNewsId);
         return self::announced($query);

@@ -70,7 +70,7 @@ class News extends NewsSource
         return $query;
     }
 
-    public static function getLatestNews(Game $game = null, int $exceptNewsId = null) : Query
+    public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query
     {
         $query = self::getNewsByGame($game)
             ->orderByDesc('published_at');

@@ -31,7 +31,7 @@ class NewsAggregatorService
     ];
     
     /**
-     * Get sources list based on the sctrictness.
+     * Get sources list based on the strictness.
      *
      * @param boolean $strict
      * @return string[]
@@ -110,12 +110,12 @@ class NewsAggregatorService
         return array_sum($counts);
     }
     
-    public function getLatest(Game $game, int $limit, int $exceptNewsId = null, bool $strict = true) : Collection
+    public function getLatest(?Game $game, int $limit, int $exceptNewsId = null, bool $strict = true) : Collection
     {
         return $this->getPage($game, 1, $limit, $exceptNewsId, $strict);
     }
 
-    public function getPage(Game $game = null, int $page = 1, int $pageSize = 7, int $exceptNewsId = null, bool $strict = false) : Collection
+    public function getPage(?Game $game = null, int $page = 1, int $pageSize = 7, int $exceptNewsId = null, bool $strict = false) : Collection
     {
         if ($page < 1) {
             $page = 1;

@@ -2,10 +2,13 @@
 
 namespace App\Controllers;
 
-use App\Models\Article;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request as SlimRequest;
 
+/**
+ * @property ArticleRepositoryInterface $articleRepository
+ */
 class ArticleController extends NewsSourceController
 {
     public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
@@ -15,7 +18,7 @@ class ArticleController extends NewsSourceController
 
         $rebuild = $request->getQueryParam('rebuild', null);
 
-        $article = Article::getByNameOrAlias($id, $cat);
+        $article = $this->articleRepository->getBySlugOrAlias($id, $cat);
 
         if (!$article) {
             return $this->notFound($request, $response);
