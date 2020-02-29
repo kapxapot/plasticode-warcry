@@ -7,6 +7,7 @@ use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Tags;
+use Plasticode\Util\Arrays;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
 
@@ -32,7 +33,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
             ->extract('tag_text')
             ->toArray();
         
-        return Strings::trimArray($tags);
+        return Arrays::trim($tags);
     }
 
     public static function filterByTag(Query $query, string $tag) : Query
