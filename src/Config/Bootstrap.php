@@ -3,9 +3,25 @@
 namespace App\Config;
 
 use App\Config\Parsing\BBContainerConfig;
+use App\Core\Linker;
+use App\Core\Renderer;
+use App\Handlers\NotFoundHandler;
+use App\Parsing\ForumParser;
+use App\Parsing\LinkMappers\ArticleLinkMapper;
+use App\Parsing\NewsParser;
+use App\Repositories\ArticleCategoryRepository;
+use App\Repositories\ArticleRepository;
+use App\Services\ComicService;
+use App\Services\GalleryService;
+use App\Services\NewsAggregatorService;
+use App\Services\SidebarPartsProviderService;
+use App\Services\StreamService;
+use App\Services\TagPartsProviderService;
+use App\Services\TwitterService;
 use Plasticode\Config\Bootstrap as BootstrapBase;
 use Plasticode\Gallery\Gallery;
 use Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy;
+use Plasticode\Parsing\LinkMapperSource;
 use Psr\Container\ContainerInterface;
 
 class Bootstrap extends BootstrapBase
@@ -22,20 +38,22 @@ class Bootstrap extends BootstrapBase
         return array_merge(
             $mappings,
             [
-                'userClass' => function (ContainerInterface $container) {
-                    return \App\Models\User::class;
+                'articleCategoryRepository' => function (ContainerInterface $container) {
+                    return new ArticleCategoryRepository(
+                        $container->db
+                    );
                 },
 
-                'menuClass' => function (ContainerInterface $container) {
-                    return \App\Models\Menu::class;
+                'articleRepository' => function (ContainerInterface $container) {
+                    return new ArticleRepository(
+                        $container->db,
+                        $container->auth,
+                        $container->articleCategoryRepository
+                    );
                 },
 
-                'menuItemClass' => function (ContainerInterface $container) {
-                    return \App\Models\MenuItem::class;
-                },
-                
                 'captchaConfig' => function (ContainerInterface $container) {
-                    return new \App\Config\CaptchaConfig();
+                    return new CaptchaConfig();
                 },
 
                 'gallery' => function (ContainerInterface $container) {
@@ -85,7 +103,6 @@ class Bootstrap extends BootstrapBase
                                 'public' => 'comics_thumbs_public',
                             ],
                         ],
-                        //'thumb_height' => $this->settings['comics']['thumb_height'],
                     ];
                 
                     return new Gallery(
@@ -94,15 +111,15 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'localizationConfig' => function (ContainerInterface $container) {
-                    return new \App\Config\LocalizationConfig();
+                    return new LocalizationConfig();
                 },
 
                 'renderer' => function (ContainerInterface $container) {
-                    return new \App\Core\Renderer($container->view);
+                    return new Renderer($container->view);
                 },
 
                 'linker' => function (ContainerInterface $container) {
-                    return new \App\Core\Linker(
+                    return new Linker(
                         $container->settingsProvider,
                         $container->router,
                         $container->gallery
@@ -112,19 +129,38 @@ class Bootstrap extends BootstrapBase
                 'bbContainerConfig' => function (ContainerInterface $container) {
                     return new BBContainerConfig();
                 },
-                
+
+                'articleLinkMapper' => function (ContainerInterface $container) {
+                    return new ArticleLinkMapper(
+                        $container->articleRepository,
+                        $container->tagRepository,
+                        $container->renderer,
+                        $container->linker,
+                        $container->tagLinkMapper
+                    );
+                },
+    
+                'doubleBracketsConfig' => function (ContainerInterface $container) {
+                    $config = new LinkMapperSource();
+
+                    $config->setDefaultMapper($container->articleLinkMapper);
+                    $config->registerEntityMapper($container->newsLinkMapper);
+
+                    return $config;
+                },
+                    
                 'newsParser' => function (ContainerInterface $container) {
-                    return new \App\Parsing\NewsParser($container);
+                    return new NewsParser($container);
                 },
                 
                 'forumParser' => function (ContainerInterface $container) {
-                    return new \App\Parsing\ForumParser($container);
+                    return new ForumParser($container);
                 },
                 
                 // handlers
                 
                 'notFoundHandler' => function (ContainerInterface $container) {
-                    return new \App\Handlers\NotFoundHandler($container);
+                    return new NotFoundHandler($container);
                 },
                 
                 // services
@@ -132,31 +168,31 @@ class Bootstrap extends BootstrapBase
                 'galleryService' => function (ContainerInterface $container) {
                     $pageSize = $this->settings['gallery']['pics_per_page'];
                     
-                    return new \App\Services\GalleryService($pageSize);
+                    return new GalleryService($pageSize);
                 },
 
                 'comicService' => function (ContainerInterface $container) {
-                    return new \App\Services\ComicService();
+                    return new ComicService();
                 },
 
                 'newsAggregatorService' => function (ContainerInterface $container) {
-                    return new \App\Services\NewsAggregatorService();
+                    return new NewsAggregatorService();
                 },
 
                 'streamService' => function (ContainerInterface $container) {
-                    return new \App\Services\StreamService($container->cases);
+                    return new StreamService($container->cases);
                 },
 
                 'sidebarPartsProviderService' => function (ContainerInterface $container) {
-                    return new \App\Services\SidebarPartsProviderService($container);
+                    return new SidebarPartsProviderService($container);
                 },
 
                 'tagPartsProviderService' => function (ContainerInterface $container) {
-                    return new \App\Services\TagPartsProviderService($container);
+                    return new TagPartsProviderService($container);
                 },
 
                 'twitterService' => function (ContainerInterface $container) {
-                    return new \App\Services\TwitterService($container);
+                    return new TwitterService($container);
                 }
             ]
         );

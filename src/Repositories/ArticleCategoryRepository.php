@@ -4,8 +4,9 @@ namespace App\Repositories;
 
 use App\Models\ArticleCategory;
 use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
+use Plasticode\Repositories\Idiorm\IdiormRepository;
 
-class ArticleCategoryRepository implements ArticleCategoryRepositoryInterface
+class ArticleCategoryRepository extends IdiormRepository implements ArticleCategoryRepositoryInterface
 {
     public function getByName(string $name) : ?ArticleCategory
     {

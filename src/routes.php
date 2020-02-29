@@ -41,210 +41,243 @@ $access = function (
 $root = $settings['root'];
 $trueRoot = (strlen($root) == 0);
 
-$app->group($root, function () use ($trueRoot, $settings, $access, $container, $env) {
-    // public api
-        
-    $this->group('/api/v1',
-        function () use ($settings) {
-            $this->get('/captcha', function ($request, $response) use ($settings) {
-                $captcha = $this->captcha->generate(
-                    $settings['captcha_digits'], true
+$app->group(
+    $root,
+    function () use ($trueRoot, $settings, $access, $container, $env) {
+        // public api
+
+        $this->group(
+            '/api/v1',
+            function () use ($settings) {
+                $this->get(
+                    '/captcha',
+                    function ($request, $response) use ($settings) {
+                        $captcha = $this->captcha->generate(
+                            $settings['captcha_digits'], true
+                        );
+                        
+                        return Response::json(
+                            $response, ['captcha' => $captcha['captcha']]
+                        );
+                    }
                 );
-                
-                return Response::json(
-                    $response, ['captcha' => $captcha['captcha']]
+
+                $this->get(
+                    '/captcha_test',
+                    function ($request, $response, $args) use ($settings) {
+                        $digits = $request->getParam(
+                            'digits', $settings['captcha_digits']
+                        );
+                        
+                        $captcha = $this->captcha->generate($digits, false);
+
+                        return Response::json(
+                            $response, ['captcha' => $captcha['captcha']]
+                        );
+                    }
                 );
-            });
 
-            $this->get('/captcha_test', function ($request, $response, $args) use ($settings) {
-                $digits = $request->getParam(
-                    'digits', $settings['captcha_digits']
-                );
-                
-                $captcha = $this->captcha->generate($digits, false);
+                $this->get(
+                    '/search/{query}',
+                    SearchController::class . ':search'
+                )->setName('api.search');
 
-                return Response::json(
-                    $response, ['captcha' => $captcha['captcha']]
-                );
-            });
-
-            $this->get(
-                '/search/{query}',
-                SearchController::class . ':search'
-            )->setName('api.search');
-
-            $this->get(
-                '/gallery/chunk/{border_id}',
-                GalleryController::class . ':chunk'
-            )->setName('api.gallery.chunk');
-        }
-    );
-    
-    // private api
-
-    $this->group('/api/v1', function () use ($settings, $access, $container) {
-        foreach ($settings['tables'] as $alias => $table) {
-            if (isset($table['api'])) {
-                $gen = $container->generatorResolver->resolveEntity($alias);
-                $gen->generateAPIRoutes($this, $access);
+                $this->get(
+                    '/gallery/chunk/{border_id}',
+                    GalleryController::class . ':chunk'
+                )->setName('api.gallery.chunk');
             }
-        }
-    
-        $this->post('/parser/parse', ParserController::class . ':parse')
-            ->setName('api.parser.parse');
-    })->add(new TokenAuthMiddleware($container));
-    
-    // admin
-    
-    $this->get('/admin', function ($request, $response, $args) {
-        return $this->view->render($response, 'admin/index.twig');
-    })->setName('admin.index');
-    
-    $this->group('/admin', function () use ($settings, $access, $container) {
-        foreach (array_keys($settings['entities']) as $entity) {
-            $gen = $container->generatorResolver->resolveEntity($entity);
-            $gen->generateAdminPageRoute($this, $access);
-        }
+        );
+
+        // private api
+
+        $this->group(
+            '/api/v1',
+            function () use ($settings, $access, $container) {
+                foreach ($settings['tables'] as $alias => $table) {
+                    if (isset($table['api'])) {
+                        $gen = $container->generatorResolver->resolveEntity($alias);
+                        $gen->generateAPIRoutes($this, $access);
+                    }
+                }
+            
+                $this->post(
+                    '/parser/parse',
+                    ParserController::class . ':parse'
+                )->setName('api.parser.parse');
+            }
+        )->add(new TokenAuthMiddleware($container));
+
+        // admin
         
-        $this->get('/playground', AdminPlaygroundController::class)
-            ->setName('admin.playground');
-        
-        $this->post('/comics/upload', AdminComicController::class . ':upload')
-            ->setName('admin.comics.upload');
-        
-        $this->post('/gallery/upload', AdminGalleryController::class . ':upload')
-            ->setName('admin.gallery.upload');
-    })->add(new AuthMiddleware($container, 'admin.index'));
-
-    // site
-    
-    $this->get('/news/{id:\d+}', NewsController::class . ':item')
-        ->setName('main.news');
-
-    $this->get('/news/archive', NewsController::class . ':archiveIndex')
-        ->setName('main.news.archive');
-    
-    $this->get('/news/archive/{year:\d+}', NewsController::class . ':archiveYear')
-        ->setName('main.news.archive.year');
-    
-    $this->get('/rss', NewsController::class . ':rss')
-        ->setName('main.rss');
-    
-    $this->get('/articles/{id}[/{cat}]', ArticleController::class . ':item')
-        ->setName('main.article');
-    
-    $this->get('/streams', StreamController::class . ':index')
-        ->setName('main.streams');
-    
-    $this->get('/streams/{alias}', StreamController::class . ':item')
-        ->setName('main.stream');
-
-    $this->get('/gallery', GalleryController::class . ':index')
-        ->setName('main.gallery');
-    
-    $this->get('/gallery/{id:\d+}', GalleryController::class . ':picture')
-        ->setName('main.gallery.picture.direct');
-    
-    $this->get('/gallery/{alias}', GalleryController::class . ':author')
-        ->setName('main.gallery.author');
-    
-    $this->get('/gallery/{alias}/{id:\d+}', GalleryController::class . ':picture')
-        ->setName('main.gallery.picture');
-    
-    $this->get('/map', MapController::class . ':index')
-        ->setName('main.map');
-    
-    $this->get('/comics', ComicController::class . ':index')
-        ->setName('main.comics');
-    
-    $this->get('/comics/series/{alias}', ComicController::class . ':series')
-        ->setName('main.comics.series');
-    
-    $this->get(
-        '/comics/series/{alias}/{number:\d+}',
-        ComicController::class . ':issue'
-    )->setName('main.comics.issue');
-    
-    $this->get(
-        '/comics/series/{alias}/{number:\d+}/{page:\d+}',
-        ComicController::class . ':issuePage'
-    )->setName('main.comics.issue.page');
-
-    $this->get('/comics/{alias}', ComicController::class . ':standalone')
-        ->setName('main.comics.standalone');
-    
-    $this->get(
-        '/comics/{alias}/{page:\d+}',
-        ComicController::class . ':standalonePage'
-    )->setName('main.comics.standalone.page');
-
-    $this->get('/recipes/{id:\d+}', RecipeController::class . ':item')
-        ->setName('main.recipe');
-    
-    $this->get('/recipes[/{skill}]', RecipeController::class . ':index')
-        ->setName('main.recipes');
-
-    $this->get('/events', EventController::class . ':index')
-        ->setName('main.events');
-    
-    $this->get('/events/{id:\d+}', EventController::class . ':item')
-        ->setName('main.event');
-
-    $this->get('/videos', VideoController::class . ':index')
-        ->setName('main.videos');
-    
-    $this->get('/videos/{id:\d+}', VideoController::class . ':item')
-        ->setName('main.video');
-
-    $this->get('/tags/{tag}', TagController::class . ':item')
-        ->setName('main.tag');
-
-    if ($env->isDev()) {
-        $this->get('/test', TestController::class . ':index')->setName('main.test');
-    }
-    
-    $this->get(
-        $trueRoot ? '/[{game}]' : '[/{game}]',
-        NewsController::class . ':index'
-    )->setName('main.index');
-
-    // cron
-    
-    $this->group('/cron', function () {
         $this->get(
-            '/streams/refresh',
-            StreamController::class . ':refresh'
-        )->setName('main.cron.streams.refresh');
-    });
+            '/admin',
+            function ($request, $response, $args) {
+                return $this->view->render($response, 'admin/index.twig');
+            }
+        )->setName('admin.index');
 
-    // public auth
-    
-    $this->group('/auth', function () {
-        $this->post('/signup', AuthController::class . ':postSignUp')
-            ->setName('auth.signup');
-        
-        $this->post('/signin', AuthController::class . ':postSignIn')
-            ->setName('auth.signin');
-    })->add(new GuestMiddleware($container, 'main.index'));
-    
-    // private auth
+        $this->group(
+            '/admin',
+            function () use ($settings, $access, $container) {
+                foreach (array_keys($settings['entities']) as $entity) {
+                    $gen = $container->generatorResolver->resolveEntity($entity);
+                    $gen->generateAdminPageRoute($this, $access);
+                }
+                
+                $this->get('/playground', AdminPlaygroundController::class)
+                    ->setName('admin.playground');
+                
+                $this->post('/comics/upload', AdminComicController::class . ':upload')
+                    ->setName('admin.comics.upload');
+                
+                $this->post('/gallery/upload', AdminGalleryController::class . ':upload')
+                    ->setName('admin.gallery.upload');
+            }
+        )->add(new AuthMiddleware($container, 'admin.index'));
 
-    $this->group('/auth', function () {
-        $this->post('/signout', AuthController::class . ':postSignOut')
-            ->setName('auth.signout');
+        // site
         
-        $this->post(
-            '/password/change',
-            PasswordController::class . ':postChangePassword'
-        )->setName('auth.password.change');
-    })->add(new AuthMiddleware($container, 'main.index'));
-    
-    // tests
-    
-    if ($env->isDev()) {
-        $this->group('/tests', function () {
-            $this->get('/smoke', SmokeTestController::class)
-                ->setName('tests.smoke');
-        });
+        $this->get('/news/{id:\d+}', NewsController::class . ':item')
+            ->setName('main.news');
+
+        $this->get('/news/archive', NewsController::class . ':archiveIndex')
+            ->setName('main.news.archive');
+        
+        $this->get('/news/archive/{year:\d+}', NewsController::class . ':archiveYear')
+            ->setName('main.news.archive.year');
+        
+        $this->get('/rss', NewsController::class . ':rss')
+            ->setName('main.rss');
+        
+        $this->get('/articles/{id}[/{cat}]', ArticleController::class . ':item')
+            ->setName('main.article');
+        
+        $this->get('/streams', StreamController::class . ':index')
+            ->setName('main.streams');
+        
+        $this->get('/streams/{alias}', StreamController::class . ':item')
+            ->setName('main.stream');
+
+        $this->get('/gallery', GalleryController::class . ':index')
+            ->setName('main.gallery');
+        
+        $this->get('/gallery/{id:\d+}', GalleryController::class . ':picture')
+            ->setName('main.gallery.picture.direct');
+        
+        $this->get('/gallery/{alias}', GalleryController::class . ':author')
+            ->setName('main.gallery.author');
+        
+        $this->get('/gallery/{alias}/{id:\d+}', GalleryController::class . ':picture')
+            ->setName('main.gallery.picture');
+        
+        $this->get('/map', MapController::class . ':index')
+            ->setName('main.map');
+        
+        $this->get('/comics', ComicController::class . ':index')
+            ->setName('main.comics');
+        
+        $this->get('/comics/series/{alias}', ComicController::class . ':series')
+            ->setName('main.comics.series');
+        
+        $this->get(
+            '/comics/series/{alias}/{number:\d+}',
+            ComicController::class . ':issue'
+        )->setName('main.comics.issue');
+        
+        $this->get(
+            '/comics/series/{alias}/{number:\d+}/{page:\d+}',
+            ComicController::class . ':issuePage'
+        )->setName('main.comics.issue.page');
+
+        $this->get('/comics/{alias}', ComicController::class . ':standalone')
+            ->setName('main.comics.standalone');
+        
+        $this->get(
+            '/comics/{alias}/{page:\d+}',
+            ComicController::class . ':standalonePage'
+        )->setName('main.comics.standalone.page');
+
+        $this->get('/recipes/{id:\d+}', RecipeController::class . ':item')
+            ->setName('main.recipe');
+        
+        $this->get('/recipes[/{skill}]', RecipeController::class . ':index')
+            ->setName('main.recipes');
+
+        $this->get('/events', EventController::class . ':index')
+            ->setName('main.events');
+        
+        $this->get('/events/{id:\d+}', EventController::class . ':item')
+            ->setName('main.event');
+
+        $this->get('/videos', VideoController::class . ':index')
+            ->setName('main.videos');
+        
+        $this->get('/videos/{id:\d+}', VideoController::class . ':item')
+            ->setName('main.video');
+
+        $this->get('/tags/{tag}', TagController::class . ':item')
+            ->setName('main.tag');
+
+        if ($env->isDev()) {
+            $this->get('/test', TestController::class . ':index')->setName('main.test');
+        }
+        
+        $this->get(
+            $trueRoot ? '/[{game}]' : '[/{game}]',
+            NewsController::class . ':index'
+        )->setName('main.index');
+
+        // cron
+        
+        $this->group(
+            '/cron',
+            function () {
+                $this->get(
+                    '/streams/refresh',
+                    StreamController::class . ':refresh'
+                )->setName('main.cron.streams.refresh');
+            }
+        );
+
+        // public auth
+        
+        $this->group(
+            '/auth',
+            function () {
+                $this->post('/signup', AuthController::class . ':postSignUp')
+                    ->setName('auth.signup');
+                
+                $this->post('/signin', AuthController::class . ':postSignIn')
+                    ->setName('auth.signin');
+            }
+        )->add(new GuestMiddleware($container, 'main.index'));
+        
+        // private auth
+
+        $this->group(
+            '/auth',
+            function () {
+                $this->post('/signout', AuthController::class . ':postSignOut')
+                    ->setName('auth.signout');
+                
+                $this->post(
+                    '/password/change',
+                    PasswordController::class . ':postChangePassword'
+                )->setName('auth.password.change');
+            }
+        )->add(new AuthMiddleware($container, 'main.index'));
+        
+        // tests
+        
+        if ($env->isDev()) {
+            $this->group(
+                '/tests',
+                function () {
+                    $this->get('/smoke', SmokeTestController::class)
+                        ->setName('tests.smoke');
+                }
+            );
+        }
     }
-});
+);
