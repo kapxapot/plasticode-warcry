@@ -46,8 +46,13 @@ class CoordsLinkMapper extends TaggedLinkMapper
 
         [$x, $y] = $otherChunks;
 
-        $coordsParam = $this->buildCoordsParam($x, $y);
-        $url = $this->linker->wowheadUrlRu('maps?data=' . $locationId . $coordsParam);
+        $coordsChunk = $this->buildCoordsChunk($x, $y);
+
+        if (strlen($coordsChunk) == 0) {
+            return null;
+        }
+
+        $url = $this->linker->wowheadUrlRu('maps?data=' . $locationId . $coordsChunk);
 
         $coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
 
@@ -69,7 +74,14 @@ class CoordsLinkMapper extends TaggedLinkMapper
             : 0;
     }
 
-    private function buildCoordsParam($x, $y) : ?string
+    /**
+     * Builds coords url chunk.
+     *
+     * @param mixed $x
+     * @param mixed $y
+     * @return string|null
+     */
+    private function buildCoordsChunk($x, $y) : ?string
     {
         $x = Numbers::parseFloat($x);
         $y = Numbers::parseFloat($y);

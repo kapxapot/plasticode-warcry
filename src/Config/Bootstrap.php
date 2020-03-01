@@ -198,6 +198,7 @@ class Bootstrap extends BootstrapBase
                     $config->registerTaggedMapper($container->streamLinkMapper);
                     $config->registerTaggedMapper($container->videoLinkMapper);
                     $config->registerTaggedMapper($container->hsCardLinkMapper);
+                    $config->registerTaggedMapper($container->coordsLinkMapper);
 
                     return $config;
                 },
