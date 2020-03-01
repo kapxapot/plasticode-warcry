@@ -8,6 +8,7 @@ use App\Core\Renderer;
 use App\Handlers\NotFoundHandler;
 use App\Parsing\ForumParser;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
+use App\Parsing\LinkMappers\CoordsLinkMapper;
 use App\Parsing\LinkMappers\EventLinkMapper;
 use App\Parsing\LinkMappers\HsCardLinkMapper;
 use App\Parsing\LinkMappers\StreamLinkMapper;
@@ -15,6 +16,7 @@ use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
+use App\Repositories\LocationRepository;
 use App\Services\ComicService;
 use App\Services\GalleryService;
 use App\Services\NewsAggregatorService;
@@ -53,6 +55,12 @@ class Bootstrap extends BootstrapBase
                         $container->db,
                         $container->auth,
                         $container->articleCategoryRepository
+                    );
+                },
+
+                'locationRepository' => function (ContainerInterface $container) {
+                    return new LocationRepository(
+                        $container->db
                     );
                 },
 
@@ -167,6 +175,14 @@ class Bootstrap extends BootstrapBase
 
                 'hsCardLinkMapper' => function (ContainerInterface $container) {
                     return new HsCardLinkMapper(
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
+                'coordsLinkMapper' => function (ContainerInterface $container) {
+                    return new CoordsLinkMapper(
+                        $container->locationRepository,
                         $container->renderer,
                         $container->linker
                     );
