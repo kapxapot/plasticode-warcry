@@ -5,7 +5,7 @@ namespace App\Parsing\LinkMappers;
 use App\Core\Interfaces\LinkerInterface;
 use App\Core\Interfaces\RendererInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
-use Plasticode\Parsing\LinkMappers\EntityLinkMapper;
+use Plasticode\Parsing\LinkMappers\Basic\EntityLinkMapper;
 use Plasticode\Parsing\LinkMappers\TagLinkMapper;
 use Plasticode\Parsing\ParsingContext;
 use Plasticode\Parsing\SlugChunk;

@@ -9,6 +9,7 @@ use App\Handlers\NotFoundHandler;
 use App\Parsing\ForumParser;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
 use App\Parsing\LinkMappers\EventLinkMapper;
+use App\Parsing\LinkMappers\HsCardLinkMapper;
 use App\Parsing\LinkMappers\StreamLinkMapper;
 use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
@@ -164,6 +165,13 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
+                'hsCardLinkMapper' => function (ContainerInterface $container) {
+                    return new HsCardLinkMapper(
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
                 'doubleBracketsConfig' => function (ContainerInterface $container) {
                     $config = new LinkMapperSource();
 
@@ -173,6 +181,7 @@ class Bootstrap extends BootstrapBase
                     $config->registerTaggedMapper($container->eventLinkMapper);
                     $config->registerTaggedMapper($container->streamLinkMapper);
                     $config->registerTaggedMapper($container->videoLinkMapper);
+                    $config->registerTaggedMapper($container->hsCardLinkMapper);
 
                     return $config;
                 },

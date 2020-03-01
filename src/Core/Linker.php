@@ -298,43 +298,43 @@ class Linker extends LinkerBase implements LinkerInterface
     }
     
     // wowhead
-    public function wowheadIcon($icon)
+    public function wowheadIcon(string $icon) : string
     {
         $icon = strtolower($icon);
         return '//static.wowhead.com/images/wow/icons/medium/' . $icon . '.jpg';
     }
     
-    private function wowheadUrl($params)
+    public function wowheadUrl(string $params) : string
     {
         return $this->settingsProvider->getSettings('webdb_link') . $params;
     }
     
-    private function wowheadUrlRu($params)
+    public function wowheadUrlRu(string $params) : string
     {
         return $this->settingsProvider->getSettings('webdb_ru_link') . $params;
     }
     
-    public function wowheadSpellRu($id)
+    public function wowheadSpellRu(int $id) : string
     {
         return $this->wowheadUrlRu('spell=' . $id);
     }
     
-    public function wowheadItemRu($id)
+    public function wowheadItemRu(int $id) : string
     {
         return $this->wowheadUrlRu('item=' . $id);
     }
     
-    public function wowheadItem($id)
+    public function wowheadItem(int $id) : string
     {
         return $this->wowheadUrl('item=' . $id);
     }
     
-    public function wowheadItemXml($id)
+    public function wowheadItemXml(int $id) : string
     {
         return $this->wowheadItem($id) . '&xml';
     }
     
-    public function wowheadItemRuXml($id)
+    public function wowheadItemRuXml(int $id) : string
     {
         return $this->wowheadItemRu($id) . '&xml';
     }

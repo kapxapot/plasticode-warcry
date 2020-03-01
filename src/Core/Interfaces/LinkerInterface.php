@@ -21,7 +21,17 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     public function event(int $id = null) : string;
     public function video(int $id = null) : string;
     public function stream(string $alias = null) : string;
-    public function hsCard(string $id) : string;
 
     public function disqusNews(int $id) : string;
+
+    public function wowheadIcon(string $icon) : string;
+    public function wowheadUrl(string $params) : string;
+    public function wowheadUrlRu(string $params) : string;
+    public function wowheadSpellRu(int $id) : string;
+    public function wowheadItemRu(int $id) : string;
+    public function wowheadItem(int $id) : string;
+    public function wowheadItemXml(int $id) : string;
+    public function wowheadItemRuXml(int $id) : string;
+
+    public function hsCard(string $id) : string;
 }

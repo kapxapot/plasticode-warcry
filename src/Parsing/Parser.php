@@ -2,45 +2,13 @@
 
 namespace App\Parsing;
 
-use App\Core\Interfaces\LinkerInterface;
-use App\Core\Interfaces\RendererInterface;
 use App\Models\GalleryPicture;
-use App\Models\Location;
 use App\Models\Recipe;
 use Plasticode\Collection;
-use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Parsing\Parsers\CompositeParser;
-use Plasticode\Util\Numbers;
 
 class Parser extends CompositeParser
 {
-    /** @var RendererInterface */
-    private $renderer;
-
-    /** @var LinkerInterface */
-    private $linker;
-
-    /** @var SettingsProviderInterface */
-    private $settingsProvider;
-
-    public function __construct(
-        RendererInterface $renderer,
-        LinkerInterface $linker,
-        SettingsProviderInterface $settingsProvider
-    )
-    {
-        parent::__construct();
-
-        $this->renderer = $renderer;
-        $this->linker = $linker;
-        $this->settingsProvider = $settingsProvider;
-    }
-
-    protected function getWebDbLink(string $appendix) : string
-    {
-        return $this->settingsProvider->getSettings('webdb_ru_link') . $appendix;
-    }
-
     private function renderCustomTag(string $tag, string $id, ?string $content, array $chunks) : ?string
     {
         switch ($tag) {
@@ -49,12 +17,6 @@ class Parser extends CompositeParser
 
             case 'spell':
                 return $this->renderRecipe($id, $content);
-
-            case 'coords':
-                return $this->renderCoords($id, $chunks);
-
-            case 'card':
-                return $this->renderHearthstoneCard($id, $content);
 
             case 'gallery':
                 return $this->renderGallery($id, $chunks);
@@ -135,65 +97,6 @@ class Parser extends CompositeParser
         $recipeUrl = $this->renderer->recipePageUrl($url, $title, $rel, $content);
 
         return $recipeUrl;
-    }
-
-    private function renderCoords(string $id, array $chunks) : ?string
-    {
-        if (count($chunks) <= 2) {
-            return null;
-        }
-
-        $x = $chunks[1];
-        $y = $chunks[2];
-        
-        $coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
-
-        if (!is_numeric($id)) {
-            $location = Location::getByName($id);
-            
-            if (!$location) {
-                return null;
-            }
-
-            $id = $location->getId();
-        }
-
-        if ($id <= 0) {
-            return null;
-        }
-
-        $coords = '';
-        
-        $x = Numbers::parseFloat($x);
-        $y = Numbers::parseFloat($y);
-        
-        if ($x > 0 && $y > 0) {
-            $coords = ':' . ($x * 10) . ($y * 10);
-        }
-        
-        $url = $this->getWebDbLink('maps?data=' . $id . $coords);
-        
-        return $this->renderer->component(
-            'url',
-            [
-                'url' => $url,
-                'text' => $coordsText,
-            ]
-        );
-    }
-
-    private function renderHearthstoneCard(string $id, ?string $content) : ?string
-    {
-        $url = $this->linker->hsCard($id);
-
-        return $this->renderer->component(
-            'url',
-            [
-                'url' => $url,
-                'text' => $content ?? $id,
-                'style' => 'hh-ttp',
-            ]
-        );
     }
 
     private function renderGallery(string $id, array $chunks) : ?string

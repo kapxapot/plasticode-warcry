@@ -2,6 +2,8 @@
 
 namespace App\Parsing\LinkMappers;
 
+use App\Parsing\LinkMappers\Basic\TaggedEntityLinkMapper;
+
 class StreamLinkMapper extends TaggedEntityLinkMapper
 {
     protected function entity() : string
