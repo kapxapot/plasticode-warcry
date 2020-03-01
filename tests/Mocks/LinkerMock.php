@@ -40,13 +40,53 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/streams/') . $alias;
     }
 
-    public function hsCard(string $id) : string
-    {
-        return 'http://hscards.com/' . $id;
-    }
-
     public function disqusNews(int $id) : string
     {
         return 'disqus/news/' . $id;
+    }
+
+    public function wowheadIcon(string $icon) : string
+    {
+        return 'wowhead/icons/' . $icon;
+    }
+
+    public function wowheadUrl(string $params) : string
+    {
+        return 'wowhead/' . $params;
+    }
+
+    public function wowheadUrlRu(string $params) : string
+    {
+        return 'wowhead.ru/' . $params;
+    }
+
+    public function wowheadSpellRu(int $id) : string
+    {
+        return 'wowhead.ru/spells/' . $id;
+    }
+
+    public function wowheadItemRu(int $id) : string
+    {
+        return 'wowhead.ru/items/' . $id;
+    }
+
+    public function wowheadItem(int $id) : string
+    {
+        return 'wowhead/items/' . $id;
+    }
+
+    public function wowheadItemXml(int $id) : string
+    {
+        return $this->wowheadItem($id) . '&xml';
+    }
+
+    public function wowheadItemRuXml(int $id) : string
+    {
+        return $this->wowheadItemRu($id) . '&xml';
+    }
+
+    public function hsCard(string $id) : string
+    {
+        return 'http://hscards.com/' . $id;
     }
 }
