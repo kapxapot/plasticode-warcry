@@ -37,41 +37,45 @@ class CoordsLinkMapper extends TaggedLinkMapper
             return null;
         }
 
-        [$x, $y] = $otherChunks;
-
-        $coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
-
         $slug = $slugChunk->slug();
+        $locationId = $this->getLocationId($slug);
 
-        if (is_numeric($slug)) {
-            $id = $slug;
-        } else {
-            $location = $this->locationRepository->getByName($slug);
-            
-            if (!$location) {
-                return null;
-            }
-
-            $id = $location->getId();
-        }
-
-        if ($id <= 0) {
+        if ($locationId <= 0) {
             return null;
         }
 
-        $coords = '';
-        
-        $x = Numbers::parseFloat($x);
-        $y = Numbers::parseFloat($y);
-        
-        if ($x > 0 && $y > 0) {
-            $coords = ':' . ($x * 10) . ($y * 10);
-        }
-        
-        $url = $this->linker->wowheadUrlRu('maps?data=' . $id . $coords);
-        
+        [$x, $y] = $otherChunks;
+
+        $coordsParam = $this->buildCoordsParam($x, $y);
+        $url = $this->linker->wowheadUrlRu('maps?data=' . $locationId . $coordsParam);
+
+        $coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
+
         return $this->renderer->url(
             new UrlViewModel($url, $coordsText)
         );
+    }
+
+    private function getLocationId(string $slug) : int
+    {
+        if (is_numeric($slug)) {
+            return intval($slug);
+        }
+        
+        $location = $this->locationRepository->getByName($slug);
+        
+        return $location
+            ? $location->getId()
+            : 0;
+    }
+
+    private function buildCoordsParam($x, $y) : ?string
+    {
+        $x = Numbers::parseFloat($x);
+        $y = Numbers::parseFloat($y);
+        
+        return ($x > 0 && $y > 0)
+            ? ':' . ($x * 10) . ($y * 10)
+            : null;
     }
 }
