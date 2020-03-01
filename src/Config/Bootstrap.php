@@ -8,6 +8,9 @@ use App\Core\Renderer;
 use App\Handlers\NotFoundHandler;
 use App\Parsing\ForumParser;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
+use App\Parsing\LinkMappers\EventLinkMapper;
+use App\Parsing\LinkMappers\StreamLinkMapper;
+use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
@@ -139,12 +142,37 @@ class Bootstrap extends BootstrapBase
                         $container->tagLinkMapper
                     );
                 },
-    
+
+                'eventLinkMapper' => function (ContainerInterface $container) {
+                    return new EventLinkMapper(
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
+                'streamLinkMapper' => function (ContainerInterface $container) {
+                    return new StreamLinkMapper(
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
+                'videoLinkMapper' => function (ContainerInterface $container) {
+                    return new VideoLinkMapper(
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
                 'doubleBracketsConfig' => function (ContainerInterface $container) {
                     $config = new LinkMapperSource();
 
                     $config->setDefaultMapper($container->articleLinkMapper);
-                    $config->registerEntityMapper($container->newsLinkMapper);
+                    
+                    $config->registerTaggedMapper($container->newsLinkMapper);
+                    $config->registerTaggedMapper($container->eventLinkMapper);
+                    $config->registerTaggedMapper($container->streamLinkMapper);
+                    $config->registerTaggedMapper($container->videoLinkMapper);
 
                     return $config;
                 },

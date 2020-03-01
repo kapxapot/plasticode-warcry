@@ -4,7 +4,10 @@ namespace App\Parsing\LinkMappers;
 
 class StreamLinkMapper extends TaggedEntityLinkMapper
 {
-    protected $entity = 'stream';
+    protected function entity() : string
+    {
+        return 'stream';
+    }
 
     protected function baseUrl() : string
     {

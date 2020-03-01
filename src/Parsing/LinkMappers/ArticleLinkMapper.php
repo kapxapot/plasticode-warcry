@@ -45,7 +45,10 @@ class ArticleLinkMapper extends EntityLinkMapper
         $this->tagLinkMapper = $tagLinkMapper;
     }
 
-    protected $entity = 'article';
+    protected function entity() : string
+    {
+        return 'article';
+    }
 
     protected function baseUrl() : string
     {
