@@ -14,7 +14,7 @@ use Plasticode\Util\Strings;
 class GalleryLinkMapper extends TaggedLinkMapper
 {
     /** @var integer */
-    private const MaxPictures = 5;
+    private const DefaultMaxPictures = 5;
 
     /** @var SettingsProviderInterface */
     private $settingsProvider;
@@ -50,7 +50,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
         /** @var integer */
         $maxPictures = $this->settingsProvider->getSettings(
             'gallery.inline_limit',
-            self::MaxPictures
+            self::DefaultMaxPictures
         );
 
         /** @var boolean */
