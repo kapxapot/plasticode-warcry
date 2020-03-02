@@ -17,7 +17,9 @@ class GalleryPicture extends DbModel
 {
     use Description, FullPublish, Stamps, Tags;
     
-    /** @return \Plasticode\Util\SortStep[] */
+    /**
+     * @return SortStep[]
+     */
     protected static function getSortOrder() : array
     {
         return [

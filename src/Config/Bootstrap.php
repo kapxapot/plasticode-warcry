@@ -10,12 +10,14 @@ use App\Parsing\ForumParser;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
 use App\Parsing\LinkMappers\CoordsLinkMapper;
 use App\Parsing\LinkMappers\EventLinkMapper;
+use App\Parsing\LinkMappers\GalleryLinkMapper;
 use App\Parsing\LinkMappers\HsCardLinkMapper;
 use App\Parsing\LinkMappers\StreamLinkMapper;
 use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
+use App\Repositories\GalleryPictureRepository;
 use App\Repositories\LocationRepository;
 use App\Services\ComicService;
 use App\Services\GalleryService;
@@ -55,6 +57,13 @@ class Bootstrap extends BootstrapBase
                         $container->db,
                         $container->auth,
                         $container->articleCategoryRepository
+                    );
+                },
+
+                'galleryPictureRepository' => function (ContainerInterface $container) {
+                    return new GalleryPictureRepository(
+                        $container->db,
+                        $container->tagRepository
                     );
                 },
 
@@ -188,6 +197,15 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
+                'galleryLinkMapper' => function (ContainerInterface $container) {
+                    return new GalleryLinkMapper(
+                        $container->settingsProvider,
+                        $container->galleryPictureRepository,
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
                 'doubleBracketsConfig' => function (ContainerInterface $container) {
                     $config = new LinkMapperSource();
 
@@ -199,6 +217,7 @@ class Bootstrap extends BootstrapBase
                     $config->registerTaggedMapper($container->videoLinkMapper);
                     $config->registerTaggedMapper($container->hsCardLinkMapper);
                     $config->registerTaggedMapper($container->coordsLinkMapper);
+                    $config->registerTaggedMapper($container->galleryLinkMapper);
 
                     return $config;
                 },

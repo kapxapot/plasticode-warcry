@@ -54,10 +54,15 @@ class CoordsLinkMapper extends TaggedLinkMapper
 
         $url = $this->linker->wowheadUrlRu('maps?data=' . $locationId . $coordsChunk);
 
-        $coordsText = '[' . round($x) . ',&nbsp;' . round($y) . ']';
+        $coordsText = '[' . round($x) . ', ' . round($y) . ']';
 
         return $this->renderer->url(
-            new UrlViewModel($url, $coordsText)
+            new UrlViewModel(
+                $url,
+                $coordsText,
+                null,
+                'no-wrap'
+            )
         );
     }
 
