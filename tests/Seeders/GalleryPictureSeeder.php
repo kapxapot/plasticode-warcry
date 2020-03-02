@@ -15,6 +15,14 @@ class GalleryPictureSeeder implements ArraySeederInterface
                 [
                     'id' => 1,
                     'comment' => 'Sexy elf',
+                    'tags' => 'Elves, Sex',
+                ]
+            ),
+            new GalleryPicture(
+                [
+                    'id' => 2,
+                    'comment' => 'Dead man',
+                    'tags' => 'Humans, Undead',
                 ]
             ),
         ];

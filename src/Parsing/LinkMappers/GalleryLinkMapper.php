@@ -56,6 +56,9 @@ class GalleryLinkMapper extends TaggedLinkMapper
         /** @var boolean */
         $gridMode = false;
 
+        /** @var string|null */
+        $inlineTag = null;
+
         foreach ($otherChunks as $chunk) {
             if (is_numeric($chunk) && $chunk > 0) {
                 $maxPictures = intval($chunk);

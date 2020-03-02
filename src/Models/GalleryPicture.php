@@ -22,6 +22,7 @@ use Plasticode\Util\SortStep;
  * @property integer|null $width
  * @property integer|null $height
  * @property string|null $avgColor
+ * @property string|null $tags
  * @property integer $published
  * @property string $publishedAt
  * @property LinkerInterface $linker

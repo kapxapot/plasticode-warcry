@@ -157,12 +157,12 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function galleryPictureImg(GalleryPicture $picture)
+    public function galleryPictureImg(GalleryPicture $picture) : string
     {
         return $this->gallery->getPictureUrl($picture->toArray());
     }
     
-    public function galleryThumbImg(GalleryPicture $picture)
+    public function galleryThumbImg(GalleryPicture $picture) : string
     {
         return $this->gallery->getThumbUrl($picture->toArray());
     }

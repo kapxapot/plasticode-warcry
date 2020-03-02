@@ -2,6 +2,7 @@
 
 namespace App\Core\Interfaces;
 
+use App\Models\GalleryPicture;
 use App\Models\Game;
 use Plasticode\Core\Interfaces\LinkerInterface as PlasticodeLinkerInterface;
 
@@ -21,6 +22,9 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     public function event(int $id = null) : string;
     public function video(int $id = null) : string;
     public function stream(string $alias = null) : string;
+
+    public function galleryPictureImg(GalleryPicture $picture) : string;
+    public function galleryThumbImg(GalleryPicture $picture) : string;
 
     public function disqusNews(int $id) : string;
 

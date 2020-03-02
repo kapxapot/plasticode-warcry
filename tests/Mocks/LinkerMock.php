@@ -3,6 +3,7 @@
 namespace App\Tests\Mocks;
 
 use App\Core\Interfaces\LinkerInterface;
+use App\Models\GalleryPicture;
 use App\Models\Game;
 use Plasticode\Tests\Mocks\LinkerMock as LinkerMockBase;
 use Plasticode\Util\Strings;
@@ -38,6 +39,16 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
     public function stream(string $alias = null) : string
     {
         return $this->abs('/streams/') . $alias;
+    }
+
+    public function galleryPictureImg(GalleryPicture $picture) : string
+    {
+        return $this->abs('/gallery/picture/') . $picture->getId();
+    }
+    
+    public function galleryThumbImg(GalleryPicture $picture) : string
+    {
+        return $this->abs('/gallery/picture/thumb/') . $picture->getId();
     }
 
     public function disqusNews(int $id) : string
