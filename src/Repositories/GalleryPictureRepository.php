@@ -29,7 +29,7 @@ class GalleryPictureRepository extends IdiormRepository implements GalleryPictur
         return GalleryPicture::get($id);
     }
 
-    public function getByTag(string $tag, ?int $limit = null) : Collection
+    public function getByTag(string $tag, int $limit = null) : Collection
     {
         $query = $this->getByTagQuery(
             $this->tagRepository,
@@ -37,10 +37,6 @@ class GalleryPictureRepository extends IdiormRepository implements GalleryPictur
             $tag
         );
 
-        if ($limit > 0) {
-            $query = $query->limit($limit);
-        }
-
-        return $query->all();
+        return $query->limit($limit)->all();
     }
 }

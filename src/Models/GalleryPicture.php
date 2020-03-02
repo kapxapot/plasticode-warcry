@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Core\Interfaces\LinkerInterface;
 use Plasticode\AspectRatio;
 use Plasticode\Query;
 use Plasticode\Exceptions\InvalidResultException;
@@ -13,6 +14,18 @@ use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\SortStep;
 
+/**
+ * @property integer $id
+ * @property integer $authorId
+ * @property integer $gameId
+ * @property string $comment
+ * @property integer|null $width
+ * @property integer|null $height
+ * @property string|null $avgColor
+ * @property integer $published
+ * @property string $publishedAt
+ * @property LinkerInterface $linker
+ */
 class GalleryPicture extends DbModel
 {
     use Description, FullPublish, Stamps, Tags;
