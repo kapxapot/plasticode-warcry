@@ -72,7 +72,10 @@ class GalleryLinkMapper extends TaggedLinkMapper
 
         foreach ($ids as $id) {
             if (!is_numeric($id)) {
-                $pictures = $this->galleryPictureRepository->getByTag($id, $maxPictures);
+                $pictures = $this
+                    ->galleryPictureRepository
+                    ->getByTag($id, $maxPictures);
+                
                 $inlineTag = $id;
 
                 break;

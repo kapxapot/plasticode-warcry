@@ -30,6 +30,23 @@ use Plasticode\Util\SortStep;
 class GalleryPicture extends DbModel
 {
     use Description, FullPublish, Stamps, Tags;
+
+    /** @var GalleryAuthor|null */
+    private $author;
+
+    public function withAuthor(GalleryAuthor $author) : self
+    {
+        $this->author = $author;
+        return $this;
+    }
+    
+    public function author() : GalleryAuthor
+    {
+        return
+            $this->author
+            ??
+            GalleryAuthor::get($this->authorId);
+    }
     
     /**
      * @return SortStep[]
@@ -128,13 +145,9 @@ class GalleryPicture extends DbModel
         
         $this->width = $picture->width;
         $this->height = $picture->height;
-        
-        $this->save();
-    }
-    
-    public function author() : GalleryAuthor
-    {
-        return GalleryAuthor::get($this->authorId);
+
+        // Todo: temporary dirty trick
+        self::save($this);
     }
     
     public function bgColor() : array
@@ -159,7 +172,8 @@ class GalleryPicture extends DbModel
         
         $this->avgColor = self::$container->gallery->getAvgColor($this);
 
-        $this->save();
+        // Todo: temporary dirty trick
+        self::save($this);
     }
     
     public function pageUrl() : string

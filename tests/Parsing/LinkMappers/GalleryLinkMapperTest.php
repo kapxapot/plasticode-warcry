@@ -6,24 +6,17 @@ use App\Core\Interfaces\LinkerInterface;
 use App\Parsing\LinkMappers\GalleryLinkMapper;
 use App\Tests\BaseRenderTestCase;
 use App\Tests\Mocks\LinkerMock;
+use App\Tests\Mocks\Repositories\GalleryAuthorRepositoryMock;
 use App\Tests\Mocks\Repositories\GalleryPictureRepositoryMock;
 use App\Tests\Mocks\SettingsProviderMock;
+use App\Tests\Seeders\GalleryAuthorSeeder;
 use App\Tests\Seeders\GalleryPictureSeeder;
-use Plasticode\Auth\Auth;
-use Plasticode\Core\Core;
-use Plasticode\Data\Db;
-use Plasticode\Gallery\Gallery;
-use Plasticode\Parsing\Parsers\CompositeParser;
-use Plasticode\Repositories\Interfaces\MenuItemRepositoryInterface;
-use Plasticode\Repositories\Interfaces\RoleRepositoryInterface;
-use Plasticode\Repositories\Interfaces\TagRepositoryInterface;
-use Plasticode\Repositories\Interfaces\UserRepositoryInterface;
-use Plasticode\Util\Cases;
-use Psr\Container\ContainerInterface;
-use Slim\Container;
+use App\Tests\Traits\WithDb;
 
 final class GalleryLinkMapperTest extends BaseRenderTestCase
 {
+    use WithDb;
+
     /** @var LinkerInterface */
     private $linker;
 
@@ -39,9 +32,13 @@ final class GalleryLinkMapperTest extends BaseRenderTestCase
         $this->initModels();
 
         $settingsProvider = new SettingsProviderMock();
+
+        $galleryAuthorRepository = new GalleryAuthorRepositoryMock(
+            new GalleryAuthorSeeder()
+        );
         
         $galleryPictureRepository = new GalleryPictureRepositoryMock(
-            new GalleryPictureSeeder()
+            new GalleryPictureSeeder($galleryAuthorRepository)
         );
 
         $this->mapper = new GalleryLinkMapper(
@@ -50,55 +47,6 @@ final class GalleryLinkMapperTest extends BaseRenderTestCase
             $this->renderer,
             $this->linker
         );
-    }
-
-    private function initModels() : void
-    {
-        $container = new Container(
-            [
-                'db' => function (ContainerInterface $c) {
-                    return new Db($c);
-                },
-
-                'auth' => function (ContainerInterface $c) {
-                    return $this->createStub(Auth::class);
-                },
-
-                'linker' => function (ContainerInterface $c) {
-                    return $this->linker;
-                },
-
-                'cases' => function (ContainerInterface $c) {
-                    return $this->createStub(Cases::class);
-                },
-
-                'parser' => function (ContainerInterface $c) {
-                    return new CompositeParser();
-                },
-
-                'gallery' => function (ContainerInterface $c) {
-                    return $this->createStub(Gallery::class);
-                },
-
-                'userRepository' => function (ContainerInterface $c) {
-                    return $this->createStub(UserRepositoryInterface::class);
-                },
-
-                'roleRepository' => function (ContainerInterface $c) {
-                    return $this->createStub(RoleRepositoryInterface::class);
-                },
-
-                'menuItemRepository' => function (ContainerInterface $c) {
-                    return $this->createStub(MenuItemRepositoryInterface::class);
-                },
-
-                'tagRepository' => function (ContainerInterface $c) {
-                    return $this->createStub(TagRepositoryInterface::class);
-                }
-            ]
-        );
-
-        Core::initModels($container);
     }
 
     protected function tearDown() : void
@@ -125,15 +73,15 @@ final class GalleryLinkMapperTest extends BaseRenderTestCase
         return [
             [
                 ['gallery:1,2'],
-                ''
+                '<div class="flex-wrapper gallery gallery--uniform"><div class="flex-item flex-item-shaded overlay-wrapper"><a href="http://abs/gallery/picture/1" class="colorbox" title="Sexy elf, автор: Author"><img src="http://abs/gallery/picture/thumb/1" alt="Sexy elf" class="card-image" /><span class="overlay overlay-full">Sexy elf</span></a></div><div class="flex-item flex-item-shaded overlay-wrapper"><a href="http://abs/gallery/picture/2" class="colorbox" title="Dead man, автор: Author"><img src="http://abs/gallery/picture/thumb/2" alt="Dead man" class="card-image" /><span class="overlay overlay-full">Dead man</span></a></div></div>'
             ],
             [
                 ['gallery:1,2', '1', 'grid'],
-                ''
+                '<div class="grid gallery-grid" id="gallery-grid"><div class="grid-item" data-id="1"><img class="lozad" data-src="http://abs/gallery/picture/thumb/1" alt="Sexy elf" style="background-color: rgb(255, 255, 255);" /><a class="grid-item__overlay p-2 colorbox" href="http://abs/gallery/picture/1">Sexy elf<br/>(Author)</a></div><div class="grid-item" data-id="2"><img class="lozad" data-src="http://abs/gallery/picture/thumb/2" alt="Dead man" style="background-color: rgb(255, 255, 255);" /><a class="grid-item__overlay p-2 colorbox" href="http://abs/gallery/picture/2">Dead man<br/>(Author)</a></div></div>'
             ],
             [
                 ['gallery:Elves'],
-                ''
+                '<div class="flex-wrapper gallery gallery--uniform"><div class="flex-item flex-item-shaded overlay-wrapper"><a href="http://abs/gallery/picture/1" class="colorbox" title="Sexy elf, автор: Author"><img src="http://abs/gallery/picture/thumb/1" alt="Sexy elf" class="card-image" /><span class="overlay overlay-full">Sexy elf</span></a></div></div><div class="flex-center mt-2 mb-1"><a class="btn btn-lg btn-default" href="http://abs/tags/Elves" role="button">Все картинки &raquo;&raquo;</a></div>'
             ],
             [
                 ['gallery:Orcs'],

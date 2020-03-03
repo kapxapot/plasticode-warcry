@@ -9,6 +9,14 @@ use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\Publish;
 use Plasticode\Util\Strings;
 
+/**
+ * @property integer $id
+ * @property string $alias
+ * @property integer $categoryId
+ * @property string $name
+ * @property string|null $realName
+ * @property string|null $realNameEn
+ */
 class GalleryAuthor extends DbModel
 {
     use Description, Publish;
