@@ -4,6 +4,7 @@ namespace App\Core;
 
 use App\Core\Interfaces\RendererInterface;
 use Plasticode\Core\Renderer as RendererBase;
+use Plasticode\ViewModels\UrlViewModel;
 
 class Renderer extends RendererBase implements RendererInterface
 {
@@ -24,14 +25,13 @@ class Renderer extends RendererBase implements RendererInterface
 
         $url = $this->articleUrlBare($nameEsc, $catEsc);
 
-        return $this->component(
-            'url',
-            [
-                'url' => $url,
-                'text' => $text,
-                'title' => $nameEn . $cat,
-                'style' => $style ?? 'entity-url',
-            ]
+        return $this->url(
+            new UrlViewModel(
+                $url,
+                $text,
+                $nameEn . $cat,
+                $style ?? 'entity-url'
+            )
         );
     }
 
@@ -41,26 +41,19 @@ class Renderer extends RendererBase implements RendererInterface
             $cat = ' (' . $cat . ')';
         }
 
-        return $this->component(
-            'span',
-            [
-                'text' => $nameRu,
-                'title' => $nameEn . $cat,
-                'style' => 'no-url',
-            ]
-        );
+        return $this->noUrl($nameRu, $nameEn . $cat);
     }
 
-    public function recipePageUrl(string $url, ?string $title, ?string $rel = null, ?string $content = null) : string
+    public function recipePageUrl(string $url, ?string $title, ?string $rel = null, ?string $text = null) : string
     {
-        return $this->component(
-            'url',
-            [
-                'url' => $url,
-                'text' => $content ?? '[~]',
-                'title' => $title,
-                'rel' => $rel,
-            ]
+        return $this->url(
+            new UrlViewModel(
+                $url,
+                $text ?? '[~]',
+                $title,
+                null,
+                $rel
+            )
         );
     }
 }

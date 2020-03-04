@@ -11,7 +11,10 @@ use App\Parsing\LinkMappers\ArticleLinkMapper;
 use App\Parsing\LinkMappers\CoordsLinkMapper;
 use App\Parsing\LinkMappers\EventLinkMapper;
 use App\Parsing\LinkMappers\GalleryLinkMapper;
+use App\Parsing\LinkMappers\GenericLinkMapper;
 use App\Parsing\LinkMappers\HsCardLinkMapper;
+use App\Parsing\LinkMappers\ItemLinkMapper;
+use App\Parsing\LinkMappers\SpellLinkMapper;
 use App\Parsing\LinkMappers\StreamLinkMapper;
 use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
@@ -19,6 +22,7 @@ use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\LocationRepository;
+use App\Repositories\RecipeRepository;
 use App\Services\ComicService;
 use App\Services\GalleryService;
 use App\Services\NewsAggregatorService;
@@ -69,6 +73,12 @@ class Bootstrap extends BootstrapBase
 
                 'locationRepository' => function (ContainerInterface $container) {
                     return new LocationRepository(
+                        $container->db
+                    );
+                },
+
+                'recipeRepository' => function (ContainerInterface $container) {
+                    return new RecipeRepository(
                         $container->db
                     );
                 },
@@ -206,22 +216,53 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
+                'itemLinkMapper' => function (ContainerInterface $container) {
+                    return new ItemLinkMapper(
+                        $container->recipeRepository,
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
+                'spellLinkMapper' => function (ContainerInterface $container) {
+                    return new SpellLinkMapper(
+                        $container->recipeRepository,
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
+                'genericLinkMapper' => function (ContainerInterface $container) {
+                    return new GenericLinkMapper(
+                        $container->renderer,
+                        $container->linker
+                    );
+                },
+
                 'doubleBracketsConfig' => function (ContainerInterface $container) {
                     $config = new LinkMapperSource();
 
                     $config->setDefaultMapper($container->articleLinkMapper);
                     
-                    $config->registerTaggedMapper($container->newsLinkMapper);
-                    $config->registerTaggedMapper($container->eventLinkMapper);
-                    $config->registerTaggedMapper($container->streamLinkMapper);
-                    $config->registerTaggedMapper($container->videoLinkMapper);
-                    $config->registerTaggedMapper($container->hsCardLinkMapper);
-                    $config->registerTaggedMapper($container->coordsLinkMapper);
-                    $config->registerTaggedMapper($container->galleryLinkMapper);
+                    $config->registerTaggedMappers(
+                        [
+                            $container->newsLinkMapper,
+                            $container->eventLinkMapper,
+                            $container->streamLinkMapper,
+                            $container->videoLinkMapper,
+                            $container->hsCardLinkMapper,
+                            $container->coordsLinkMapper,
+                            $container->galleryLinkMapper,
+                            $container->itemLinkMapper,
+                            $container->spellLinkMapper,
+                        ]
+                    );
+
+                    $config->setGenericMapper($container->genericLinkMapper);
 
                     return $config;
                 },
-                    
+
                 'newsParser' => function (ContainerInterface $container) {
                     return new NewsParser($container);
                 },

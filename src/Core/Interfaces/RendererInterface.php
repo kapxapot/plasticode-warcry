@@ -12,5 +12,5 @@ interface RendererInterface extends PlasticodeRendererInterface
 
     public function entityUrl(string $url, string $text, ?string $title = null) : string;
 
-    public function recipePageUrl(string $url, ?string $title, ?string $rel = null, ?string $content = null) : string;
+    public function recipePageUrl(string $url, ?string $title, ?string $rel = null, ?string $text = null) : string;
 }
