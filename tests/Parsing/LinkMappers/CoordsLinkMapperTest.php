@@ -3,10 +3,10 @@
 namespace App\Tests\Parsing\LinkMappers;
 
 use App\Parsing\LinkMappers\CoordsLinkMapper;
+use App\Testing\Mocks\LinkerMock;
+use App\Testing\Mocks\Repositories\LocationRepositoryMock;
+use App\Testing\Seeders\LocationSeeder;
 use App\Tests\BaseRenderTestCase;
-use App\Tests\Mocks\LinkerMock;
-use App\Tests\Mocks\Repositories\LocationRepositoryMock;
-use App\Tests\Seeders\LocationSeeder;
 
 final class CoordsLinkMapperTest extends BaseRenderTestCase
 {

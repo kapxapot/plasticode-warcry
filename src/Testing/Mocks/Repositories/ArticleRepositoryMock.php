@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Tests\Mocks\Repositories;
+namespace App\Testing\Mocks\Repositories;
 
 use App\Models\Article;
 use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Plasticode\Collection;
-use Plasticode\Tests\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 use Plasticode\Util\Strings;
 
 class ArticleRepositoryMock implements ArticleRepositoryInterface

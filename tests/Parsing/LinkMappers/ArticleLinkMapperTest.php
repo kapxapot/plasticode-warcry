@@ -3,16 +3,16 @@
 namespace App\Tests\Parsing\LinkMappers;
 
 use App\Parsing\LinkMappers\ArticleLinkMapper;
+use App\Testing\Mocks\LinkerMock;
+use App\Testing\Mocks\Repositories\ArticleCategoryRepositoryMock;
+use App\Testing\Mocks\Repositories\ArticleRepositoryMock;
+use App\Testing\Seeders\ArticleCategorySeeder;
+use App\Testing\Seeders\ArticleSeeder;
+use App\Testing\Seeders\TagSeeder;
 use App\Tests\BaseRenderTestCase;
-use App\Tests\Mocks\LinkerMock;
-use App\Tests\Mocks\Repositories\ArticleCategoryRepositoryMock;
-use App\Tests\Mocks\Repositories\ArticleRepositoryMock;
-use App\Tests\Seeders\ArticleCategorySeeder;
-use App\Tests\Seeders\ArticleSeeder;
-use App\Tests\Seeders\TagSeeder;
 use Plasticode\Parsing\LinkMappers\TagLinkMapper;
 use Plasticode\Parsing\ParsingContext;
-use Plasticode\Tests\Mocks\Repositories\TagRepositoryMock;
+use Plasticode\Testing\Mocks\Repositories\TagRepositoryMock;
 
 final class ArticleLinkMapperTest extends BaseRenderTestCase
 {

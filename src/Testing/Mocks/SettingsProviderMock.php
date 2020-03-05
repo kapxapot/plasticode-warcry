@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Mocks;
+namespace App\Testing\Mocks;
 
 use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Arrays;

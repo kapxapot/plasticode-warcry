@@ -4,13 +4,13 @@ namespace App\Tests\Parsing\LinkMappers;
 
 use App\Core\Interfaces\LinkerInterface;
 use App\Parsing\LinkMappers\GalleryLinkMapper;
+use App\Testing\Mocks\LinkerMock;
+use App\Testing\Mocks\Repositories\GalleryAuthorRepositoryMock;
+use App\Testing\Mocks\Repositories\GalleryPictureRepositoryMock;
+use App\Testing\Mocks\SettingsProviderMock;
+use App\Testing\Seeders\GalleryAuthorSeeder;
+use App\Testing\Seeders\GalleryPictureSeeder;
 use App\Tests\BaseRenderTestCase;
-use App\Tests\Mocks\LinkerMock;
-use App\Tests\Mocks\Repositories\GalleryAuthorRepositoryMock;
-use App\Tests\Mocks\Repositories\GalleryPictureRepositoryMock;
-use App\Tests\Mocks\SettingsProviderMock;
-use App\Tests\Seeders\GalleryAuthorSeeder;
-use App\Tests\Seeders\GalleryPictureSeeder;
 use App\Tests\Traits\WithDb;
 
 final class GalleryLinkMapperTest extends BaseRenderTestCase

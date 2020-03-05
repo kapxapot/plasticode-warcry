@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tests\Seeders;
+namespace App\Testing\Seeders;
 
 use Plasticode\Models\Tag;
-use Plasticode\Tests\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 
 class TagSeeder implements ArraySeederInterface
 {

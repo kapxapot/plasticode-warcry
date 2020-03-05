@@ -3,8 +3,8 @@
 namespace Plasticode\Tests\Parsing\LinkMappers;
 
 use App\Parsing\LinkMappers\EventLinkMapper;
+use App\Testing\Mocks\LinkerMock;
 use App\Tests\BaseRenderTestCase;
-use App\Tests\Mocks\LinkerMock;
 use Plasticode\Parsing\ParsingContext;
 
 final class EventLinkMapperTest extends BaseRenderTestCase

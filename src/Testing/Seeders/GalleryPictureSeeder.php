@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Tests\Seeders;
+namespace App\Testing\Seeders;
 
 use App\Models\GalleryPicture;
 use App\Repositories\Interfaces\GalleryAuthorRepositoryInterface;
-use Plasticode\Tests\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 
 class GalleryPictureSeeder implements ArraySeederInterface
 {

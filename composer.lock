@@ -593,12 +593,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kapxapot/plasticode.git",
-                "reference": "21ad82744e822bf9f438332c1e23811d5c2b3d9d"
+                "reference": "7dc36bc1c4f07fe7516b060d62da8d01fb2770e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kapxapot/plasticode/zipball/21ad82744e822bf9f438332c1e23811d5c2b3d9d",
-                "reference": "21ad82744e822bf9f438332c1e23811d5c2b3d9d",
+                "url": "https://api.github.com/repos/kapxapot/plasticode/zipball/7dc36bc1c4f07fe7516b060d62da8d01fb2770e1",
+                "reference": "7dc36bc1c4f07fe7516b060d62da8d01fb2770e1",
                 "shasum": ""
             },
             "require": {
@@ -620,12 +620,16 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Plasticode\\": "src",
-                    "Plasticode\\Tests\\": "tests"
+                    "Plasticode\\": "src"
                 },
                 "files": [
                     "functions/functions.php"
                 ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Plasticode\\Tests\\": "tests"
+                }
             },
             "scripts": {
                 "test": [
@@ -656,7 +660,7 @@
                 "source": "https://github.com/kapxapot/plasticode/tree/master",
                 "issues": "https://github.com/kapxapot/plasticode/issues"
             },
-            "time": "2020-03-04T20:56:28+00:00"
+            "time": "2020-03-05T07:52:33+00:00"
         },
         {
             "name": "monolog/monolog",

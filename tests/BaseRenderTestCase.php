@@ -3,7 +3,7 @@
 namespace App\Tests;
 
 use App\Core\Interfaces\RendererInterface;
-use App\Tests\Factories\RendererFactory;
+use App\Testing\Factories\RendererFactory;
 use PHPUnit\Framework\TestCase;
 
 abstract class BaseRenderTestCase extends TestCase

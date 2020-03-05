@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tests\Mocks\Repositories;
+namespace App\Testing\Mocks\Repositories;
 
 use App\Models\Location;
 use App\Repositories\Interfaces\LocationRepositoryInterface;
 use Plasticode\Collection;
-use Plasticode\Tests\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 
 class LocationRepositoryMock implements LocationRepositoryInterface
 {

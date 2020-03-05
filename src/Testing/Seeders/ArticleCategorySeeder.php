@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tests\Seeders;
+namespace App\Testing\Seeders;
 
 use App\Models\ArticleCategory;
-use Plasticode\Tests\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 
 class ArticleCategorySeeder implements ArraySeederInterface
 {

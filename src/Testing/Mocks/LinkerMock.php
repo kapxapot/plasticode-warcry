@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tests\Mocks;
+namespace App\Testing\Mocks;
 
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\GalleryPicture;
 use App\Models\Game;
-use Plasticode\Tests\Mocks\LinkerMock as LinkerMockBase;
+use Plasticode\Testing\Mocks\LinkerMock as LinkerMockBase;
 use Plasticode\Util\Strings;
 
 class LinkerMock extends LinkerMockBase implements LinkerInterface

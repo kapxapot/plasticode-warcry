@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Factories;
+namespace App\Testing\Factories;
 
 use App\Core\Interfaces\RendererInterface;
 use App\Core\Renderer;

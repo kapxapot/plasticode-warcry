@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tests\Mocks\Repositories;
+namespace App\Testing\Mocks\Repositories;
 
 use App\Models\GalleryAuthor;
 use App\Repositories\Interfaces\GalleryAuthorRepositoryInterface;
 use Plasticode\Collection;
-use Plasticode\Tests\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 
 class GalleryAuthorRepositoryMock implements GalleryAuthorRepositoryInterface
 {

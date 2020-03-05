@@ -3,8 +3,8 @@
 namespace App\Tests\Parsing\LinkMappers;
 
 use App\Parsing\LinkMappers\HsCardLinkMapper;
+use App\Testing\Mocks\LinkerMock;
 use App\Tests\BaseRenderTestCase;
-use App\Tests\Mocks\LinkerMock;
 
 final class HsCardLinkMapperTest extends BaseRenderTestCase
 {
