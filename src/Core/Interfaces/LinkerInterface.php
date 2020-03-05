@@ -23,6 +23,8 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     public function video(int $id = null) : string;
     public function stream(string $alias = null) : string;
 
+    public function recipe(int $id) : string;
+
     public function galleryPictureImg(GalleryPicture $picture) : string;
     public function galleryThumbImg(GalleryPicture $picture) : string;
 

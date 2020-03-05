@@ -14,6 +14,8 @@ class RecipeSeeder implements ArraySeederInterface
             new Recipe(
                 [
                     'id' => 1,
+                    'name' => 'Gold Bar',
+                    'name_ru' => 'Золотой слиток',
                     'creates_id' => 1,
                     'creates_min' => 1,
                 ]
