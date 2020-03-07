@@ -8,16 +8,15 @@ use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Plasticode\Auth\Auth;
 use Plasticode\Data\Db;
 use Plasticode\Query;
-use Plasticode\Repositories\Idiorm\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Basic\ProtectedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublish;
 use Plasticode\Util\Strings;
 
-class ArticleRepository extends IdiormRepository implements ArticleRepositoryInterface
+class ArticleRepository extends ProtectedRepository implements ArticleRepositoryInterface
 {
     use FullPublish;
 
-    /** @var Auth */
-    private $auth;
+    protected $entityClass = Article::class;
 
     /** @var ArticleCategoryRepositoryInterface */
     private $articleCategoryRepository;
@@ -28,18 +27,9 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
         ArticleCategoryRepositoryInterface $articleCategoryRepository
     )
     {
-        parent::__construct($db);
+        parent::__construct($db, $auth);
 
-        $this->auth = $auth;
         $this->articleCategoryRepository = $articleCategoryRepository;
-    }
-
-    private function protectedQuery() : Query
-    {
-        return $this->protect(
-            Article::query(),
-            $this->auth->getUser()
-        );
     }
 
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article

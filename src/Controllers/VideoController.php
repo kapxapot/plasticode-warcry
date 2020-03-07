@@ -3,10 +3,14 @@
 namespace App\Controllers;
 
 use App\Models\Video;
+use App\Repositories\Interfaces\VideoRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * @property VideoRepositoryInterface $videoRepository
+ */
 class VideoController extends NewsSourceController
 {
     /**
@@ -42,8 +46,7 @@ class VideoController extends NewsSourceController
     {
         $id = $args['id'];
 
-        /** @var Video|null */
-        $video = Video::findProtected($id);
+        $video = $this->videoRepository->getProtected($id);
 
         if (!$video) {
             return $this->notFound($request, $response);

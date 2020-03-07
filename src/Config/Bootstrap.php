@@ -20,9 +20,12 @@ use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
+use App\Repositories\EventRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\LocationRepository;
+use App\Repositories\NewsRepository;
 use App\Repositories\RecipeRepository;
+use App\Repositories\VideoRepository;
 use App\Services\ComicService;
 use App\Services\GalleryService;
 use App\Services\NewsAggregatorService;
@@ -64,6 +67,13 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
+                'eventRepository' => function (ContainerInterface $container) {
+                    return new EventRepository(
+                        $container->db,
+                        $container->auth
+                    );
+                },
+
                 'galleryPictureRepository' => function (ContainerInterface $container) {
                     return new GalleryPictureRepository(
                         $container->db,
@@ -77,9 +87,23 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
+                'newsRepository' => function (ContainerInterface $container) {
+                    return new NewsRepository(
+                        $container->db,
+                        $container->auth
+                    );
+                },
+
                 'recipeRepository' => function (ContainerInterface $container) {
                     return new RecipeRepository(
                         $container->db
+                    );
+                },
+
+                'videoRepository' => function (ContainerInterface $container) {
+                    return new VideoRepository(
+                        $container->db,
+                        $container->auth
                     );
                 },
 
@@ -290,7 +314,9 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'newsAggregatorService' => function (ContainerInterface $container) {
-                    return new NewsAggregatorService();
+                    return new NewsAggregatorService(
+                        $container->newsRepository
+                    );
                 },
 
                 'streamService' => function (ContainerInterface $container) {

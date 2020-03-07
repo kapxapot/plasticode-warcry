@@ -6,13 +6,15 @@ use App\Models\GalleryPicture;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use Plasticode\Collection;
 use Plasticode\Data\Db;
-use Plasticode\Repositories\Idiorm\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 use Plasticode\Repositories\Idiorm\Traits\Tags;
 use Plasticode\Repositories\Interfaces\TagRepositoryInterface;
 
 class GalleryPictureRepository extends IdiormRepository implements GalleryPictureRepositoryInterface
 {
     use Tags;
+
+    protected $entityClass = GalleryPicture::class;
 
     /** @var TagRepositoryInterface */
     private $tagRepository;
@@ -26,14 +28,14 @@ class GalleryPictureRepository extends IdiormRepository implements GalleryPictur
 
     public function get(int $id) : ?GalleryPicture
     {
-        return GalleryPicture::get($id);
+        return $this->getEntity($id);
     }
 
     public function getByTag(string $tag, int $limit = null) : Collection
     {
         $query = $this->getByTagQuery(
             $this->tagRepository,
-            GalleryPicture::query(),
+            $this->query(),
             $tag
         );
 

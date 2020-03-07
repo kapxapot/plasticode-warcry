@@ -10,6 +10,7 @@ use App\Models\Interfaces\NewsSourceInterface;
 use App\Models\News;
 use App\Models\NewsYear;
 use App\Models\Video;
+use App\Repositories\Interfaces\NewsRepositoryInterface;
 use Plasticode\Collection;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
@@ -29,6 +30,14 @@ class NewsAggregatorService
         ForumTopic::class,
         News::class,
     ];
+
+    /** @var NewsRepositoryInterface */
+    private $newsRepository;
+
+    public function __construct(NewsRepositoryInterface $newsRepository)
+    {
+        $this->newsRepository = $newsRepository;
+    }
     
     /**
      * Get sources list based on the strictness.
@@ -147,8 +156,7 @@ class NewsAggregatorService
      */
     public function getNews(int $newsId) : ?NewsSourceInterface
     {
-        /** @var News|null */
-        $news = News::findProtected($newsId);
+        $news = $this->newsRepository->getProtected($newsId);
 
         /** @var ForumTopic|null */
         $forumTopic = ForumTopic::getNews($newsId);

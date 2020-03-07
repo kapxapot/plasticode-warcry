@@ -5,11 +5,15 @@ namespace App\Controllers;
 use App\Models\Event;
 use App\Models\EventType;
 use App\Models\Game;
+use App\Repositories\Interfaces\EventRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Request as SlimRequest;
 
+/**
+ * @property EventRepositoryInterface $eventRepository
+ */
 class EventController extends NewsSourceController
 {
     /**
@@ -49,8 +53,7 @@ class EventController extends NewsSourceController
         
         $rebuild = $request->getQueryParam('rebuild', null);
 
-        /** @var Event */
-        $event = Event::findProtected($id);
+        $event = $this->eventRepository->getProtected($id);
 
         if (!$event) {
             return $this->notFound($request, $response);

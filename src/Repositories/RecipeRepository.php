@@ -5,18 +5,21 @@ namespace App\Repositories;
 use App\Models\Recipe;
 use App\Repositories\Interfaces\RecipeRepositoryInterface;
 use Plasticode\Collection;
-use Plasticode\Repositories\Idiorm\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
 class RecipeRepository extends IdiormRepository implements RecipeRepositoryInterface
 {
+    protected $entityClass = Recipe::class;
+
     public function get(int $id) : ?Recipe
     {
-        return Recipe::get($id);
+        return $this->getEntity($id);
     }
 
     public function getAllByItemId(int $itemId) : Collection
     {
-        return Recipe::query()
+        return $this
+            ->query()
             ->where('creates_id', $itemId)
             ->whereGt('creates_min', 0)
             ->all();
