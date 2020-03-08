@@ -178,7 +178,7 @@ class Game extends DbModel implements LinkableInterface
     
     public function url() : ?string
     {
-        return self::$linker->game($this);
+        return self::$container->linker->game($this);
     }
     
     public function resultIcon() : ?string

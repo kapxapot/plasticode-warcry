@@ -2,17 +2,27 @@
 
 namespace App\Services;
 
+use App\Config\Interfaces\StreamConfigInterface;
 use Plasticode\Collection;
 use Plasticode\Util\Cases;
 
 use App\Models\Stream;
+use Plasticode\Util\Date;
 
 class StreamService
 {
+    /** @var StreamConfigInterface */
+    private $config;
+
+    /** @var Cases */
     private $cases;
     
-    public function __construct(Cases $cases)
+    public function __construct(
+        StreamConfigInterface $config,
+        Cases $cases
+    )
     {
+        $this->config = $config;
         $this->cases = $cases;
     }
     
@@ -140,5 +150,17 @@ class StreamService
         $totalOnline = $this->getAllOnline($game)->count();
         
         return $totalOnline . ' ' . $this->cases->caseForNumber('стрим', $totalOnline);
+    }
+    
+    public function isAlive(Stream $stream) : bool
+    {
+        if (!$stream->remoteOnlineAt) {
+            return false;
+        }
+        
+        $timeToLive = $this->config->streamTimeToLive();
+        $age = Date::age($stream->remoteOnlineAt);
+        
+        return $age->days < $timeToLive;
     }
 }

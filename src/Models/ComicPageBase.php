@@ -41,12 +41,12 @@ abstract class ComicPageBase extends DbModel
 
     public function url() : string
     {
-        return self::$linker->comicPageImg($this);
+        return self::$container->linker->comicPageImg($this);
     }
 
     public function thumbUrl() : string
     {
-        return self::$linker->comicThumbImg($this);
+        return self::$container->linker->comicThumbImg($this);
     }
 
     public function numberStr() : string
@@ -56,7 +56,7 @@ abstract class ComicPageBase extends DbModel
     
     public function ext() : string
     {
-        return self::$linker->getExtension($this->picType);
+        return self::$container->linker->getExtension($this->picType);
     }
     
     private function getSiblings() : Query

@@ -180,7 +180,7 @@ class Event extends NewsSource
 
     public function url() : ?string
     {
-        return self::$linker->event($this->id);
+        return self::$container->linker->event($this->id);
     }
     
     private static function announced(Query $query) : Query

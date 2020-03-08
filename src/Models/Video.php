@@ -18,7 +18,7 @@ class Video extends NewsSource
 
     public function video() : ?string
     {
-        return self::$linker->youtube($this->youtubeCode);
+        return self::$container->linker->youtube($this->youtubeCode);
     }
 
     public function toString() : string
@@ -54,7 +54,7 @@ class Video extends NewsSource
 
     public function url() : ?string
     {
-        return self::$linker->video($this->getId());
+        return self::$container->linker->video($this->getId());
     }
     
     private static function announced(Query $query) : Query

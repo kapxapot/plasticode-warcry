@@ -23,7 +23,7 @@ class NewsYear extends Model implements LinkableInterface
     
     public function url() : ?string
     {
-        return self::$linker->newsYear($this->year);
+        return self::$container->linker->newsYear($this->year);
     }
     
     public function title() : string

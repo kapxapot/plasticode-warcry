@@ -17,6 +17,20 @@ class Stream extends DbModel
     protected static $sortField = 'remote_viewers';
     protected static $sortReverse = true;
 
+    /** @var boolean */
+    private $alive;
+
+    public function alive() : bool
+    {
+        return $this->alive;
+    }
+
+    public function withAlive(bool $alive) : self
+    {
+        $this->alive = $alive;
+        return $this;
+    }
+
     // GETTERS - ONE
     
     public static function getPublishedByAlias($alias) : ?self
@@ -30,18 +44,6 @@ class Stream extends DbModel
     }
 
     // PROPS
-    
-    public function alive() : bool
-    {
-        if (!$this->remoteOnlineAt) {
-            return false;
-        }
-        
-        $timeToLive = self::getSettings('streams.ttl');
-        $age = Date::age($this->remoteOnlineAt);
-            
-        return $age->days < $timeToLive;
-    }
     
     public function game() : ?Game
     {
@@ -77,17 +79,17 @@ class Stream extends DbModel
     
     public function pageUrl() : string
     {
-        return self::$linker->stream($this->alias());
+        return self::$container->linker->stream($this->alias());
     }
     
     public function imgUrl() : string
     {
-        return self::$linker->twitchImg($this->streamId);
+        return self::$container->linker->twitchImg($this->streamId);
     }
     
     public function largeImgUrl() : string
     {
-        return self::$linker->twitchLargeImg($this->streamId);
+        return self::$container->linker->twitchLargeImg($this->streamId);
     }
     
     public function twitch() : bool
@@ -97,7 +99,7 @@ class Stream extends DbModel
     
     public function streamUrl() : string
     {
-        return self::$linker->twitch($this->streamId);
+        return self::$container->linker->twitch($this->streamId);
     }
     
     public function verbs() : array
@@ -108,18 +110,20 @@ class Stream extends DbModel
             'number' => Cases::SINGLE,
             'gender' => $this->genderId,
         ];
-        
+
+        $cases = self::$container->cases;
+
         return [
-            'played' => self::$cases->conjugation('играть', $form),
-            'broadcasted' => self::$cases->conjugation('транслировать', $form),
-            'held' => self::$cases->conjugation('вести', $form),
+            'played' => $cases->conjugation('играть', $form),
+            'broadcasted' => $cases->conjugation('транслировать', $form),
+            'held' => $cases->conjugation('вести', $form),
         ];
     }
     
     public function nouns() : array
     {
         return [
-            'viewers' => self::$cases->caseForNumber(
+            'viewers' => self::$container->cases->caseForNumber(
                 'зритель', $this->remoteViewers
             ),
         ];

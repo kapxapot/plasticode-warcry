@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use App\Core\Interfaces\LinkerInterface;
 use Plasticode\Collection;
 use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Query;
 use Plasticode\Models\Traits\Children;
 use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
+use Psr\Container\ContainerInterface;
 
 /**
  * @property integer $id
@@ -24,7 +24,7 @@ use Plasticode\Util\Strings;
  * @property integer $gameId
  * @property integer $noBreadcrumb
  * @property string|null $aliases
- * @property LinkerInterface $linker
+ * @property ContainerInterface $container
  */
 class Article extends NewsSource
 {
@@ -204,7 +204,7 @@ class Article extends NewsSource
     {
         $cat = $this->category();
         
-        return self::$linker->article(
+        return self::$container->linker->article(
             $this->nameEn,
             $cat ? $cat->nameEn : null
         );

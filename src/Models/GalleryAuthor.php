@@ -82,7 +82,7 @@ class GalleryAuthor extends DbModel
     
     public function pageUrl() : string
     {
-        return self::$linker->galleryAuthor($this);
+        return self::$container->linker->galleryAuthor($this);
     }
     
     public function displayName() : string
@@ -179,7 +179,7 @@ class GalleryAuthor extends DbModel
     
     public function picturesStr() : string
     {
-        return $this->count() . ' ' . self::$cases->caseForNumber('картинка', $this->count());
+        return $this->count() . ' ' . self::$container->cases->caseForNumber('картинка', $this->count());
     }
     
     public function forumMember() : ?ForumMember

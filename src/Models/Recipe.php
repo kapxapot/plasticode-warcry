@@ -104,7 +104,7 @@ class Recipe extends DbModel
     
     public function url() : string
     {
-        return self::$linker->recipe($this->getId());
+        return self::$container->linker->recipe($this->getId());
     }
     
     public function baseReagents()
@@ -372,22 +372,5 @@ class Recipe extends DbModel
                 array_values($baseReagents)
             );
         }
-    }
-    
-    private static function buildRecipeLink(array $link) : array
-    {
-        $link['icon_url'] = self::$linker->wowheadIcon($link['icon'] ?? self::getSettings('recipes.default_icon'));
-
-        if (isset($link['item_id'])) {
-            $link['item_url'] = self::$linker->wowheadItemRu($link['item_id']);
-        }
-        
-        if (isset($link['spell_id'])) {
-            $link['spell_url'] = self::$linker->wowheadSpellRu($link['spell_id']);
-        }
-        
-        $link['url'] = $link['item_url'] ?? $link['spell_url'];
-
-        return $link;
     }
 }

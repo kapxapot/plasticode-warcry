@@ -15,6 +15,6 @@ class ComicPage extends ComicPageBase
     
     public function pageUrl() : string
     {
-        return self::$linker->comicIssuePage($this);
+        return self::$container->linker->comicIssuePage($this);
     }
 }

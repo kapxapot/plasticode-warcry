@@ -50,7 +50,7 @@ class ComicIssue extends Comic
     
     public function pageUrl() : string
     {
-        return self::$linker->comicIssue($this);
+        return self::$container->linker->comicIssue($this);
     }
 
     public function prev() : ?Comic

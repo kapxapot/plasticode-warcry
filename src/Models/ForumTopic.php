@@ -14,6 +14,8 @@ use Plasticode\Util\Strings;
 class ForumTopic extends DbModel implements NewsSourceInterface
 {
     use Tags;
+
+    const TimeFormat = '%Y-%m-%d %H:%M:%S';
     
     protected static $idField = 'tid';
     
@@ -105,7 +107,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
 
     public function forumUrl() : string
     {
-        return self::$linker->forumTopic($this->getId());
+        return self::$container->linker->forumTopic($this->getId());
     }
 
     public function forumPost() : ForumPost
@@ -177,10 +179,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     
     public function publishedAt() : string
     {
-        return strftime(
-            self::getSettings('time_format'),
-            $this->startDate
-        );
+        return strftime(self::TimeFormat, $this->startDate);
     }
 
     public function publishedAtIso() : string
@@ -215,7 +214,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     
     public function url() : ?string
     {
-        return self::$linker->news($this->getId());
+        return self::$container->linker->news($this->getId());
     }
 
     // NewsSourceInterface

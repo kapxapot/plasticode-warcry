@@ -46,7 +46,7 @@ class ComicSeries extends DbModel
 
     public function pageUrl() : string
     {
-        return self::$linker->comicSeries($this);
+        return self::$container->linker->comicSeries($this);
     }
     
     public function issues() : Collection
@@ -71,7 +71,7 @@ class ComicSeries extends DbModel
     
     public function countStr() : string
     {
-        return self::$cases->caseForNumber('выпуск', $this->count());
+        return self::$container->cases->caseForNumber('выпуск', $this->count());
     }
     
     public function first() : ?ComicIssue

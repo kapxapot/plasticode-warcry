@@ -21,6 +21,6 @@ class ForumMember extends DbModel
 
     public function pageUrl()
     {
-        return self::$linker->forumUser($this->getId());
+        return self::$container->linker->forumUser($this->getId());
     }
 }

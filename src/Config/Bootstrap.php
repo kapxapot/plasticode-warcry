@@ -165,6 +165,12 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
+                'config' => function (ContainerInterface $container) {
+                    return new Config(
+                        $container->settingsProvider
+                    );
+                },
+
                 'localizationConfig' => function (ContainerInterface $container) {
                     return new LocalizationConfig();
                 },
@@ -320,7 +326,10 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'streamService' => function (ContainerInterface $container) {
-                    return new StreamService($container->cases);
+                    return new StreamService(
+                        $container->config,
+                        $container->cases
+                    );
                 },
 
                 'sidebarPartsProviderService' => function (ContainerInterface $container) {

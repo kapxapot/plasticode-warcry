@@ -49,7 +49,7 @@ class News extends NewsSource
     
     public function url() : ?string
     {
-        return self::$linker->news($this->getId());
+        return self::$container->linker->news($this->getId());
     }
     
     // NewsSourceInterface

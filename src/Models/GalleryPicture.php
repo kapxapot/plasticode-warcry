@@ -95,12 +95,12 @@ class GalleryPicture extends DbModel
     
     public function ext() : ?string
     {
-        return self::$linker->getExtension($this->pictureType);
+        return self::$container->linker->getExtension($this->pictureType);
     }
 
     public function url() : string
     {
-        return self::$linker->galleryPictureImg($this);
+        return self::$container->linker->galleryPictureImg($this);
     }
     
     public function thumbUrl() : string
@@ -109,7 +109,7 @@ class GalleryPicture extends DbModel
 
         self::$container->gallery->ensureThumbExists($this);
 
-        return self::$linker->galleryThumbImg($this);
+        return self::$container->linker->galleryThumbImg($this);
     }
     
     public function ratioCss() : string
@@ -178,7 +178,7 @@ class GalleryPicture extends DbModel
     
     public function pageUrl() : string
     {
-        return self::$linker->galleryPicture(
+        return self::$container->linker->galleryPicture(
             $this->author()->alias, $this->getId()
         );
     }

@@ -27,8 +27,10 @@ class Item extends DbModel
 
     private static function getRemote(int $id) : self
     {
-        $url = self::$linker->wowheadItemXml($id);
-        $urlRu = self::$linker->wowheadItemRuXml($id);
+        $linker = self::$container->linker;
+
+        $url = $linker->wowheadItemXml($id);
+        $urlRu = $linker->wowheadItemRuXml($id);
         
         $xml = @simplexml_load_file($url, null, LIBXML_NOCDATA);
         $xmlRu = @simplexml_load_file($urlRu, null, LIBXML_NOCDATA);
@@ -74,7 +76,7 @@ class Item extends DbModel
     
     public function url() : string
     {
-        return self::$linker->wowheadItemRu($this->getId());
+        return self::$container->linker->wowheadItemRu($this->getId());
     }
     
     public function recipes() : Collection

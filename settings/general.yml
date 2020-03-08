@@ -67,7 +67,6 @@ recipes:
   title: Рецепты
   page_size: 15
   game: warcraft
-  default_icon: inv_misc_questionmark
   images:
     icon_border: /images/icon_border_medium.gif
 
@@ -136,6 +135,8 @@ sidebar:
 
 default_game_id: 5
 
+default_wow_icon: inv_misc_questionmark
+
 twitch:
   client_id: {TWITCH_CLIENT_ID}
 
@@ -147,9 +148,6 @@ twitter:
   consumer_secret: {TWITTER_CONSUMER_SECRET}
   access_token: {TWITTER_ACCESS_TOKEN}
   access_key: {TWITTER_ACCESS_KEY}
-
-date_format: %Y-%m-%d
-time_format: %Y-%m-%d %H:%M:%S
 
 webdb_link: 'https://wowhead.com/'
 webdb_ru_link: 'https://ru.wowhead.com/'

@@ -35,7 +35,7 @@ class ComicStandalone extends Comic
 
     public function pageUrl() : string
     {
-        return self::$linker->comicStandalone($this);
+        return self::$container->linker->comicStandalone($this);
     }
     
     public function pages(bool $ignoreCache = false) : Collection

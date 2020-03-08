@@ -21,7 +21,7 @@ class GalleryController extends ImageUploadController
         $picture->thumbType = $image->imgType;
 
         $picture->publish();
-        $picture->stamp();
+        $picture->stamp($this->auth->getUser());
         $picture->save(); // !!!
 
         $this->gallery->saveImage($picture, $image);

@@ -32,7 +32,7 @@ class ComicController extends ImageUploadController
         $page->picType = $image->imgType;
 
         $page->publish();
-        $page->stamp();
+        $page->stamp($this->auth->getUser());
         $page->save();
 
         $this->comics->saveImage($page, $image);

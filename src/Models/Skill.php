@@ -7,32 +7,34 @@ use Plasticode\Models\DbModel;
 
 class Skill extends DbModel
 {
-    // queries
+    private $defaultIcon;
 
-	public static function getActive() : Query
-	{
-		return self::query()
-		    ->where('active', 1);    
-	}
+    public function withDefaultIcon(string $icon) : self
+    {
+        $this->defaultIcon = $icon;
+        return $this;
+    }
     
-    // getters - one
+    public static function getActive() : Query
+    {
+        return self::query()
+            ->where('active', 1);
+    }
 
-	public static function getByAlias($alias)
-	{
-		return self::getActive()
-		    ->where('alias', $alias)
-		    ->one();
-	}
+    public static function getByAlias($alias)
+    {
+        return self::getActive()
+            ->where('alias', $alias)
+            ->one();
+    }
 
-    // props
-    
     public function displayIcon()
     {
-        return $this->icon ?? self::getSettings('recipes.default_icon');
+        return $this->icon ?? $this->defaultIcon;
     }
 
     public function iconUrl()
     {
-        return self::$linker->wowheadIcon($this->displayIcon());
+        return self::$container->linker->wowheadIcon($this->displayIcon());
     }
 }
