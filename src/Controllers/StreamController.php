@@ -5,11 +5,16 @@ namespace App\Controllers;
 use App\Jobs\UpdateStreamsJob;
 use App\Models\Stream;
 use App\Services\StreamService;
-use App\Services\StreamStatsService;
+use App\Services\StreamStatService;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Request as SlimRequest;
 
+/**
+ * @property StreamService $streamService
+ * @property StreamStatService $streamStatService
+ */
 class StreamController extends Controller
 {
     /**
@@ -28,14 +33,12 @@ class StreamController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        $streamService = new StreamService($this->cases);
-        
-        $streams = $streamService->getAllSorted();
-        $groups = $streamService->getGroups();
+        $streams = $this->streamService->getAllSorted();
+        $groups = $this->streamService->getGroups();
 
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'gallery' ],
+                'sidebar' => ['gallery'],
                 'params' => [
                     'title' => $this->streamsTitle,
                     'streams' => $streams,
@@ -57,15 +60,13 @@ class StreamController extends Controller
             return $this->notFound($request, $response);
         }
         
-        $statsService = new StreamStatsService();
-        
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'gallery' ],
+                'sidebar' => ['gallery'],
                 'image' => $stream->remoteLogo,
                 'params' => [
                     'stream' => $stream,
-                    'stats' => $statsService->build($stream),
+                    'stats' => $this->streamStatService->build($stream),
                     'title' => $stream->title,
                     'streams_title' => $this->streamsTitle,
                 ],
@@ -75,14 +76,14 @@ class StreamController extends Controller
         try {
             $rendered = $this->view->render($response, 'main/streams/item.twig', $params);
         } catch (\Exception $ex) {
-            $this->logger->debug($ex->getMessage(), $stream);
+            $this->logger->debug($ex->getMessage(), $stream->toArray());
             return $this->notFound($request, $response);
         }
         
         return $rendered;
     }
     
-    public function refresh(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function refresh(SlimRequest $request, ResponseInterface $response) : ResponseInterface
     {
         $log = $request->getQueryParam('log', false);
         $notify = $request->getQueryParam('notify', false);

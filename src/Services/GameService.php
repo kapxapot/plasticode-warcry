@@ -2,19 +2,18 @@
 
 namespace App\Services;
 
-use App\Models\Game;
-use App\Repositories\Interfaces\GameRepositoryInterface;
+use App\Config\Interfaces\GameConfigInterface;
 
 class GameService
 {
-    /** @var GameRepositoryInterface */
-    private $gameRepository;
+    /** @var GameConfigInterface */
+    private $config;
 
     public function __construct(
-        GameRepositoryInterface $gameRepository
+        GameConfigInterface $config
     )
     {
-        $this->gameRepository = $gameRepository;
+        $this->config = $config;
     }
 
     public function isPriorityGame(string $gameName) : bool

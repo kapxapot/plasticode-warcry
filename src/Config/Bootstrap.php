@@ -22,15 +22,22 @@ use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\GalleryPictureRepository;
+use App\Repositories\GameRepository;
 use App\Repositories\LocationRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\RecipeRepository;
 use App\Repositories\VideoRepository;
 use App\Services\ComicService;
+use App\Services\GalleryPictureService;
 use App\Services\GalleryService;
+use App\Services\GameService;
 use App\Services\NewsAggregatorService;
+use App\Services\RecipeService;
+use App\Services\SearchService;
 use App\Services\SidebarPartsProviderService;
+use App\Services\SkillService;
 use App\Services\StreamService;
+use App\Services\StreamStatService;
 use App\Services\TagPartsProviderService;
 use App\Services\TwitterService;
 use Plasticode\Config\Bootstrap as BootstrapBase;
@@ -78,6 +85,13 @@ class Bootstrap extends BootstrapBase
                     return new GalleryPictureRepository(
                         $container->db,
                         $container->tagRepository
+                    );
+                },
+
+                'gameRepository' => function (ContainerInterface $container) {
+                    return new GameRepository(
+                        $container->db,
+                        $container->config
                     );
                 },
 
@@ -308,20 +322,56 @@ class Bootstrap extends BootstrapBase
                 },
                 
                 // services
-                
+
+                'comicService' => function (ContainerInterface $container) {
+                    return new ComicService();
+                },
+
+                'galleryPictureService' => function (ContainerInterface $container) {
+                    return new GalleryPictureService(
+                        $container->gallery
+                    );
+                },
+
                 'galleryService' => function (ContainerInterface $container) {
                     $pageSize = $this->settings['gallery']['pics_per_page'];
                     
                     return new GalleryService($pageSize);
                 },
 
-                'comicService' => function (ContainerInterface $container) {
-                    return new ComicService();
+                'gameService' => function (ContainerInterface $container) {
+                    return new GameService(
+                        $container->config
+                    );
                 },
 
                 'newsAggregatorService' => function (ContainerInterface $container) {
                     return new NewsAggregatorService(
                         $container->newsRepository
+                    );
+                },
+
+                'recipeService' => function (ContainerInterface $container) {
+                    return new RecipeService(
+                        $container->config,
+                        $container->linker
+                    );
+                },
+
+                'searchService' => function (ContainerInterface $container) {
+                    return new SearchService(
+                        $container->tagRepository,
+                        $container->linker
+                    );
+                },
+
+                'sidebarPartsProviderService' => function (ContainerInterface $container) {
+                    return new SidebarPartsProviderService($container);
+                },
+
+                'skillService' => function (ContainerInterface $container) {
+                    return new SkillService(
+                        $this->config
                     );
                 },
 
@@ -332,8 +382,11 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
-                'sidebarPartsProviderService' => function (ContainerInterface $container) {
-                    return new SidebarPartsProviderService($container);
+                'streamStatService' => function (ContainerInterface $container) {
+                    return new StreamStatService(
+                        $container->gameRepository,
+                        $container->gameService
+                    );
                 },
 
                 'tagPartsProviderService' => function (ContainerInterface $container) {

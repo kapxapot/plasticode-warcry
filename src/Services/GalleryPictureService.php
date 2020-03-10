@@ -11,6 +11,11 @@ class GalleryPictureService
     /** @var Gallery */
     private $gallery;
 
+    public function __construct(Gallery $gallery)
+    {
+        $this->gallery = $gallery;
+    }
+
     private function updateDimensions(GalleryPicture $picture) : GalleryPicture
     {
         $img = $this->gallery->loadPicture($picture);

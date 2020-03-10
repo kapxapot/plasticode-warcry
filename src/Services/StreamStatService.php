@@ -8,7 +8,7 @@ use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
 
-class StreamStatsService
+class StreamStatService
 {
     /** @var GameRepositoryInterface */
     private $gameRepository;
