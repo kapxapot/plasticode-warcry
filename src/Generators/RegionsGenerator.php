@@ -2,14 +2,22 @@
 
 namespace App\Generators;
 
-use Respect\Validation\Validator as v;
-
 use Plasticode\Generators\EntityGenerator;
-
-use App\Models\Region;
+use Psr\Container\ContainerInterface;
+use Respect\Validation\Validator as v;
 
 class RegionsGenerator extends EntityGenerator
 {
+    /** @var RegionRepositoryInterface */
+    private $regionRepository;
+
+    public function __construct(ContainerInterface $container, string $entity)
+    {
+        parent::__construct($container, $entity);
+
+        $this->regionRepository = $container->regionRepository;
+    }
+
     public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
@@ -25,7 +33,7 @@ class RegionsGenerator extends EntityGenerator
         
         $parts = [];
         
-        $cur = Region::get($item[$this->idField]);
+        $cur = $this->regionRepository->get($item[$this->idField]);
         
         while ($cur != null) {
             $parts[] = $cur->nameRu;

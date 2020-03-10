@@ -2,12 +2,23 @@
 
 namespace App\Generators;
 
-use App\Models\Game;
+use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Generators\EntityGenerator;
+use Psr\Container\ContainerInterface;
 use Respect\Validation\Validator;
 
 class GamesGenerator extends EntityGenerator
 {
+    /** @var GameRepositoryInterface */
+    private $gameRepository;
+
+    public function __construct(ContainerInterface $container, string $entity)
+    {
+        parent::__construct($container, $entity);
+
+        $this->gameRepository = $container->gameRepository;
+    }
+
     public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
@@ -31,7 +42,7 @@ class GamesGenerator extends EntityGenerator
 
         $parts = [];
 
-        $cur = Game::get($item[$this->idField]);
+        $cur = $this->gameRepository->get($item[$this->idField]);
         
         while ($cur) {
             $parts[] = $cur->name;
@@ -47,7 +58,7 @@ class GamesGenerator extends EntityGenerator
     {
         $parts = [];
         
-        $cur = Game::get($item[$this->idField]);
+        $cur = $this->gameRepository->get($item[$this->idField]);
         
         while ($cur) {
             $parts[] = $cur->autotags;

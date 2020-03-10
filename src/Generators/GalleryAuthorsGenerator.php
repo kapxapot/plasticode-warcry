@@ -2,11 +2,22 @@
 
 namespace App\Generators;
 
-use App\Models\GalleryAuthor;
+use App\Repositories\Interfaces\GalleryAuthorRepositoryInterface;
 use Plasticode\Generators\EntityGenerator;
+use Psr\Container\ContainerInterface;
 
 class GalleryAuthorsGenerator extends EntityGenerator
 {
+    /** @var GalleryAuthorRepositoryInterface */
+    private $galleryAuthorRepository;
+
+    public function __construct(ContainerInterface $container, string $entity)
+    {
+        parent::__construct($container, $entity);
+
+        $this->galleryAuthorRepository = $container->galleryAuthorRepository;
+    }
+
     public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
@@ -39,7 +50,7 @@ class GalleryAuthorsGenerator extends EntityGenerator
 
         $item['context_field'] = 'author_id';
 
-        $author = GalleryAuthor::get($item[$this->idField]);
+        $author = $this->galleryAuthorRepository->get($item[$this->idField]);
 
         $item['page_url'] = $author->pageUrl();
 

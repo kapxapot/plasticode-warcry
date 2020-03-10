@@ -2,11 +2,28 @@
 
 namespace App\Generators;
 
+use App\Services\ComicService;
 use Plasticode\Exceptions\Http\NotFoundException;
+use Plasticode\Gallery\Gallery;
 use Plasticode\Generators\EntityGenerator;
+use Psr\Container\ContainerInterface;
 
 abstract class ComicPagesBaseGenerator extends EntityGenerator
 {
+    /** @var Gallery */
+    protected $comics;
+
+    /** @var ComicService */
+    protected $comicService;
+
+    public function __construct(ContainerInterface $container, string $entity)
+    {
+        parent::__construct($container, $entity);
+
+        $this->comics = $container->comics;
+        $this->comicService = $container->comicService;
+    }
+
     public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);

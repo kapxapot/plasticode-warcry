@@ -26,6 +26,7 @@ use App\Repositories\GameRepository;
 use App\Repositories\LocationRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\RecipeRepository;
+use App\Repositories\RegionRepository;
 use App\Repositories\VideoRepository;
 use App\Services\ComicService;
 use App\Services\GalleryPictureService;
@@ -114,6 +115,12 @@ class Bootstrap extends BootstrapBase
                     );
                 },
 
+                'regionRepository' => function (ContainerInterface $container) {
+                    return new RegionRepository(
+                        $container->db
+                    );
+                },
+
                 'videoRepository' => function (ContainerInterface $container) {
                     return new VideoRepository(
                         $container->db,
@@ -148,7 +155,9 @@ class Bootstrap extends BootstrapBase
                     ];
                 
                     return new Gallery(
-                        $container, $thumbStrategy, $gallerySettings
+                        $container->settingsProvider,
+                        $thumbStrategy,
+                        $gallerySettings
                     );
                 },
                 
@@ -175,7 +184,9 @@ class Bootstrap extends BootstrapBase
                     ];
                 
                     return new Gallery(
-                        $container, $thumbStrategy, $comicsSettings
+                        $container->settingsProvider,
+                        $thumbStrategy,
+                        $comicsSettings
                     );
                 },
 
