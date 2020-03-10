@@ -10,6 +10,8 @@ use Plasticode\Models\Traits\Children;
 use Plasticode\Models\Traits\Publish;
 
 /**
+ * @property integer $id
+ * @property string $name
  * @property string|null $alias
  */
 class Game extends DbModel implements LinkableInterface
@@ -19,22 +21,6 @@ class Game extends DbModel implements LinkableInterface
     protected static $sortField = 'position';
 
     // GETTERS - ONE
-
-    public static function getPublishedByAlias(string $alias) : ?self
-    {
-        return self::getPublished()
-            ->where('alias', $alias)
-            ->one();
-    }
-
-    public static function getByTwitchName(string $name) : ?self
-    {
-        return self::query()
-            ->where('name', $name)
-            ->one()
-            
-            ?? self::getDefault();
-    }
 
     public static function getByForumId(int $forumId) : ?self
     {
@@ -68,17 +54,6 @@ class Game extends DbModel implements LinkableInterface
         }
 
         return $cache->get($path);
-    }
-    
-    public static function getDefaultId() : ?int
-    {
-        return self::getSettings('default_game_id');
-    }
-
-    public static function getDefault() : ?self
-    {
-        $id = self::getDefaultId();
-        return static::get($id);
     }
     
     public static function getRootOrDefault(int $id) : ?self
@@ -219,13 +194,6 @@ class Game extends DbModel implements LinkableInterface
         $ids = $this->subTree()->ids();
 
         return $query->whereIn('game_id', $ids);
-    }
-    
-    public static function isPriority($gameName) : bool
-    {
-        $priorityGames = self::getSettings('streams.priority_games');
-
-        return in_array(strtolower($gameName), $priorityGames);
     }
     
     public static function getNewsForumIds(self $game = null) : Collection

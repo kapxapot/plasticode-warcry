@@ -2,15 +2,15 @@
 
 namespace App\Config\Interfaces;
 
-interface StreamConfigInterface
+interface GameConfigInterface
 {
     /**
-     * Stream time to live in days.
+     * Default game id, null by default.
      *
-     * @return integer
+     * @return integer|null
      */
-    public function streamTimeToLive() : int;
-
+    public function defaultGameId() : ?int;
+    
     /**
      * Priority games list for streams.
      * 

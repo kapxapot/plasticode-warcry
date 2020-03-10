@@ -26,6 +26,8 @@ class GalleryPictureSeeder implements ArraySeederInterface
                 [
                     'id' => 1,
                     'comment' => 'Sexy elf',
+                    'width' => 200,
+                    'height' => 100,
                     'tags' => 'Elves, Sex',
                 ]
             ))->withAuthor($author),
@@ -33,6 +35,8 @@ class GalleryPictureSeeder implements ArraySeederInterface
                 [
                     'id' => 2,
                     'comment' => 'Dead man',
+                    'width' => 100,
+                    'height' => 300,
                     'tags' => 'Humans, Undead',
                 ]
             ))->withAuthor($author),

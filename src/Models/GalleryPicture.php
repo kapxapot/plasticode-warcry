@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Core\Interfaces\LinkerInterface;
 use Plasticode\AspectRatio;
 use Plasticode\Query;
-use Plasticode\Exceptions\InvalidResultException;
 use Plasticode\IO\Image;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
@@ -13,6 +12,7 @@ use Plasticode\Models\Traits\FullPublish;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\SortStep;
+use Webmozart\Assert\Assert;
 
 /**
  * @property integer $id
@@ -31,6 +31,8 @@ class GalleryPicture extends DbModel
 {
     use Description, FullPublish, Stamps, Tags;
 
+    private const DefaultBgColor = '255,255,255,1';
+
     /** @var GalleryAuthor|null */
     private $author;
 
@@ -46,6 +48,24 @@ class GalleryPicture extends DbModel
             $this->author
             ??
             GalleryAuthor::get($this->authorId);
+    }
+
+    public function withWidth(int $width) : self
+    {
+        $this->width = $width;
+        return $this;
+    }
+
+    public function withHeight(int $height) : self
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    public function withAvgColor(string $avgColor) : self
+    {
+        $this->avgColor = $avgColor;
+        return $this;
     }
     
     /**
@@ -107,7 +127,7 @@ class GalleryPicture extends DbModel
     {
         $this->failIfNotPersisted();
 
-        self::$container->gallery->ensureThumbExists($this);
+        //self::$container->gallery->ensureThumbExists($this);
 
         return self::$container->linker->galleryThumbImg($this);
     }
@@ -115,65 +135,22 @@ class GalleryPicture extends DbModel
     public function ratioCss() : string
     {
         $this->failIfNotPersisted();
-        
-        try {
-            // ensure picture has width / height
-            $this->ensureWidthHeightSet();
-            
-            $ratio = new AspectRatio($this->width, $this->height);
-            
-            return $ratio->cssClasses();
-        }
-        catch (\Exception $ex) {
-            return '';
-        }
-    }
-    
-    private function ensureWidthHeightSet()
-    {
-        if ($this->width > 0 && $this->height > 0) {
-            return;
-        }
-        
-        $picture = self::$container->gallery->loadPicture($this);
-        
-        if (!$picture || !($picture->width > 0) || !($picture->height > 0)) {
-            throw new InvalidResultException(
-                'Invalid image file for gallery picture ' . $this->toString() . '.'
-            );
-        }
-        
-        $this->width = $picture->width;
-        $this->height = $picture->height;
 
-        // Todo: temporary dirty trick
-        self::save($this);
+        Assert::greaterThan($this->width, 0);
+        Assert::greaterThan($this->height, 0);
+        
+        $ratio = new AspectRatio($this->width, $this->height);
+        
+        return $ratio->cssClasses();
     }
     
     public function bgColor() : array
     {
         $this->failIfNotPersisted();
-        
-        try {
-            $this->ensureAvgColorSet();
-        
-            return Image::deserializeRGBA($this->avgColor);
-        }
-        catch (\Exception $ex) {
-            return Image::deserializeRGBA('255,255,255,1');
-        }
-    }
-    
-    private function ensureAvgColorSet()
-    {
-        if ($this->avgColor !== null) {
-            return;
-        }
-        
-        $this->avgColor = self::$container->gallery->getAvgColor($this);
 
-        // Todo: temporary dirty trick
-        self::save($this);
+        $bgColor = $this->avgColor ?? self::DefaultBgColor;
+        
+        return Image::deserializeRGBA($bgColor);
     }
     
     public function pageUrl() : string

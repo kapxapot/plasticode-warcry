@@ -3,9 +3,8 @@
 namespace App\Repositories\Interfaces;
 
 use App\Models\Event;
-use Plasticode\Repositories\Idiorm\Interfaces\FullPublishInterface;
 
-interface EventRepositoryInterface extends FullPublishInterface
+interface EventRepositoryInterface
 {
     public function getProtected(int $id) : ?Event;
 }

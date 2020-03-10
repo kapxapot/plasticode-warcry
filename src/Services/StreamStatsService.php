@@ -2,15 +2,29 @@
 
 namespace App\Services;
 
+use App\Models\Stream;
+use App\Models\StreamStat;
+use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
 
-use App\Models\Game;
-use App\Models\Stream;
-use App\Models\StreamStat;
-
 class StreamStatsService
 {
+    /** @var GameRepositoryInterface */
+    private $gameRepository;
+
+    /** @var GameService */
+    private $gameService;
+
+    public function __construct(
+        GameRepositoryInterface $gameRepository,
+        GameService $gameService
+    )
+    {
+        $this->gameRepository = $gameRepository;
+        $this->gameService = $gameService;
+    }
+
     public function build(Stream $stream)
     {
         $stats = [];
@@ -31,7 +45,10 @@ class StreamStatsService
                         ? round($game['count'] * 100 / $total, 1)
                         : 0;
 
-                    $game['priority'] = Game::isPriority($game['remote_game']);
+                    $game['priority'] =
+                        $this->gameService->isPriorityGame(
+                            $game['remote_game']
+                        );
                     
                     return $game;
                 },
@@ -203,7 +220,7 @@ class StreamStatsService
         $add = function ($log) use (&$logs) {
             $log->startIso = Date::formatIso(Date::dt($log->createdAt));
             $log->endIso = Date::formatIso(Date::dt($log->finishedAt));
-            $log->game = Game::getByTwitchName($log->remoteGame);
+            $log->game = $this->gameRepository->getByTwitchName($log->remoteGame);
 
             $logs[] = $log;
         };

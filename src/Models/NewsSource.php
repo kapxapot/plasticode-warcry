@@ -10,6 +10,7 @@ use Plasticode\Models\Interfaces\SearchableInterface;
 use Plasticode\Models\Traits\FullPublish;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
+use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Parsing\ParsingContext;
 
 /**
@@ -24,6 +25,15 @@ use Plasticode\Parsing\ParsingContext;
 abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use FullPublish, Stamps, Tags;
+
+    /** @var ParserInterface */
+    private $parser;
+
+    public function withParser(ParserInterface $parser) : self
+    {
+        $this->parser = $parser;
+        return $this;
+    }
 
     public function game() : ?Game
     {
@@ -62,7 +72,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
 
     public function parsed() : ?ParsingContext
     {
-        return $this->parsedDescription();
+        return $this->parsedDescription($this->parser);
     }
     
     public function parsedText() : ?string
@@ -72,7 +82,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
             : null;
     }
 
-    public abstract function parsedDescription() : ?ParsingContext;
+    public abstract function parsedDescription(ParserInterface $parser) : ?ParsingContext;
 
     public abstract static function search(string $searchQuery) : Collection;
     
