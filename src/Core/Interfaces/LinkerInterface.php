@@ -2,13 +2,17 @@
 
 namespace App\Core\Interfaces;
 
+use App\Models\Article;
+use App\Models\ComicIssue;
+use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
+use App\Models\Skill;
 use Plasticode\Core\Interfaces\LinkerInterface as PlasticodeLinkerInterface;
 
 interface LinkerInterface extends PlasticodeLinkerInterface
 {
-    public function game(?Game $game) : string;
+    function game(?Game $game) : string;
 
     /**
      * Get article link.
@@ -17,27 +21,34 @@ interface LinkerInterface extends PlasticodeLinkerInterface
      * @param string $cat
      * @return string
      */
-    public function article($id = null, ?string $cat = null) : string;
+    function article($id = null, ?string $cat = null) : string;
 
-    public function event(int $id = null) : string;
-    public function video(int $id = null) : string;
-    public function stream(string $alias = null) : string;
+    function event(int $id = null) : string;
+    function video(int $id = null) : string;
+    function stream(string $alias = null) : string;
 
-    public function recipe(int $id) : string;
+    function recipe(int $id) : string;
+    function recipes(?Skill $skill = null) : string;
 
-    public function galleryPictureImg(GalleryPicture $picture) : string;
-    public function galleryThumbImg(GalleryPicture $picture) : string;
+    function galleryPictureImg(GalleryPicture $picture) : string;
+    function galleryThumbImg(GalleryPicture $picture) : string;
 
-    public function disqusNews(int $id) : string;
+    function comicIssue(?ComicIssue $comic) : string;
 
-    public function wowheadIcon(string $icon) : string;
-    public function wowheadUrl(string $params) : string;
-    public function wowheadUrlRu(string $params) : string;
-    public function wowheadSpellRu(int $id) : string;
-    public function wowheadItemRu(int $id) : string;
-    public function wowheadItem(int $id) : string;
-    public function wowheadItemXml(int $id) : string;
-    public function wowheadItemRuXml(int $id) : string;
+    function disqusArticle(Article $article) : string;
+    function disqusNews(int $id) : string;
+    function disqusGalleryAuthor(GalleryAuthor $author) : string;
+    function disqusRecipes(?Skill $skill) : string;
+    function disqusRecipe(int $id) : string;
+    
+    function wowheadIcon(string $icon) : string;
+    function wowheadUrl(string $params) : string;
+    function wowheadUrlRu(string $params) : string;
+    function wowheadSpellRu(int $id) : string;
+    function wowheadItemRu(int $id) : string;
+    function wowheadItem(int $id) : string;
+    function wowheadItemXml(int $id) : string;
+    function wowheadItemRuXml(int $id) : string;
 
-    public function hsCard(string $id) : string;
+    function hsCard(string $id) : string;
 }

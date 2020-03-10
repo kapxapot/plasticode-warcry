@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Core\Interfaces\LinkerInterface;
 use App\Models\Game;
 use App\Services\NewsAggregatorService;
 use Plasticode\Core\Pagination;
@@ -13,15 +12,25 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Plasticode\IO\File;
 use Plasticode\Util\Text;
+use Psr\Container\ContainerInterface;
 use Slim\Http\Request as SlimRequest;
 
-/**
- * @property LinkerInterface $linker
- * @property NewsAggregatorService $newsAggregatorService
- * @property Pagination $pagination
- */
 class NewsController extends NewsSourceController
 {
+    /** @var NewsAggregatorService */
+    private $newsAggregatorService;
+
+    /** @var Pagination */
+    private $pagination;
+
+    public function __construct(ContainerInterface $container)
+    {
+        parent::__construct($container);
+
+        $this->newsAggregatorService = $container->newsAggregatorService;
+        $this->pagination = $container->pagination;
+    }
+
     public function index(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         if ($args['game']) {
@@ -33,7 +42,10 @@ class NewsController extends NewsSourceController
         }
 
         $page = $request->getQueryParam('page', 1);
-        $pageSize = $request->getQueryParam('pagesize', $this->getSettings('news_limit'));
+        $pageSize = $request->getQueryParam(
+            'pagesize',
+            $this->settingsProvider->getSettings('news_limit')
+        );
 
         $news = $this->newsAggregatorService->getPage($game, $page, $pageSize);
         
@@ -163,14 +175,14 @@ class NewsController extends NewsSourceController
     
     public function rss(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
     {
-        $limit = $this->getSettings('rss_limit' ?? 10);
+        $limit = $this->settingsProvider->getSettings('rss_limit' ?? 10);
         
         $news = $this->newsAggregatorService->getTop($limit);
 
-        $path = $this->getSettings('folders.rss_cache');
+        $path = $this->settingsProvider->getSettings('folders.rss_cache');
         $fileName = File::combine(__DIR__, $path, 'rss.xml');
 
-        $settings = $this->getSettings('view_globals');
+        $settings = $this->settingsProvider->getSettings('view_globals');
         
         $siteUrl = $settings['site_url'];
         $siteName = $settings['site_name'];

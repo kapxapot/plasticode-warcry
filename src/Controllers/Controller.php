@@ -2,32 +2,68 @@
 
 namespace App\Controllers;
 
+use App\Core\Interfaces\LinkerInterface;
 use App\Models\Game;
 use App\Models\Menu;
+use App\Repositories\Interfaces\GameRepositoryInterface;
+use App\Services\SidebarPartsProviderService;
 use Plasticode\Collection;
 use Plasticode\Controllers\Controller as BaseController;
-use Plasticode\Exceptions\InvalidConfigurationException;
+use Plasticode\Interfaces\SettingsProviderInterface;
+use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Util\Strings;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Slim\Interfaces\RouterInterface;
 
 class Controller extends BaseController
 {
     private const DefaultPageDescriptionLimit = 1000;
 
+    /** @var SettingsProviderInterface */
+    protected $settingsProvider;
+
+    /** @var RouterInterface */
+    protected $router;
+
+    /** @var LinkerInterface */
+    protected $linker;
+
+    /** @var ParserInterface */
+    protected $parser;
+
+    /** @var LoggerInterface */
+    protected $logger;
+
+    /** @var GameRepositoryInterface */
+    protected $gameRepository;
+
+    /** @var SidebarPartsProviderService */
+    protected $sidebarPartsProviderService;
+
+    /** @var Game|null */
     protected $defaultGame;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         
-        $this->defaultGame = Game::getDefault();
+        $this->settingsProvider = $container->settingsProvider;
+        $this->router = $container->router;
+        $this->linker = $container->linker;
+        $this->parser = $container->parser;
+        $this->logger = $container->logger;
+        $this->gameRepository = $container->gameRepository;
+        $this->sidebarPartsProviderService = $container->sidebarPartsProviderService;
+
+        $this->defaultGame = $this->gameRepository->getDefault();
     }
 
     protected function buildParams(array $settings) : array
     {
         $params = parent::buildParams($settings);
         
-        $params['games'] = Game::getPublished()->all();
+        $params['games'] = $this->gameRepository->getAllPublished();
         $params['game'] = $this->getGame($settings) ?? $this->defaultGame;
         $params['menu_game'] = $this->getMenuGame($settings);
 
@@ -86,7 +122,7 @@ class Controller extends BaseController
     
     public function makePageDescription(string $text, string $limitVar) : string
     {
-        $limit = $this->getSettings(
+        $limit = $this->settingsProvider->getSettings(
             $limitVar,
             self::DefaultPageDescriptionLimit
         );

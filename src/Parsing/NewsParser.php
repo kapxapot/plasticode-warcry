@@ -2,12 +2,34 @@
 
 namespace App\Parsing;
 
-use Plasticode\Contained;
+use App\Core\Interfaces\LinkerInterface;
+use App\Core\Interfaces\RendererInterface;
+use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Numbers;
 use Plasticode\Util\Text;
 
-class NewsParser extends Contained
+class NewsParser
 {
+    /** @var SettingsProviderInterface */
+    private $settingsProvider;
+
+    /** @var RendererInterface */
+    private $renderer;
+
+    /** @var LinkerInterface */
+    private $linker;
+
+    public function __construct(
+        SettingsProviderInterface $settingsProvider,
+        RendererInterface $renderer,
+        LinkerInterface $linker
+    )
+    {
+        $this->settingsProvider = $settingsProvider;
+        $this->renderer = $renderer;
+        $this->linker = $linker;
+    }
+
     private function decodeHtmlSpecialChars($str)
     {
         return strtr($str, array_flip(get_html_translation_table(HTML_SPECIALCHARS)));
@@ -49,7 +71,7 @@ class NewsParser extends Contained
 
     public function afterParsePost($str)
     {
-        $siteUrl = $this->getSettings('view_globals.site_url');
+        $siteUrl = $this->settingsProvider->getSettings('view_globals.site_url');
 
         // fking smileys
         $str = str_replace("<img src=\"style_emoticons/", "<imgr src=\"/forum/public/style_emoticons/", $str);

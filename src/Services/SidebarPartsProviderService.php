@@ -5,24 +5,44 @@ namespace App\Services;
 use App\Models\Article;
 use App\Models\Event;
 use App\Models\GalleryPicture;
-use Plasticode\Contained;
+use Plasticode\Interfaces\SettingsProviderInterface;
 
-class SidebarPartsProviderService extends Contained
+class SidebarPartsProviderService
 {
+    /** @var SettingsProviderInterface */
+    private $settingsProvider;
+
+    /** @var NewsAggregatorService */
+    private $newsAggregatorService;
+
+    /** @var StreamService */
+    private $streamService;
+
+    public function __construct(
+        SettingsProviderInterface $settingsProvider,
+        NewsAggregatorService $newsAggregatorService,
+        StreamService $streamService
+    )
+    {
+        $this->settingsProvider = $settingsProvider;
+        $this->newsAggregatorService = $newsAggregatorService;
+        $this->streamService = $streamService;
+    }
+
     public function getPart($settings, $game, $part)
     {
         $result = null;
         
         switch ($part) {
             case 'news':
-                $limit = $this->getSettings('sidebar.latest_news_limit');
+                $limit = $this->settingsProvider->getSettings('sidebar.latest_news_limit');
                 $exceptNewsId = $settings['news_id'] ?? null;
                 
                 $result = $this->newsAggregatorService->getLatest($game, $limit, $exceptNewsId);
                 break;
 
             case 'articles':
-                $limit = $this->getSettings('sidebar.article_limit');
+                $limit = $this->settingsProvider->getSettings('sidebar.article_limit');
                 $exceptArticleId = $settings['article_id'] ?? null;
                 
                 $result = Article::getLatest($game, $limit, $exceptArticleId)->all();
@@ -36,12 +56,12 @@ class SidebarPartsProviderService extends Contained
                 break;
             
             case 'gallery':
-                $limit = $this->getSettings('sidebar.latest_gallery_pictures_limit');
+                $limit = $this->settingsProvider->getSettings('sidebar.latest_gallery_pictures_limit');
                 $result = [ 'pictures' => GalleryPicture::getLatestByGame($game, $limit)->all() ];
                 break;
             
             case 'events':
-                $days = $this->getSettings('sidebar.future_events_days');
+                $days = $this->settingsProvider->getSettings('sidebar.future_events_days');
                 $result = Event::getCurrent($game, $days)->all();
                 break;
             

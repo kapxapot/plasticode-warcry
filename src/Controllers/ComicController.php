@@ -7,16 +7,17 @@ use App\Models\ComicStandalone;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Request as SlimRequest;
 
 class ComicController extends Controller
 {
     private $comicsTitle;
-    
+
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
-        $this->comicsTitle = $this->getSettings('comics.title');
+        $this->comicsTitle = $this->settingsProvider->getSettings('comics.title');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
@@ -51,7 +52,7 @@ class ComicController extends Controller
                 'global_context' => true,
                 'sidebar' => [ 'stream', 'gallery', 'news' ],
                 'large_image' => $series->cover() ? $this->linker->abs($series->cover()->url()) : null,
-                'description' => $series->parsedDescription(),
+                'description' => $series->parsedDescription($this->parser),
                 'params' => [
                     'series' => $series,
                     'comics' => $series->issues(),
@@ -87,15 +88,15 @@ class ComicController extends Controller
                 'global_context' => true,
                 'sidebar' => [ 'stream', 'gallery', 'news' ],
                 'large_image' => $comic->cover() ? $this->linker->abs($comic->cover()->url()) : null,
-                'description' => $comic->parsedDescription(),
+                'description' => $comic->parsedDescription($this->parser),
                 'params' => [
                     'series' => $series,
                     'comic' => $comic,
                     'pages' => $comic->pages(),
                     'title' => $comic->titleName(),
                     'comics_title' => $this->comicsTitle,
-                    'rel_prev' => $comic->prev() ? $comic->prev()->pageUrl() : null,
-                    'rel_next' => $comic->next() ? $comic->next()->pageUrl() : null,
+                    'rel_prev' => $this->linker->comicIssue($comic->prev()),
+                    'rel_next' => $this->linker->comicIssue($comic->next()),
                 ],
             ]
         );
@@ -119,7 +120,7 @@ class ComicController extends Controller
                 'global_context' => true,
                 'sidebar' => [ 'stream', 'gallery', 'news' ],
                 'large_image' => $comic->cover() ? $this->linker->abs($comic->cover()->url()) : null,
-                'description' => $comic->parsedDescription(),
+                'description' => $comic->parsedDescription($this->parser),
                 'params' => [
                     'comic' => $comic,
                     'pages' => $comic->pages(),
@@ -132,7 +133,7 @@ class ComicController extends Controller
         return $this->render($response, 'main/comics/standalone.twig', $params);
     }
     
-    public function issuePage(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function issuePage(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $alias = $args['alias'];
         $comicNumber = $args['number'];
@@ -180,7 +181,7 @@ class ComicController extends Controller
         return $this->render($response, 'main/comics/issue_page.twig', $params);
     }
     
-    public function standalonePage(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function standalonePage(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $alias = $args['alias'];
         $pageNumber = $args['page'];

@@ -8,11 +8,11 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @property VideoRepositoryInterface $videoRepository
- */
 class VideoController extends NewsSourceController
 {
+    /** @var VideoRepositoryInterface */
+    private $videoRepository;
+
     /**
      * Videos title for views
      *
@@ -24,7 +24,9 @@ class VideoController extends NewsSourceController
     {
         parent::__construct($container);
 
-        $this->videosTitle = $this->getSettings('videos.title') ?? 'Videos';
+        $this->videoRepository = $container->videoRepository;
+
+        $this->videosTitle = $this->settingsProvider->getSettings('videos.title', 'Videos');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface

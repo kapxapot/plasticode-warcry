@@ -2,16 +2,35 @@
 
 namespace App\Jobs;
 
+use App\Core\Interfaces\LinkerInterface;
 use App\Models\Stream;
 use App\Models\StreamStat;
 use Plasticode\Collection;
 use Plasticode\Contained;
+use Plasticode\Core\Interfaces\CacheInterface;
+use Plasticode\External\Twitch;
+use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
-use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 class UpdateStreamsJob extends Contained
 {
+    /** @var SettingsProviderInterface */
+    private $settingsProvider;
+
+    /** @var CacheInterface */
+    private $cache;
+
+    /** @var LinkerInterface */
+    private $linker;
+
+    /** @var Twitch */
+    private $twitch;
+
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * Send notification or not (Telegram, Twitter, etc.)
      *
@@ -26,12 +45,24 @@ class UpdateStreamsJob extends Contained
      */
     private $log;
     
-    public function __construct(ContainerInterface $container, bool $notify)
+    public function __construct(
+        SettingsProviderInterface $settingsProvider,
+        CacheInterface $cache,
+        LinkerInterface $linker,
+        Twitch $twitch,
+        LoggerInterface $logger,
+        bool $notify
+    )
     {
-        parent::__construct($container);
+        $this->settingsProvider = $settingsProvider;
+        $this->cache = $cache;
+        $this->linker = $linker;
+        $this->twitch = $twitch;
+        $this->logger = $logger;
         
         $this->notify = $notify;
-        $this->log = $this->getSettings('streams.log') === true;
+
+        $this->log = ($this->settingsProvider->getSettings('streams.log')) === true;
     }
     
     public function run() : Collection
@@ -163,7 +194,7 @@ class UpdateStreamsJob extends Contained
         
         if ($stats) {
             if ($online) {
-                $statsTTL = $this->getSettings('streams.stats_ttl');
+                $statsTTL = $this->settingsProvider->getSettings('streams.stats_ttl', 10);
 
                 $expired = Date::expired($stats->createdAt, "PT{$statsTTL}M");
     

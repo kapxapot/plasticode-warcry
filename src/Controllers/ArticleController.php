@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request as SlimRequest;
 
@@ -11,6 +12,16 @@ use Slim\Http\Request as SlimRequest;
  */
 class ArticleController extends NewsSourceController
 {
+    /** @var ArticleRepositoryInterface */
+    private $articleRepository;
+
+    public function __construct(ContainerInterface $container)
+    {
+        parent::__construct($container);
+
+        $this->articleRepository = $container->articleRepository;
+    }
+
     public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $id = $args['id'];

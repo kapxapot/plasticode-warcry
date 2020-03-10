@@ -6,17 +6,27 @@ use App\Jobs\UpdateStreamsJob;
 use App\Models\Stream;
 use App\Services\StreamService;
 use App\Services\StreamStatService;
+use Plasticode\Core\Interfaces\CacheInterface;
+use Plasticode\External\Twitch;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Request as SlimRequest;
 
-/**
- * @property StreamService $streamService
- * @property StreamStatService $streamStatService
- */
 class StreamController extends Controller
 {
+    /** @var CacheInterface */
+    private $cache;
+
+    /** @var Twitch */
+    private $twitch;
+
+    /** @var StreamService */
+    private $streamService;
+
+    /** @var StreamStatService */
+    private $streamStatService;
+
     /**
      * Streams title for views
      *
@@ -28,7 +38,12 @@ class StreamController extends Controller
     {
         parent::__construct($container);
 
-        $this->streamsTitle = $this->getSettings('streams.title');
+        $this->cache = $container->cache;
+        $this->twitch = $container->twitch;
+        $this->streamService = $container->streamService;
+        $this->streamStatService = $container->streamStatService;
+
+        $this->streamsTitle = $this->settingsProvider->getSettings('streams.title', 'Streams');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
@@ -88,7 +103,14 @@ class StreamController extends Controller
         $log = $request->getQueryParam('log', false);
         $notify = $request->getQueryParam('notify', false);
         
-        $job = new UpdateStreamsJob($this->container, $notify);
+        $job = new UpdateStreamsJob(
+            $this->settingsProvider,
+            $this->cache,
+            $this->linker,
+            $this->twitch,
+            $this->logger,
+            $notify
+        );
 
         $params = [ 
             'data' => $job->run(),

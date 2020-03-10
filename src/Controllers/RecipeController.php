@@ -7,7 +7,7 @@ use App\Models\Recipe;
 use App\Models\Skill;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Request as SlimRequest;
 
 class RecipeController extends Controller
 {
@@ -29,13 +29,13 @@ class RecipeController extends Controller
     {
         parent::__construct($container);
 
-        $this->recipesTitle = $this->getSettings('recipes.title');
+        $this->recipesTitle = $this->settingsProvider->getSettings('recipes.title', 'Recipes');
 
-        $gameAlias = $this->getSettings('recipes.game');
+        $gameAlias = $this->settingsProvider->getSettings('recipes.game');
         $this->game = Game::getPublishedByAlias($gameAlias);
     }
     
-    public function index(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function index(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $skillAlias = $args['skill'];
         
@@ -45,7 +45,7 @@ class RecipeController extends Controller
 
         $skill = Skill::getByAlias($skillAlias);
 
-        $pageSize = $this->getSettings('recipes.page_size');
+        $pageSize = $this->settingsProvider->getSettings('recipes.page_size');
 
         $title = $skill
             ? $skill['name_ru']
@@ -110,7 +110,7 @@ class RecipeController extends Controller
         return $this->render($response, 'main/recipes/index.twig', $params);
     }
     
-    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $id = $args['id'];
         

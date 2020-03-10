@@ -3,28 +3,28 @@
 namespace App\Controllers;
 
 use App\Services\SearchService;
-use Plasticode\Core\Interfaces\LinkerInterface;
 use Plasticode\Core\Response;
-use Plasticode\Repositories\Interfaces\TagRepositoryInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @property TagRepositoryInterface $tagRepository
- * @property LinkerInterface $linker
- */
 class SearchController extends Controller
 {
+    /** @var SearchService */
+    private $searchService;
+
+    public function __construct(ContainerInterface $container)
+    {
+        parent::__construct($container);
+
+        $this->searchService = $container->searchService;
+    }
+
     public function search(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $query = $args['query'];
         
-        $searchService = new SearchService(
-            $this->tagRepository,
-            $this->linker
-        );
-        
-        $result = $searchService->search($query);
+        $result = $this->searchService->search($query);
         
         return Response::json($response, $result);
     }

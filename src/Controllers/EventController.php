@@ -11,11 +11,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Request as SlimRequest;
 
-/**
- * @property EventRepositoryInterface $eventRepository
- */
 class EventController extends NewsSourceController
 {
+    /** @var EventRepositoryInterface */
+    private $eventRepository;
+
     /**
      * Events title for views
      *
@@ -27,7 +27,9 @@ class EventController extends NewsSourceController
     {
         parent::__construct($container);
 
-        $this->eventsTitle = $this->getSettings('events.title') ?? 'Events';
+        $this->eventRepository = $container->eventRepository;
+
+        $this->eventsTitle = $this->settingsProvider->getSettings('events.title', 'Events');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface

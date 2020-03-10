@@ -10,7 +10,7 @@ class SmokeTestController extends Controller
 {
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $pages = $this->getSettings('smoke_tests');
+        $pages = $this->settingsProvider->getSettings('smoke_tests');
         $testResults = $this->test($pages);
         
         return $this->render(

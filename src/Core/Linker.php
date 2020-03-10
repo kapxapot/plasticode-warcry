@@ -4,6 +4,7 @@ namespace App\Core;
 
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Article;
+use App\Models\ComicIssue;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
@@ -193,8 +194,12 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function comicIssue($comic)
+    public function comicIssue(?ComicIssue $comic) : string
     {
+        if (is_null($comic)) {
+            return null;
+        }
+
         $series = $comic->series();
         
         Assert::notNull(
@@ -279,9 +284,7 @@ class Linker extends LinkerBase implements LinkerInterface
             ->getSettings('folders.comics_thumbs_public') . $page->id . '.' . $ext;
     }
     
-    // recipes
-
-    public function recipes(?Skill $skill = null)
+    public function recipes(?Skill $skill = null) : string
     {
         $params = [];
         

@@ -14,7 +14,7 @@ class MapController extends Controller
             [
                 'sidebar' => [ 'stream', 'gallery' ],
                 'params' => [
-                    'title' => $this->getSettings('map.title'),
+                    'title' => $this->settingsProvider->getSettings('map.title'),
                     'items' => Article::publishedOrphans(),
                     'no_disqus' => 1,
                     'no_social' => 1,

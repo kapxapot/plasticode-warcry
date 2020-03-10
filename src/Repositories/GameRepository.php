@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Config\Interfaces\GameConfigInterface;
 use App\Models\Game;
 use App\Repositories\Interfaces\GameRepositoryInterface;
+use Plasticode\Collection;
 use Plasticode\Data\Db;
 use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 use Plasticode\Repositories\Idiorm\Traits\Publish;
@@ -38,6 +39,11 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
         $id = $this->config->defaultGameId();
 
         return $this->get($id);
+    }
+
+    public function getAllPublished() : Collection
+    {
+        return $this->publishedQuery()->all();
     }
 
     public function getPublishedByAlias(string $alias) : ?Game

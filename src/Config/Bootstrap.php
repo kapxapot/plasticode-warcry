@@ -319,7 +319,11 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'newsParser' => function (ContainerInterface $container) {
-                    return new NewsParser($container);
+                    return new NewsParser(
+                        $container->settingsProvider,
+                        $container->renderer,
+                        $container->linker
+                    );
                 },
                 
                 'forumParser' => function (ContainerInterface $container) {
@@ -377,7 +381,11 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'sidebarPartsProviderService' => function (ContainerInterface $container) {
-                    return new SidebarPartsProviderService($container);
+                    return new SidebarPartsProviderService(
+                        $container->settingsProvider,
+                        $container->newsAggregatorService,
+                        $container->streamService
+                    );
                 },
 
                 'skillService' => function (ContainerInterface $container) {

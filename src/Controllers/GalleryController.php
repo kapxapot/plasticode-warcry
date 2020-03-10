@@ -4,13 +4,18 @@ namespace App\Controllers;
 
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
+use App\Services\GalleryService;
 use Plasticode\Exceptions\Http\NotFoundException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Request as SlimRequest;
 
 class GalleryController extends Controller
 {
+    /** @var GalleryService */
+    private $galleryService;
+
     /**
      * Gallery title for views
      *
@@ -22,7 +27,9 @@ class GalleryController extends Controller
     {
         parent::__construct($container);
 
-        $this->galleryTitle = $this->getSettings('gallery.title');
+        $this->galleryService = $container->galleryService;
+
+        $this->galleryTitle = $this->settingsProvider->getSettings('gallery.title');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
@@ -34,7 +41,7 @@ class GalleryController extends Controller
 
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'stream', 'news' ],
+                'sidebar' => ['stream', 'news'],
                 'params' => [
                     'title' => $this->galleryTitle,
                     'pictures' => $pictures,
@@ -86,11 +93,12 @@ class GalleryController extends Controller
         return $this->render($response, 'main/gallery/author.twig', $params);
     }
     
-    public function picture(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function picture(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $id = $args['id'];
         $alias = $args['alias'] ?? null;
 
+        /** @var GalleryPicture */
         $picture = GalleryPicture::getPublished()->find($id);
         
         if (!$picture) {
@@ -137,7 +145,7 @@ class GalleryController extends Controller
         return $this->render($response, 'main/gallery/picture.twig', $params);
     }
     
-    public function chunk(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function chunk(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
     {
         $borderId = $args['border_id'];
 
