@@ -18,7 +18,7 @@ interface LinkerInterface extends PlasticodeLinkerInterface
      * Get article link.
      *
      * @param int|string $id
-     * @param string $cat
+     * @param string|null $cat
      * @return string
      */
     function article($id = null, ?string $cat = null) : string;

@@ -3,8 +3,12 @@
 namespace App\Testing\Mocks;
 
 use App\Core\Interfaces\LinkerInterface;
+use App\Models\Article;
+use App\Models\ComicIssue;
+use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
+use App\Models\Skill;
 use Plasticode\Testing\Mocks\LinkerMock as LinkerMockBase;
 use Plasticode\Util\Strings;
 
@@ -46,6 +50,11 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/recipes/') . $id;
     }
 
+    public function recipes(?Skill $skill = null) : string
+    {
+        return $this->abs('/recipes/') . $skill->alias;
+    }
+
     public function galleryPictureImg(GalleryPicture $picture) : string
     {
         return $this->abs('/gallery/picture/') . $picture->getId();
@@ -56,9 +65,34 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/gallery/picture/thumb/') . $picture->getId();
     }
 
+    public function comicIssue(?ComicIssue $comic) : string
+    {
+        return $this->abs('/comic_issues/') . $comic->getId();
+    }
+
+    public function disqusArticle(Article $article) : string
+    {
+        return 'disqus/article/' . $article->getId();
+    }
+
     public function disqusNews(int $id) : string
     {
         return 'disqus/news/' . $id;
+    }
+
+    function disqusGalleryAuthor(GalleryAuthor $author) : string
+    {
+        return 'disqus/gallery_author/' . $author->getId();
+    }
+
+    function disqusRecipes(?Skill $skill) : string
+    {
+        return 'disqus/recipes/' . $skill->alias;
+    }
+
+    function disqusRecipe(int $id) : string
+    {
+        return 'disqus/recipes/' . $id;
     }
 
     public function wowheadIcon(string $icon) : string
