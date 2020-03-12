@@ -35,7 +35,13 @@ $access = function (
     string $action,
     string $redirect = null
 ) use ($container) {
-    return new AccessMiddleware($container, $entity, $action, $redirect);
+    return new AccessMiddleware(
+        $container->access,
+        $container->router,
+        $entity,
+        $action,
+        $redirect
+    );
 };
 
 $root = $settings['root'];
@@ -106,7 +112,7 @@ $app->group(
                     ParserController::class . ':parse'
                 )->setName('api.parser.parse');
             }
-        )->add(new TokenAuthMiddleware($container));
+        )->add(new TokenAuthMiddleware($container->auth));
 
         // admin
         
@@ -117,24 +123,47 @@ $app->group(
             }
         )->setName('admin.index');
 
-        $this->group(
-            '/admin',
-            function () use ($settings, $access, $container) {
-                foreach (array_keys($settings['entities']) as $entity) {
-                    $gen = $container->generatorResolver->resolveEntity($entity);
-                    $gen->generateAdminPageRoute($this, $access);
+        $this
+            ->group(
+                '/admin',
+                function () use ($settings, $access, $container) {
+                    foreach (array_keys($settings['entities']) as $entity) {
+                        $gen = $container
+                            ->generatorResolver
+                            ->resolveEntity($entity);
+                        
+                        $gen->generateAdminPageRoute($this, $access);
+                    }
+                    
+                    $this
+                        ->get(
+                            '/playground',
+                            AdminPlaygroundController::class
+                        )
+                        ->setName('admin.playground');
+                    
+                    $this
+                        ->post(
+                            '/comics/upload',
+                            AdminComicController::class . ':upload'
+                        )
+                        ->setName('admin.comics.upload');
+                    
+                    $this
+                        ->post(
+                            '/gallery/upload',
+                            AdminGalleryController::class . ':upload'
+                        )
+                        ->setName('admin.gallery.upload');
                 }
-                
-                $this->get('/playground', AdminPlaygroundController::class)
-                    ->setName('admin.playground');
-                
-                $this->post('/comics/upload', AdminComicController::class . ':upload')
-                    ->setName('admin.comics.upload');
-                
-                $this->post('/gallery/upload', AdminGalleryController::class . ':upload')
-                    ->setName('admin.gallery.upload');
-            }
-        )->add(new AuthMiddleware($container, 'admin.index'));
+            )
+            ->add(
+                new AuthMiddleware(
+                    $container->router,
+                    $container->auth,
+                    'admin.index'
+                )
+            );
 
         // site
         
@@ -242,31 +271,53 @@ $app->group(
 
         // public auth
         
-        $this->group(
-            '/auth',
-            function () {
-                $this->post('/signup', AuthController::class . ':postSignUp')
-                    ->setName('auth.signup');
-                
-                $this->post('/signin', AuthController::class . ':postSignIn')
-                    ->setName('auth.signin');
-            }
-        )->add(new GuestMiddleware($container, 'main.index'));
+        $this
+            ->group(
+                '/auth',
+                function () {
+                    $this->post('/signup', AuthController::class . ':postSignUp')
+                        ->setName('auth.signup');
+                    
+                    $this->post('/signin', AuthController::class . ':postSignIn')
+                        ->setName('auth.signin');
+                }
+            )
+            ->add(
+                new GuestMiddleware(
+                    $container->router,
+                    $container->auth,
+                    'main.index'
+                )
+            );
         
         // private auth
 
-        $this->group(
-            '/auth',
-            function () {
-                $this->post('/signout', AuthController::class . ':postSignOut')
-                    ->setName('auth.signout');
-                
-                $this->post(
-                    '/password/change',
-                    PasswordController::class . ':postChangePassword'
-                )->setName('auth.password.change');
-            }
-        )->add(new AuthMiddleware($container, 'main.index'));
+        $this
+            ->group(
+                '/auth',
+                function () {
+                    $this
+                        ->post(
+                            '/signout',
+                            AuthController::class . ':postSignOut'
+                        )
+                        ->setName('auth.signout');
+                    
+                    $this
+                        ->post(
+                            '/password/change',
+                            PasswordController::class . ':postChangePassword'
+                        )
+                        ->setName('auth.password.change');
+                }
+            )
+            ->add(
+                new AuthMiddleware(
+                    $container->router,
+                    $container->auth,
+                    'main.index'
+                )
+            );
         
         // tests
         

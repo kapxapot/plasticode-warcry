@@ -9,19 +9,14 @@ use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Services\SidebarPartsProviderService;
 use Plasticode\Collection;
 use Plasticode\Controllers\Controller as BaseController;
-use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Util\Strings;
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 use Slim\Interfaces\RouterInterface;
 
 class Controller extends BaseController
 {
     private const DefaultPageDescriptionLimit = 1000;
-
-    /** @var SettingsProviderInterface */
-    protected $settingsProvider;
 
     /** @var RouterInterface */
     protected $router;
@@ -31,9 +26,6 @@ class Controller extends BaseController
 
     /** @var ParserInterface */
     protected $parser;
-
-    /** @var LoggerInterface */
-    protected $logger;
 
     /** @var GameRepositoryInterface */
     protected $gameRepository;
@@ -46,15 +38,15 @@ class Controller extends BaseController
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct($container);
+        parent::__construct($container->appContext);
         
-        $this->settingsProvider = $container->settingsProvider;
         $this->router = $container->router;
         $this->linker = $container->linker;
         $this->parser = $container->parser;
-        $this->logger = $container->logger;
         $this->gameRepository = $container->gameRepository;
-        $this->sidebarPartsProviderService = $container->sidebarPartsProviderService;
+
+        $this->sidebarPartsProviderService =
+            $container->sidebarPartsProviderService;
 
         $this->defaultGame = $this->gameRepository->getDefault();
     }
@@ -122,7 +114,7 @@ class Controller extends BaseController
     
     public function makePageDescription(string $text, string $limitVar) : string
     {
-        $limit = $this->settingsProvider->getSettings(
+        $limit = $this->getSettings(
             $limitVar,
             self::DefaultPageDescriptionLimit
         );

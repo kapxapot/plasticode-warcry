@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Game;
+use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Services\NewsAggregatorService;
 use Plasticode\Core\Pagination;
 use Plasticode\RSS\FeedImage;
@@ -23,18 +24,28 @@ class NewsController extends NewsSourceController
     /** @var Pagination */
     private $pagination;
 
+    /** @var GameRepositoryInterface */
+    private $gameRepository;
+
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
         $this->newsAggregatorService = $container->newsAggregatorService;
         $this->pagination = $container->pagination;
+        $this->gameRepository = $container->gameRepository;
     }
 
-    public function index(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function index(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         if ($args['game']) {
-            $game = Game::getPublishedByAlias($args['game']);
+            $game = $this->gameRepository->getPublishedByAlias(
+                $args['game']
+            );
             
             if (!$game) {
                 return $this->notFound($request, $response);
@@ -42,9 +53,10 @@ class NewsController extends NewsSourceController
         }
 
         $page = $request->getQueryParam('page', 1);
+
         $pageSize = $request->getQueryParam(
             'pagesize',
-            $this->settingsProvider->getSettings('news_limit')
+            $this->getSettings('news_limit')
         );
 
         $news = $this->newsAggregatorService->getPage($game, $page, $pageSize);
@@ -85,7 +97,11 @@ class NewsController extends NewsSourceController
         return $this->render($response, 'main/news/index.twig', $params);
     }
 
-    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $id = $args['id'];
         
@@ -129,7 +145,10 @@ class NewsController extends NewsSourceController
         return $this->render($response, 'main/news/item.twig', $params);
     }
 
-    public function archiveIndex(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function archiveIndex(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ) : ResponseInterface
     {
         $years = $this->newsAggregatorService->getYears();
         
@@ -146,7 +165,11 @@ class NewsController extends NewsSourceController
         return $this->render($response, 'main/news/archive/index.twig', $params);
     }
     
-    public function archiveYear(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function archiveYear(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $year = $args['year'];
 
@@ -173,16 +196,19 @@ class NewsController extends NewsSourceController
         return $this->render($response, 'main/news/archive/year.twig', $params);
     }
     
-    public function rss(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function rss(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ) : ResponseInterface
     {
-        $limit = $this->settingsProvider->getSettings('rss_limit' ?? 10);
+        $limit = $this->getSettings('rss_limit' ?? 10);
         
         $news = $this->newsAggregatorService->getTop($limit);
 
-        $path = $this->settingsProvider->getSettings('folders.rss_cache');
+        $path = $this->getSettings('folders.rss_cache');
         $fileName = File::combine(__DIR__, $path, 'rss.xml');
 
-        $settings = $this->settingsProvider->getSettings('view_globals');
+        $settings = $this->getSettings('view_globals');
         
         $siteUrl = $settings['site_url'];
         $siteName = $settings['site_name'];

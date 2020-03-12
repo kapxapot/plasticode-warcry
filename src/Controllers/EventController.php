@@ -29,14 +29,17 @@ class EventController extends NewsSourceController
 
         $this->eventRepository = $container->eventRepository;
 
-        $this->eventsTitle = $this->settingsProvider->getSettings('events.title', 'Events');
+        $this->eventsTitle = $this->getSettings('events.title', 'Events');
     }
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function index(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ) : ResponseInterface
     {
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'stream', 'gallery' ],
+                'sidebar' => ['stream', 'gallery'],
                 'params' => [
                     'title' => $this->eventsTitle,
                     'events' => Event::getGroups(),
@@ -49,7 +52,11 @@ class EventController extends NewsSourceController
         return $this->render($response, 'main/events/index.twig', $params);
     }
 
-    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+     ) : ResponseInterface
     {
         $id = $args['id'];
         
@@ -69,7 +76,7 @@ class EventController extends NewsSourceController
             [
                 'game' => $event->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
+                'sidebar' => ['stream', 'gallery', 'news'],
                 'large_image' => $event->largeImage(),
                 'image' => $event->image(),
                 'params' => [

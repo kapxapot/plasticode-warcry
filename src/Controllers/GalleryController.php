@@ -29,10 +29,13 @@ class GalleryController extends Controller
 
         $this->galleryService = $container->galleryService;
 
-        $this->galleryTitle = $this->settingsProvider->getSettings('gallery.title');
+        $this->galleryTitle = $this->getSettings('gallery.title');
     }
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function index(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ) : ResponseInterface
     {
         $query = GalleryPicture::getPublished();
         $pictures = $this->galleryService->getPage($query)->all();
@@ -53,7 +56,11 @@ class GalleryController extends Controller
         return $this->render($response, 'main/gallery/index.twig', $params);
     }
 
-    public function author(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function author(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $alias = $args['alias'];
 
@@ -72,7 +79,7 @@ class GalleryController extends Controller
 
         $params = $this->buildParams(
             [
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
+                'sidebar' => ['stream', 'gallery', 'news'],
                 'large_image' => $author->displayPicture()
                     ? $this->linker->abs($author->displayPicture()->url())
                     : null,
@@ -93,7 +100,11 @@ class GalleryController extends Controller
         return $this->render($response, 'main/gallery/author.twig', $params);
     }
     
-    public function picture(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function picture(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $id = $args['id'];
         $alias = $args['alias'] ?? null;
@@ -123,7 +134,7 @@ class GalleryController extends Controller
             [
                 'game' => $picture->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
+                'sidebar' => ['stream', 'gallery', 'news'],
                 'large_image' => $this->linker->abs($picture->url()),
                 'description' => $author->fullName(),
                 'params' => [
@@ -145,7 +156,11 @@ class GalleryController extends Controller
         return $this->render($response, 'main/gallery/picture.twig', $params);
     }
     
-    public function chunk(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function chunk(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $borderId = $args['border_id'];
 

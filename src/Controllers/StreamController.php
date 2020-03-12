@@ -43,7 +43,7 @@ class StreamController extends Controller
         $this->streamService = $container->streamService;
         $this->streamStatService = $container->streamStatService;
 
-        $this->streamsTitle = $this->settingsProvider->getSettings('streams.title', 'Streams');
+        $this->streamsTitle = $this->getSettings('streams.title', 'Streams');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
@@ -89,7 +89,9 @@ class StreamController extends Controller
         );
 
         try {
-            $rendered = $this->view->render($response, 'main/streams/item.twig', $params);
+            $rendered = $this->render(
+                $response, 'main/streams/item.twig', $params
+            );
         } catch (\Exception $ex) {
             $this->logger->debug($ex->getMessage(), $stream->toArray());
             return $this->notFound($request, $response);

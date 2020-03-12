@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Game;
 use App\Models\Recipe;
 use App\Models\Skill;
+use App\Repositories\Interfaces\GameRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request as SlimRequest;
@@ -19,9 +20,7 @@ class RecipeController extends Controller
     private $recipesTitle;
 
     /**
-     * Game
-     *
-     * @var App\Models\Game
+     * @var Game
      */
     private $game;
 
@@ -29,13 +28,20 @@ class RecipeController extends Controller
     {
         parent::__construct($container);
 
-        $this->recipesTitle = $this->settingsProvider->getSettings('recipes.title', 'Recipes');
+        $this->recipesTitle = $this->getSettings('recipes.title', 'Recipes');
 
-        $gameAlias = $this->settingsProvider->getSettings('recipes.game');
-        $this->game = Game::getPublishedByAlias($gameAlias);
+        /** @var GameRepositoryInterface */
+        $gameRepository = $container->gameRepository;
+        $gameAlias = $this->getSettings('recipes.game');
+
+        $this->game = $gameRepository->getPublishedByAlias($gameAlias);
     }
     
-    public function index(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function index(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $skillAlias = $args['skill'];
         
@@ -45,7 +51,7 @@ class RecipeController extends Controller
 
         $skill = Skill::getByAlias($skillAlias);
 
-        $pageSize = $this->settingsProvider->getSettings('recipes.page_size');
+        $pageSize = $this->getSettings('recipes.page_size');
 
         $title = $skill
             ? $skill['name_ru']
@@ -89,7 +95,7 @@ class RecipeController extends Controller
         $params = $this->buildParams(
             [
                 'game' => $this->game,
-                'sidebar' => [ 'stream', 'gallery' ],
+                'sidebar' => ['stream', 'gallery'],
                 'params' => [
                     'disqus_url' => $this->linker->disqusRecipes($skill),
                     'disqus_id' => 'recipes' . ($skill ? '_' . $skill['alias'] : ''),
@@ -110,7 +116,11 @@ class RecipeController extends Controller
         return $this->render($response, 'main/recipes/index.twig', $params);
     }
     
-    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $id = $args['id'];
         
@@ -129,7 +139,7 @@ class RecipeController extends Controller
         $params = $this->buildParams(
             [
                 'game' => $this->game,
-                'sidebar' => [ 'stream', 'gallery' ],
+                'sidebar' => ['stream', 'gallery'],
                 'params' => [
                     'disqus_url' => $this->linker->disqusRecipe($id),
                     'disqus_id' => 'recipe' . $id,

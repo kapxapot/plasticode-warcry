@@ -26,7 +26,7 @@ class VideoController extends NewsSourceController
 
         $this->videoRepository = $container->videoRepository;
 
-        $this->videosTitle = $this->settingsProvider->getSettings('videos.title', 'Videos');
+        $this->videosTitle = $this->getSettings('videos.title', 'Videos');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface

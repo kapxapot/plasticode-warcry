@@ -17,7 +17,7 @@ class ComicController extends Controller
     {
         parent::__construct($container);
 
-        $this->comicsTitle = $this->settingsProvider->getSettings('comics.title');
+        $this->comicsTitle = $this->getSettings('comics.title');
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
@@ -50,8 +50,10 @@ class ComicController extends Controller
             [
                 'game' => $series->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
-                'large_image' => $series->cover() ? $this->linker->abs($series->cover()->url()) : null,
+                'sidebar' => ['stream', 'gallery', 'news'],
+                'large_image' => $series->cover()
+                    ? $this->linker->abs($series->cover()->url())
+                    : null,
                 'description' => $series->parsedDescription($this->parser),
                 'params' => [
                     'series' => $series,
@@ -65,7 +67,11 @@ class ComicController extends Controller
         return $this->render($response, 'main/comics/series.twig', $params);
     }
     
-    public function issue(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function issue(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $alias = $args['alias'];
         $number = $args['number'];
@@ -86,8 +92,10 @@ class ComicController extends Controller
             [
                 'game' => $series->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
-                'large_image' => $comic->cover() ? $this->linker->abs($comic->cover()->url()) : null,
+                'sidebar' => ['stream', 'gallery', 'news'],
+                'large_image' => $comic->cover()
+                    ? $this->linker->abs($comic->cover()->url())
+                    : null,
                 'description' => $comic->parsedDescription($this->parser),
                 'params' => [
                     'series' => $series,
@@ -104,7 +112,11 @@ class ComicController extends Controller
         return $this->render($response, 'main/comics/issue.twig', $params);
     }
     
-    public function standalone(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function standalone(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $alias = $args['alias'];
 
@@ -118,8 +130,10 @@ class ComicController extends Controller
             [
                 'game' => $comic->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
-                'large_image' => $comic->cover() ? $this->linker->abs($comic->cover()->url()) : null,
+                'sidebar' => ['stream', 'gallery', 'news'],
+                'large_image' => $comic->cover()
+                    ? $this->linker->abs($comic->cover()->url())
+                    : null,
                 'description' => $comic->parsedDescription($this->parser),
                 'params' => [
                     'comic' => $comic,
@@ -133,7 +147,11 @@ class ComicController extends Controller
         return $this->render($response, 'main/comics/standalone.twig', $params);
     }
     
-    public function issuePage(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function issuePage(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $alias = $args['alias'];
         $comicNumber = $args['number'];
@@ -163,7 +181,7 @@ class ComicController extends Controller
             [
                 'game' => $series->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
+                'sidebar' => ['stream', 'gallery', 'news'],
                 'large_image' => $this->linker->abs($page->url),
                 'params' => [
                     'series' => $series,
@@ -181,7 +199,11 @@ class ComicController extends Controller
         return $this->render($response, 'main/comics/issue_page.twig', $params);
     }
     
-    public function standalonePage(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function standalonePage(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $alias = $args['alias'];
         $pageNumber = $args['page'];
@@ -204,7 +226,7 @@ class ComicController extends Controller
             [
                 'game' => $comic->game(),
                 'global_context' => true,
-                'sidebar' => [ 'stream', 'gallery', 'news' ],
+                'sidebar' => ['stream', 'gallery', 'news'],
                 'large_image' => $this->linker->abs($page->url()),
                 'params' => [
                     'comic' => $comic,
@@ -218,6 +240,8 @@ class ComicController extends Controller
             ]
         );
 
-        return $this->render($response, 'main/comics/standalone_page.twig', $params);
+        return $this->render(
+            $response, 'main/comics/standalone_page.twig', $params
+        );
     }
 }
