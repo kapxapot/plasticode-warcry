@@ -10,10 +10,29 @@ use App\Models\ComicStandalone;
 use App\Models\GalleryPicture;
 use App\Models\Video;
 use Plasticode\Collection;
-use Plasticode\Contained;
 
-class TagPartsProviderService extends Contained
+class TagPartsProviderService
 {
+    /** @var GalleryService */
+    private $galleryService;
+
+    /** @var NewsAggregatorService */
+    private $newsAggregatorService;
+
+    /** @var StreamService */
+    private $streamService;
+
+    public function __construct(
+        GalleryService $galleryService,
+        NewsAggregatorService $newsAggregatorService,
+        StreamService $streamService
+    )
+    {
+        $this->galleryService = $galleryService;
+        $this->newsAggregatorService = $newsAggregatorService;
+        $this->streamService = $streamService;
+    }
+
     public function getParts($tag)
     {
         $picturesQuery = GalleryPicture::getByTag($tag);

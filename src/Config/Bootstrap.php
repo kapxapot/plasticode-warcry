@@ -27,6 +27,8 @@ use App\Repositories\LocationRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\RecipeRepository;
 use App\Repositories\RegionRepository;
+use App\Repositories\StreamRepository;
+use App\Repositories\StreamStatRepository;
 use App\Repositories\VideoRepository;
 use App\Services\ComicService;
 use App\Services\GalleryPictureService;
@@ -117,6 +119,18 @@ class Bootstrap extends BootstrapBase
 
                 'regionRepository' => function (ContainerInterface $container) {
                     return new RegionRepository(
+                        $container->db
+                    );
+                },
+
+                'streamRepository' => function (ContainerInterface $container) {
+                    return new StreamRepository(
+                        $container->db
+                    );
+                },
+
+                'streamStatRepository' => function (ContainerInterface $container) {
+                    return new StreamStatRepository(
                         $container->db
                     );
                 },
@@ -409,7 +423,11 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'tagPartsProviderService' => function (ContainerInterface $container) {
-                    return new TagPartsProviderService($container);
+                    return new TagPartsProviderService(
+                        $container->galleryService,
+                        $container->newsAggregatorService,
+                        $container->streamService
+                    );
                 },
 
                 'twitterService' => function (ContainerInterface $container) {

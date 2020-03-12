@@ -4,9 +4,12 @@ namespace App\Controllers;
 
 use App\Jobs\UpdateStreamsJob;
 use App\Models\Stream;
+use App\Repositories\Interfaces\StreamRepositoryInterface;
+use App\Repositories\Interfaces\StreamStatRepositoryInterface;
 use App\Services\StreamService;
 use App\Services\StreamStatService;
 use Plasticode\Core\Interfaces\CacheInterface;
+use Plasticode\External\Telegram;
 use Plasticode\External\Twitch;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -20,6 +23,15 @@ class StreamController extends Controller
 
     /** @var Twitch */
     private $twitch;
+
+    /** @var Telegram */
+    private $telegram;
+
+    /** @var StreamRepositoryInterface */
+    private $streamRepository;
+
+    /** @var StreamStatRepositoryInterface */
+    private $streamStatRepository;
 
     /** @var StreamService */
     private $streamService;
@@ -40,6 +52,9 @@ class StreamController extends Controller
 
         $this->cache = $container->cache;
         $this->twitch = $container->twitch;
+        $this->telegram = $container->telegram;
+        $this->streamRepository = $container->streamRepository;
+        $this->streamStatRepository = $container->streamStatRepository;
         $this->streamService = $container->streamService;
         $this->streamStatService = $container->streamStatService;
 
@@ -110,7 +125,10 @@ class StreamController extends Controller
             $this->cache,
             $this->linker,
             $this->twitch,
+            $this->telegram,
             $this->logger,
+            $this->streamRepository,
+            $this->streamStatRepository,
             $notify
         );
 

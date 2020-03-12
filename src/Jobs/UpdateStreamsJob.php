@@ -5,16 +5,18 @@ namespace App\Jobs;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Stream;
 use App\Models\StreamStat;
+use App\Repositories\Interfaces\StreamRepositoryInterface;
+use App\Repositories\Interfaces\StreamStatRepositoryInterface;
 use Plasticode\Collection;
-use Plasticode\Contained;
 use Plasticode\Core\Interfaces\CacheInterface;
+use Plasticode\Core\Interfaces\SettingsProviderInterface;
+use Plasticode\External\Telegram;
 use Plasticode\External\Twitch;
-use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Date;
 use Plasticode\Util\Strings;
 use Psr\Log\LoggerInterface;
 
-class UpdateStreamsJob extends Contained
+class UpdateStreamsJob
 {
     /** @var SettingsProviderInterface */
     private $settingsProvider;
@@ -28,8 +30,17 @@ class UpdateStreamsJob extends Contained
     /** @var Twitch */
     private $twitch;
 
+    /** @var Telegram */
+    private $telegram;
+
     /** @var LoggerInterface */
     private $logger;
+
+    /** @var StreamRepositoryInterface */
+    private $streamRepository;
+
+    /** @var StreamStatRepositoryInterface */
+    private $streamStatRepository;
 
     /**
      * Send notification or not (Telegram, Twitter, etc.)
@@ -50,7 +61,10 @@ class UpdateStreamsJob extends Contained
         CacheInterface $cache,
         LinkerInterface $linker,
         Twitch $twitch,
+        Telegram $telegram,
         LoggerInterface $logger,
+        StreamRepositoryInterface $streamRepository,
+        StreamStatRepositoryInterface $streamStatRepository,
         bool $notify
     )
     {
@@ -58,11 +72,15 @@ class UpdateStreamsJob extends Contained
         $this->cache = $cache;
         $this->linker = $linker;
         $this->twitch = $twitch;
+        $this->telegram = $telegram;
         $this->logger = $logger;
+        $this->streamRepository = $streamRepository;
+        $this->streamStatRepository = $streamStatRepository;
         
         $this->notify = $notify;
 
-        $this->log = ($this->settingsProvider->getSettings('streams.log')) === true;
+        $logSettings = $this->settingsProvider->get('streams.log');
+        $this->log = ($logSettings === true);
     }
     
     public function run() : Collection
@@ -133,7 +151,8 @@ class UpdateStreamsJob extends Contained
             $stream->remoteOnlineAt = $now;
         }
 
-        $stream->save();
+        $stream = $this->streamRepository->save($stream);
+
         $this->updateStreamStats($stream);
         
         return [
@@ -194,7 +213,8 @@ class UpdateStreamsJob extends Contained
         
         if ($stats) {
             if ($online) {
-                $statsTTL = $this->settingsProvider->getSettings('streams.stats_ttl', 10);
+                $statsTTL = $this->settingsProvider
+                    ->get('streams.stats_ttl', 10);
 
                 $expired = Date::expired($stats->createdAt, "PT{$statsTTL}M");
     
@@ -209,8 +229,8 @@ class UpdateStreamsJob extends Contained
         }
         
         if ($refresh) {
-            $stats = StreamStat::fromStream($stream);
-            $stats->save();
+            $stat = StreamStat::fromStream($stream);
+            $this->streamStatRepository->save($stat);
         }
     }
     
@@ -220,20 +240,18 @@ class UpdateStreamsJob extends Contained
 
         $verb = ($s->channel == 1)
             ? ($status
-                ? "транслирует <b>{$status}</b>"
+                ? 'транслирует <b>' . $status . '</b>'
                 : 'ведет трансляцию')
-            : "играет в <b>{$s->remoteGame}</b>
-{$status}";
+            : 'играет в <b>' . $s->remoteGame . '</b>' . PHP_EOL . $status;
 
         $verbEn = ($s->channel == 1)
             ? ($status
-                ? "is streaming <b>{$status}</b>"
+                ? 'is streaming <b>' . $status . '</b>'
                 : 'started streaming')
-            : "is playing <b>{$s->remoteGame}</b>
-{$status}";
+            : 'is playing <b>' . $s->remoteGame . '</b>' . PHP_EOL . $status;
         
         $url = $this->linker->twitch($s->streamId);
-        $source = "<a href=\"{$url}\">{$s->title}</a>";
+        $source = '<a href="' . $url . '">' . $s->title . '</a>';
         
         $message = $source . ' ' . $verb;
         $messageEn = $source . ' ' . $verbEn;
