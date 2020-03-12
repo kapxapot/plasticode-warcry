@@ -2,12 +2,20 @@
 
 namespace App\Services;
 
+use App\Core\Interfaces\LinkerInterface;
 use App\Models\Interfaces\NewsSourceInterface;
-use Plasticode\Contained;
 use Plasticode\Util\Strings;
 
-class TwitterService extends Contained
+class TwitterService
 {
+    /** @var LinkerInterface */
+    private $linker;
+
+    public function __construct(LinkerInterface $linker)
+    {
+        $this->linker = $linker;
+    }
+
     public function buildMessage(NewsSourceInterface $news) : string
     {
         $url = $news->url();

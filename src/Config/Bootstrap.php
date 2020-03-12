@@ -413,7 +413,9 @@ class Bootstrap extends BootstrapBase
                 },
 
                 'twitterService' => function (ContainerInterface $container) {
-                    return new TwitterService($container);
+                    return new TwitterService(
+                        $container->linker
+                    );
                 }
             ]
         );
