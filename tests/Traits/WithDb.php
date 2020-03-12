@@ -3,7 +3,6 @@
 namespace App\Tests\Traits;
 
 use Plasticode\Auth\Auth;
-use Plasticode\Core\Core;
 use Plasticode\Data\Db;
 use Plasticode\Gallery\Gallery;
 use Plasticode\Parsing\Parsers\CompositeParser;
@@ -62,7 +61,5 @@ trait WithDb
                 }
             ]
         );
-
-        Core::initModels($container);
     }
 }

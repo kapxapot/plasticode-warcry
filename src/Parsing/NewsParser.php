@@ -4,7 +4,7 @@ namespace App\Parsing;
 
 use App\Core\Interfaces\LinkerInterface;
 use App\Core\Interfaces\RendererInterface;
-use Plasticode\Interfaces\SettingsProviderInterface;
+use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Numbers;
 use Plasticode\Util\Text;
 
@@ -71,7 +71,7 @@ class NewsParser
 
     public function afterParsePost($str)
     {
-        $siteUrl = $this->settingsProvider->getSettings('view_globals.site_url');
+        $siteUrl = $this->settingsProvider->get('view_globals.site_url');
 
         // fking smileys
         $str = str_replace("<img src=\"style_emoticons/", "<imgr src=\"/forum/public/style_emoticons/", $str);

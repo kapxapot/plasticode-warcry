@@ -9,9 +9,9 @@ use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
 use App\Models\Skill;
+use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\Core\Linker as LinkerBase;
 use Plasticode\Gallery\Gallery;
-use Plasticode\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Strings;
 use Slim\Interfaces\RouterInterface;
 use Webmozart\Assert\Assert;
@@ -35,7 +35,7 @@ class Linker extends LinkerBase implements LinkerInterface
     // urls
     private function forumUrl(string $url) : string
     {
-        return $this->settingsProvider->getSettings('forum.page') . '?' . $url;
+        return $this->settingsProvider->get('forum.page') . '?' . $url;
     }
 
     // site
@@ -146,7 +146,7 @@ class Linker extends LinkerBase implements LinkerInterface
     
     public function forumUpload(string $name) : string
     {
-        return $this->settingsProvider->getSettings('forum.index') . '/uploads/' . $name;
+        return $this->settingsProvider->get('forum.index') . '/uploads/' . $name;
     }
     
     // gallery
@@ -273,7 +273,7 @@ class Linker extends LinkerBase implements LinkerInterface
         $ext = $this->getExtension($page->type);
 
         return $this->settingsProvider
-            ->getSettings('folders.comics_pages_public') . $page->id . '.' . $ext;
+            ->get('folders.comics_pages_public') . $page->id . '.' . $ext;
     }
     
     public function comicThumbImg($page)
@@ -281,7 +281,7 @@ class Linker extends LinkerBase implements LinkerInterface
         $ext = $this->getExtension($page->type);
 
         return $this->settingsProvider
-            ->getSettings('folders.comics_thumbs_public') . $page->id . '.' . $ext;
+            ->get('folders.comics_thumbs_public') . $page->id . '.' . $ext;
     }
     
     public function recipes(?Skill $skill = null) : string
@@ -309,12 +309,12 @@ class Linker extends LinkerBase implements LinkerInterface
     
     public function wowheadUrl(string $params) : string
     {
-        return $this->settingsProvider->getSettings('webdb_link') . $params;
+        return $this->settingsProvider->get('webdb_link') . $params;
     }
     
     public function wowheadUrlRu(string $params) : string
     {
-        return $this->settingsProvider->getSettings('webdb_ru_link') . $params;
+        return $this->settingsProvider->get('webdb_ru_link') . $params;
     }
     
     public function wowheadSpellRu(int $id) : string
@@ -347,6 +347,6 @@ class Linker extends LinkerBase implements LinkerInterface
     public function hsCard(string $id) : string
     {
         return $this->settingsProvider
-            ->getSettings('hsdb_ru_link') . 'cards/' . $id;
+            ->get('hsdb_ru_link') . 'cards/' . $id;
     }
 }

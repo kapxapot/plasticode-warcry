@@ -7,7 +7,7 @@ use App\Core\Interfaces\RendererInterface;
 use App\Parsing\LinkMappers\Basic\TaggedLinkMapper;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use Plasticode\Collection;
-use Plasticode\Interfaces\SettingsProviderInterface;
+use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\Parsing\SlugChunk;
 use Plasticode\Util\Strings;
 
@@ -48,7 +48,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
         $ids = Strings::explode($slug);
 
         /** @var integer */
-        $maxPictures = $this->settingsProvider->getSettings(
+        $maxPictures = $this->settingsProvider->get(
             'gallery.inline_limit',
             self::DefaultMaxPictures
         );

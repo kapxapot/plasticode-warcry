@@ -2,7 +2,7 @@
 
 namespace App\Testing\Mocks;
 
-use Plasticode\Interfaces\SettingsProviderInterface;
+use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\Util\Arrays;
 
 class SettingsProviderMock implements SettingsProviderInterface
@@ -13,7 +13,7 @@ class SettingsProviderMock implements SettingsProviderInterface
         ],
     ];
 
-    public function getSettings(string $path = null, $default = null)
+    public function get(string $path = null, $default = null)
     {
         return Arrays::get($this->settings, $path) ?? $default;
     }

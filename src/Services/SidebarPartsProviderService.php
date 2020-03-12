@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Article;
 use App\Models\Event;
 use App\Models\GalleryPicture;
-use Plasticode\Interfaces\SettingsProviderInterface;
+use Plasticode\Core\Interfaces\SettingsProviderInterface;
 
 class SidebarPartsProviderService
 {
@@ -35,17 +35,28 @@ class SidebarPartsProviderService
         
         switch ($part) {
             case 'news':
-                $limit = $this->settingsProvider->getSettings('sidebar.latest_news_limit');
+                $limit = $this->settingsProvider
+                    ->get('sidebar.latest_news_limit');
+                
                 $exceptNewsId = $settings['news_id'] ?? null;
                 
-                $result = $this->newsAggregatorService->getLatest($game, $limit, $exceptNewsId);
+                $result = $this->newsAggregatorService
+                    ->getLatest($game, $limit, $exceptNewsId);
+                
                 break;
 
             case 'articles':
-                $limit = $this->settingsProvider->getSettings('sidebar.article_limit');
+                $limit = $this->settingsProvider
+                    ->get('sidebar.article_limit');
+                
                 $exceptArticleId = $settings['article_id'] ?? null;
                 
-                $result = Article::getLatest($game, $limit, $exceptArticleId)->all();
+                $result = Article::getLatest(
+                    $game,
+                    $limit,
+                    $exceptArticleId
+                )->all();
+
                 break;
             
             case 'stream':
@@ -53,21 +64,34 @@ class SidebarPartsProviderService
                     'stream' => $this->streamService->topOnline($game),
                     'total_online' => $this->streamService->totalOnlineStr(),
                 ];
+
                 break;
             
             case 'gallery':
-                $limit = $this->settingsProvider->getSettings('sidebar.latest_gallery_pictures_limit');
-                $result = [ 'pictures' => GalleryPicture::getLatestByGame($game, $limit)->all() ];
+                $limit = $this->settingsProvider
+                    ->get('sidebar.latest_gallery_pictures_limit');
+
+                $result = [
+                    'pictures' => GalleryPicture::getLatestByGame(
+                        $game,
+                        $limit
+                    )->all()
+                ];
+
                 break;
             
             case 'events':
-                $days = $this->settingsProvider->getSettings('sidebar.future_events_days');
+                $days = $this->settingsProvider
+                    ->get('sidebar.future_events_days');
+                
                 $result = Event::getCurrent($game, $days)->all();
+
                 break;
             
             case 'countdown':
                 $event = Event::getFutureImportant()->one();
-                $result = [ 'event' => $event ];
+                $result = ['event' => $event];
+                
                 break;
         }
         
