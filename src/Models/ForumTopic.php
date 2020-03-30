@@ -19,8 +19,8 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     
     protected static $idField = 'tid';
     
-    protected static $sortField = 'start_date';
-    protected static $sortReverse = true;
+    protected static string $sortField = 'start_date';
+    protected static bool $sortReverse = true;
     
     // traits
     
@@ -42,7 +42,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     {
         $ids = ForumTag::getForumTopicIdsByTag($tag);
         
-        if ($ids->empty()) {
+        if ($ids->isEmpty()) {
             return Query::empty();
         }
 
@@ -60,7 +60,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     {
         $forumIds = Game::getNewsForumIds($game);
 
-        if ($forumIds->empty()) {
+        if ($forumIds->isEmpty()) {
             return Query::empty();
         }
         

@@ -42,7 +42,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
 
     public function mapSlug(SlugChunk $slugChunk, array $otherChunks) : ?string
     {
-        $pictures = Collection::makeEmpty();
+        $pictures = Collection::empty();
         
         $slug = $slugChunk->slug();
         $ids = Strings::explode($slug);
@@ -88,7 +88,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
             }
         }
 
-        if ($pictures->empty()) {
+        if ($pictures->isEmpty()) {
             return null;
         }
 

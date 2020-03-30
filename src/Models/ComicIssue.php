@@ -7,7 +7,7 @@ use Plasticode\Query;
 
 class ComicIssue extends Comic
 {
-    protected static $sortField = 'number';
+    protected static string $sortField = 'number';
 
     public static function getBySeries($seriesId) : Query
     {

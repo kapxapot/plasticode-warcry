@@ -172,8 +172,7 @@ class GalleryController extends Controller
         
         if ($authorId > 0) {
             $query = GalleryPicture::getPublishedByAuthor($authorId);
-        }
-        elseif (strlen($tag) > 0) {
+        } elseif (strlen($tag) > 0) {
             $query = GalleryPicture::getByTag($tag);
         }
         
@@ -181,7 +180,7 @@ class GalleryController extends Controller
 
         $pictures = $this->galleryService->getPage($query)->all();
         
-        if ($pictures->empty()) {
+        if ($pictures->isEmpty()) {
             throw new NotFoundException();
         }
 

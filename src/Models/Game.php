@@ -18,7 +18,7 @@ class Game extends DbModel implements LinkableInterface
 {
     use Children, Publish;
     
-    protected static $sortField = 'position';
+    protected static string $sortField = 'position';
 
     // GETTERS - ONE
 

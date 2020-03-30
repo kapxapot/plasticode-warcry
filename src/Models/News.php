@@ -11,8 +11,8 @@ class News extends NewsSource
 {
     use CachedDescription;
 
-    protected static $sortField = 'published_at';
-    protected static $sortReverse = true;
+    protected static string $sortField = 'published_at';
+    protected static bool $sortReverse = true;
     
     // traits
     

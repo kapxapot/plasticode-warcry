@@ -12,7 +12,7 @@ class ArticleCategoryRepository extends IdiormRepository implements ArticleCateg
 
     public function getByName(string $name) : ?ArticleCategory
     {
-        return $this->query
+        return $this
             ->query()
             ->where('name_en', $name)
             ->one();

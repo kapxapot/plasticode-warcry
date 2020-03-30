@@ -6,11 +6,9 @@ use Plasticode\Collection;
 
 class ComicStandalone extends Comic
 {
-    protected static $sortField = 'issued_on';
-    protected static $sortReverse = true;
+    protected static string $sortField = 'issued_on';
+    protected static bool $sortReverse = true;
     protected static $tagsEntityType = 'comics';
-    
-    // getters - one
 
     public static function getPublishedByAlias($alias) : ?self
     {
@@ -18,16 +16,12 @@ class ComicStandalone extends Comic
             ->where('alias', $alias)
             ->one();
     }
-    
-    // funcs
-    
+
     public function createPage() : ComicStandalonePage
     {
         return ComicStandalonePage::createForComic($this->getId());
     }
 
-    // props
-    
     public function game() : Game
     {
         return Game::get($this->gameId);

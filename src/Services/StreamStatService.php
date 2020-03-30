@@ -7,6 +7,7 @@ use App\Models\StreamStat;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
+use Plasticode\Util\SortStep;
 
 class StreamStatService
 {
@@ -55,14 +56,15 @@ class StreamStatService
                 $games
             );
 
-            $sorts = [
-                'priority' => ['dir' => 'desc'],
-                'percent' => ['dir' => 'desc'],
+            $steps = [
+                SortStep::createDesc('priority'),
+                SortStep::createDesc('percent'),
             ];
-        
-            $games = Sort::multi($games, $sorts);
-            
+
+            $games = Sort::multi($games, $steps);
+
             $blizzardTotal = 0;
+
             foreach ($games as $game) {
                 if ($game['priority']) {
                     $blizzardTotal += $game['percent'];

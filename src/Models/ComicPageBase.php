@@ -12,7 +12,7 @@ abstract class ComicPageBase extends DbModel
 {
     use Publish, Stamps;
 
-    protected static $sortField = 'number';
+    protected static string $sortField = 'number';
 
     protected static $comicIdField;
 

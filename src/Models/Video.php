@@ -11,8 +11,8 @@ class Video extends NewsSource
 {
     use Description;
 
-    protected static $sortField = 'published_at';
-    protected static $sortReverse = true;
+    protected static string $sortField = 'published_at';
+    protected static bool $sortReverse = true;
 
     // PROPS
 

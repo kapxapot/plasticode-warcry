@@ -29,15 +29,15 @@ use Psr\Container\ContainerInterface;
 class Article extends NewsSource
 {
     use CachedDescription, Children;
-    
-    protected static $sortField = 'published_at';
-    protected static $sortReverse = true;
-    
+
+    protected static string $sortField = 'published_at';
+    protected static bool $sortReverse = true;
+
     protected static function getDescriptionField() : string
     {
         return 'text';
     }
-    
+
     public static function publishedOrphans() : Collection
     {
         return self::getPublished()
@@ -130,7 +130,7 @@ class Article extends NewsSource
     
     public function breadcrumbs() : Collection
     {
-        $breadcrumbs = Collection::makeEmpty();
+        $breadcrumbs = Collection::empty();
         
         $article = $this->parent();
         

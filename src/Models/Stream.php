@@ -14,8 +14,8 @@ class Stream extends DbModel
 {
     use Description, FullPublish, Stamps, Tags;
 
-    protected static $sortField = 'remote_viewers';
-    protected static $sortReverse = true;
+    protected static string $sortField = 'remote_viewers';
+    protected static bool $sortReverse = true;
 
     /** @var boolean */
     private $alive;
