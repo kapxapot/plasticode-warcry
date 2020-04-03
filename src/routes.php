@@ -25,24 +25,22 @@ use Plasticode\Middleware\GuestMiddleware;
 use Plasticode\Middleware\AccessMiddleware;
 use Plasticode\Middleware\TokenAuthMiddleware;
 
+/** @var ContainerInterface $container */
+
 /**
  * Creates AccessMiddleware.
  * 
  * @var \Closure
  */
-$access = function (
-    string $entity,
-    string $action,
-    string $redirect = null
-) use ($container) {
-    return new AccessMiddleware(
+$access = fn (string $entity, string $action, ?string $redirect = null)
+    => new AccessMiddleware(
         $container->access,
+        $container->auth,
         $container->router,
         $entity,
         $action,
         $redirect
     );
-};
 
 $root = $settings['root'];
 $trueRoot = (strlen($root) == 0);
@@ -112,7 +110,7 @@ $app->group(
                     ParserController::class . ':parse'
                 )->setName('api.parser.parse');
             }
-        )->add(new TokenAuthMiddleware($container->auth));
+        )->add(new TokenAuthMiddleware($container->authService));
 
         // admin
         
@@ -160,7 +158,7 @@ $app->group(
             ->add(
                 new AuthMiddleware(
                     $container->router,
-                    $container->auth,
+                    $container->authService,
                     'admin.index'
                 )
             );
@@ -285,7 +283,7 @@ $app->group(
             ->add(
                 new GuestMiddleware(
                     $container->router,
-                    $container->auth,
+                    $container->authService,
                     'main.index'
                 )
             );
@@ -314,7 +312,7 @@ $app->group(
             ->add(
                 new AuthMiddleware(
                     $container->router,
-                    $container->auth,
+                    $container->authService,
                     'main.index'
                 )
             );

@@ -40,7 +40,7 @@ $app->add(new \Plasticode\Middleware\SlashMiddleware());
 
 $app->add(
     new \Plasticode\Middleware\CookieAuthMiddleware(
-        $container->auth,
+        $container->authService,
         $settings['auth_token_key']
     )
 );
