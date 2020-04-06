@@ -2,11 +2,10 @@
 
 namespace App\Validation\Rules;
 
-use Plasticode\Validation\Rules\ContainerRule;
-
 use App\Models\Article;
+use Respect\Validation\Rules\AbstractRule;
 
-class ArticleNameCatAvailable extends ContainerRule
+class ArticleNameCatAvailable extends AbstractRule
 {
     private $cat;
     private $id;
@@ -21,6 +20,6 @@ class ArticleNameCatAvailable extends ContainerRule
     {
         $article = Article::lookup($input, $this->cat, $this->id)->one();
 
-        return $article === null;
+        return is_null($article);
     }
 }

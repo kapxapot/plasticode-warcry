@@ -2,24 +2,23 @@
 
 namespace App\Controllers;
 
+use App\Handlers\NotFoundHandler;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request as SlimRequest;
 
-/**
- * @property ArticleRepositoryInterface $articleRepository
- */
 class ArticleController extends NewsSourceController
 {
-    /** @var ArticleRepositoryInterface */
-    private $articleRepository;
+    private ArticleRepositoryInterface $articleRepository;
+    private NotFoundHandler $notFoundHandler;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
         $this->articleRepository = $container->articleRepository;
+        $this->notFoundHandler = $container->notFoundHandler;
     }
 
     public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
@@ -32,7 +31,7 @@ class ArticleController extends NewsSourceController
         $article = $this->articleRepository->getBySlugOrAlias($id, $cat);
 
         if (!$article) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
 
         if ($rebuild !== null) {

@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Handlers\NotFoundHandler;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Services\GalleryService;
@@ -13,21 +14,20 @@ use Slim\Http\Request as SlimRequest;
 
 class GalleryController extends Controller
 {
-    /** @var GalleryService */
-    private $galleryService;
+    private GalleryService $galleryService;
+    private NotFoundHandler $notFoundHandler;
 
     /**
      * Gallery title for views
-     *
-     * @var string
      */
-    private $galleryTitle;
+    private string $galleryTitle;
     
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
         $this->galleryService = $container->galleryService;
+        $this->notFoundHandler = $container->notFoundHandler;
 
         $this->galleryTitle = $this->getSettings('gallery.title');
     }
@@ -67,7 +67,7 @@ class GalleryController extends Controller
         $author = GalleryAuthor::getPublishedByAlias($alias);
 
         if (!$author) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $id = $author->id;
@@ -113,7 +113,7 @@ class GalleryController extends Controller
         $picture = GalleryPicture::getPublished()->find($id);
         
         if (!$picture) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
 
         $author = $picture->author();
@@ -122,7 +122,7 @@ class GalleryController extends Controller
             $aliasAuthor = GalleryAuthor::getPublishedByAlias($alias);
         
             if (!$aliasAuthor || $author->getId() != $aliasAuthor->getId()) {
-                return $this->notFound($request, $response);
+                return ($this->notFoundHandler)($request, $response);
             }
             
             $author = $aliasAuthor;

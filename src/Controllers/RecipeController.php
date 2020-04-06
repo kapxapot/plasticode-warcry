@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Handlers\NotFoundHandler;
 use App\Models\Game;
 use App\Models\Recipe;
 use App\Models\Skill;
@@ -12,21 +13,20 @@ use Slim\Http\Request as SlimRequest;
 
 class RecipeController extends Controller
 {
-    /**
-     * Recipes title for views
-     *
-     * @var string
-     */
-    private $recipesTitle;
+    private NotFoundHandler $notFoundHandler;
 
     /**
-     * @var Game
+     * Recipes title for views
      */
-    private $game;
+    private string $recipesTitle;
+
+    private Game $game;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
+
+        $this->notFoundHandler = $container->notFoundHandler;
 
         $this->recipesTitle = $this->getSettings('recipes.title', 'Recipes');
 
@@ -129,7 +129,7 @@ class RecipeController extends Controller
         $recipe = Recipe::get($id);
 
         if (!$recipe) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         if ($rebuild) {

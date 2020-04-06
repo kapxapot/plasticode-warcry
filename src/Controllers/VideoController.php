@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Handlers\NotFoundHandler;
 use App\Models\Video;
 use App\Repositories\Interfaces\VideoRepositoryInterface;
 use Psr\Container\ContainerInterface;
@@ -10,21 +11,20 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class VideoController extends NewsSourceController
 {
-    /** @var VideoRepositoryInterface */
-    private $videoRepository;
+    private VideoRepositoryInterface $videoRepository;
+    private NotFoundHandler $notFoundHandler;
 
     /**
      * Videos title for views
-     *
-     * @var string
      */
-    private $videosTitle;
+    private string $videosTitle;
     
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
         $this->videoRepository = $container->videoRepository;
+        $this->notFoundHandler = $container->notFoundHandler;
 
         $this->videosTitle = $this->getSettings('videos.title', 'Videos');
     }
@@ -51,7 +51,7 @@ class VideoController extends NewsSourceController
         $video = $this->videoRepository->getProtected($id);
 
         if (!$video) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
 
         $params = $this->buildParams(

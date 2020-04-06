@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Handlers\NotFoundHandler;
 use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
 use Psr\Container\ContainerInterface;
@@ -11,11 +12,15 @@ use Slim\Http\Request as SlimRequest;
 
 class ComicController extends Controller
 {
-    private $comicsTitle;
+    private NotFoundHandler $notFoundHandler;
+
+    private string $comicsTitle;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
+
+        $this->notFoundHandler = $container->notFoundHandler;
 
         $this->comicsTitle = $this->getSettings('comics.title');
     }
@@ -43,7 +48,7 @@ class ComicController extends Controller
         $series = ComicSeries::getPublishedByAlias($alias);
 
         if (!$series) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $params = $this->buildParams(
@@ -79,13 +84,13 @@ class ComicController extends Controller
         $series = ComicSeries::getPublishedByAlias($alias);
 
         if (!$series) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $comic = $series->issueByNumber($number);
         
         if (!$comic) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
 
         $params = $this->buildParams(
@@ -123,7 +128,7 @@ class ComicController extends Controller
         $comic = ComicStandalone::getPublishedByAlias($alias);
 
         if (!$comic) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
 
         $params = $this->buildParams(
@@ -160,19 +165,19 @@ class ComicController extends Controller
         $series = ComicSeries::getPublishedByAlias($alias);
 
         if (!$series) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $comic = $series->issueByNumber($comicNumber);
         
         if (!$comic) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $page = $comic->pageByNumber($pageNumber);
         
         if (!$page) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $fullscreen = $request->getQueryParam('full', null);
@@ -211,13 +216,13 @@ class ComicController extends Controller
         $comic = ComicStandalone::getPublishedByAlias($alias);
 
         if (!$comic) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
 
         $page = $comic->pageByNumber($pageNumber);
 
         if (!$page) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $fullscreen = $request->getQueryParam('full', null);

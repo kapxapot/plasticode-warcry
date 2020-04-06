@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Models\Article;
 use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
-use Plasticode\Auth\Auth;
+use Plasticode\Auth\Interfaces\AuthInterface;
 use Plasticode\Data\Db;
 use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\ProtectedRepository;
@@ -23,7 +23,7 @@ class ArticleRepository extends ProtectedRepository implements ArticleRepository
 
     public function __construct(
         Db $db,
-        Auth $auth,
+        AuthInterface $auth,
         ArticleCategoryRepositoryInterface $articleCategoryRepository
     )
     {

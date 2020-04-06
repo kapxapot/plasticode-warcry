@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\Game;
+use App\Handlers\NotFoundHandler;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Services\NewsAggregatorService;
 use Plasticode\Core\Pagination;
@@ -18,22 +18,19 @@ use Slim\Http\Request as SlimRequest;
 
 class NewsController extends NewsSourceController
 {
-    /** @var NewsAggregatorService */
-    private $newsAggregatorService;
-
-    /** @var Pagination */
-    private $pagination;
-
-    /** @var GameRepositoryInterface */
-    private $gameRepository;
+    private GameRepositoryInterface $gameRepository;
+    private NewsAggregatorService $newsAggregatorService;
+    private Pagination $pagination;
+    private NotFoundHandler $notFoundHandler;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
+        $this->gameRepository = $container->gameRepository;
         $this->newsAggregatorService = $container->newsAggregatorService;
         $this->pagination = $container->pagination;
-        $this->gameRepository = $container->gameRepository;
+        $this->notFoundHandler = $container->notFoundHandler;
     }
 
     public function index(
@@ -48,7 +45,7 @@ class NewsController extends NewsSourceController
             );
             
             if (!$game) {
-                return $this->notFound($request, $response);
+                return ($this->notFoundHandler)($request, $response);
             }
         }
 
@@ -110,7 +107,7 @@ class NewsController extends NewsSourceController
         $news = $this->newsAggregatorService->getNews($id);
 
         if (!$news) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         // additional check for forum news

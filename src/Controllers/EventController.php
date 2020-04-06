@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Handlers\NotFoundHandler;
 use App\Models\Event;
 use App\Models\EventType;
 use App\Models\Game;
@@ -13,21 +14,20 @@ use Slim\Http\Request as SlimRequest;
 
 class EventController extends NewsSourceController
 {
-    /** @var EventRepositoryInterface */
-    private $eventRepository;
+    private EventRepositoryInterface $eventRepository;
+    private NotFoundHandler $notFoundHandler;
 
     /**
      * Events title for views
-     *
-     * @var string
      */
-    private $eventsTitle;
-    
+    private string $eventsTitle;
+
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
         $this->eventRepository = $container->eventRepository;
+        $this->notFoundHandler = $container->notFoundHandler;
 
         $this->eventsTitle = $this->getSettings('events.title', 'Events');
     }
@@ -65,7 +65,7 @@ class EventController extends NewsSourceController
         $event = $this->eventRepository->getProtected($id);
 
         if (!$event) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
 
         if ($rebuild !== null) {

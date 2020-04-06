@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Handlers\NotFoundHandler;
 use App\Jobs\UpdateStreamsJob;
 use App\Models\Stream;
 use App\Repositories\Interfaces\StreamRepositoryInterface;
@@ -18,45 +19,32 @@ use Slim\Http\Request as SlimRequest;
 
 class StreamController extends Controller
 {
-    /** @var CacheInterface */
-    private $cache;
-
-    /** @var Twitch */
-    private $twitch;
-
-    /** @var Telegram */
-    private $telegram;
-
-    /** @var StreamRepositoryInterface */
-    private $streamRepository;
-
-    /** @var StreamStatRepositoryInterface */
-    private $streamStatRepository;
-
-    /** @var StreamService */
-    private $streamService;
-
-    /** @var StreamStatService */
-    private $streamStatService;
+    private CacheInterface $cache;
+    private Telegram $telegram;
+    private Twitch $twitch;
+    private StreamRepositoryInterface $streamRepository;
+    private StreamStatRepositoryInterface $streamStatRepository;
+    private StreamService $streamService;
+    private StreamStatService $streamStatService;
+    private NotFoundHandler $notFoundHandler;
 
     /**
      * Streams title for views
-     *
-     * @var string
      */
-    private $streamsTitle;
+    private string $streamsTitle;
     
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
 
         $this->cache = $container->cache;
-        $this->twitch = $container->twitch;
         $this->telegram = $container->telegram;
+        $this->twitch = $container->twitch;
         $this->streamRepository = $container->streamRepository;
         $this->streamStatRepository = $container->streamStatRepository;
         $this->streamService = $container->streamService;
         $this->streamStatService = $container->streamStatService;
+        $this->notFoundHandler = $container->notFoundHandler;
 
         $this->streamsTitle = $this->getSettings('streams.title', 'Streams');
     }
@@ -87,7 +75,7 @@ class StreamController extends Controller
         $stream = Stream::getPublishedByAlias($alias);
         
         if (!$stream) {
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         $params = $this->buildParams(
@@ -109,7 +97,7 @@ class StreamController extends Controller
             );
         } catch (\Exception $ex) {
             $this->logger->debug($ex->getMessage(), $stream->toArray());
-            return $this->notFound($request, $response);
+            return ($this->notFoundHandler)($request, $response);
         }
         
         return $rendered;

@@ -11,25 +11,17 @@ use App\Testing\Mocks\SettingsProviderMock;
 use App\Testing\Seeders\GalleryAuthorSeeder;
 use App\Testing\Seeders\GalleryPictureSeeder;
 use App\Tests\BaseRenderTestCase;
-use App\Tests\Traits\WithDb;
 
 final class GalleryLinkMapperTest extends BaseRenderTestCase
 {
-    use WithDb;
-
-    /** @var LinkerInterface */
-    private $linker;
-
-    /** @var GalleryLinkMapper */
-    private $mapper;
+    private LinkerInterface $linker;
+    private GalleryLinkMapper $mapper;
 
     protected function setUp() : void
     {
         parent::setUp();
         
         $this->linker = new LinkerMock();
-
-        $this->initModels();
 
         $settingsProvider = new SettingsProviderMock();
 
