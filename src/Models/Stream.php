@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
-use Plasticode\Models\Traits\FullPublish;
+use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Cases;
@@ -12,13 +12,15 @@ use Plasticode\Util\Date;
 
 class Stream extends DbModel
 {
-    use Description, FullPublish, Stamps, Tags;
+    use Description;
+    use FullPublished;
+    use Stamps;
+    use Tags;
 
     protected static string $sortField = 'remote_viewers';
     protected static bool $sortReverse = true;
 
-    /** @var boolean */
-    private $alive;
+    private bool $alive = false;
 
     public function alive() : bool
     {

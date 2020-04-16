@@ -6,6 +6,16 @@ use App\Config\Parsing\BBContainerConfig;
 use App\Core\Linker;
 use App\Core\Renderer;
 use App\Handlers\NotFoundHandler;
+use App\Hydrators\ArticleCategoryHydrator;
+use App\Hydrators\ArticleHydrator;
+use App\Hydrators\EventHydrator;
+use App\Hydrators\GalleryPictureHydrator;
+use App\Hydrators\GameHydrator;
+use App\Hydrators\NewsHydrator;
+use App\Hydrators\RecipeHydrator;
+use App\Hydrators\RegionHydrator;
+use App\Hydrators\StreamHydrator;
+use App\Hydrators\VideoHydrator;
 use App\Parsing\ForumParser;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
 use App\Parsing\LinkMappers\CoordsLinkMapper;
@@ -46,396 +56,399 @@ use App\Services\TwitterService;
 use Plasticode\Config\Bootstrap as BootstrapBase;
 use Plasticode\Gallery\Gallery;
 use Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy;
+use Plasticode\ObjectProxy;
 use Plasticode\Parsing\LinkMapperSource;
-use Psr\Container\ContainerInterface;
+use Psr\Container\ContainerInterface as CI;
 
 class Bootstrap extends BootstrapBase
 {
     /**
      * Get mappings for DI container.
-     *
-     * @return array
      */
     public function getMappings() : array
     {
-        $mappings = parent::getMappings();
+        $map = parent::getMappings();
+
+        $map['articleCategoryRepository'] = fn (CI $c) =>
+            new ArticleCategoryRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ArticleCategoryHydrator(
+                    )
+                )
+            );
+
+        $map['articleRepository'] = fn (CI $c) =>
+            new ArticleRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ArticleHydrator(
+                        $c->articleCategoryRepository
+                    )
+                )
+            );
+
+        $map['eventRepository'] = fn (CI $c) =>
+            new EventRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new EventHydrator(
+                    )
+                )
+            );
+
+        $map['galleryPictureRepository'] = fn (CI $c) =>
+            new GalleryPictureRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new GalleryPictureHydrator(
+                        $c->tagRepository
+                    )
+                )
+            );
+
+        $map['gameRepository'] = fn (CI $c) =>
+            new GameRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new GameHydrator(
+                        $c->config
+                    )
+                )
+            );
+
+        $map['locationRepository'] = fn (CI $c) =>
+            new LocationRepository(
+                $c->repositoryContext
+            );
+
+        $map['newsRepository'] = fn (CI $c) =>
+            new NewsRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new NewsHydrator(
+                    )
+                )
+            );
+
+        $map['recipeRepository'] = fn (CI $c) =>
+            new RecipeRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new RecipeHydrator(
+                    )
+                )
+            );
+
+        $map['regionRepository'] = fn (CI $c) =>
+            new RegionRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new RegionHydrator(
+                    )
+                )
+            );
+
+        $map['streamRepository'] = fn (CI $c) =>
+            new StreamRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new StreamHydrator(
+                    )
+                )
+            );
+
+        $map['streamStatRepository'] = fn (CI $c) =>
+            new StreamStatRepository(
+                $c->repositoryContext
+            );
+
+        $map['videoRepository'] = fn (CI $c) =>
+            new VideoRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new VideoHydrator(
+                    )
+                )
+            );
+
+        $map['captchaConfig'] = fn (CI $c) =>
+            new CaptchaConfig();
+
+        $map['gallery'] = function (CI $c) {
+            $thumbHeight = $this->settings['gallery']['thumb_height'];
+            $thumbStrategy = new UniformThumbStrategy($thumbHeight);
+
+            $gallerySettings = [
+                'base_dir' => $this->dir,
+                'fields' => [
+                    'picture_type' => 'picture_type',
+                    'thumb_type' => 'picture_type',
+                ],
+                'folders' => [
+                    'picture' => [
+                        'storage' => 'gallery_pictures',
+                        'public' => 'gallery_pictures_public',
+                    ],
+                    'thumb' => [
+                        'storage' => 'gallery_thumbs',
+                        'public' => 'gallery_thumbs_public',
+                    ],
+                ],
+            ];
+
+            return new Gallery(
+                $c->settingsProvider,
+                $thumbStrategy,
+                $gallerySettings
+            );
+        };
+
+        $map['comics'] = function (CI $c) {
+            $thumbHeight = $this->settings['comics']['thumb_height'];
+            $thumbStrategy = new UniformThumbStrategy($thumbHeight);
+
+            $comicsSettings = [
+                'base_dir' => $this->dir,
+                'fields' => [
+                    'picture_type' => 'pic_type',
+                    'thumb_type' => 'pic_type',
+                ],
+                'folders' => [
+                    'picture' => [
+                        'storage' => 'comics_pages',
+                        'public' => 'comics_pages_public',
+                    ],
+                    'thumb' => [
+                        'storage' => 'comics_thumbs',
+                        'public' => 'comics_thumbs_public',
+                    ],
+                ],
+            ];
+
+            return new Gallery(
+                $c->settingsProvider,
+                $thumbStrategy,
+                $comicsSettings
+            );
+        };
+
+        $map['config'] = fn (CI $c) =>
+            new Config(
+                $c->settingsProvider
+            );
+
+        $map['localizationConfig'] = fn (CI $c) =>
+            new LocalizationConfig();
+
+        $map['renderer'] = fn (CI $c) =>
+            new Renderer(
+                $c->view
+            );
+
+        $map['linker'] = fn (CI $c) =>
+            new Linker(
+                $c->settingsProvider,
+                $c->router,
+                $c->gallery
+            );
+
+        $map['bbContainerConfig'] = fn (CI $c) =>
+            new BBContainerConfig();
+
+        $map['articleLinkMapper'] = fn (CI $c) =>
+            new ArticleLinkMapper(
+                $c->articleRepository,
+                $c->tagRepository,
+                $c->renderer,
+                $c->linker,
+                $c->tagLinkMapper
+            );
+
+        $map['eventLinkMapper'] = fn (CI $c) =>
+            new EventLinkMapper(
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['streamLinkMapper'] = fn (CI $c) =>
+            new StreamLinkMapper(
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['videoLinkMapper'] = fn (CI $c) =>
+            new VideoLinkMapper(
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['hsCardLinkMapper'] = fn (CI $c) =>
+            new HsCardLinkMapper(
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['coordsLinkMapper'] = fn (CI $c) =>
+            new CoordsLinkMapper(
+                $c->locationRepository,
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['galleryLinkMapper'] = fn (CI $c) =>
+            new GalleryLinkMapper(
+                $c->settingsProvider,
+                $c->galleryPictureRepository,
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['itemLinkMapper'] = fn (CI $c) =>
+            new ItemLinkMapper(
+                $c->recipeRepository,
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['spellLinkMapper'] = fn (CI $c) =>
+            new SpellLinkMapper(
+                $c->recipeRepository,
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['genericLinkMapper'] = fn (CI $c) =>
+            new GenericLinkMapper(
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['doubleBracketsConfig'] = function (CI $c) {
+            $config = new LinkMapperSource();
+
+            $config->setDefaultMapper($c->articleLinkMapper);
+            
+            $config->registerTaggedMappers(
+                [
+                    $c->newsLinkMapper,
+                    $c->eventLinkMapper,
+                    $c->streamLinkMapper,
+                    $c->videoLinkMapper,
+                    $c->hsCardLinkMapper,
+                    $c->coordsLinkMapper,
+                    $c->galleryLinkMapper,
+                    $c->itemLinkMapper,
+                    $c->spellLinkMapper,
+                ]
+            );
+
+            $config->setGenericMapper($c->genericLinkMapper);
+
+            return $config;
+        };
+
+        $map['newsParser'] = fn (CI $c) =>
+            new NewsParser(
+                $c->settingsProvider,
+                $c->renderer,
+                $c->linker
+            );
+
+        $map['forumParser'] = fn (CI $c) =>
+            new ForumParser();
+
+        // services
+
+        $map['comicService'] = fn (CI $c) =>
+            new ComicService();
+
+        $map['galleryPictureService'] = fn (CI $c) =>
+            new GalleryPictureService(
+                $c->gallery
+            );
+
+        $map['galleryService'] = function (CI $c) {
+            $pageSize = $this->settings['gallery']['pics_per_page'];
+
+            return new GalleryService($pageSize);
+        };
+
+        $map['gameService'] = fn (CI $c) =>
+            new GameService(
+                $c->config
+            );
+
+        $map['newsAggregatorService'] = fn (CI $c) =>
+            new NewsAggregatorService(
+                $c->newsRepository
+            );
+
+        $map['recipeService'] = fn (CI $c) =>
+            new RecipeService(
+                $c->config,
+                $c->linker
+            );
+
+        $map['searchService'] = fn (CI $c) =>
+            new SearchService(
+                $c->tagRepository,
+                $c->linker
+            );
+
+        $map['sidebarPartsProviderService'] = fn (CI $c) =>
+            new SidebarPartsProviderService(
+                $c->settingsProvider,
+                $c->newsAggregatorService,
+                $c->streamService
+            );
+
+        $map['skillService'] = fn (CI $c) =>
+            new SkillService(
+                $this->config
+            );
+
+        $map['streamService'] = fn (CI $c) =>
+            new StreamService(
+                $c->config,
+                $c->cases
+            );
+
+        $map['streamStatService'] = fn (CI $c) =>
+            new StreamStatService(
+                $c->gameRepository,
+                $c->gameService
+            );
+
+        $map['tagPartsProviderService'] = fn (CI $c) =>
+            new TagPartsProviderService(
+                $c->galleryService,
+                $c->newsAggregatorService,
+                $c->streamService
+            );
+
+        $map['twitterService'] = fn (CI $c) =>
+            new TwitterService(
+                $c->linker
+            );
+
+        // handlers
+
+        $map['notFoundHandler'] = fn (CI $c) =>
+            new NotFoundHandler(
+                $c
+            );
         
-        return array_merge(
-            $mappings,
-            [
-                'articleCategoryRepository' => function (ContainerInterface $container) {
-                    return new ArticleCategoryRepository(
-                        $container->db
-                    );
-                },
-
-                'articleRepository' => function (ContainerInterface $container) {
-                    return new ArticleRepository(
-                        $container->db,
-                        $container->auth,
-                        $container->articleCategoryRepository
-                    );
-                },
-
-                'eventRepository' => function (ContainerInterface $container) {
-                    return new EventRepository(
-                        $container->db,
-                        $container->auth
-                    );
-                },
-
-                'galleryPictureRepository' => function (ContainerInterface $container) {
-                    return new GalleryPictureRepository(
-                        $container->db,
-                        $container->tagRepository
-                    );
-                },
-
-                'gameRepository' => function (ContainerInterface $container) {
-                    return new GameRepository(
-                        $container->db,
-                        $container->config
-                    );
-                },
-
-                'locationRepository' => function (ContainerInterface $container) {
-                    return new LocationRepository(
-                        $container->db
-                    );
-                },
-
-                'newsRepository' => function (ContainerInterface $container) {
-                    return new NewsRepository(
-                        $container->db,
-                        $container->auth
-                    );
-                },
-
-                'recipeRepository' => function (ContainerInterface $container) {
-                    return new RecipeRepository(
-                        $container->db
-                    );
-                },
-
-                'regionRepository' => function (ContainerInterface $container) {
-                    return new RegionRepository(
-                        $container->db
-                    );
-                },
-
-                'streamRepository' => function (ContainerInterface $container) {
-                    return new StreamRepository(
-                        $container->db
-                    );
-                },
-
-                'streamStatRepository' => function (ContainerInterface $container) {
-                    return new StreamStatRepository(
-                        $container->db
-                    );
-                },
-
-                'videoRepository' => function (ContainerInterface $container) {
-                    return new VideoRepository(
-                        $container->db,
-                        $container->auth
-                    );
-                },
-
-                'captchaConfig' => function (ContainerInterface $container) {
-                    return new CaptchaConfig();
-                },
-
-                'gallery' => function (ContainerInterface $container) {
-                    $thumbHeight = $this->settings['gallery']['thumb_height'];
-                    $thumbStrategy = new UniformThumbStrategy($thumbHeight);
-                    
-                    $gallerySettings = [
-                        'base_dir' => $this->dir,
-                        'fields' => [
-                            'picture_type' => 'picture_type',
-                            'thumb_type' => 'picture_type',
-                        ],
-                        'folders' => [
-                            'picture' => [
-                                'storage' => 'gallery_pictures',
-                                'public' => 'gallery_pictures_public',
-                            ],
-                            'thumb' => [
-                                'storage' => 'gallery_thumbs',
-                                'public' => 'gallery_thumbs_public',
-                            ],
-                        ],
-                    ];
-                
-                    return new Gallery(
-                        $container->settingsProvider,
-                        $thumbStrategy,
-                        $gallerySettings
-                    );
-                },
-                
-                'comics' => function (ContainerInterface $container) {
-                    $thumbHeight = $this->settings['comics']['thumb_height'];
-                    $thumbStrategy = new UniformThumbStrategy($thumbHeight);
-                    
-                    $comicsSettings = [
-                        'base_dir' => $this->dir,
-                        'fields' => [
-                            'picture_type' => 'pic_type',
-                            'thumb_type' => 'pic_type',
-                        ],
-                        'folders' => [
-                            'picture' => [
-                                'storage' => 'comics_pages',
-                                'public' => 'comics_pages_public',
-                            ],
-                            'thumb' => [
-                                'storage' => 'comics_thumbs',
-                                'public' => 'comics_thumbs_public',
-                            ],
-                        ],
-                    ];
-                
-                    return new Gallery(
-                        $container->settingsProvider,
-                        $thumbStrategy,
-                        $comicsSettings
-                    );
-                },
-
-                'config' => function (ContainerInterface $container) {
-                    return new Config(
-                        $container->settingsProvider
-                    );
-                },
-
-                'localizationConfig' => function (ContainerInterface $container) {
-                    return new LocalizationConfig();
-                },
-
-                'renderer' => function (ContainerInterface $container) {
-                    return new Renderer($container->view);
-                },
-
-                'linker' => function (ContainerInterface $container) {
-                    return new Linker(
-                        $container->settingsProvider,
-                        $container->router,
-                        $container->gallery
-                    );
-                },
-
-                'bbContainerConfig' => function (ContainerInterface $container) {
-                    return new BBContainerConfig();
-                },
-
-                'articleLinkMapper' => function (ContainerInterface $container) {
-                    return new ArticleLinkMapper(
-                        $container->articleRepository,
-                        $container->tagRepository,
-                        $container->renderer,
-                        $container->linker,
-                        $container->tagLinkMapper
-                    );
-                },
-
-                'eventLinkMapper' => function (ContainerInterface $container) {
-                    return new EventLinkMapper(
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'streamLinkMapper' => function (ContainerInterface $container) {
-                    return new StreamLinkMapper(
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'videoLinkMapper' => function (ContainerInterface $container) {
-                    return new VideoLinkMapper(
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'hsCardLinkMapper' => function (ContainerInterface $container) {
-                    return new HsCardLinkMapper(
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'coordsLinkMapper' => function (ContainerInterface $container) {
-                    return new CoordsLinkMapper(
-                        $container->locationRepository,
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'galleryLinkMapper' => function (ContainerInterface $container) {
-                    return new GalleryLinkMapper(
-                        $container->settingsProvider,
-                        $container->galleryPictureRepository,
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'itemLinkMapper' => function (ContainerInterface $container) {
-                    return new ItemLinkMapper(
-                        $container->recipeRepository,
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'spellLinkMapper' => function (ContainerInterface $container) {
-                    return new SpellLinkMapper(
-                        $container->recipeRepository,
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'genericLinkMapper' => function (ContainerInterface $container) {
-                    return new GenericLinkMapper(
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-
-                'doubleBracketsConfig' => function (ContainerInterface $container) {
-                    $config = new LinkMapperSource();
-
-                    $config->setDefaultMapper($container->articleLinkMapper);
-                    
-                    $config->registerTaggedMappers(
-                        [
-                            $container->newsLinkMapper,
-                            $container->eventLinkMapper,
-                            $container->streamLinkMapper,
-                            $container->videoLinkMapper,
-                            $container->hsCardLinkMapper,
-                            $container->coordsLinkMapper,
-                            $container->galleryLinkMapper,
-                            $container->itemLinkMapper,
-                            $container->spellLinkMapper,
-                        ]
-                    );
-
-                    $config->setGenericMapper($container->genericLinkMapper);
-
-                    return $config;
-                },
-
-                'newsParser' => function (ContainerInterface $container) {
-                    return new NewsParser(
-                        $container->settingsProvider,
-                        $container->renderer,
-                        $container->linker
-                    );
-                },
-                
-                'forumParser' => function (ContainerInterface $container) {
-                    return new ForumParser($container);
-                },
-                
-                // handlers
-                
-                'notFoundHandler' => function (ContainerInterface $container) {
-                    return new NotFoundHandler($container);
-                },
-                
-                // services
-
-                'comicService' => function (ContainerInterface $container) {
-                    return new ComicService();
-                },
-
-                'galleryPictureService' => function (ContainerInterface $container) {
-                    return new GalleryPictureService(
-                        $container->gallery
-                    );
-                },
-
-                'galleryService' => function (ContainerInterface $container) {
-                    $pageSize = $this->settings['gallery']['pics_per_page'];
-                    
-                    return new GalleryService($pageSize);
-                },
-
-                'gameService' => function (ContainerInterface $container) {
-                    return new GameService(
-                        $container->config
-                    );
-                },
-
-                'newsAggregatorService' => function (ContainerInterface $container) {
-                    return new NewsAggregatorService(
-                        $container->newsRepository
-                    );
-                },
-
-                'recipeService' => function (ContainerInterface $container) {
-                    return new RecipeService(
-                        $container->config,
-                        $container->linker
-                    );
-                },
-
-                'searchService' => function (ContainerInterface $container) {
-                    return new SearchService(
-                        $container->tagRepository,
-                        $container->linker
-                    );
-                },
-
-                'sidebarPartsProviderService' => function (ContainerInterface $container) {
-                    return new SidebarPartsProviderService(
-                        $container->settingsProvider,
-                        $container->newsAggregatorService,
-                        $container->streamService
-                    );
-                },
-
-                'skillService' => function (ContainerInterface $container) {
-                    return new SkillService(
-                        $this->config
-                    );
-                },
-
-                'streamService' => function (ContainerInterface $container) {
-                    return new StreamService(
-                        $container->config,
-                        $container->cases
-                    );
-                },
-
-                'streamStatService' => function (ContainerInterface $container) {
-                    return new StreamStatService(
-                        $container->gameRepository,
-                        $container->gameService
-                    );
-                },
-
-                'tagPartsProviderService' => function (ContainerInterface $container) {
-                    return new TagPartsProviderService(
-                        $container->galleryService,
-                        $container->newsAggregatorService,
-                        $container->streamService
-                    );
-                },
-
-                'twitterService' => function (ContainerInterface $container) {
-                    return new TwitterService(
-                        $container->linker
-                    );
-                }
-            ]
-        );
+        return $map;
     }
 }

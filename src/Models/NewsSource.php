@@ -7,7 +7,7 @@ use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\SearchableInterface;
-use Plasticode\Models\Traits\FullPublish;
+use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Parsing\Interfaces\ParserInterface;
@@ -24,10 +24,11 @@ use Plasticode\Parsing\ParsingContext;
  */
 abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
 {
-    use FullPublish, Stamps, Tags;
+    use FullPublished;
+    use Stamps;
+    use Tags;
 
-    /** @var ParserInterface */
-    private $parser;
+    private ?ParserInterface $parser = null;
 
     public function withParser(ParserInterface $parser) : self
     {

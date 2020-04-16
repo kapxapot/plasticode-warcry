@@ -5,12 +5,12 @@ namespace App\Models\Interfaces;
 use App\Models\Game;
 use Plasticode\Query;
 use Plasticode\Models\Interfaces\LinkableInterface;
-use Plasticode\Models\Interfaces\TaggableInterface;
+use Plasticode\Models\Interfaces\TagsInterface;
 
 /**
  * @property string $publishedAt
  */
-interface NewsSourceInterface extends LinkableInterface, TaggableInterface
+interface NewsSourceInterface extends LinkableInterface, TagsInterface
 {
     public static function getNewsByTag(string $tag) : Query;
     public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query;

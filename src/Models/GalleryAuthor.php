@@ -6,7 +6,7 @@ use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
-use Plasticode\Models\Traits\Publish;
+use Plasticode\Models\Traits\Published;
 use Plasticode\Util\Strings;
 
 /**
@@ -19,7 +19,8 @@ use Plasticode\Util\Strings;
  */
 class GalleryAuthor extends DbModel
 {
-    use Description, Publish;
+    use Description;
+    use Published;
 
     public static function getGroups() : Collection
     {

@@ -8,7 +8,7 @@ use Plasticode\Query;
 use Plasticode\IO\Image;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
-use Plasticode\Models\Traits\FullPublish;
+use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\SortStep;
@@ -29,12 +29,14 @@ use Webmozart\Assert\Assert;
  */
 class GalleryPicture extends DbModel
 {
-    use Description, FullPublish, Stamps, Tags;
+    use Description;
+    use FullPublished;
+    use Stamps;
+    use Tags;
 
-    private const DefaultBgColor = '255,255,255,1';
+    private const DEFAULT_BG_COLOR = '255,255,255,1';
 
-    /** @var GalleryAuthor|null */
-    private $author;
+    private ?GalleryAuthor $author = null;
 
     public function withAuthor(GalleryAuthor $author) : self
     {
@@ -148,7 +150,7 @@ class GalleryPicture extends DbModel
     {
         $this->failIfNotPersisted();
 
-        $bgColor = $this->avgColor ?? self::DefaultBgColor;
+        $bgColor = $this->avgColor ?? self::DEFAULT_BG_COLOR;
         
         return Image::deserializeRGBA($bgColor);
     }

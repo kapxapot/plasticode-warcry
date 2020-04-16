@@ -3,34 +3,19 @@
 namespace App\Repositories;
 
 use App\Models\Article;
-use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
-use Plasticode\Auth\Interfaces\AuthInterface;
-use Plasticode\Data\Db;
 use Plasticode\Query;
-use Plasticode\Repositories\Idiorm\Basic\ProtectedRepository;
-use Plasticode\Repositories\Idiorm\Traits\FullPublish;
+use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
+use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository as TraitsProtectedRepository;
 use Plasticode\Util\Strings;
 
-class ArticleRepository extends ProtectedRepository implements ArticleRepositoryInterface
+class ArticleRepository extends IdiormRepository implements ArticleRepositoryInterface
 {
-    use FullPublish;
+    use FullPublishedRepository;
+    use TraitsProtectedRepository;
 
     protected $entityClass = Article::class;
-
-    /** @var ArticleCategoryRepositoryInterface */
-    private $articleCategoryRepository;
-
-    public function __construct(
-        Db $db,
-        AuthInterface $auth,
-        ArticleCategoryRepositoryInterface $articleCategoryRepository
-    )
-    {
-        parent::__construct($db, $auth);
-
-        $this->articleCategoryRepository = $articleCategoryRepository;
-    }
 
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
     {

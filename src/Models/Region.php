@@ -17,17 +17,17 @@ class Region extends DbModel
     
     public function displayName()
     {
-		$ru = [ $this->nameRu ];
-		$en = [ $this->nameEn ];
+        $ru = [ $this->nameRu ];
+        $en = [ $this->nameEn ];
 
-		if ($this->parent() && $this->terminal == 0) {
-			$ru[] = $this->parent()->nameRu;
-			$en[] = $this->parent()->nameEn;
-		}
-		
-		$ruStr = implode(', ', array_filter($ru, 'strlen'));
-		$enStr = implode(', ', array_filter($en, 'strlen'));
-		
-		return $ruStr . ($enStr ? " ({$enStr})" : '');
+        if ($this->parent() && $this->terminal == 0) {
+            $ru[] = $this->parent()->nameRu;
+            $en[] = $this->parent()->nameEn;
+        }
+        
+        $ruStr = implode(', ', array_filter($ru, 'strlen'));
+        $enStr = implode(', ', array_filter($en, 'strlen'));
+        
+        return $ruStr . ($enStr ? " ({$enStr})" : '');
     }
 }
