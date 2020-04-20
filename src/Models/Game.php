@@ -7,7 +7,7 @@ use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Traits\Children;
-use Plasticode\Models\Traits\Publish;
+use Plasticode\Models\Traits\Published;
 
 /**
  * @property integer $id
@@ -16,7 +16,8 @@ use Plasticode\Models\Traits\Publish;
  */
 class Game extends DbModel implements LinkableInterface
 {
-    use Children, Publish;
+    use Children;
+    use Published;
     
     protected static string $sortField = 'position';
 

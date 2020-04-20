@@ -6,5 +6,5 @@ use App\Models\Location;
 
 interface LocationRepositoryInterface
 {
-    public function getByName($name) : ?Location;
+    function getByName(string $name) : ?Location;
 }

@@ -2,31 +2,37 @@
 
 namespace App\Testing\Mocks\Repositories;
 
+use App\Collections\GalleryPictureCollection;
+use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
+use App\Models\Game;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
-use Plasticode\Collection;
 use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
+use Plasticode\Util\Date;
+use Plasticode\Util\Sort;
+use Plasticode\Util\SortStep;
 use Plasticode\Util\Strings;
 
 class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
 {
-    /** @var Collection */
-    private $pictures;
+    private GalleryPictureCollection $pictures;
 
     public function __construct(ArraySeederInterface $seeder)
     {
-        $this->pictures = Collection::make($seeder->seed());
+        $this->pictures = GalleryPictureCollection::make($seeder->seed());
     }
 
-    public function get(int $id) : ?GalleryPicture
+    public function get(?int $id) : ?GalleryPicture
     {
         return $this
             ->pictures
-            ->where('id', $id)
-            ->first();
+            ->first('id', $id);
     }
 
-    public function getByTag(string $tag, int $limit = null) : Collection
+    public function getByTag(
+        string $tag,
+        int $limit = null
+    ) : GalleryPictureCollection
     {
         $pictures = $this
             ->pictures
@@ -38,9 +44,121 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
                     return in_array($normTag, $tags);
                 }
             );
-        
-        return $limit
-            ? $pictures->take($limit)
-            : $pictures;
+
+        return GalleryPictureCollection::from(
+            $limit
+                ? $pictures->take($limit)
+                : $pictures
+        );
+    }
+
+    private function getAllPublished() : GalleryPictureCollection
+    {
+        return $this
+            ->pictures
+            ->where(
+                fn (GalleryPicture $p) =>
+                $p->published == 1
+                && $p->publishedAt
+                && Date::happened($p->publishedAt)
+            );
+    }
+
+    /**
+     * Returns all published pictures that were published before given.
+     */
+    public function getAllBefore(GalleryPicture $pic) : GalleryPictureCollection
+    {
+        return $this
+            ->getAllPublished()
+            ->where(
+                fn (GalleryPicture $p) =>
+                Date::dt($p->publishedAt) < Date::dt($pic->publishedAt)
+                || Date::dt($p->publishedAt) == Date::dt($pic->publishedAt)
+                && $p->getId() < $pic->getId()
+            )
+            ->multiSort(
+                [
+                    SortStep::createByClosureDesc(
+                        fn (GalleryPicture $p) => $p->publishedAt 
+                    )->withType(Sort::DATE),
+                    SortStep::createByClosureDesc(
+                        fn (GalleryPicture $p) => $p->id 
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * Returns all published pictures that were published after given.
+     */
+    public function getAllAfter(GalleryPicture $pic) : GalleryPictureCollection
+    {
+        return $this
+            ->getAllPublished()
+            ->where(
+                fn (GalleryPicture $p) =>
+                Date::dt($p->publishedAt) > Date::dt($pic->publishedAt)
+                || Date::dt($p->publishedAt) == Date::dt($pic->publishedAt)
+                && $p->getId() > $pic->getId()
+            )
+            ->multiSort(
+                [
+                    SortStep::createByClosure(
+                        fn (GalleryPicture $p) => $p->publishedAt 
+                    )->withType(Sort::DATE),
+                    SortStep::createByClosure(
+                        fn (GalleryPicture $p) => $p->id 
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * Returns all published pictures by author.
+     */
+    public function getAllByAuthor(
+        GalleryAuthor $author,
+        int $limit = 0
+    ) : GalleryPictureCollection
+    {
+        return $this
+            ->getAllPublished()
+            ->where(
+                fn (GalleryPicture $p) => $p->authorId == $author->getId()
+            );
+    }
+
+    /**
+     * Returns all published pictures by game.
+     */
+    public function getAllByGame(
+        ?Game $game = null,
+        int $limit = 0
+    ) : GalleryPictureCollection
+    {
+        $result = $this->getAllPublished();
+
+        return $game
+            ? $result->where(
+                fn (GalleryPicture $p) => $p->gameId == $game->getId()
+            )
+            : $result;
+    }
+
+    /**
+     * Returns the previous picture of the same author.
+     */
+    function getPrevSibling(GalleryPicture $pic) : ?GalleryPicture
+    {
+        return $this->getAllBefore($pic)->first();
+    }
+
+    /**
+     * Returns the next picture of the same author.
+     */
+    function getNextSibling(GalleryPicture $pic) : ?GalleryPicture
+    {
+        return $this->getAllAfter($pic)->first();
     }
 }

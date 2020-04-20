@@ -2,41 +2,37 @@
 
 namespace App\Testing\Mocks\Repositories;
 
+use App\Collections\RecipeCollection;
 use App\Models\Recipe;
 use App\Repositories\Interfaces\RecipeRepositoryInterface;
-use Plasticode\Collection;
 use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 
 class RecipeRepositoryMock implements RecipeRepositoryInterface
 {
-    /** @var Collection */
-    private $recipes;
+    private RecipeCollection $recipes;
 
     public function __construct(ArraySeederInterface $seeder)
     {
-        $this->recipes = Collection::make($seeder->seed());
+        $this->recipes = RecipeCollection::make($seeder->seed());
     }
 
-    public function get(int $id) : ?Recipe
+    public function get(?int $id) : ?Recipe
     {
         return $this
             ->recipes
-            ->where('id', $id)
-            ->first();
+            ->first('id', $id);
     }
 
-    public function getAllByItemId(int $itemId) : Collection
+    public function getAllByItemId(int $itemId) : RecipeCollection
     {
         return $this
             ->recipes
-            ->where('creates_id', $itemId)
             ->where(
-                function (Recipe $recipe) {
-                    return $recipe->createsMin > 0;
-                }
+                fn (Recipe $r) =>
+                $r->createsId == $itemId && $r->createsMin > 0
             );
     }
-    
+
     public function getByItemId(int $itemId) : ?Recipe
     {
         return $this

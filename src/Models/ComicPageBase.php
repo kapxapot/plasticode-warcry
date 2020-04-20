@@ -56,7 +56,7 @@ abstract class ComicPageBase extends DbModel
     
     public function ext() : string
     {
-        return self::$container->linker->getExtension($this->picType);
+        return self::$container->linker->getImageExtension($this->picType);
     }
     
     private function getSiblings() : Query

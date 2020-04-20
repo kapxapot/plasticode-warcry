@@ -6,5 +6,5 @@ use App\Models\Region;
 
 interface RegionRepositoryInterface
 {
-    function get(int $id) : ?Region;
+    function get(?int $id) : ?Region;
 }

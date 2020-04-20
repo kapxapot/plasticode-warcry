@@ -65,6 +65,13 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/gallery/picture/thumb/') . $picture->getId();
     }
 
+    public function galleryPicture(GalleryPicture $picture) : string
+    {
+        return $this->abs('/gallery/')
+            . $picture->author()->alias . '/'
+            . $picture->getId();
+    }
+
     public function comicIssue(?ComicIssue $comic) : string
     {
         return $this->abs('/comic_issues/') . $comic->getId();

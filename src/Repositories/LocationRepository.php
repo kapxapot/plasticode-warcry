@@ -10,7 +10,7 @@ class LocationRepository extends IdiormRepository implements LocationRepositoryI
 {
     protected $entityClass = Location::class;
 
-    public function getByName($name) : ?Location
+    public function getByName(string $name) : ?Location
     {
         return $this
             ->query()

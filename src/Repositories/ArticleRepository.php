@@ -7,13 +7,13 @@ use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
-use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository as TraitsProtectedRepository;
+use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository;
 use Plasticode\Util\Strings;
 
 class ArticleRepository extends IdiormRepository implements ArticleRepositoryInterface
 {
     use FullPublishedRepository;
-    use TraitsProtectedRepository;
+    use ProtectedRepository;
 
     protected $entityClass = Article::class;
 
@@ -31,8 +31,8 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
             ->getAllBySlugQuery($slug, $cat)
             ->one();
     }
-    
-    private function getAllBySlugQuery(string $slug, string $cat = null) : Query
+
+    protected function getAllBySlugQuery(string $slug, string $cat = null) : Query
     {
         $slug = Strings::toSpaces($slug);
         $cat = Strings::toSpaces($cat);

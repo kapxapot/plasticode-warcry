@@ -103,10 +103,12 @@ class Bootstrap extends BootstrapBase
         $map['galleryPictureRepository'] = fn (CI $c) =>
             new GalleryPictureRepository(
                 $c->repositoryContext,
+                $c->tagRepository,
                 new ObjectProxy(
                     fn () =>
                     new GalleryPictureHydrator(
-                        $c->tagRepository
+                        $c->galleryAuthorRepository,
+                        $c->linker
                     )
                 )
             );
@@ -386,6 +388,7 @@ class Bootstrap extends BootstrapBase
 
         $map['gameService'] = fn (CI $c) =>
             new GameService(
+                $c->gameRepository,
                 $c->config
             );
 

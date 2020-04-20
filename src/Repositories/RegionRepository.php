@@ -10,7 +10,7 @@ class RegionRepository extends IdiormRepository implements RegionRepositoryInter
 {
     protected $entityClass = Region::class;
 
-    public function get(int $id) : ?Region
+    public function get(?int $id) : ?Region
     {
         return $this->getEntity($id);
     }

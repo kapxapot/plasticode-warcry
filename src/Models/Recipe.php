@@ -9,6 +9,12 @@ use Plasticode\Models\DbModel;
  * @property integer $id
  * @property integer $createsId
  * @property integer $createsMin
+ * @property string $name
+ * @property string $nameRu
+ * @property integer|null $lvlOrange
+ * @property integer|null $lvlYellow
+ * @property integer|null $lvlGreen
+ * @property integer|null $lvlGray
  */
 class Recipe extends DbModel
 {
@@ -73,7 +79,7 @@ class Recipe extends DbModel
         
         return $title;
     }
-    
+
     public function levels() : array
     {
         return [

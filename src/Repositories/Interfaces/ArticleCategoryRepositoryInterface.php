@@ -6,5 +6,5 @@ use App\Models\ArticleCategory;
 
 interface ArticleCategoryRepositoryInterface
 {
-    public function getByName(string $name) : ?ArticleCategory;
+    function getByName(string $name) : ?ArticleCategory;
 }

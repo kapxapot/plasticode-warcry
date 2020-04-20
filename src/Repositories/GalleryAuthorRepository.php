@@ -10,7 +10,7 @@ class GalleryAuthorRepository extends IdiormRepository implements GalleryAuthorR
 {
     protected $entityClass = GalleryAuthor::class;
 
-    public function get(int $id) : ?GalleryAuthor
+    public function get(?int $id) : ?GalleryAuthor
     {
         return $this->getEntity($id);
     }

@@ -6,5 +6,5 @@ use App\Models\Event;
 
 interface EventRepositoryInterface
 {
-    public function getProtected(int $id) : ?Event;
+    function getProtected(?int $id) : ?Event;
 }

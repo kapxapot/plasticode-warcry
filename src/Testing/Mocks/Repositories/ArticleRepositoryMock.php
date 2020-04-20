@@ -2,20 +2,17 @@
 
 namespace App\Testing\Mocks\Repositories;
 
+use App\Collections\ArticleCollection;
 use App\Models\Article;
 use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
-use Plasticode\Collection;
 use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 use Plasticode\Util\Strings;
 
 class ArticleRepositoryMock implements ArticleRepositoryInterface
 {
-    /** @var ArticleCategoryRepositoryInterface */
-    private $articleCategoryRepository;
-
-    /** @var Collection */
-    private $articles;
+    private ArticleCategoryRepositoryInterface $articleCategoryRepository;
+    private ArticleCollection $articles;
 
     public function __construct(
         ArticleCategoryRepositoryInterface $articleCategoryRepository,
@@ -24,7 +21,7 @@ class ArticleRepositoryMock implements ArticleRepositoryInterface
     {
         $this->articleCategoryRepository = $articleCategoryRepository;
 
-        $this->articles = Collection::make($seeder->seed());
+        $this->articles = ArticleCollection::make($seeder->seed());
     }
 
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
@@ -44,7 +41,7 @@ class ArticleRepositoryMock implements ArticleRepositoryInterface
             ->articles
             //->protectedQuery()
             ->where('name_en', $slug);
-    
+
         if (strlen($cat) > 0) {
             $category = $this->articleCategoryRepository->getByName($cat);
             

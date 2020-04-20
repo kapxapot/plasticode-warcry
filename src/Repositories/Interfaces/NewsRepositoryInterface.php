@@ -6,5 +6,5 @@ use App\Models\News;
 
 interface NewsRepositoryInterface
 {
-    public function getProtected(int $id) : ?News;
+    function getProtected(?int $id) : ?News;
 }

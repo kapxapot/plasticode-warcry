@@ -6,5 +6,5 @@ use App\Models\Video;
 
 interface VideoRepositoryInterface
 {
-    public function getProtected(int $id) : ?Video;
+    public function getProtected(?int $id) : ?Video;
 }

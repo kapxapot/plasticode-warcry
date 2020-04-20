@@ -2,48 +2,28 @@
 
 namespace App\Repositories;
 
-use App\Config\Interfaces\GameConfigInterface;
+use App\Collections\GameCollection;
 use App\Models\Game;
 use App\Repositories\Interfaces\GameRepositoryInterface;
-use Plasticode\Collection;
-use Plasticode\Data\Db;
 use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
-use Plasticode\Repositories\Idiorm\Traits\Publish;
+use Plasticode\Repositories\Idiorm\Traits\PublishedRepository;
 
 class GameRepository extends IdiormRepository implements GameRepositoryInterface
 {
-    use Publish;
+    use PublishedRepository;
 
     protected $entityClass = Game::class;
 
-    /** @var GameConfigInterface */
-    private $config;
-
-    public function __construct(
-        Db $db,
-        GameConfigInterface $config
-    )
-    {
-        parent::__construct($db);
-
-        $this->config = $config;
-    }
-
-    public function get(int $id) : ?Game
+    public function get(?int $id) : ?Game
     {
         return $this->getEntity($id);
     }
 
-    public function getDefault() : ?Game
+    public function getAllPublished() : GameCollection
     {
-        $id = $this->config->defaultGameId();
-
-        return $this->get($id);
-    }
-
-    public function getAllPublished() : Collection
-    {
-        return $this->publishedQuery()->all();
+        return GameCollection::from(
+            $this->publishedQuery()
+        );
     }
 
     public function getPublishedByAlias(string $alias) : ?Game
@@ -60,10 +40,5 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
             ->query()
             ->where('name', $name)
             ->one();
-    }
-
-    public function getByTwitchName(string $name) : ?Game
-    {
-        return $this->getByTwitchName($name) ?? $this->getDefault();
     }
 }

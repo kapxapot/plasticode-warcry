@@ -18,8 +18,6 @@ interface LinkerInterface extends PlasticodeLinkerInterface
      * Get article link.
      *
      * @param int|string $id
-     * @param string|null $cat
-     * @return string
      */
     function article($id = null, ?string $cat = null) : string;
 
@@ -30,6 +28,7 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     function recipe(int $id) : string;
     function recipes(?Skill $skill = null) : string;
 
+    function galleryPicture(GalleryPicture $picture) : string;
     function galleryPictureImg(GalleryPicture $picture) : string;
     function galleryThumbImg(GalleryPicture $picture) : string;
 
