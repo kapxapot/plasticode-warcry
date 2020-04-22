@@ -3,25 +3,21 @@
 namespace App\Tests\Parsing\LinkMappers;
 
 use App\Parsing\LinkMappers\SpellLinkMapper;
+use App\Testing\Factories\RecipeRepositoryFactory;
 use App\Testing\Mocks\LinkerMock;
-use App\Testing\Mocks\Repositories\RecipeRepositoryMock;
-use App\Testing\Seeders\RecipeSeeder;
 use App\Tests\BaseRenderTestCase;
 
 final class SpellLinkMapperTest extends BaseRenderTestCase
 {
-    /** @var SpellLinkMapper */
-    private $mapper;
+    private SpellLinkMapper $mapper;
 
     protected function setUp() : void
     {
         parent::setUp();
-        
-        $recipeRepository = new RecipeRepositoryMock(
-            new RecipeSeeder()
-        );
 
         $linker = new LinkerMock();
+
+        $recipeRepository = RecipeRepositoryFactory::make($linker);
 
         $this->mapper = new SpellLinkMapper(
             $recipeRepository,

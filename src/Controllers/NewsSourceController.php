@@ -6,7 +6,10 @@ use App\Models\Interfaces\NewsSourceInterface;
 
 abstract class NewsSourceController extends Controller
 {
-    public function makeNewsPageDescription(NewsSourceInterface $news, string $limitVar) : string
+    public function makeNewsPageDescription(
+        NewsSourceInterface $news,
+        string $limitVar
+    ) : string
     {
         return $this->makePageDescription($news->fullText(), $limitVar);
     }

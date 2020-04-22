@@ -23,7 +23,7 @@ class GalleryPictureRepository extends IdiormRepository implements GalleryPictur
     use FullPublishedRepository;
     use TagsRepository;
 
-    protected $entityClass = GalleryPicture::class;
+    protected string $entityClass = GalleryPicture::class;
 
     private TagRepositoryInterface $tagRepository;
 

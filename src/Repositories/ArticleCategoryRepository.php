@@ -8,7 +8,7 @@ use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
 class ArticleCategoryRepository extends IdiormRepository implements ArticleCategoryRepositoryInterface
 {
-    protected $entityClass = ArticleCategory::class;
+    protected string $entityClass = ArticleCategory::class;
 
     public function getByName(string $name) : ?ArticleCategory
     {

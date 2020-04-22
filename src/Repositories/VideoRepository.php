@@ -13,7 +13,7 @@ class VideoRepository extends IdiormRepository implements VideoRepositoryInterfa
     use FullPublishedRepository;
     use ProtectedRepository;
 
-    protected $entityClass = Video::class;
+    protected string $entityClass = Video::class;
 
     public function getProtected(?int $id) : ?Video
     {

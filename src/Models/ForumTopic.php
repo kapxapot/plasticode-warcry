@@ -9,13 +9,12 @@ use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Tags;
 use Plasticode\Util\Arrays;
 use Plasticode\Util\Date;
-use Plasticode\Util\Strings;
 
 class ForumTopic extends DbModel implements NewsSourceInterface
 {
     use Tags;
 
-    const TimeFormat = '%Y-%m-%d %H:%M:%S';
+    private const TIME_FORMAT = '%Y-%m-%d %H:%M:%S';
     
     protected static $idField = 'tid';
     
@@ -179,7 +178,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     
     public function publishedAt() : string
     {
-        return strftime(self::TimeFormat, $this->startDate);
+        return strftime(self::TIME_FORMAT, $this->startDate);
     }
 
     public function publishedAtIso() : string

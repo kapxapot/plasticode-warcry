@@ -39,4 +39,50 @@ class RecipeRepositoryMock implements RecipeRepositoryInterface
             ->getAllByItemId($itemId)
             ->first();
     }
+
+    public function getFilteredCount(
+        ?int $skillId,
+        ?string $searchQuery
+    ) : int
+    {
+        return $this
+            ->getFiltered($skillId, $searchQuery)
+            ->count();
+    }
+
+    public function getFilteredPage(
+        ?int $skillId,
+        ?string $searchQuery,
+        int $offset,
+        int $pageSize
+    ) : RecipeCollection
+    {
+        return $this
+            ->getFiltered($skillId, $searchQuery)
+            ->slice($offset, $pageSize);
+    }
+
+    /**
+     * Placeholder.
+     */
+    protected function getFiltered(
+        ?int $skillId,
+        ?string $searchQuery
+    ) : RecipeCollection
+    {
+        return $this
+            ->recipes
+            ->where(
+                fn (Recipe $r) => $r->skillId == $skillId
+            );
+    }
+
+    public function getByName(string $name) : ?Recipe
+    {
+        return $this
+            ->recipes
+            ->first(
+                fn (Recipe $r) => $r->name == $name || $r->nameRu == $name
+            );
+    }
 }

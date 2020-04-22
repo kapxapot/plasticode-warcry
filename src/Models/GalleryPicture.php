@@ -49,6 +49,20 @@ class GalleryPicture extends DbModel
 
     private const DEFAULT_BG_COLOR = '255,255,255,1';
 
+    protected function requiredWiths(): array
+    {
+        return [
+            'author',
+            'ext',
+            'game',
+            //'next',
+            'pageUrl',
+            //'prev',
+            'thumbUrl',
+            'url'
+        ];
+    }
+
     public function withWidth(int $width) : self
     {
         $this->width = $width;

@@ -16,25 +16,16 @@ use Slim\Interfaces\RouterInterface;
 
 class Controller extends BaseController
 {
-    private const DefaultPageDescriptionLimit = 1000;
+    private const DEFAULT_PAGE_DESCRIPTION_LIMIT = 1000;
 
-    /** @var RouterInterface */
-    protected $router;
+    protected RouterInterface $router;
+    protected LinkerInterface $linker;
+    protected ParserInterface $parser;
 
-    /** @var LinkerInterface */
-    protected $linker;
+    protected GameRepositoryInterface $gameRepository;
+    protected SidebarPartsProviderService $sidebarPartsProviderService;
 
-    /** @var ParserInterface */
-    protected $parser;
-
-    /** @var GameRepositoryInterface */
-    protected $gameRepository;
-
-    /** @var SidebarPartsProviderService */
-    protected $sidebarPartsProviderService;
-
-    /** @var Game|null */
-    protected $defaultGame;
+    protected ?Game $defaultGame;
 
     public function __construct(ContainerInterface $container)
     {
@@ -116,7 +107,7 @@ class Controller extends BaseController
     {
         $limit = $this->getSettings(
             $limitVar,
-            self::DefaultPageDescriptionLimit
+            self::DEFAULT_PAGE_DESCRIPTION_LIMIT
         );
         
         return Strings::stripTrunc($text, $limit);

@@ -31,7 +31,7 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
 
     public function getByTag(
         string $tag,
-        int $limit = null
+        int $limit = 0
     ) : GalleryPictureCollection
     {
         $pictures = $this
@@ -57,10 +57,7 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
         return $this
             ->pictures
             ->where(
-                fn (GalleryPicture $p) =>
-                $p->published == 1
-                && $p->publishedAt
-                && Date::happened($p->publishedAt)
+                fn (GalleryPicture $p) => $p->isPublished()
             );
     }
 

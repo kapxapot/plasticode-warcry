@@ -8,7 +8,7 @@ use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
 class RegionRepository extends IdiormRepository implements RegionRepositoryInterface
 {
-    protected $entityClass = Region::class;
+    protected string $entityClass = Region::class;
 
     public function get(?int $id) : ?Region
     {

@@ -7,12 +7,14 @@ use App\Models\Game;
 use App\Models\Recipe;
 use App\Models\Skill;
 use App\Repositories\Interfaces\GameRepositoryInterface;
+use App\Repositories\Interfaces\RecipeRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request as SlimRequest;
 
 class RecipeController extends Controller
 {
+    private RecipeRepositoryInterface $recipeRepository;
     private NotFoundHandler $notFoundHandler;
 
     /**
@@ -26,17 +28,15 @@ class RecipeController extends Controller
     {
         parent::__construct($container);
 
+        $this->recipeRepository = $container->recipeRepository;
         $this->notFoundHandler = $container->notFoundHandler;
 
         $this->recipesTitle = $this->getSettings('recipes.title', 'Recipes');
 
-        /** @var GameRepositoryInterface */
-        $gameRepository = $container->gameRepository;
         $gameAlias = $this->getSettings('recipes.game');
-
-        $this->game = $gameRepository->getPublishedByAlias($gameAlias);
+        $this->game = $this->gameRepository->getPublishedByAlias($gameAlias);
     }
-    
+
     public function index(
         SlimRequest $request,
         ResponseInterface $response,
@@ -70,25 +70,30 @@ class RecipeController extends Controller
         }
 
         // paging
-        $count = Recipe::getAllFiltered($skillId, $query)->count();
+        $count = $this->recipeRepository
+            ->getFilteredCount($skillId, $query);
+
         $url = $this->linker->recipes($skill);
 
         if ($query) {
             $url .= '?q=' . urlencode($query);
         }
-        
+
         $paging = $this->pagination->complex($url, $count, $page, $pageSize);
 
         $offset = ($page - 1) * $pageSize;
-        $recipes = Recipe::getAllFiltered($skillId, $query)
-            ->slice($offset, $pageSize)
-            ->all();
-        
+
+        $recipes = $this->recipeRepository
+            ->getFilteredPage(
+                $skillId,
+                $query,
+                $offset,
+                $pageSize
+            );
+
         if ($rebuild !== null) {
             $recipes->apply(
-                function ($r) {
-                    $r->reset();
-                }
+                fn (Recipe $r) => $r->reset()
             );
         }
 
@@ -123,19 +128,19 @@ class RecipeController extends Controller
     ) : ResponseInterface
     {
         $id = $args['id'];
-        
+
         $rebuild = $request->getQueryParam('rebuild', false);
-        
-        $recipe = Recipe::get($id);
+
+        $recipe = $this->recipeRepository->get($id);
 
         if (!$recipe) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         if ($rebuild) {
             $recipe->reset();
         }
-        
+
         $params = $this->buildParams(
             [
                 'game' => $this->game,

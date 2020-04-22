@@ -45,6 +45,11 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/streams/') . $alias;
     }
 
+    public function newsYear(int $year) : string
+    {
+        return $this->abs('/news/archive/') . $year;
+    }
+
     public function recipe(int $id) : string
     {
         return $this->abs('/recipes/') . $id;

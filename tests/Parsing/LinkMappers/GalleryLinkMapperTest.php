@@ -7,9 +7,11 @@ use App\Parsing\LinkMappers\GalleryLinkMapper;
 use App\Testing\Mocks\LinkerMock;
 use App\Testing\Mocks\Repositories\GalleryAuthorRepositoryMock;
 use App\Testing\Mocks\Repositories\GalleryPictureRepositoryMock;
+use App\Testing\Mocks\Repositories\GameRepositoryMock;
 use App\Testing\Mocks\SettingsProviderMock;
 use App\Testing\Seeders\GalleryAuthorSeeder;
 use App\Testing\Seeders\GalleryPictureSeeder;
+use App\Testing\Seeders\GameSeeder;
 use App\Tests\BaseRenderTestCase;
 
 final class GalleryLinkMapperTest extends BaseRenderTestCase
@@ -28,9 +30,17 @@ final class GalleryLinkMapperTest extends BaseRenderTestCase
         $galleryAuthorRepository = new GalleryAuthorRepositoryMock(
             new GalleryAuthorSeeder()
         );
-        
+
+        $gameRepository = new GameRepositoryMock(
+            new GameSeeder()
+        );
+
         $galleryPictureRepository = new GalleryPictureRepositoryMock(
-            new GalleryPictureSeeder($galleryAuthorRepository)
+            new GalleryPictureSeeder(
+                $galleryAuthorRepository,
+                $gameRepository,
+                $this->linker
+            )
         );
 
         $this->mapper = new GalleryLinkMapper(

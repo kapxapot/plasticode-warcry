@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Handlers\NotFoundHandler;
-use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Services\NewsAggregatorService;
 use Plasticode\Core\Pagination;
 use Plasticode\RSS\FeedImage;
@@ -18,7 +17,6 @@ use Slim\Http\Request as SlimRequest;
 
 class NewsController extends NewsSourceController
 {
-    private GameRepositoryInterface $gameRepository;
     private NewsAggregatorService $newsAggregatorService;
     private Pagination $pagination;
     private NotFoundHandler $notFoundHandler;
@@ -27,7 +25,6 @@ class NewsController extends NewsSourceController
     {
         parent::__construct($container);
 
-        $this->gameRepository = $container->gameRepository;
         $this->newsAggregatorService = $container->newsAggregatorService;
         $this->pagination = $container->pagination;
         $this->notFoundHandler = $container->notFoundHandler;
@@ -56,22 +53,23 @@ class NewsController extends NewsSourceController
             $this->getSettings('news_limit')
         );
 
-        $news = $this->newsAggregatorService->getPage($game, $page, $pageSize);
-        
+        $news = $this->newsAggregatorService
+            ->getPage($game, $page, $pageSize);
+
         // paging
         $count = $this->newsAggregatorService->getCount($game);
-        
+
         $url = $this->linker->game($game);
-        
+
         $paging = $this->pagination->complex($url, $count, $page, $pageSize);
-        
+
         // gallery
         /*$byAuthor = $this->galleryService->getAddedPicturesSliceByAuthor($game, Date::dt()->modify('-3 month'), Date::dt());
-        
+
         foreach ($byAuthor as $item) {
             var_dump([ $item['author']->displayName(), $item['pictures']->count() ]);
         }
-        
+
         dd();*/
 
         $params = $this->buildParams(
@@ -90,7 +88,7 @@ class NewsController extends NewsSourceController
                 ],
             ]
         );
-        
+
         return $this->render($response, 'main/news/index.twig', $params);
     }
 
@@ -101,20 +99,20 @@ class NewsController extends NewsSourceController
     ) : ResponseInterface
     {
         $id = $args['id'];
-        
+
         $rebuild = $request->getQueryParam('rebuild', null);
-        
+
         $news = $this->newsAggregatorService->getNews($id);
 
         if (!$news) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         // additional check for forum news
         if ($rebuild !== null && method_exists($news, 'resetDescription')) {
             $news->resetDescription();
         }
-        
+
         $prev = $this->newsAggregatorService->getPrev($news);
         $next = $this->newsAggregatorService->getNext($news);
 
@@ -148,7 +146,7 @@ class NewsController extends NewsSourceController
     ) : ResponseInterface
     {
         $years = $this->newsAggregatorService->getYears();
-        
+
         $params = $this->buildParams(
             [
                 'sidebar' => ['stream', 'gallery'],
@@ -158,10 +156,10 @@ class NewsController extends NewsSourceController
                 ],
             ]
         );
-    
+
         return $this->render($response, 'main/news/archive/index.twig', $params);
     }
-    
+
     public function archiveYear(
         ServerRequestInterface $request,
         ResponseInterface $response,
@@ -171,7 +169,7 @@ class NewsController extends NewsSourceController
         $year = $args['year'];
 
         $monthly = $this->newsAggregatorService->getByYear($year);
-        
+
         $prev = $this->newsAggregatorService->getPrevYear($year);
         $next = $this->newsAggregatorService->getNextYear($year);
 
@@ -189,29 +187,29 @@ class NewsController extends NewsSourceController
                 ],
             ]
         );
-    
+
         return $this->render($response, 'main/news/archive/year.twig', $params);
     }
-    
+
     public function rss(
         ServerRequestInterface $request,
         ResponseInterface $response
     ) : ResponseInterface
     {
         $limit = $this->getSettings('rss_limit' ?? 10);
-        
+
         $news = $this->newsAggregatorService->getTop($limit);
 
         $path = $this->getSettings('folders.rss_cache');
         $fileName = File::combine(__DIR__, $path, 'rss.xml');
 
         $settings = $this->getSettings('view_globals');
-        
+
         $siteUrl = $settings['site_url'];
         $siteName = $settings['site_name'];
         $siteDescription = $settings['site_description'];
         $teamMail = $settings['team_mail'];
-        
+
         $rss = new RSSCreator20($response);
 
         if (!$rss->useCached($fileName, 300)) {
@@ -224,14 +222,14 @@ class NewsController extends NewsSourceController
             $rss->copyright = $siteName;
             $rss->webmaster = $teamMail;
             $rss->ttl = 300;
-            
+
             $image = new FeedImage();
             $image->title = $siteName . ' logo';
             $image->url = $siteUrl . $settings['logo'];
             $image->link = $siteUrl;
             $image->description = $siteDescription;
             $rss->image = $image;
-            
+
             foreach ($news as $n) {
                 $item = new FeedItem();
                 $item->title = $n->displayTitle();
@@ -241,7 +239,7 @@ class NewsController extends NewsSourceController
                     $n->shortText(),
                     $this->linker->abs()
                 );
-                
+
                 $item->date = $n->publishedAtIso();
                 $item->author = $n->creator()->displayName();
                 $item->category = array_map(
@@ -250,10 +248,10 @@ class NewsController extends NewsSourceController
                     },
                     $n->tagLinks()
                 );
-                
+
                 $rss->addItem($item);
             }
-            
+
             $rss->saveFeed($fileName, true);
         }
 

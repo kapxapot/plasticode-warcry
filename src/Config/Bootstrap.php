@@ -14,6 +14,7 @@ use App\Hydrators\GameHydrator;
 use App\Hydrators\NewsHydrator;
 use App\Hydrators\RecipeHydrator;
 use App\Hydrators\RegionHydrator;
+use App\Hydrators\SkillHydrator;
 use App\Hydrators\StreamHydrator;
 use App\Hydrators\VideoHydrator;
 use App\Parsing\ForumParser;
@@ -31,12 +32,15 @@ use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
 use App\Repositories\EventRepository;
+use App\Repositories\GalleryAuthorRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\GameRepository;
 use App\Repositories\LocationRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\RecipeRepository;
+use App\Repositories\RecipeSourceRepository;
 use App\Repositories\RegionRepository;
+use App\Repositories\SkillRepository;
 use App\Repositories\StreamRepository;
 use App\Repositories\StreamStatRepository;
 use App\Repositories\VideoRepository;
@@ -100,6 +104,11 @@ class Bootstrap extends BootstrapBase
                 )
             );
 
+        $map['galleryAuthorRepository'] = fn (CI $c) =>
+            new GalleryAuthorRepository(
+                $c->repositoryContext
+            );
+
         $map['galleryPictureRepository'] = fn (CI $c) =>
             new GalleryPictureRepository(
                 $c->repositoryContext,
@@ -108,6 +117,8 @@ class Bootstrap extends BootstrapBase
                     fn () =>
                     new GalleryPictureHydrator(
                         $c->galleryAuthorRepository,
+                        $c->galleryPictureRepository,
+                        $c->gameRepository,
                         $c->linker
                     )
                 )
@@ -116,10 +127,10 @@ class Bootstrap extends BootstrapBase
         $map['gameRepository'] = fn (CI $c) =>
             new GameRepository(
                 $c->repositoryContext,
+                $c->config,
                 new ObjectProxy(
                     fn () =>
                     new GameHydrator(
-                        $c->config
                     )
                 )
             );
@@ -145,8 +156,16 @@ class Bootstrap extends BootstrapBase
                 new ObjectProxy(
                     fn () =>
                     new RecipeHydrator(
+                        $c->recipeSourceRepository,
+                        $c->skillRepository,
+                        $c->linker
                     )
                 )
+            );
+
+        $map['recipeSourceRepository'] = fn (CI $c) =>
+            new RecipeSourceRepository(
+                $c->repositoryContext
             );
 
         $map['regionRepository'] = fn (CI $c) =>
@@ -155,6 +174,18 @@ class Bootstrap extends BootstrapBase
                 new ObjectProxy(
                     fn () =>
                     new RegionHydrator(
+                    )
+                )
+            );
+
+        $map['skillRepository'] = fn (CI $c) =>
+            new SkillRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new SkillHydrator(
+                        $c->linker,
+                        $c->config
                     )
                 )
             );
@@ -394,7 +425,8 @@ class Bootstrap extends BootstrapBase
 
         $map['newsAggregatorService'] = fn (CI $c) =>
             new NewsAggregatorService(
-                $c->newsRepository
+                $c->newsRepository,
+                $c->linker
             );
 
         $map['recipeService'] = fn (CI $c) =>

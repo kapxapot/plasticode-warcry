@@ -13,12 +13,13 @@ use Plasticode\Models\Traits\Published;
  * @property integer $id
  * @property string $name
  * @property string|null $alias
+ * @property integer $published
  */
 class Game extends DbModel implements LinkableInterface
 {
     use Children;
     use Published;
-    
+
     protected static string $sortField = 'position';
 
     // GETTERS - ONE

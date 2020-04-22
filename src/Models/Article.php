@@ -24,11 +24,11 @@ use Psr\Container\ContainerInterface;
  * @property integer $gameId
  * @property integer $noBreadcrumb
  * @property string|null $aliases
- * @property ContainerInterface $container
  */
 class Article extends NewsSource
 {
-    use CachedDescription, Children;
+    use CachedDescription;
+    use Children;
 
     protected static string $sortField = 'published_at';
     protected static bool $sortReverse = true;

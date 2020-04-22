@@ -8,7 +8,7 @@ use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
 class GalleryAuthorRepository extends IdiormRepository implements GalleryAuthorRepositoryInterface
 {
-    protected $entityClass = GalleryAuthor::class;
+    protected string $entityClass = GalleryAuthor::class;
 
     public function get(?int $id) : ?GalleryAuthor
     {

@@ -39,28 +39,28 @@ class GalleryPictureHydrator extends Hydrator
     {
         return $entity
             ->withAuthor(
-                $this->galleryAuthorRepository->get($entity->authorId)
+                fn () => $this->galleryAuthorRepository->get($entity->authorId)
             )
             ->withGame(
-                $this->gameRepository->get($entity->gameId)
+                fn () => $this->gameRepository->get($entity->gameId)
             )
             ->withPrev(
-                $this->galleryPictureRepository->getPrevSibling($entity)
+                fn () => $this->galleryPictureRepository->getPrevSibling($entity)
             )
             ->withNext(
-                $this->galleryPictureRepository->getNextSibling($entity)
+                fn () => $this->galleryPictureRepository->getNextSibling($entity)
             )
             ->withExt(
-                $this->linker->getImageExtension($entity->pictureType)
+                fn () => $this->linker->getImageExtension($entity->pictureType)
             )
             ->withUrl(
-                $this->linker->galleryPictureImg($entity)
+                fn () => $this->linker->galleryPictureImg($entity)
             )
             ->withThumbUrl(
-                $this->linker->galleryThumbImg($entity)
+                fn () => $this->linker->galleryThumbImg($entity)
             )
             ->withPageUrl(
-                $this->linker->galleryPicture($entity)
+                fn () => $this->linker->galleryPicture($entity)
             );
     }
 }

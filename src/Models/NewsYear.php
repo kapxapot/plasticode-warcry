@@ -7,25 +7,22 @@ use Plasticode\Models\Interfaces\LinkableInterface;
 
 class NewsYear extends Model implements LinkableInterface
 {
-    /**
-     * Year
-     *
-     * @var integer
-     */
-    private $year;
+    private int $year;
+    private string $url;
 
-    public function __construct(int $year)
+    public function __construct(int $year, string $url)
     {
         parent::__construct();
-        
+
         $this->year = $year;
+        $this->url = $url;
     }
-    
-    public function url() : ?string
+
+    public function url() : string
     {
-        return self::$container->linker->newsYear($this->year);
+        return $this->url;
     }
-    
+
     public function title() : string
     {
         return $this->year . ' год';

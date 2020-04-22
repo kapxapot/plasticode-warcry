@@ -15,7 +15,7 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
     use FullPublishedRepository;
     use ProtectedRepository;
 
-    protected $entityClass = Article::class;
+    protected string $entityClass = Article::class;
 
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
     {

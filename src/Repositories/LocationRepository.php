@@ -8,7 +8,7 @@ use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
 class LocationRepository extends IdiormRepository implements LocationRepositoryInterface
 {
-    protected $entityClass = Location::class;
+    protected string $entityClass = Location::class;
 
     public function getByName(string $name) : ?Location
     {

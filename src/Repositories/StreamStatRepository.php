@@ -8,7 +8,7 @@ use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
 class StreamStatRepository extends IdiormRepository implements StreamStatRepositoryInterface
 {
-    protected $entityClass = StreamStat::class;
+    protected string $entityClass = StreamStat::class;
 
     public function save(StreamStat $stat) : StreamStat
     {

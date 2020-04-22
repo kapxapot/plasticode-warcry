@@ -13,7 +13,7 @@ class EventRepository extends IdiormRepository implements EventRepositoryInterfa
     use FullPublishedRepository;
     use ProtectedRepository;
 
-    protected $entityClass = Event::class;
+    protected string $entityClass = Event::class;
 
     public function getProtected(?int $id) : ?Event
     {

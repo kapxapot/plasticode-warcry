@@ -13,7 +13,7 @@ class NewsRepository extends IdiormRepository implements NewsRepositoryInterface
     use FullPublishedRepository;
     use ProtectedRepository;
 
-    protected $entityClass = News::class;
+    protected string $entityClass = News::class;
 
     public function getProtected(?int $id) : ?News
     {

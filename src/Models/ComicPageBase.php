@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Traits\Publish;
+use Plasticode\Models\Traits\Published;
 use Plasticode\Models\Traits\Stamps;
 
 abstract class ComicPageBase extends DbModel
 {
-    use Publish, Stamps;
+    use Published;
+    use Stamps;
 
     protected static string $sortField = 'number';
 

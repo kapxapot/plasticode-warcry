@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Names;
 use Plasticode\Collection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
-use Plasticode\Models\Traits\FullPublish;
+use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
 
-use App\Models\Traits\Names;
-
 class ComicSeries extends DbModel
 {
-    use Description, FullPublish, Stamps, Tags, Names;
-    
+    use Description;
+    use FullPublished;
+    use Names;
+    use Stamps;
+    use Tags;
+
     protected static $tagsEntityType = 'comics';
-    
+
     // getters - one
 
     public static function getPublishedByAlias(string $alias) : ?self

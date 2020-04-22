@@ -2,39 +2,28 @@
 
 namespace App\Models;
 
-use Plasticode\Query;
 use Plasticode\Models\DbModel;
 
+/**
+ * @property string $name
+ * @property string $nameRu
+ * @property string|null $icon
+ * @property integer $active
+ * @property string|null $alias
+ * @method string defaultIcon()
+ * @method string iconUrl()
+ * @method self withDefaultIcon(string|callable $defaultIcon)
+ * @method self withIconUrl(string|callable $iconUrl)
+ */
 class Skill extends DbModel
 {
-    private $defaultIcon;
-
-    public function withDefaultIcon(string $icon) : self
+    protected function requiredWiths(): array
     {
-        $this->defaultIcon = $icon;
-        return $this;
-    }
-    
-    public static function getActive() : Query
-    {
-        return self::query()
-            ->where('active', 1);
-    }
-
-    public static function getByAlias($alias)
-    {
-        return self::getActive()
-            ->where('alias', $alias)
-            ->one();
+        return ['defaultIcon', 'iconUrl'];
     }
 
     public function displayIcon()
     {
-        return $this->icon ?? $this->defaultIcon;
-    }
-
-    public function iconUrl()
-    {
-        return self::$container->linker->wowheadIcon($this->displayIcon());
+        return $this->icon ?? $this->defaultIcon();
     }
 }

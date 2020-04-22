@@ -8,7 +8,7 @@ use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
 class StreamRepository extends IdiormRepository implements StreamRepositoryInterface
 {
-    protected $entityClass = Stream::class;
+    protected string $entityClass = Stream::class;
 
     public function save(Stream $stream) : Stream
     {
