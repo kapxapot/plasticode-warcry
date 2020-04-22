@@ -10,6 +10,11 @@ class ArticleCategoryRepository extends IdiormRepository implements ArticleCateg
 {
     protected string $entityClass = ArticleCategory::class;
 
+    public function get(?int $id) : ?ArticleCategory
+    {
+        return $this->getEntity($id);
+    }
+
     public function getByName(string $name) : ?ArticleCategory
     {
         return $this

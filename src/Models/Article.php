@@ -8,7 +8,6 @@ use Plasticode\Query;
 use Plasticode\Models\Traits\Children;
 use Plasticode\Util\Sort;
 use Plasticode\Util\Strings;
-use Psr\Container\ContainerInterface;
 
 /**
  * @property integer $id
@@ -24,98 +23,38 @@ use Psr\Container\ContainerInterface;
  * @property integer $gameId
  * @property integer $noBreadcrumb
  * @property string|null $aliases
+ * @method ArticleCategory|null category()
+ * @method self withCategory(ArticleCategory|callable|null $category)
  */
 class Article extends NewsSource
 {
     use CachedDescription;
     use Children;
 
-    protected static string $sortField = 'published_at';
-    protected static bool $sortReverse = true;
-
     protected static function getDescriptionField() : string
     {
         return 'text';
     }
 
-    public static function publishedOrphans() : Collection
-    {
-        return self::getPublished()
-            ->whereNull('parent_id')
-            ->all();
-    }
-
-    public static function getLatest(Game $game = null, int $limit = null, int $exceptId = null) : Query
-    {
-        $query = self::getPublished()
-            ->where('announce', 1);
-    
-        if ($game) {
-            $query = $game->filter($query);
-        }
-        
-        if ($exceptId) {
-            $query = $query->whereNotEqual('id', $exceptId);
-        }
-        
-        if ($limit) {
-            $query = $query->limit($limit);
-        }
-        
-        return $query;
-    }
-    
-    /**
-     * Check article duplicates for validation.
-     */
-    public static function lookup(string $name, int $cat = null, int $exceptId = null) : Query
-    {
-        $query = self::query()
-            ->where('name_en', $name);
-        
-        if (strlen($cat) > 0) {
-            $query = $query->where('cat', $cat);
-        } else {
-            $query = $query->whereNull('cat');
-        }
-            
-        if ($exceptId > 0) {
-            $query = $query->whereNotEqual('id', $exceptId);
-        }
-            
-        return $query;
-    }
-
-    // props
-
-    public function category() : ?ArticleCategory
-    {
-        return $this->lazy(
-            function () {
-                return ArticleCategory::get($this->cat);
-            }
-        );
-    }
-
     public function title() : string
     {
         $cat = $this->category();
-        
+
         return $this->nameRu . ($cat ? ' (' . $cat->nameRu . ')' : '');
     }
-    
+
     public function titleEn() : ?string
     {
         return $this->hideeng ? null : $this->nameEn;
     }
-    
+
     public function titleFull() : string
     {
         $en = $this->titleEn();
-        
+
         return $this->nameRu . ($en ? ' (' . $en . ')' : ''); 
     }
-    
+
     public function subArticles() : Collection
     {
         return $this
@@ -208,11 +147,6 @@ class Article extends NewsSource
             $this->nameEn,
             $cat ? $cat->nameEn : null
         );
-    }
-    
-    private static function announced(Query $query) : Query
-    {
-        return $query->where('announce', 1);
     }
     
     public static function getNewsByTag(string $tag) : Query

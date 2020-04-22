@@ -89,7 +89,8 @@ class Bootstrap extends BootstrapBase
                 new ObjectProxy(
                     fn () =>
                     new ArticleHydrator(
-                        $c->articleCategoryRepository
+                        $c->articleCategoryRepository,
+                        $c->userRepository
                     )
                 )
             );

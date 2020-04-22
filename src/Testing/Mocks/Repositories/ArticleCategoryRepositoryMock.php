@@ -16,10 +16,13 @@ class ArticleCategoryRepositoryMock implements ArticleCategoryRepositoryInterfac
         $this->categories = ArticleCategoryCollection::make($seeder->seed());
     }
 
+    public function get(?int $id) : ?ArticleCategory
+    {
+        return $this->categories->first('id', $id);
+    }
+
     public function getByName(string $name) : ?ArticleCategory
     {
-        return $this
-            ->categories
-            ->first('name_en', $name);
+        return $this->categories->first('name_en', $name);
     }
 }
