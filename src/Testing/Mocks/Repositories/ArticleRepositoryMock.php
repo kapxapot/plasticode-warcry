@@ -24,6 +24,11 @@ class ArticleRepositoryMock implements ArticleRepositoryInterface
         $this->articles = ArticleCollection::make($seeder->seed());
     }
 
+    public function get(?int $id) : ?Article
+    {
+        return $this->articles->first('id', $id);
+    }
+
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
     {
         return
@@ -85,5 +90,10 @@ class ArticleRepositoryMock implements ArticleRepositoryInterface
                 }
             )
             ->first();
+    }
+
+    public function getChildren(Article $parent) : ArticleCollection
+    {
+        return $this->articles->where('parent_id', $parent->getId());
     }
 }

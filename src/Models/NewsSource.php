@@ -3,10 +3,7 @@
 namespace App\Models;
 
 use App\Models\Interfaces\NewsSourceInterface;
-use Plasticode\Collection;
-use Plasticode\Query;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Interfaces\SearchableInterface;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tags;
@@ -22,7 +19,7 @@ use Plasticode\Parsing\ParsingContext;
  * @property string $updatedAt
  * @property string $tags
  */
-abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
+abstract class NewsSource extends DbModel implements NewsSourceInterface//, SearchableInterface
 {
     use FullPublished;
     use Stamps;
@@ -85,26 +82,26 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
 
     public abstract function parsedDescription(ParserInterface $parser) : ?ParsingContext;
 
-    public abstract static function search(string $searchQuery) : Collection;
-    
+    // public abstract static function search(string $searchQuery) : Collection;
+
     public abstract function code() : string;
     
     // NewsSourceInterface
 
     public abstract function url() : ?string;
-    
-    public abstract static function getNewsByTag(string $tag) : Query;
 
-    public abstract static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query;
-    
-    public abstract static function getNewsBefore(Game $game, string $date) : Query;
-    
-    public abstract static function getNewsAfter(Game $game, string $date) : Query;
-    
-    public abstract static function getNewsByYear(int $year) : Query;
+    // public abstract static function getNewsByTag(string $tag) : Query;
+
+    // public abstract static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query;
+
+    // public abstract static function getNewsBefore(Game $game, string $date) : Query;
+
+    // public abstract static function getNewsAfter(Game $game, string $date) : Query;
+
+    // public abstract static function getNewsByYear(int $year) : Query;
 
     public abstract function displayTitle() : string;
-    
+
     public function fullText() : ?string
     {
         return $this->lazy(
@@ -116,7 +113,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
             }
         );
     }
-    
+
     public function shortText() : ?string
     {
         return $this->lazy(

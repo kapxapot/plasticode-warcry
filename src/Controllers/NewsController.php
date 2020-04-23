@@ -36,12 +36,14 @@ class NewsController extends NewsSourceController
         array $args
     ) : ResponseInterface
     {
-        if ($args['game']) {
-            $game = $this->gameRepository->getPublishedByAlias(
-                $args['game']
-            );
-            
-            if (!$game) {
+        $game = null;
+        $gameAlias = $args['game'] ?? null;
+
+        if ($gameAlias) {
+            $game = $this->gameRepository
+                ->getPublishedByAlias($gameAlias);
+
+            if (is_null($game)) {
                 return ($this->notFoundHandler)($request, $response);
             }
         }

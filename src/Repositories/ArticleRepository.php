@@ -12,6 +12,8 @@ use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 use Plasticode\Repositories\Idiorm\Traits\ChildrenRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
 use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository;
+use Plasticode\Util\Sort;
+use Plasticode\Util\SortStep;
 use Plasticode\Util\Strings;
 
 class ArticleRepository extends IdiormRepository implements ArticleRepositoryInterface
@@ -23,8 +25,13 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
 
     protected string $entityClass = Article::class;
 
-    protected string $sortField = $this->publishedAtField;
+    protected string $sortField = 'published_at';
     protected bool $sortReverse = true;
+
+    public function get(?int $id) : ?Article
+    {
+        return $this->getEntity($id);
+    }
 
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
     {
@@ -81,10 +88,20 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
             ->one();
     }
 
+    public function getChildren(Article $parent) : ArticleCollection
+    {
+        return ArticleCollection::from(
+            $this->filterByParent(
+                $this->query(),
+                $parent->getId()
+            )
+        );
+    }
+
     public function getAllPublishedOrphans() : ArticleCollection
     {
         return ArticleCollection::from(
-            $this->orphansQuery(
+            $this->filterOrphans(
                 $this->publishedQuery()
             )
         );
@@ -98,7 +115,7 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
     {
         return ArticleCollection::from(
             $this->getLatestQuery($game, $limit, $exceptId)
-        )
+        );
     }
 
     protected function getLatestQuery(
@@ -154,5 +171,23 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
         }
 
         return ArticleCollection::from($query);
+    }
+
+    public function search(string $searchQuery) : ArticleCollection
+    {
+        return ArticleCollection::from(
+            $this
+                ->publishedQuery()
+                ->search($searchQuery, '(name_en like ? or name_ru like ?)', 2)
+                ->all()
+                ->multiSort(
+                    [
+                        SortStep::createByField('name_ru')
+                            ->withType(Sort::STRING),
+                        SortStep::createByField('category')
+                            ->withType(Sort::NULL),
+                    ]
+                )
+        );
     }
 }

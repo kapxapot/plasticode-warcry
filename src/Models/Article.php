@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
+use App\Collections\ArticleCollection;
 use Plasticode\Models\Traits\CachedDescription;
-use Plasticode\Query;
-use Plasticode\Models\Traits\Children;
-use Plasticode\Util\Sort;
+use Plasticode\Models\Traits\Parented;
 use Plasticode\Util\Strings;
 
 /**
@@ -24,17 +22,25 @@ use Plasticode\Util\Strings;
  * @property integer $noBreadcrumb
  * @property string|null $aliases
  * @method ArticleCategory|null category()
+ * @method ArticleCollection children()
  * @method self withCategory(ArticleCategory|callable|null $category)
+ * @method self withChildren(ArticleCollection|callable $children)
+ * @method self withUrl(string|callable $url)
  */
 class Article extends NewsSource
 {
     use CachedDescription;
-    use Children;
+    use Parented;
 
-    protected static function getDescriptionField() : string
+    protected function requiredWiths() : array
     {
-        return 'text';
+        return ['children', 'parent', 'category', 'url'];
     }
+
+    // protected function getDescriptionField() : string
+    // {
+    //     return 'text';
+    // }
 
     public function title() : string
     {
@@ -55,62 +61,49 @@ class Article extends NewsSource
         return $this->nameRu . ($en ? ' (' . $en . ')' : ''); 
     }
 
-    public function subArticles() : Collection
+    /**
+     * Returns published sub-articles.
+     */
+    public function subArticles() : ArticleCollection
     {
         return $this
             ->children()
             ->where(
-                function ($item) {
-                    return $item->isPublished();
-                }
+                fn (self $a) => $a->isPublished()
             )
             ->ascStr('name_ru');
     }
-    
-    public function breadcrumbs() : Collection
+
+    public function breadcrumbs() : ArticleCollection
     {
-        $breadcrumbs = Collection::empty();
-        
+        $breadcrumbs = [];
+
         $article = $this->parent();
-        
-        while (!is_null($article)) {
+
+        while ($article) {
             if (!$article->noBreadcrumb) {
-                $breadcrumbs = $breadcrumbs->add($article);
+                $breadcrumbs[] = $article;
             }
 
             $article = $article->parent();
         }
-        
-        return $breadcrumbs
+
+        return ArticleCollection::make($breadcrumbs)
             ->reverse()
             ->map(
-                function ($a) {
-                    return [
-                        'url' => $a->url(),
-                        'text' => $a->nameRu,
-                        'title' => $a->titleEn(),
-                    ];
-                }
-            );
-    }
-
-    public static function search(string $searchQuery) : Collection
-    {
-        return self::getPublished()
-            ->search($searchQuery, '(name_en like ? or name_ru like ?)', 2)
-            ->all()
-            ->multiSort(
+                fn (Article $a) =>
                 [
-                    'name_ru' => ['type' => Sort::STRING],
-                    'category' => ['type' => Sort::NULL],
+                    'url' => $a->url(),
+                    'text' => $a->nameRu,
+                    'title' => $a->titleEn(),
                 ]
             );
     }
-    
+
     public function serialize() : array
     {
         $cat = $this->category();
-        
+
         return [
             'id' => $this->getId(),
             'name_ru' => $this->nameRu,
@@ -119,68 +112,29 @@ class Article extends NewsSource
             'tags' => Strings::toTags($this->tags),
         ];
     }
-    
+
     public function code() : string
     {
         $parts[] = $this->nameEn;
-        
+
         $cat = $this->category();
-        
-        if ($cat !== null) {
+
+        if ($cat) {
             $parts[] = $cat->nameEn;
         }
-        
-        if ($cat !== null || $this->nameRu !== $this->nameEn) {
+
+        if ($cat || $this->nameRu !== $this->nameEn) {
             $parts[] = $this->nameRu;
         }
-        
+
         return Strings::doubleBracketsTag(null, ...$parts);
     }
-    
+
     // NewsSourceInterface
 
     public function url() : ?string
     {
-        $cat = $this->category();
-        
-        return self::$container->linker->article(
-            $this->nameEn,
-            $cat ? $cat->nameEn : null
-        );
-    }
-    
-    public static function getNewsByTag(string $tag) : Query
-    {
-        $query = static::getByTag($tag);
-        return self::announced($query);
-    }
-
-    public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query
-    {
-        $query = static::getLatest($game, null, $exceptNewsId);
-        return self::announced($query);
-    }
-    
-    public static function getNewsBefore(Game $game, string $date) : Query
-    {
-        return self::getLatestNews($game)
-            ->whereLt('published_at', $date)
-            ->orderByDesc('published_at');
-    }
-    
-    public static function getNewsAfter(Game $game, string $date) : Query
-    {
-        return self::getLatestNews($game)
-            ->whereGt('published_at', $date)
-            ->orderByAsc('published_at');
-    }
-    
-    public static function getNewsByYear(int $year) : Query
-    {
-        $query = self::getPublished()
-            ->whereRaw('(year(published_at) = ?)', [$year]);
-        
-        return self::announced($query);
+        return $this->getWithProperty('url');
     }
 
     public function displayTitle() : string

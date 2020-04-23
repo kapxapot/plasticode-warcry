@@ -90,7 +90,9 @@ class Bootstrap extends BootstrapBase
                     fn () =>
                     new ArticleHydrator(
                         $c->articleCategoryRepository,
-                        $c->userRepository
+                        $c->articleRepository,
+                        $c->userRepository,
+                        $c->linker
                     )
                 )
             );

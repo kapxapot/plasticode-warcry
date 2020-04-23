@@ -17,7 +17,6 @@ use Plasticode\Models\Traits\Published;
  */
 class Game extends DbModel implements LinkableInterface
 {
-    use Children;
     use Published;
 
     protected static string $sortField = 'position';
