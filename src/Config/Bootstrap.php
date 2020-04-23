@@ -86,6 +86,8 @@ class Bootstrap extends BootstrapBase
         $map['articleRepository'] = fn (CI $c) =>
             new ArticleRepository(
                 $c->repositoryContext,
+                $c->tagRepository,
+                $c->linker,
                 new ObjectProxy(
                     fn () =>
                     new ArticleHydrator(
@@ -116,6 +118,7 @@ class Bootstrap extends BootstrapBase
             new GalleryPictureRepository(
                 $c->repositoryContext,
                 $c->tagRepository,
+                $c->linker,
                 new ObjectProxy(
                     fn () =>
                     new GalleryPictureHydrator(

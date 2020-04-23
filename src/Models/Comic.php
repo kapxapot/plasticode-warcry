@@ -8,7 +8,7 @@ use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
+use Plasticode\Models\Traits\Tagged;
 
 abstract class Comic extends DbModel
 {
@@ -16,7 +16,7 @@ abstract class Comic extends DbModel
     use FullPublished;
     use Names;
     use Stamps;
-    use Tags;
+    use Tagged;
     
     // PROPS
 

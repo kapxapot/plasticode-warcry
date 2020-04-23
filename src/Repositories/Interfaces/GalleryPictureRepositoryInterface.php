@@ -10,7 +10,11 @@ use App\Models\Game;
 interface GalleryPictureRepositoryInterface
 {
     function get(?int $id) : ?GalleryPicture;
-    function getByTag(string $tag, int $limit = 0) : GalleryPictureCollection;
+
+    function getAllByTag(
+        string $tag,
+        int $limit = 0
+    ) : GalleryPictureCollection;
 
     /**
      * Returns all published pictures that were published before given.

@@ -3,12 +3,10 @@
 namespace App\Models;
 
 use App\Collections\ArticleCollection;
-use Plasticode\Models\Traits\CachedDescription;
 use Plasticode\Models\Traits\Parented;
 use Plasticode\Util\Strings;
 
 /**
- * @property integer $id
  * @property integer|null $parentId
  * @property integer|null $cat
  * @property string $nameRu
@@ -18,7 +16,6 @@ use Plasticode\Util\Strings;
  * @property string|null $text
  * @property string|null $cache
  * @property integer $announce
- * @property integer $gameId
  * @property integer $noBreadcrumb
  * @property string|null $aliases
  * @method ArticleCategory|null category()
@@ -29,18 +26,18 @@ use Plasticode\Util\Strings;
  */
 class Article extends NewsSource
 {
-    use CachedDescription;
     use Parented;
 
     protected function requiredWiths() : array
     {
-        return ['children', 'parent', 'category', 'url'];
+        return [
+            ...parent::requiredWiths(),
+            'children',
+            'parent',
+            'category',
+            'url'
+        ];
     }
-
-    // protected function getDescriptionField() : string
-    // {
-    //     return 'text';
-    // }
 
     public function title() : string
     {

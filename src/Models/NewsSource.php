@@ -4,42 +4,31 @@ namespace App\Models;
 
 use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Interfaces\SearchableInterface;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
-use Plasticode\Parsing\Interfaces\ParserInterface;
+use Plasticode\Models\Traits\Tagged;
 use Plasticode\Parsing\ParsingContext;
 
 /**
- * @property integer $published
- * @property string|null $publishedAt
- * @property integer|null $createdBy
- * @property string $createdAt
- * @property integer|null $updatedBy
- * @property string $updatedAt
+ * @property integer|null $gameId
  * @property string $tags
+ * @method Game|null game()
+ * @method ParsingContext|null parsed
+ * @method static withGame(Game|callable|null $game)
+ * @method static withParsed(ParsingContext|callable|null $parsed)
  */
-abstract class NewsSource extends DbModel implements NewsSourceInterface//, SearchableInterface
+abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use FullPublished;
     use Stamps;
-    use Tags;
+    use Tagged;
 
-    private ?ParserInterface $parser = null;
-
-    public function withParser(ParserInterface $parser) : self
+    protected function requiredWiths(): array
     {
-        $this->parser = $parser;
-        return $this;
+        return ['game', 'parsed'];
     }
 
-    public function game() : ?Game
-    {
-        return $this->gameId
-            ? Game::get($this->gameId)
-            : null;
-    }
-    
     public function rootGame() : ?Game
     {
         return $this->game()
@@ -72,7 +61,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface//, Sear
     {
         return $this->parsedDescription($this->parser);
     }
-    
+
     public function parsedText() : ?string
     {
         return $this->parsed()
@@ -80,12 +69,10 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface//, Sear
             : null;
     }
 
-    public abstract function parsedDescription(ParserInterface $parser) : ?ParsingContext;
-
     // public abstract static function search(string $searchQuery) : Collection;
 
     public abstract function code() : string;
-    
+
     // NewsSourceInterface
 
     public abstract function url() : ?string;

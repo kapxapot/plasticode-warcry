@@ -8,38 +8,17 @@ use App\Models\GalleryPicture;
 use App\Models\Game;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use App\Repositories\Traits\ByGameRepository;
-use Plasticode\Hydrators\Interfaces\HydratorInterface;
 use Plasticode\Query;
-use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
-use Plasticode\Repositories\Idiorm\Basic\RepositoryContext;
+use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
-use Plasticode\Repositories\Idiorm\Traits\TagsRepository;
-use Plasticode\Repositories\Interfaces\TagRepositoryInterface;
 use Plasticode\Util\SortStep;
 
-class GalleryPictureRepository extends IdiormRepository implements GalleryPictureRepositoryInterface
+class GalleryPictureRepository extends TaggedRepository implements GalleryPictureRepositoryInterface
 {
     use ByGameRepository;
     use FullPublishedRepository;
-    use TagsRepository;
 
     protected string $entityClass = GalleryPicture::class;
-
-    private TagRepositoryInterface $tagRepository;
-
-    /**
-     * @param HydratorInterface|ObjectProxy|null $hydrator
-     */
-    public function __construct(
-        RepositoryContext $repositoryContext,
-        TagRepositoryInterface $tagRepository,
-        $hydrator = null
-    )
-    {
-        parent::__construct($repositoryContext, $hydrator);
-
-        $this->tagRepository = $tagRepository;
-    }
 
     /**
      * @return SortStep[]
@@ -57,18 +36,17 @@ class GalleryPictureRepository extends IdiormRepository implements GalleryPictur
         return $this->getEntity($id);
     }
 
-    public function getByTag(
+    public function getAllByTag(
         string $tag,
         int $limit = 0
     ) : GalleryPictureCollection
     {
         return GalleryPictureCollection::from(
-            $this->getByTagQuery(
-                $this->tagRepository,
+            $this->byTagQuery(
                 $this->query(),
-                $tag
+                $tag,
+                $limit
             )
-            ->limit($limit)
         );
     }
 

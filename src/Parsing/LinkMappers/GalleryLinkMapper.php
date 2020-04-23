@@ -74,7 +74,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
             if (!is_numeric($id)) {
                 $pictures = $this
                     ->galleryPictureRepository
-                    ->getByTag($id, $maxPictures);
+                    ->getAllByTag($id, $maxPictures);
                 
                 $inlineTag = $id;
 

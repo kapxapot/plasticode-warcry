@@ -6,13 +6,13 @@ use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Traits\Tags;
+use Plasticode\Models\Traits\Tagged;
 use Plasticode\Util\Arrays;
 use Plasticode\Util\Date;
 
 class ForumTopic extends DbModel implements NewsSourceInterface
 {
-    use Tags;
+    use Tagged;
 
     private const TIME_FORMAT = '%Y-%m-%d %H:%M:%S';
     

@@ -8,7 +8,7 @@ use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
+use Plasticode\Models\Traits\Tagged;
 
 class ComicSeries extends DbModel
 {
@@ -16,7 +16,7 @@ class ComicSeries extends DbModel
     use FullPublished;
     use Names;
     use Stamps;
-    use Tags;
+    use Tagged;
 
     protected static $tagsEntityType = 'comics';
 

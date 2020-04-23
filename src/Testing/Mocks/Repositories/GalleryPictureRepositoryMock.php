@@ -29,7 +29,7 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
             ->first('id', $id);
     }
 
-    public function getByTag(
+    public function getAllByTag(
         string $tag,
         int $limit = 0
     ) : GalleryPictureCollection

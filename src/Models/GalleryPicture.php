@@ -8,7 +8,7 @@ use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Stamps;
-use Plasticode\Models\Traits\Tags;
+use Plasticode\Models\Traits\Tagged;
 use Webmozart\Assert\Assert;
 
 /**
@@ -45,7 +45,7 @@ class GalleryPicture extends DbModel
     use Description;
     use FullPublished;
     use Stamps;
-    use Tags;
+    use Tagged;
 
     private const DEFAULT_BG_COLOR = '255,255,255,1';
 

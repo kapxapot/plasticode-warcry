@@ -8,7 +8,7 @@ use App\Models\Game;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Traits\ByGameRepository;
 use Plasticode\Query;
-use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\ChildrenRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
 use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository;
@@ -16,7 +16,7 @@ use Plasticode\Util\Sort;
 use Plasticode\Util\SortStep;
 use Plasticode\Util\Strings;
 
-class ArticleRepository extends IdiormRepository implements ArticleRepositoryInterface
+class ArticleRepository extends TaggedRepository implements ArticleRepositoryInterface
 {
     use ByGameRepository;
     use ChildrenRepository;
@@ -43,11 +43,11 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
     public function getBySlug(string $slug, string $cat = null) : ?Article
     {
         return $this
-            ->getAllBySlugQuery($slug, $cat)
+            ->bySlugQuery($slug, $cat)
             ->one();
     }
 
-    protected function getAllBySlugQuery(string $slug, string $cat = null) : Query
+    protected function bySlugQuery(string $slug, string $cat = null) : Query
     {
         $slug = Strings::toSpaces($slug);
         $cat = Strings::toSpaces($cat);
@@ -98,7 +98,10 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
         );
     }
 
-    public function getAllPublishedOrphans() : ArticleCollection
+    /**
+     * Returns all published orphans.
+     */
+    public function getAllOrphans() : ArticleCollection
     {
         return ArticleCollection::from(
             $this->filterOrphans(
@@ -114,19 +117,17 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
     ) : ArticleCollection
     {
         return ArticleCollection::from(
-            $this->getLatestQuery($game, $limit, $exceptId)
+            $this->latestQuery($game, $limit, $exceptId)
         );
     }
 
-    protected function getLatestQuery(
+    protected function latestQuery(
         ?Game $game = null,
         int $limit = 0,
         int $exceptId = 0
     ) : Query
     {
-        $query = $this->filterAnnounced(
-            $this->publishedQuery()
-        );
+        $query = $this->announcedQuery();
 
         if ($exceptId > 0) {
             $query = $query->whereNotEqual(
@@ -138,6 +139,16 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
         return $this
             ->filterByGame($query, $game)
             ->limit($limit);
+    }
+
+    /**
+     * Published + announced query.
+     */
+    protected function announcedQuery() : Query
+    {
+        return $this->filterAnnounced(
+            $this->publishedQuery()
+        );
     }
 
     protected function filterAnnounced(Query $query) : Query
@@ -154,7 +165,8 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
         int $exceptId = 0
     ) : ArticleCollection
     {
-        $query = $this->query()
+        $query = $this
+            ->query()
             ->where('name_en', $name);
 
         if ($catId > 0) {
@@ -164,13 +176,68 @@ class ArticleRepository extends IdiormRepository implements ArticleRepositoryInt
         }
 
         if ($exceptId > 0) {
-            $query = $query->whereNotEqual(
-                $this->idField(),
-                $exceptId
-            );
+            $query = $query
+                ->whereNotEqual(
+                    $this->idField(),
+                    $exceptId
+                );
         }
 
         return ArticleCollection::from($query);
+    }
+
+    public function getAllByTag(
+        string $tag,
+        int $limit = 0
+    ) : ArticleCollection
+    {
+        return ArticleCollection::from(
+            $this->byTagQuery(
+                $this->announcedQuery(),
+                $tag,
+                $limit
+            )
+        );
+    }
+
+    public function getAllBefore(
+        ?Game $game,
+        string $date,
+        int $limit = 0
+    ) : ArticleCollection
+    {
+        return ArticleCollection::from(
+            $this
+                ->latestQuery($game, $limit)
+                ->whereLt($this->publishedAtField, $date)
+                ->orderByDesc($this->publishedAtField)
+        );
+    }
+    
+    public function getAllAfter(
+        ?Game $game,
+        string $date,
+        int $limit = 0
+    ) : ArticleCollection
+    {
+        return ArticleCollection::from(
+            $this
+                ->latestQuery($game, $limit)
+                ->whereGt($this->publishedAtField, $date)
+                ->orderByAsc($this->publishedAtField)
+        );
+    }
+    
+    public function getAllByYear(int $year) : ArticleCollection
+    {
+        return ArticleCollection::from(
+            $this
+                ->announcedQuery()
+                ->whereRaw(
+                    '(year(' . $this->publishedAtField . ') = ?)',
+                    [$year]
+                )
+        );
     }
 
     public function search(string $searchQuery) : ArticleCollection

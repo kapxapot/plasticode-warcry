@@ -4,20 +4,10 @@ namespace App\Models\Interfaces;
 
 use App\Models\Game;
 use Plasticode\Models\Interfaces\LinkableInterface;
-use Plasticode\Models\Interfaces\TagsInterface;
+use Plasticode\Models\Interfaces\TaggedInterface;
 
-/**
- * @property string $publishedAt
- */
-interface NewsSourceInterface extends LinkableInterface, TagsInterface
+interface NewsSourceInterface extends LinkableInterface, TaggedInterface
 {
-    // static function getNewsByTag(string $tag) : Query;
-    // static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query;
-    // static function getNewsByYear(int $year) : Query;
-
-    // static function getNewsBefore(Game $game, string $date) : Query;
-    // static function getNewsAfter(Game $game, string $date) : Query;
-
     function game() : ?Game;
     function rootGame() : ?Game;
     function largeImage() : ?string;
