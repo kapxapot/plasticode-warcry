@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Interfaces\NewsSourceInterface;
+use Plasticode\Collections\TagLinkCollection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\SearchableInterface;
 use Plasticode\Models\Traits\FullPublished;
@@ -13,10 +14,16 @@ use Plasticode\Parsing\ParsingContext;
 /**
  * @property integer|null $gameId
  * @property string $tags
- * @method Game|null game()
- * @method ParsingContext|null parsed
+ * @method string|null fullText()
+ * @method ParsingContext|null parsed()
+ * @method string|null shortText()
+ * @method TagLinkCollection tagLinks()
+ * @method static withFullText(string|callable|null $fullText)
  * @method static withGame(Game|callable|null $game)
  * @method static withParsed(ParsingContext|callable|null $parsed)
+ * @method static withShortText(string|callable|null $shortText)
+ * @method static withTagLinks(TagLinkCollection|callable $tagLinks)
+ * @method static withUrl(string|callable $url)
  */
 abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
 {
@@ -24,9 +31,40 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
     use Stamps;
     use Tagged;
 
+    private string $gamePropertyName = 'game';
+    private string $parsedPropertyName = 'parsed';
+    private string $fullTextPropertyName = 'fullText';
+    private string $shortTextPropertyName = 'shortText';
+    private string $urlPropertyName = 'url';
+
     protected function requiredWiths(): array
     {
-        return ['game', 'parsed'];
+        return [
+            $this->gamePropertyName,
+            $this->parsedPropertyName,
+            $this->fullTextPropertyName,
+            $this->shortTextPropertyName,
+            $this->tagLinksPropertyName,
+            $this->urlPropertyName,
+            $this->creatorPropertyName,
+            $this->updaterPropertyName,
+        ];
+    }
+
+    public function parsedText() : ?string
+    {
+        return $this->parsed()
+            ? $this->parsed()->text
+            : null;
+    }
+
+    // NewsSourceInterface
+
+    public function game() : ?Game
+    {
+        return $this->getWithProperty(
+            $this->gamePropertyName
+        );
     }
 
     public function rootGame() : ?Game
@@ -57,59 +95,37 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
             : null;
     }
 
-    public function parsed() : ?ParsingContext
-    {
-        return $this->parsedDescription($this->parser);
-    }
+    abstract public function displayTitle() : string;
 
-    public function parsedText() : ?string
-    {
-        return $this->parsed()
-            ? $this->parsed()->text
-            : null;
-    }
-
-    // public abstract static function search(string $searchQuery) : Collection;
-
-    public abstract function code() : string;
-
-    // NewsSourceInterface
-
-    public abstract function url() : ?string;
-
-    // public abstract static function getNewsByTag(string $tag) : Query;
-
-    // public abstract static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query;
-
-    // public abstract static function getNewsBefore(Game $game, string $date) : Query;
-
-    // public abstract static function getNewsAfter(Game $game, string $date) : Query;
-
-    // public abstract static function getNewsByYear(int $year) : Query;
-
-    public abstract function displayTitle() : string;
+    abstract public function rawText() : ?string;
 
     public function fullText() : ?string
     {
-        return $this->lazy(
-            function () {
-                $cutParser = self::$container->cutParser;
-                $text = $this->parsedText();
-                
-                return $cutParser->full($text);
-            }
+        return $this->getWithProperty(
+            $this->fullTextPropertyName
         );
     }
 
     public function shortText() : ?string
     {
-        return $this->lazy(
-            function () {
-                $cutParser = self::$container->cutParser;
-                $text = $this->parsedText();
-                
-                return $cutParser->short($text);
-            }
+        return $this->getWithProperty(
+            $this->shortTextPropertyName
         );
     }
+
+    // LinkableInterface
+
+    public function url() : ?string
+    {
+        return $this->getWithProperty(
+            $this->urlPropertyName
+        );
+    }
+
+    // TaggedInterface
+    // implemented in Tagged trait
+
+    // SearchableInterface
+
+    abstract public function code() : string;
 }

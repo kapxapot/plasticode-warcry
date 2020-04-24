@@ -87,14 +87,17 @@ class Bootstrap extends BootstrapBase
             new ArticleRepository(
                 $c->repositoryContext,
                 $c->tagRepository,
-                $c->linker,
                 new ObjectProxy(
                     fn () =>
                     new ArticleHydrator(
                         $c->articleCategoryRepository,
                         $c->articleRepository,
+                        $c->gameRepository,
                         $c->userRepository,
-                        $c->linker
+                        $c->cutParser,
+                        $c->linker,
+                        $c->parser,
+                        $c->tagsConfig
                     )
                 )
             );
@@ -221,9 +224,6 @@ class Bootstrap extends BootstrapBase
                 )
             );
 
-        $map['captchaConfig'] = fn (CI $c) =>
-            new CaptchaConfig();
-
         $map['gallery'] = function (CI $c) {
             $thumbHeight = $this->settings['gallery']['thumb_height'];
             $thumbStrategy = new UniformThumbStrategy($thumbHeight);
@@ -287,8 +287,14 @@ class Bootstrap extends BootstrapBase
                 $c->settingsProvider
             );
 
+        $map['captchaConfig'] = fn (CI $c) =>
+            new CaptchaConfig();
+
         $map['localizationConfig'] = fn (CI $c) =>
             new LocalizationConfig();
+
+        $map['tagsConfig'] = fn (CI $c) =>
+            new TagsConfig();
 
         $map['renderer'] = fn (CI $c) =>
             new Renderer(

@@ -10,11 +10,14 @@ interface NewsSourceInterface extends LinkableInterface, TaggedInterface
 {
     function game() : ?Game;
     function rootGame() : ?Game;
+
     function largeImage() : ?string;
     function image() : ?string;
     function video() : ?string;
 
     function displayTitle() : string;
+
+    function rawText() : ?string;
     function fullText() : ?string;
     function shortText() : ?string;
 

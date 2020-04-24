@@ -22,7 +22,6 @@ use Plasticode\Util\Strings;
  * @method ArticleCollection children()
  * @method self withCategory(ArticleCategory|callable|null $category)
  * @method self withChildren(ArticleCollection|callable $children)
- * @method self withUrl(string|callable $url)
  */
 class Article extends NewsSource
 {
@@ -35,7 +34,6 @@ class Article extends NewsSource
             'children',
             'parent',
             'category',
-            'url'
         ];
     }
 
@@ -129,13 +127,13 @@ class Article extends NewsSource
 
     // NewsSourceInterface
 
-    public function url() : ?string
-    {
-        return $this->getWithProperty('url');
-    }
-
     public function displayTitle() : string
     {
         return $this->nameRu;
+    }
+
+    public function rawText() : ?string
+    {
+        return $this->text;
     }
 }
