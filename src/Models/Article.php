@@ -7,17 +7,16 @@ use Plasticode\Models\Traits\Parented;
 use Plasticode\Util\Strings;
 
 /**
- * @property integer|null $parentId
- * @property integer|null $cat
- * @property string $nameRu
- * @property string $nameEn
- * @property integer $hideeng
- * @property string|null $origin
- * @property string|null $text
- * @property string|null $cache
- * @property integer $announce
- * @property integer $noBreadcrumb
  * @property string|null $aliases
+ * @property integer $announce
+ * @property integer|null $cat
+ * @property integer $hideeng
+ * @property string $nameEn
+ * @property string $nameRu
+ * @property integer $noBreadcrumb
+ * @property string|null $origin
+ * @property integer|null $parentId
+ * @property string|null $text
  * @method ArticleCategory|null category()
  * @method ArticleCollection children()
  * @method self withCategory(ArticleCategory|callable|null $category)
@@ -95,18 +94,7 @@ class Article extends NewsSource
             );
     }
 
-    public function serialize() : array
-    {
-        $cat = $this->category();
-
-        return [
-            'id' => $this->getId(),
-            'name_ru' => $this->nameRu,
-            'name_en' => $this->nameEn,
-            'category' => $cat ? $cat->serialize() : null,
-            'tags' => Strings::toTags($this->tags),
-        ];
-    }
+    // SearchableInterface
 
     public function code() : string
     {
@@ -123,6 +111,21 @@ class Article extends NewsSource
         }
 
         return Strings::doubleBracketsTag(null, ...$parts);
+    }
+
+    // SerializableInterface
+
+    public function serialize() : array
+    {
+        $cat = $this->category();
+
+        return [
+            'id' => $this->getId(),
+            'name_ru' => $this->nameRu,
+            'name_en' => $this->nameEn,
+            'category' => $cat ? $cat->serialize() : null,
+            'tags' => Strings::toTags($this->tags),
+        ];
     }
 
     // NewsSourceInterface

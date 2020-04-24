@@ -4,7 +4,7 @@ namespace App\Repositories\Interfaces;
 
 use App\Models\News;
 
-interface NewsRepositoryInterface
+interface NewsRepositoryInterface extends NewsSourceRepositoryInterface
 {
     function getProtected(?int $id) : ?News;
 }

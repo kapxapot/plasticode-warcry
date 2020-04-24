@@ -4,29 +4,18 @@ namespace App\Repositories;
 
 use App\Collections\ArticleCollection;
 use App\Models\Article;
-use App\Models\Game;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
-use App\Repositories\Traits\ByGameRepository;
 use Plasticode\Query;
-use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\ChildrenRepository;
-use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
-use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository;
 use Plasticode\Util\Sort;
 use Plasticode\Util\SortStep;
 use Plasticode\Util\Strings;
 
-class ArticleRepository extends TaggedRepository implements ArticleRepositoryInterface
+class ArticleRepository extends NewsSourceRepository implements ArticleRepositoryInterface
 {
-    use ByGameRepository;
     use ChildrenRepository;
-    use FullPublishedRepository;
-    use ProtectedRepository;
 
     protected string $entityClass = Article::class;
-
-    protected string $sortField = 'published_at';
-    protected bool $sortReverse = true;
 
     public function get(?int $id) : ?Article
     {
@@ -110,37 +99,6 @@ class ArticleRepository extends TaggedRepository implements ArticleRepositoryInt
         );
     }
 
-    public function getLatest(
-        ?Game $game = null,
-        int $limit = 0,
-        int $exceptId = 0
-    ) : ArticleCollection
-    {
-        return ArticleCollection::from(
-            $this->latestQuery($game, $limit, $exceptId)
-        );
-    }
-
-    protected function latestQuery(
-        ?Game $game = null,
-        int $limit = 0,
-        int $exceptId = 0
-    ) : Query
-    {
-        $query = $this->announcedQuery();
-
-        if ($exceptId > 0) {
-            $query = $query->whereNotEqual(
-                $this->idField(),
-                $exceptId
-            );
-        }
-
-        return $this
-            ->filterByGame($query, $game)
-            ->limit($limit);
-    }
-
     /**
      * Published + announced query.
      */
@@ -186,59 +144,14 @@ class ArticleRepository extends TaggedRepository implements ArticleRepositoryInt
         return ArticleCollection::from($query);
     }
 
-    public function getAllByTag(
-        string $tag,
-        int $limit = 0
-    ) : ArticleCollection
+    // NewsSourceRepositoryInterface
+
+    protected function newsSourceQuery() : Query
     {
-        return ArticleCollection::from(
-            $this->byTagQuery(
-                $this->announcedQuery(),
-                $tag,
-                $limit
-            )
-        );
+        return $this->announcedQuery();
     }
 
-    public function getAllBefore(
-        ?Game $game,
-        string $date,
-        int $limit = 0
-    ) : ArticleCollection
-    {
-        return ArticleCollection::from(
-            $this
-                ->latestQuery($game, $limit)
-                ->whereLt($this->publishedAtField, $date)
-                ->orderByDesc($this->publishedAtField)
-        );
-    }
-    
-    public function getAllAfter(
-        ?Game $game,
-        string $date,
-        int $limit = 0
-    ) : ArticleCollection
-    {
-        return ArticleCollection::from(
-            $this
-                ->latestQuery($game, $limit)
-                ->whereGt($this->publishedAtField, $date)
-                ->orderByAsc($this->publishedAtField)
-        );
-    }
-    
-    public function getAllByYear(int $year) : ArticleCollection
-    {
-        return ArticleCollection::from(
-            $this
-                ->announcedQuery()
-                ->whereRaw(
-                    '(year(' . $this->publishedAtField . ') = ?)',
-                    [$year]
-                )
-        );
-    }
+    // SearchableRepositoryInterface
 
     public function search(string $searchQuery) : ArticleCollection
     {
