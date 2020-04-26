@@ -17,7 +17,7 @@ class NewsRepository extends NewsSourceRepository implements NewsRepositoryInter
 
     // SearchableRepositoryInterface
 
-    public static function search(string $searchQuery) : NewsCollection
+    public function search(string $searchQuery) : NewsCollection
     {
         return NewsCollection::from(
             $this

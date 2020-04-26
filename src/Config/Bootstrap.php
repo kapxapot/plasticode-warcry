@@ -32,6 +32,7 @@ use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
 use App\Repositories\EventRepository;
+use App\Repositories\EventTypeRepository;
 use App\Repositories\GalleryAuthorRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\GameRepository;
@@ -86,6 +87,7 @@ class Bootstrap extends BootstrapBase
         $map['articleRepository'] = fn (CI $c) =>
             new ArticleRepository(
                 $c->repositoryContext,
+                $c->articleCategoryRepository,
                 $c->tagRepository,
                 new ObjectProxy(
                     fn () =>
@@ -105,11 +107,25 @@ class Bootstrap extends BootstrapBase
         $map['eventRepository'] = fn (CI $c) =>
             new EventRepository(
                 $c->repositoryContext,
+                $c->tagRepository,
                 new ObjectProxy(
                     fn () =>
                     new EventHydrator(
+                        $c->eventTypeRepository,
+                        $c->gameRepository,
+                        $c->regionRepository,
+                        $c->userRepository,
+                        $c->cutParser,
+                        $c->linker,
+                        $c->parser,
+                        $c->tagsConfig
                     )
                 )
+            );
+
+        $map['eventTypeRepository'] = fn (CI $c) =>
+            new EventTypeRepository(
+                $c->repositoryContext
             );
 
         $map['galleryAuthorRepository'] = fn (CI $c) =>
@@ -152,9 +168,16 @@ class Bootstrap extends BootstrapBase
         $map['newsRepository'] = fn (CI $c) =>
             new NewsRepository(
                 $c->repositoryContext,
+                $c->tagRepository,
                 new ObjectProxy(
                     fn () =>
                     new NewsHydrator(
+                        $c->gameRepository,
+                        $c->userRepository,
+                        $c->cutParser,
+                        $c->linker,
+                        $c->parser,
+                        $c->tagsConfig
                     )
                 )
             );

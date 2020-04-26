@@ -37,12 +37,14 @@ class EventController extends NewsSourceController
         ResponseInterface $response
     ) : ResponseInterface
     {
+        $events = $this->eventRepository->getAllOrderedByStart();
+
         $params = $this->buildParams(
             [
                 'sidebar' => ['stream', 'gallery'],
                 'params' => [
                     'title' => $this->eventsTitle,
-                    'events' => Event::getGroups(),
+                    'events' => $events->groups(),
                     'event_games' => Game::getAll(),
                     'event_types' => EventType::getAll(),
                 ],

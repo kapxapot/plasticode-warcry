@@ -42,11 +42,47 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
     ) : GalleryPictureCollection
     {
         return GalleryPictureCollection::from(
-            $this->byTagQuery(
-                $this->query(),
-                $tag,
-                $limit
-            )
+            $this
+                ->query()
+                ->apply(
+                    fn (Query $q) => $this->filterByTag($q, $tag, $limit)
+                )
+        );
+    }
+
+    /**
+     * Returns all published pictures by author.
+     */
+    public function getAllByAuthor(
+        GalleryAuthor $author,
+        int $limit = 0
+    ) : GalleryPictureCollection
+    {
+        return GalleryPictureCollection::from(
+            $this
+                ->publishedQuery()
+                ->apply(
+                    fn (Query $q) => $this->filterByAuthor($q, $author)
+                )
+                ->limit($limit)
+        );
+    }
+
+    /**
+     * Returns all published pictures by game.
+     */
+    public function getAllByGame(
+        ?Game $game = null,
+        int $limit = 0
+    ) : GalleryPictureCollection
+    {
+        return GalleryPictureCollection::from(
+            $this
+                ->publishedQuery()
+                ->apply(
+                    fn (Query $q) => $this->filterByGame($q, $game)
+                )
+                ->limit($limit)
         );
     }
 
@@ -56,7 +92,7 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
     public function getAllBefore(GalleryPicture $pic) : GalleryPictureCollection
     {
         return GalleryPictureCollection::from(
-            $this->getBeforeQuery($pic)
+            $this->beforeQuery($pic)
         );
     }
 
@@ -66,20 +102,63 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
     public function getAllAfter(GalleryPicture $pic) : GalleryPictureCollection
     {
         return GalleryPictureCollection::from(
-            $this->getBeforeQuery($pic)
+            $this->afterQuery($pic)
         );
     }
 
     /**
+     * Returns the previous picture of the same author.
+     */
+    public function getPrevSibling(GalleryPicture $pic) : ?GalleryPicture
+    {
+        return $this
+            ->beforeQuery($pic)
+            ->apply(
+                fn (Query $q) => $this->filterByAuthor($q, $pic->author())
+            )
+            ->one();
+    }
+
+    /**
+     * Returns the next picture of the same author.
+     */
+    public function getNextSibling(GalleryPicture $pic) : ?GalleryPicture
+    {
+        return $this
+            ->afterQuery($pic)
+            ->apply(
+                fn (Query $q) => $this->filterByAuthor($q, $pic->author())
+            )
+            ->one();
+    }
+
+    // queries
+
+    protected function beforeQuery(GalleryPicture $pic) : Query
+    {
+        return $this
+            ->publishedQuery()
+            ->apply(
+                fn (Query $q) => $this->filterBefore($q, $pic)
+            );
+    }
+
+    protected function afterQuery(GalleryPicture $pic) : Query
+    {
+        return $this
+            ->publishedQuery()
+            ->apply(
+                fn (Query $q) => $this->filterAfter($q, $pic)
+            );
+    }
+
+    // filters
+
+    /**
      * Returns pictures in desc order.
      */
-    protected function getBeforeQuery(
-        GalleryPicture $pic,
-        ?Query $query = null
-    ) : Query
+    protected function filterBefore(Query $query, GalleryPicture $pic) : Query
     {
-        $query ??= $this->publishedQuery();
-
         return $query
             ->whereRaw(
                 '(published_at < ? or (published_at = ? and id < ?))',
@@ -96,13 +175,8 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
     /**
      * Returns pictures in asc order.
      */
-    protected function getAfterQuery(
-        GalleryPicture $pic,
-        ?Query $query = null
-    ) : Query
+    protected function filterAfter(Query $query, GalleryPicture $pic) : Query
     {
-        $query ??= $this->publishedQuery();
-
         return $query
             ->whereRaw(
                 '(published_at > ? or (published_at = ? and id > ?))',
@@ -116,80 +190,8 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
             ->thenByAsc('id');
     }
 
-    /**
-     * Returns all published pictures by author.
-     */
-    public function getAllByAuthor(
-        GalleryAuthor $author,
-        int $limit = 0
-    ) : GalleryPictureCollection
-    {
-        return GalleryPictureCollection::from(
-            $this
-                ->getPublishedByAuthorQuery($author)
-                ->limit($limit)
-        );
-    }
-
-    protected function getPublishedByAuthorQuery(GalleryAuthor $author) : Query
-    {
-        return $this->filterByAuthor(
-            $this->publishedQuery(),
-            $author
-        );
-    }
-
     protected function filterByAuthor(Query $query, GalleryAuthor $author) : Query
     {
         return $query->where('author_id', $author->getId());
-    }
-
-    /**
-     * Returns all published pictures by game.
-     */
-    public function getAllByGame(
-        ?Game $game = null,
-        int $limit = 0
-    ) : GalleryPictureCollection
-    {
-        return GalleryPictureCollection::from(
-            $this
-                ->getPublishedByGameQuery($game)
-                ->limit($limit)
-        );
-    }
-
-    protected function getPublishedByGameQuery(?Game $game = null) : Query
-    {
-        return $this->filterByGame(
-            $this->publishedQuery(),
-            $game
-        );
-    }
-
-    /**
-     * Returns the previous picture of the same author.
-     */
-    public function getPrevSibling(GalleryPicture $pic) : ?GalleryPicture
-    {
-        return $this
-            ->filterByAuthor(
-                $this->getBeforeQuery($pic),
-                $pic->author()
-            )
-            ->one();
-    }
-
-    /**
-     * Returns the next picture of the same author.
-     */
-    public function getNextSibling(GalleryPicture $pic) : ?GalleryPicture
-    {
-        return $this
-            ->filterByAuthor(
-                $this->getAfterQuery($pic),
-                $pic->author()
-            )
-            ->one();
     }
 }

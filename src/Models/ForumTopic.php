@@ -40,10 +40,6 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     public static function filterByTag(Query $query, string $tag) : Query
     {
         $ids = ForumTag::getForumTopicIdsByTag($tag);
-        
-        if ($ids->isEmpty()) {
-            return Query::empty();
-        }
 
         return $query->whereIn('tid', $ids);
     }

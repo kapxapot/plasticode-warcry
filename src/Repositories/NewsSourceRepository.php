@@ -20,42 +20,17 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
     protected string $sortField = 'published_at';
     protected bool $sortReverse = true;
 
-    protected function newsSourceQuery() : Query
-    {
-        return $this->publishedQuery();
-    }
-
-    protected function latestQuery(
-        ?Game $game = null,
-        int $limit = 0,
-        int $exceptId = 0
-    ) : Query
-    {
-        $query = $this->newsSourceQuery();
-
-        if ($exceptId > 0) {
-            $query = $query->whereNotEqual(
-                $this->idField(),
-                $exceptId
-            );
-        }
-
-        return $this
-            ->filterByGame($query, $game)
-            ->limit($limit);
-    }
-
     public function getAllByTag(
         string $tag,
         int $limit = 0
     ) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
-            $this->byTagQuery(
-                $this->newsSourceQuery(),
-                $tag,
-                $limit
-            )
+            $this
+                ->newsSourceQuery()
+                ->apply(
+                    fn (Query $q) => $this->filterByTag($q, $tag, $limit)
+                )
         );
     }
 
@@ -108,5 +83,31 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
                     [$year]
                 )
         );
+    }
+
+    protected function latestQuery(
+        ?Game $game = null,
+        int $limit = 0,
+        int $exceptId = 0
+    ) : Query
+    {
+        return $this
+            ->newsSourceQuery()
+            ->apply(
+                fn (Query $q) => $this->filterByGame($q, $game)
+            )
+            ->applyIf(
+                $exceptId > 0,
+                fn (Query $q) => $q->whereNotEqual($this->idField(), $exceptId)
+            )
+            ->limit($limit);
+    }
+
+    /**
+     * Override this if needed.
+     */
+    protected function newsSourceQuery() : Query
+    {
+        return $this->publishedQuery();
     }
 }
