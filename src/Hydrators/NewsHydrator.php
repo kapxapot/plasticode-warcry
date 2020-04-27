@@ -42,7 +42,7 @@ class NewsHydrator extends NewsSourceHydrator
 
         return $entity
             ->withUrl(
-                $this->linker->news($entity->getId())
+                fn () => $this->linker->news($entity->getId())
             );
     }
 }

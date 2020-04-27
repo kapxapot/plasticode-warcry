@@ -4,7 +4,7 @@ namespace App\Repositories\Interfaces;
 
 use App\Models\Video;
 
-interface VideoRepositoryInterface
+interface VideoRepositoryInterface extends NewsSourceRepositoryInterface
 {
     public function getProtected(?int $id) : ?Video;
 }
