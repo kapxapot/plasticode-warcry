@@ -76,10 +76,11 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
             )
             ->multiSort(
                 [
-                    SortStep::createByClosureDesc(
-                        fn (GalleryPicture $p) => $p->publishedAt 
-                    )->withType(Sort::DATE),
-                    SortStep::createByClosureDesc(
+                    SortStep::byFuncDesc(
+                        fn (GalleryPicture $p) => $p->publishedAt,
+                        Sort::DATE
+                    ),
+                    SortStep::byFuncDesc(
                         fn (GalleryPicture $p) => $p->id 
                     ),
                 ]
@@ -101,10 +102,11 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
             )
             ->multiSort(
                 [
-                    SortStep::createByClosure(
-                        fn (GalleryPicture $p) => $p->publishedAt 
-                    )->withType(Sort::DATE),
-                    SortStep::createByClosure(
+                    SortStep::byFunc(
+                        fn (GalleryPicture $p) => $p->publishedAt,
+                        Sort::DATE
+                    ),
+                    SortStep::byFunc(
                         fn (GalleryPicture $p) => $p->id 
                     ),
                 ]

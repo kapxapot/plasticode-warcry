@@ -26,8 +26,8 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
     protected function getSortOrder() : array
     {
         return [
-            SortStep::createDesc('published_at'),
-            SortStep::createDesc('id')
+            SortStep::desc('published_at'),
+            SortStep::desc('id')
         ];
     }
 

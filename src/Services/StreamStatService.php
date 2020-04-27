@@ -57,8 +57,8 @@ class StreamStatService
             );
 
             $steps = [
-                SortStep::createDesc('priority'),
-                SortStep::createDesc('percent'),
+                SortStep::desc('priority'),
+                SortStep::desc('percent'),
             ];
 
             $games = Sort::multi($games, $steps);

@@ -143,10 +143,8 @@ class ArticleRepository extends NewsSourceRepository implements ArticleRepositor
                 ->all()
                 ->multiSort(
                     [
-                        SortStep::createByField('name_ru')
-                            ->withType(Sort::STRING),
-                        SortStep::createByField('category')
-                            ->withType(Sort::NULL),
+                        SortStep::byField('name_ru', Sort::STRING),
+                        SortStep::byField('category', Sort::NULL),
                     ]
                 )
         );
