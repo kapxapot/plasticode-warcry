@@ -46,7 +46,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
     }
 
     public function getAllBefore(
-        ?Game $game,
+        ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection
@@ -60,7 +60,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
     }
 
     public function getAllAfter(
-        ?Game $game,
+        ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection

@@ -19,13 +19,13 @@ interface NewsSourceRepositoryInterface extends SearchableRepositoryInterface
     function getAllByYear(int $year) : NewsSourceCollection;
 
     function getAllBefore(
-        ?Game $game,
+        ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection;
 
     function getAllAfter(
-        ?Game $game,
+        ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection;

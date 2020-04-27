@@ -94,6 +94,11 @@ class Article extends NewsSource
             );
     }
 
+    public function isAnnounced() : bool
+    {
+        return self::toBool($this->announce);
+    }
+
     // SearchableInterface
 
     public function code() : string

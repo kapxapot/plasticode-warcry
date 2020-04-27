@@ -9,7 +9,7 @@ use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
 use Plasticode\Util\Strings;
 
-class ArticleRepositoryMock implements ArticleRepositoryInterface
+class ArticleRepositoryMock extends NewsSourceRepositoryMock implements ArticleRepositoryInterface
 {
     private ArticleCategoryRepositoryInterface $articleCategoryRepository;
     private ArticleCollection $articles;
@@ -33,8 +33,7 @@ class ArticleRepositoryMock implements ArticleRepositoryInterface
     {
         return
             $this->getBySlug($slug, $cat)
-            ??
-            $this->getByAlias($slug, $cat);
+            ?? $this->getByAlias($slug, $cat);
     }
 
     public function getBySlug(string $slug, string $cat = null) : ?Article
@@ -95,5 +94,25 @@ class ArticleRepositoryMock implements ArticleRepositoryInterface
     public function getChildren(Article $parent) : ArticleCollection
     {
         return $this->articles->where('parent_id', $parent->getId());
+    }
+
+    protected function newsSources() : ArticleCollection
+    {
+        return $this
+            ->articles
+            ->where(
+                fn (Article $a) => $a->isPublished() && $a->isAnnounced()
+            );
+    }
+
+    public function search(string $searchQuery) : ArticleCollection
+    {
+        return $this
+            ->articles
+            ->where(
+                fn (Article $a) =>
+                $a->isPublished()
+                && ($a->nameEn == $searchQuery || $a->nameRu == $searchQuery)
+            );
     }
 }
