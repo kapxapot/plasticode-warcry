@@ -24,6 +24,7 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     function event(int $id = null) : string;
     function video(int $id = null) : string;
     function stream(string $alias = null) : string;
+    function forumTopic(int $id, bool $new = false) : string;
 
     function newsYear(int $year) : string;
 

@@ -6,7 +6,6 @@ use App\Core\Interfaces\LinkerInterface;
 use App\Models\NewsSource;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use Plasticode\Collections\TagLinkCollection;
 use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\Hydrator;
 use Plasticode\Models\DbModel;

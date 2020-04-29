@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Collections\ForumCollection;
 use App\Collections\GameCollection;
 use App\Config\Interfaces\GameConfigInterface;
+use App\Models\Forum;
 use App\Models\Game;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
@@ -70,5 +72,23 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
     public function getByTwitchName(string $name) : ?Game
     {
         return $this->getByName($name) ?? $this->getDefault();
+    }
+
+    public function getByForum(Forum $forum) : ?Game
+    {
+        $games = $this->getAllPublished();
+
+        while ($forum) {
+            foreach ($games as $game) {
+                if ($game->newsForumId == $forum->getId()
+                    || $game->mainForumId == $forum->getId()) {
+                    return $game;
+                }
+            }
+
+            $forum = $forum->parent();
+        }
+
+        return $this->getDefault();
     }
 }

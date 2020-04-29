@@ -2,35 +2,28 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
 use Plasticode\Models\DbModel;
 
+/**
+ * @property integer $parentId
+ * @method Game|null game()
+ * @method bool isNewsForum()
+ * @method static|null parent()
+ * @method static withGame(Game|callable|null $game)
+ * @method static withIsNewsForum(bool|callable $isNewsForum)
+ * @method static withParent(static|callable|null $parent)
+ */
 class Forum extends DbModel
 {
-    // queries
-    
-    public static function getAllByGame($gameId) : Collection
+    protected function requiredWiths(): array
     {
-        $result = Collection::make();
-
-        $forums = self::getAll();
-
-        foreach ($forums as $forum) {
-            $game = Game::getByForumId($forum->getId());
-            
-            if ($game->getId() == $gameId) {
-                $result = $result->add($forum);
-            }
-        }
-        
-        return $result;
+        return ['game', 'parent', 'isNewsForum'];
     }
-    
-    // props
-    
-    public function isNewsForum()
+
+    public function gameId() : ?int
     {
-        return Game::getNewsForumIds()
-            ->contains($this->getId());
+        return $this->game()
+            ? $this->game()->getId()
+            : null;
     }
 }

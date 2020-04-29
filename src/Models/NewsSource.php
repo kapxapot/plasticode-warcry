@@ -14,16 +14,14 @@ use Plasticode\Parsing\ParsingContext;
 /**
  * @property integer|null $gameId
  * @property string $tags
- * @method string|null fullText()
  * @method ParsingContext|null parsed()
- * @method string|null shortText()
  * @method TagLinkCollection tagLinks()
  * @method static withFullText(string|callable|null $fullText)
  * @method static withGame(Game|callable|null $game)
  * @method static withParsed(ParsingContext|callable|null $parsed)
  * @method static withShortText(string|callable|null $shortText)
  * @method static withTagLinks(TagLinkCollection|callable $tagLinks)
- * @method static withUrl(string|callable $url)
+ * @method static withUrl(string|callable|null $url)
  */
 abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
 {
@@ -32,7 +30,6 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
     use Tagged;
 
     private string $gamePropertyName = 'game';
-    private string $parsedPropertyName = 'parsed';
     private string $fullTextPropertyName = 'fullText';
     private string $shortTextPropertyName = 'shortText';
     private string $urlPropertyName = 'url';
@@ -41,7 +38,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
     {
         return [
             $this->gamePropertyName,
-            $this->parsedPropertyName,
+            'parsed',
             $this->fullTextPropertyName,
             $this->shortTextPropertyName,
             $this->tagLinksPropertyName,

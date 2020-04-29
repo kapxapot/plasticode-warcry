@@ -2,18 +2,27 @@
 
 namespace App\Models;
 
+use App\Collections\GameCollection;
 use Plasticode\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
-use Plasticode\Models\Traits\Children;
 use Plasticode\Models\Traits\Published;
 
 /**
- * @property integer $id
- * @property string $name
  * @property string|null $alias
- * @property integer $published
+ * @property string|null $autotags
+ * @property string|null $icon
+ * @property integer|null $mainForumId
+ * @property string $name
+ * @property integer|null $newsForumId
+ * @property integer|null $parentId
+ * @property integer|null $position
+ * @property string|null $twitchName
+ * @method Forum|null mainForum()
+ * @method Forum|null newsForum()
+ * @method static withMainForum(Forum|callable|null $mainForum)
+ * @method static withNewsForum(Forum|callable|null $newsForum)
  */
 class Game extends DbModel implements LinkableInterface
 {
@@ -22,40 +31,6 @@ class Game extends DbModel implements LinkableInterface
     protected static string $sortField = 'position';
 
     // GETTERS - ONE
-
-    public static function getByForumId(int $forumId) : ?self
-    {
-        $cache = self::$container->cache;
-        
-        $path = 'gamesByForumId.' . $forumId;
-        $games = $cache->get($path);
-        
-        if (!$games) {
-            $games = static::getPublished()->all();
-            $foundGame = null;
-
-            $curForumId = $forumId;
-            
-            while (!$foundGame && $curForumId != -1) {
-                foreach ($games as $game) {
-                    if ($game->newsForumId == $curForumId
-                        || $game->mainForumId == $curForumId) {
-                        $foundGame = $game;
-                        break;
-                    }
-                }
-
-                if (!$foundGame) {
-                    $forum = Forum::get($curForumId);
-                    $curForumId = $forum->parentId;
-                }
-            }
-
-            $cache->set($path, $foundGame ?? self::getDefault());
-        }
-
-        return $cache->get($path);
-    }
     
     public static function getRootOrDefault(int $id) : ?self
     {
@@ -97,37 +72,31 @@ class Game extends DbModel implements LinkableInterface
             }
         );
     }
-    
-    /**
-     * Child games
-     *
-     * @return Collection
-     */
-    public function subGames() : Collection
-    {
-        return $this->lazy(
-            function () {
-                $subGames = Collection::make([$this]);
 
-                foreach ($this->children() as $child) {
-                    $subGames = $subGames->concat($child->subGames());
-                }
-                
-                return $subGames;
-            }
-        );
+    /**
+     * Child games with all their subtrees.
+     */
+    public function subGames() : GameCollection
+    {
+        $games = GameCollection::make();
+
+        foreach ($this->children() as $child) {
+            $games = $games->concat(
+                $child->subTree()
+            );
+        }
+
+        return $games;
     }
-    
+
     /**
      * Child games WITH current game.
-     *
-     * @return Collection
      */
-    public function subTree() : Collection
+    public function subTree() : GameCollection
     {
         return $this->subGames()->add($this);
     }
-    
+
     /**
      * Any of parents contains game?
      *
@@ -196,18 +165,9 @@ class Game extends DbModel implements LinkableInterface
 
         return $query->whereIn('game_id', $ids);
     }
-    
-    public static function getNewsForumIds(self $game = null) : Collection
-    {
-        $games = $game
-            ? $game->subTree()
-            : self::getAll();
-
-        return $games->extract('news_forum_id');
-    }
 
     public function toString() : string
     {
-        return "[{$this->id}] {$this->name}";
+        return '[' . $this->getId() . '] ' . $this->name;
     }
 }

@@ -132,7 +132,7 @@ class Linker extends LinkerBase implements LinkerInterface
     public function forumTopic(int $id, bool $new = false) : string
     {
         $appendix = $new ? '&view=getnewpost' : '';
-        
+
         return $this->forumUrl('showtopic=' . $id . $appendix);
     }
 

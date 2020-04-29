@@ -7,6 +7,7 @@ use App\Models\Comic;
 use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
 use App\Models\Event;
+use App\Models\ForumTopic;
 use App\Models\GalleryPicture;
 use App\Models\News;
 use App\Models\Stream;
@@ -20,6 +21,7 @@ class TagsConfig implements TagsConfigInterface
         $map = [
             Article::class => 'articles',
             News::class => 'news',
+            ForumTopic::class => 'news',
             Event::class => 'events',
             GalleryPicture::class => 'gallery',
             ComicSeries::class => 'comics',

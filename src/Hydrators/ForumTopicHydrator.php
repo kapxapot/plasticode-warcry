@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Hydrators;
+
+use App\Core\Interfaces\LinkerInterface;
+use App\Models\ForumTopic;
+use App\Parsing\ForumParser;
+use App\Parsing\NewsParser;
+use App\Repositories\Interfaces\ForumRepositoryInterface;
+use App\Repositories\Interfaces\GameRepositoryInterface;
+use Plasticode\Hydrators\Basic\Hydrator;
+use Plasticode\Models\DbModel;
+use Plasticode\Parsing\Parsers\CutParser;
+
+class ForumTopicHydrator extends Hydrator
+{
+    private ForumRepositoryInterface $forumRepository;
+    private GameRepositoryInterface $gameRepository;
+
+    private CutParser $cutParser;
+    private ForumParser $forumParser;
+    private LinkerInterface $linker;
+    private NewsParser $newsParser;
+
+    public function __construct(
+        ForumRepositoryInterface $forumRepository,
+        GameRepositoryInterface $gameRepository,
+        CutParser $cutParser,
+        ForumParser $forumParser,
+        LinkerInterface $linker,
+        NewsParser $newsParser
+    )
+    {
+        $this->forumRepository = $forumRepository;
+        $this->gameRepository = $gameRepository;
+
+        $this->cutParser = $cutParser;
+        $this->forumParser = $forumParser;
+        $this->linker = $linker;
+        $this->newsParser = $newsParser;
+    }
+
+    /**
+     * @param ForumTopic $entity
+     */
+    public function hydrate(DbModel $entity) : ForumTopic
+    {
+        return $entity
+            ->withForum(
+                fn () => $this->forumRepository->get($entity->forumId)
+            )
+            ->withGame(
+                fn () => $this->gameRepository->getByForum($entity->forum())
+            )
+            ->withUrl(
+                fn () => $this->linker->news($entity->getId())
+            )
+            ->withForumUrl(
+                fn () => $this->linker->forumTopic($entity->getId())
+            )
+            ->withParsedPost(
+                $this->frozen(
+                    fn () => $this->parsePost($entity)
+                )
+            )
+            ->withFullText(
+                $this->frozen(
+                    fn () =>
+                    $this->cutParser->full(
+                        $entity->parsedPost()
+                    )
+                )
+            )
+            ->withShortText(
+                $this->frozen(
+                    fn () =>
+                    $this->cutParser->short(
+                        $entity->parsedPost()
+                    )
+                )
+            );
+    }
+
+    private function parsePost(ForumTopic $entity) : ?string
+    {
+        $post = $entity->post();
+
+        if (is_null($post)) {
+            return null;
+        }
+
+        $post = $this->newsParser->beforeParsePost($post, $entity->getId());
+        $post = $this->forumParser->convert(['TEXT' => $post, 'CODE' => 1]);
+        $post = $this->newsParser->afterParsePost($post);
+
+        return $post;
+    }
+}
