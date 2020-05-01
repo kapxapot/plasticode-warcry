@@ -2,10 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Collections\ForumTopicCollection;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Repositories\Interfaces\ForumTagRepositoryInterface;
 use App\Repositories\Interfaces\ForumTopicRepositoryInterface;
+use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 use Plasticode\Repositories\Idiorm\Basic\RepositoryContext;
@@ -17,7 +19,8 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
     protected string $sortField = 'start_date';
     protected bool $sortReverse = true;
 
-    protected ForumTagRepositoryInterface $forumTagRepository;
+    private ForumTagRepositoryInterface $forumTagRepository;
+    private GameRepositoryInterface $gameRepository;
 
     /**
      * @param HydratorInterface|ObjectProxy|null $hydrator
@@ -25,91 +28,130 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
     public function __construct(
         RepositoryContext $repositoryContext,
         ForumTagRepositoryInterface $forumTagRepository,
+        GameRepositoryInterface $gameRepository,
         $hydrator = null
     )
     {
         parent::__construct($repositoryContext, $hydrator);
 
         $this->forumTagRepository = $forumTagRepository;
+        $this->gameRepository = $gameRepository;
     }
 
-    public function getByTag(string $tag) : Query
+    public function get(?int $id) : ?ForumTopic
     {
-        return self::filterByTag(self::query(), $tag);
+        return $this->getEntity($id);
     }
 
-    // getters - one
-    
-    public static function getNews(int $id) : ?self
+    public function getAllByTag(string $tag) : ForumTopicCollection
     {
-        $topic = self::get($id);
-        
-        if (!$topic || !$topic->isNews()) {
-            return null;
-        }
-        
-        return $topic;
+        return ForumTopicCollection::from(
+            $this
+                ->query()
+                ->apply(
+                    fn (Query $q) => $this->filterByTag($q, $tag)
+                )
+        );
+    }
+
+    public function getNews(?int $id) : ?ForumTopic
+    {
+        $topic = $this->get($id);
+
+        return ($topic && $topic->isNews())
+            ? $topic
+            : null;
     }
 
     // NewsSourceRepositoryInterface
 
-    public static function getNewsByTag(string $tag) : Query
+    public function getNewsByTag(string $tag, int $limit = 0) : ForumTopicCollection
     {
-        return self::filterByTag(self::getNewsQuery(), $tag);
-    }
-    
-    public static function getLatestNews(?Game $game = null, int $exceptNewsId = null) : Query
-    {
-        $query = self::getNewsQuery($game);
-
-        if ($exceptNewsId) {
-            $query = $query->whereNotEqual(static::$idField, $exceptNewsId);
-        }
-
-        return $query;
-    }
-    
-    public static function getNewsBefore(Game $game, string $date) : Query
-    {
-        $convertedDate = strtotime($date);
-        
-        return self::getNewsQuery($game)
-            ->whereLt('start_date', $convertedDate)
-            ->orderByDesc('start_date');
-    }
-    
-    public static function getNewsAfter(Game $game, string $date) : Query
-    {
-        $convertedDate = strtotime($date);
-        
-        return self::getNewsQuery($game)
-            ->whereGt('start_date', $convertedDate)
-            ->orderByAsc('start_date');
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery()
+                ->apply(
+                    fn (Query $q) => $this->filterByTag($q, $tag)
+                )
+                ->limit($limit)
+        );
     }
 
-    public static function getNewsByYear(int $year) : Query
+    public function getLatestNews(
+        ?Game $game = null,
+        int $limit = 0,
+        int $exceptId = 0
+    ) : ForumTopicCollection
     {
-        return self::getNewsQuery()
-            ->whereRaw('(year(from_unixtime(start_date)) = ?)', [$year]);
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery($game)
+                ->applyIf(
+                    $exceptId > 0,
+                    fn (Query $q) => $q->whereNotEqual($this->idField(), $exceptId)
+                )
+                ->limit($limit)
+        );
+    }
+
+    public function getNewsBefore(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : ForumTopicCollection
+    {
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery($game)
+                ->whereLt('start_date', strtotime($date))
+                ->orderByDesc('start_date')
+        );
+    }
+
+    public function getNewsAfter(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : ForumTopicCollection
+    {
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery($game)
+                ->whereGt('start_date', strtotime($date))
+                ->orderByAsc('start_date')
+        );
+    }
+
+    public function getNewsByYear(int $year) : ForumTopicCollection
+    {
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery()
+                ->whereRaw(
+                    '(year(from_unixtime(start_date)) = ?)',
+                    [$year]
+                )
+        );
     }
 
     // queries
 
-    private function newsQuery(?Game $game = null) : Query
+    protected function newsQuery(?Game $game = null) : Query
     {
-        $forumIds = Game::getNewsForumIds($game);
+        $forumIds = $this
+            ->gameRepository
+            ->getSubTreeOrAll($game)
+            ->newsForums()
+            ->ids();
 
-        if ($forumIds->isEmpty()) {
-            return Query::empty();
-        }
-        
-        return self::query()
+        return $this
+            ->query()
             ->whereIn('forum_id', $forumIds);
     }
 
     // filters
 
-    public function filterByTag(Query $query, string $tag) : Query
+    protected function filterByTag(Query $query, string $tag) : Query
     {
         $ids = $this->forumTagRepository->getForumTopicIdsByTag($tag);
 

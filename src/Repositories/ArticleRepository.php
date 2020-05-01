@@ -126,8 +126,7 @@ class ArticleRepository extends NewsSourceRepository implements ArticleRepositor
                 )
                 ->applyIf(
                     $exceptId > 0,
-                    fn (Query $q) =>
-                    $q->whereNotEqual($this->idField(), $exceptId)
+                    fn (Query $q) => $q->whereNotEqual($this->idField(), $exceptId)
                 )
         );
     }
