@@ -4,6 +4,7 @@ namespace App\Testing\Mocks\Repositories;
 
 use App\Collections\NewsSourceCollection;
 use App\Models\Game;
+use App\Models\Interfaces\NewsSourceInterface;
 use App\Models\NewsSource;
 use App\Repositories\Interfaces\NewsSourceRepositoryInterface;
 use Plasticode\Util\Date;
@@ -43,6 +44,13 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
         }
 
         return $col->take($limit);
+    }
+
+    public function getNewsCount(?Game $game = null) : int
+    {
+        return $this
+            ->getLatestNews($game)
+            ->count();
     }
 
     public function getNewsBefore(
@@ -93,6 +101,15 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
             ->newsSources()
             ->where(
                 fn (NewsSource $n) => Date::year($n->publishedAt) == $year
+            );
+    }
+
+    public function getNews(?int $id) : ?NewsSourceInterface
+    {
+        return $this
+            ->newsSources()
+            ->first(
+                fn (NewsSourceInterface $n) => $n->getId() == $id
             );
     }
 

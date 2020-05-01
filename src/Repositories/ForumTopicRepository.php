@@ -54,15 +54,6 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
         );
     }
 
-    public function getNews(?int $id) : ?ForumTopic
-    {
-        $topic = $this->get($id);
-
-        return ($topic && $topic->isNews())
-            ? $topic
-            : null;
-    }
-
     // NewsSourceRepositoryInterface
 
     public function getNewsByTag(string $tag, int $limit = 0) : ForumTopicCollection
@@ -92,6 +83,13 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
                 )
                 ->limit($limit)
         );
+    }
+
+    public function getNewsCount(?Game $game = null) : int
+    {
+        return $this
+            ->newsQuery($game)
+            ->count();
     }
 
     public function getNewsBefore(
@@ -132,6 +130,15 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
                     [$year]
                 )
         );
+    }
+
+    public function getNews(?int $id) : ?ForumTopic
+    {
+        $topic = $this->get($id);
+
+        return ($topic && $topic->isNews())
+            ? $topic
+            : null;
     }
 
     // queries

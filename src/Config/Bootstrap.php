@@ -9,6 +9,9 @@ use App\Handlers\NotFoundHandler;
 use App\Hydrators\ArticleCategoryHydrator;
 use App\Hydrators\ArticleHydrator;
 use App\Hydrators\EventHydrator;
+use App\Hydrators\ForumHydrator;
+use App\Hydrators\ForumMemberHydrator;
+use App\Hydrators\ForumTopicHydrator;
 use App\Hydrators\GalleryPictureHydrator;
 use App\Hydrators\GameHydrator;
 use App\Hydrators\NewsHydrator;
@@ -33,6 +36,11 @@ use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\EventTypeRepository;
+use App\Repositories\ForumMemberRepository;
+use App\Repositories\ForumPostRepository;
+use App\Repositories\ForumRepository;
+use App\Repositories\ForumTagRepository;
+use App\Repositories\ForumTopicRepository;
 use App\Repositories\GalleryAuthorRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\GameRepository;
@@ -46,6 +54,7 @@ use App\Repositories\StreamRepository;
 use App\Repositories\StreamStatRepository;
 use App\Repositories\VideoRepository;
 use App\Services\ComicService;
+use App\Services\ForumService;
 use App\Services\GalleryPictureService;
 use App\Services\GalleryService;
 use App\Services\GameService;
@@ -126,6 +135,62 @@ class Bootstrap extends BootstrapBase
         $map['eventTypeRepository'] = fn (CI $c) =>
             new EventTypeRepository(
                 $c->repositoryContext
+            );
+
+        $map['forumMemberRepository'] = fn (CI $c) =>
+            new ForumMemberRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ForumMemberHydrator(
+                        $c->linker
+                    )
+                )
+            );
+
+        $map['forumPostRepository'] = fn (CI $c) =>
+            new ForumPostRepository(
+                $c->repositoryContext
+            );
+
+        $map['forumRepository'] = fn (CI $c) =>
+            new ForumRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ForumHydrator(
+                        $c->forumRepository,
+                        $c->gameRepository,
+                        $c->forumService
+                    )
+                )
+            );
+
+        $map['forumTagRepository'] = fn (CI $c) =>
+            new ForumTagRepository(
+                $c->repositoryContext
+            );
+
+        $map['forumTopicRepository'] = fn (CI $c) =>
+            new ForumTopicRepository(
+                $c->repositoryContext,
+                $c->forumTagRepository,
+                $c->gameRepository,
+                new ObjectProxy(
+                    fn () =>
+                    new ForumTopicHydrator(
+                        $c->forumMemberRepository,
+                        $c->forumPostRepository,
+                        $c->forumRepository,
+                        $c->forumTagRepository,
+                        $c->gameRepository,
+                        $c->cutParser,
+                        $c->forumParser,
+                        $c->linker,
+                        $c->newsParser,
+                        $c->tagsConfig
+                    )
+                )
             );
 
         $map['galleryAuthorRepository'] = fn (CI $c) =>
@@ -240,9 +305,16 @@ class Bootstrap extends BootstrapBase
         $map['videoRepository'] = fn (CI $c) =>
             new VideoRepository(
                 $c->repositoryContext,
+                $c->tagRepository,
                 new ObjectProxy(
                     fn () =>
                     new VideoHydrator(
+                        $c->gameRepository,
+                        $c->userRepository,
+                        $c->cutParser,
+                        $c->linker,
+                        $c->parser,
+                        $c->tagsConfig
                     )
                 )
             );
@@ -441,6 +513,11 @@ class Bootstrap extends BootstrapBase
         $map['comicService'] = fn (CI $c) =>
             new ComicService();
 
+        $map['forumService'] = fn (CI $c) =>
+            new ForumService(
+                $c->gameRepository
+            );
+
         $map['galleryPictureService'] = fn (CI $c) =>
             new GalleryPictureService(
                 $c->gallery
@@ -458,11 +535,20 @@ class Bootstrap extends BootstrapBase
                 $c->config
             );
 
-        $map['newsAggregatorService'] = fn (CI $c) =>
-            new NewsAggregatorService(
-                $c->newsRepository,
+        $map['newsAggregatorService'] = function (CI $c) {
+            $service = new NewsAggregatorService(
                 $c->linker
             );
+
+            $service->registerStrictSource($c->newsRepository);
+            $service->registerStrictSource($c->forumTopicRepository);
+
+            $service->registerSource($c->articleRepository);
+            $service->registerSource($c->eventRepository);
+            $service->registerSource($c->videoRepository);
+
+            return $service;
+        };
 
         $map['recipeService'] = fn (CI $c) =>
             new RecipeService(

@@ -8,6 +8,8 @@ use Plasticode\Models\Interfaces\TaggedInterface;
 
 interface NewsSourceInterface extends LinkableInterface, TaggedInterface
 {
+    function getId() : ?int;
+
     function game() : ?Game;
     function rootGame() : ?Game;
 

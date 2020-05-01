@@ -4,6 +4,7 @@ namespace App\Repositories\Interfaces;
 
 use App\Collections\NewsSourceCollection;
 use App\Models\Game;
+use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Repositories\Interfaces\SearchableRepositoryInterface;
 
 interface NewsSourceRepositoryInterface extends SearchableRepositoryInterface
@@ -15,6 +16,8 @@ interface NewsSourceRepositoryInterface extends SearchableRepositoryInterface
         int $limit = 0,
         int $exceptId = 0
     ) : NewsSourceCollection;
+
+    function getNewsCount(?Game $game = null) : int;
 
     function getNewsBefore(
         ?Game $game = null,
@@ -29,4 +32,6 @@ interface NewsSourceRepositoryInterface extends SearchableRepositoryInterface
     ) : NewsSourceCollection;
 
     function getNewsByYear(int $year) : NewsSourceCollection;
+
+    function getNews(?int $id) : ?NewsSourceInterface;
 }

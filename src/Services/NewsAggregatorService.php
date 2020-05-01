@@ -2,52 +2,57 @@
 
 namespace App\Services;
 
+use App\Collections\NewsSourceCollection;
 use App\Core\Interfaces\LinkerInterface;
-use App\Models\Article;
-use App\Models\Event;
 use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
-use App\Models\News;
 use App\Models\NewsYear;
-use App\Models\Video;
-use App\Repositories\Interfaces\NewsRepositoryInterface;
+use App\Repositories\Interfaces\NewsSourceRepositoryInterface as SrcRepoInterface;
 use Plasticode\Collection;
 use Plasticode\Util\Date;
-use Plasticode\Util\Sort;
 use Webmozart\Assert\Assert;
 
 class NewsAggregatorService
 {
-    private $sources = [
-        Article::class,
-        Event::class,
-        ForumTopic::class,
-        News::class,
-        Video::class
-    ];
-    
-    private $strictSources = [
-        ForumTopic::class,
-        News::class,
-    ];
+    /** @var SrcRepoInterface[] */
+    private array $sources = [];
 
-    private NewsRepositoryInterface $newsRepository;
+    /** @var SrcRepoInterface[] */
+    private array $strictSources = [];
+
     private LinkerInterface $linker;
 
     public function __construct(
-        NewsRepositoryInterface $newsRepository,
         LinkerInterface $linker
     )
     {
-        $this->newsRepository = $newsRepository;
         $this->linker = $linker;
+    }
+
+    public function registerStrictSource(
+        SrcRepoInterface $source
+    ) : void
+    {
+        $this->registerSource($source, true);
+    }
+
+    public function registerSource(
+        SrcRepoInterface $source,
+        bool $strict = false
+    ) : void
+    {
+        $this->sources[] = $source;
+
+        if ($strict) {
+            $this->strictSources[] = $source;
+        }
     }
 
     /**
      * Get sources list based on the strictness.
      *
-     * @return string[]
+     * @return SrcRepoInterface[]
      */
     private function getSources(bool $strict = false) : array
     {
@@ -57,7 +62,7 @@ class NewsAggregatorService
     }
 
     /**
-     * Apply action to sources list.
+     * Apply action to sources.
      */
     private function withSources(bool $strict, \Closure $action) : array
     {
@@ -66,49 +71,33 @@ class NewsAggregatorService
 
     /**
      * Returns action results as one collection.
-     * Action must return a collection.
+     * Action must return a NewsSourceCollection.
      */
-    private function collect(bool $strict, \Closure $action) : Collection
+    private function collect(bool $strict, \Closure $action) : NewsSourceCollection
     {
-        return Collection::merge(...$this->withSources($strict, $action));
-    }
-
-    /**
-     * Sorts news in descending order by publish date.
-     * Reverse sort = ascending order.
-     */
-    private function sort(
-        Collection $collection,
-        bool $reverse = false
-    ) : Collection
-    {
-        return $collection->orderBy(
-            'published_at',
-            $reverse ? Sort::DESC : Sort::ASC,
-            Sort::DATE
+        return NewsSourceCollection::merge(
+            ...$this->withSources($strict, $action)
         );
     }
 
-    private function sortReverse(Collection $collection) : Collection
+    public function getByTag(
+        string $tag,
+        bool $strict = true
+    ) : NewsSourceCollection
     {
-        return $this->sort($collection, true);
+        return $this
+            ->collect(
+                $strict,
+                fn (SrcRepoInterface $s) => $s->getNewsByTag($tag)
+            )
+            ->sort();
     }
 
-    public function getByTag(string $tag, bool $strict = true) : Collection
-    {
-        $all = $this->collect(
-            $strict,
-            fn ($s) => $s::getNewsByTag($tag)->all()
-        );
-
-        return $this->sort($all);
-    }
-
-    public function getCount(Game $game = null, bool $strict = false) : int
+    public function getCount(?Game $game = null, bool $strict = false) : int
     {
         $counts = $this->withSources(
             $strict,
-            fn ($s) => $s::getLatestNews($game)->count()
+            fn (SrcRepoInterface $s) => $s->getNewsCount($game)
         );
 
         return array_sum($counts);
@@ -116,21 +105,21 @@ class NewsAggregatorService
 
     public function getLatest(
         ?Game $game,
-        int $limit,
-        ?int $exceptNewsId = null,
+        int $limit = 0,
+        int $exceptId = 0,
         bool $strict = true
-    ) : Collection
+    ) : NewsSourceCollection
     {
-        return $this->getPage($game, 1, $limit, $exceptNewsId, $strict);
+        return $this->getPage($game, 1, $limit, $exceptId, $strict);
     }
 
     public function getPage(
         ?Game $game = null,
         int $page = 1,
         int $pageSize = 7,
-        ?int $exceptNewsId = null,
+        int $exceptId = 0,
         bool $strict = false
-    ) : Collection
+    ) : NewsSourceCollection
     {
         if ($page < 1) {
             $page = 1;
@@ -143,30 +132,30 @@ class NewsAggregatorService
         // optimization for faster load
         $loadLimit = $offset + $pageSize;
 
-        $all = $this->collect(
-            $strict,
-            fn (string $s) =>
-            $s::getLatestNews($game, $exceptNewsId)
-                ->limit($loadLimit)
-                ->all()
-        );
-
-        $all = $this->sort($all);
-
-        return $all->slice($offset, $pageSize);
+        return $this
+            ->collect(
+                $strict,
+                fn (SrcRepoInterface $s) =>
+                $s->getLatestNews($game, $loadLimit, $exceptId)
+            )
+            ->sort()
+            ->slice($offset, $pageSize);
     }
 
     /**
      * Looks for News or ForumTopic with the provided id.
      */
-    public function getNews(int $newsId) : ?NewsSourceInterface
+    public function getNews(?int $newsId) : ?NewsSourceInterface
     {
-        $news = $this->newsRepository->getProtected($newsId);
+        foreach ($this->strictSources as $source) {
+            $news = $source->getNews($newsId);
 
-        /** @var ForumTopic|null */
-        $forumTopic = ForumTopic::getNews($newsId);
+            if ($news) {
+                return $news;
+            }
+        }
 
-        return $news ?? $forumTopic;
+        return null;
     }
 
     public function getPrev(
@@ -177,14 +166,14 @@ class NewsAggregatorService
         $date = $news->publishedAt;
         $game = $news->rootGame();
 
-        $allPrev = $this->collect(
-            $strict,
-            fn (string $s) => $s::getNewsBefore($game, $date)->one()
-        );
-
-        $allPrev = $this->sort($allPrev);
-
-        return $allPrev->first();
+        return $this
+            ->collect(
+                $strict,
+                fn (SrcRepoInterface $s) =>
+                $s->getNewsBefore($game, $date, 1)
+            )
+            ->sort()
+            ->first();
     }
 
     public function getNext(
@@ -195,27 +184,27 @@ class NewsAggregatorService
         $date = $news->publishedAt;
         $game = $news->rootGame();
 
-        $allNext = $this->collect(
-            $strict,
-            fn (string $s) => $s::getNewsAfter($game, $date)->one()
-        );
-
-        $allNext = $this->sortReverse($allNext);
-
-        return $allNext->first();
+        return $this
+            ->collect(
+                $strict,
+                fn (SrcRepoInterface $s) =>
+                $s->getNewsAfter($game, $date, 1)
+            )
+            ->sortReverse()
+            ->first();
     }
 
-    private function getAllRaw(bool $strict = false) : Collection
+    private function getAllRaw(bool $strict = false) : NewsSourceCollection
     {
         return $this->collect(
             $strict,
-            fn (string $s) => $s::getLatestNews()->all()
+            fn (SrcRepoInterface $s) => $s->getLatestNews()
         );
     }
 
-    public function getTop(int $limit, bool $strict = false) : Collection
+    public function getTop(int $limit, bool $strict = false) : NewsSourceCollection
     {
-        return $this->getPage(null, 1, $limit, null, $strict);
+        return $this->getPage(null, 1, $limit, 0, $strict);
     }
 
     /**
@@ -223,18 +212,15 @@ class NewsAggregatorService
      */
     public function getYears(bool $strict = true) : Collection
     {
-        $byYear = self::getAllRaw($strict)
-            ->group(
+        return $this
+            ->getAllRaw($strict)
+            ->map(
                 fn (NewsSourceInterface $item) =>
                 Date::year(
                     $item->publishedAtIso()
                 )
-            );
-
-        /** @var integer[] */
-        $years = array_keys($byYear);
-        
-        return Collection::make($years)
+            )
+            ->distinct()
             ->map(
                 fn (int $y) =>
                 new NewsYear(
@@ -267,19 +253,19 @@ class NewsAggregatorService
 
     public function getByYear(int $year, bool $strict = true) : array
     {
-        $byYear = $this->collect(
-            $strict,
-            fn (string $s) => $s::getNewsByYear($year)->all()
-        );
-
-        $sorted = $this->sort($byYear);
+        $byYear = $this
+            ->collect(
+                $strict,
+                fn (SrcRepoInterface $s) => $s->getNewsByYear($year)
+            )
+            ->sort();
 
         $monthly = [];
 
         /** @var NewsSourceInterface $s */
-        foreach ($sorted as $s) {
+        foreach ($byYear as $s) {
             $month = Date::month($s->publishedAtIso());
-            
+
             if (!array_key_exists($month, $monthly)) {
                 $monthly[$month] = [
                     'label' => Date::SHORT_MONTHS[$month],

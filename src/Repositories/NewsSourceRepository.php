@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Collections\NewsSourceCollection;
 use App\Models\Game;
+use App\Models\Interfaces\NewsSourceInterface;
 use App\Repositories\Interfaces\NewsSourceRepositoryInterface;
 use App\Repositories\Traits\ByGameRepository;
 use Plasticode\Query;
@@ -45,6 +46,13 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
         );
     }
 
+    public function getNewsCount(?Game $game = null) : int
+    {
+        return $this
+            ->latestQuery($game)
+            ->count();
+    }
+
     public function getNewsBefore(
         ?Game $game = null,
         string $date,
@@ -83,6 +91,11 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
                     [$year]
                 )
         );
+    }
+
+    public function getNews(?int $id) : ?NewsSourceInterface
+    {
+        return $this->getProtectedEntity($id);
     }
 
     // queries
