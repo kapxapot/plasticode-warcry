@@ -26,6 +26,11 @@ class GameRepositoryMock implements GameRepositoryInterface
         return $this->games->first();
     }
 
+    public function getAll() : GameCollection
+    {
+        return $this->games;
+    }
+
     public function getAllPublished() : GameCollection
     {
         return $this

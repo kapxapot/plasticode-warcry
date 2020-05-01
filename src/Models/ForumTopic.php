@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Collections\ForumTagCollection;
 use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\Collection;
 use Plasticode\Models\DbModel;
@@ -16,15 +17,22 @@ use Plasticode\Util\Date;
  * @property string|null $starterName
  * @property string $title
  * @method Forum forum()
+ * @method ForumPost|null forumPost()
  * @method string forumUrl()
  * @method string|null parsedPost()
+ * @method ForumMember|null starterForumMember()
+ * @method ForumTagCollection tags()
+ * @method static withDisplayTitle(string|callable $displayTitle)
  * @method static withForum(Forum|callable $forum)
+ * @method static withForumPost(ForumPost|callable|null $forumPost)
  * @method static withForumUrl(string|callable $forumUrl)
  * @method static withFullText(string|callable|null $fullText)
  * @method static withGame(Game|callable|null $game)
  * @method static withParsedPost(string|callable|null $parsedPost)
- * @method static withUrl(string|callable|null $url)
  * @method static withShortText(string|callable|null $shortText)
+ * @method static withStarterForumMember(ForumMember|callable|null $forumMember)
+ * @method static withTags(ForumTagCollection|callable $tags)
+ * @method static withUrl(string|callable|null $url)
  */
 class ForumTopic extends DbModel implements NewsSourceInterface
 {
@@ -34,6 +42,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
 
     protected static string $idField = 'tid';
 
+    private string $displayTitlePropertyName = 'displayTitle';
     private string $fullTextPropertyName = 'fullText';
     private string $gamePropertyName = 'game';
     private string $shortTextPropertyName = 'shortText';
@@ -42,15 +51,17 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     protected function requiredWiths(): array
     {
         return [
+            $this->displayTitlePropertyName,
             $this->gamePropertyName,
             $this->urlPropertyName,
             'forum',
+            'forumPost',
             'forumUrl',
         ];
     }
 
     /**
-     * Tagged trait function override.
+     * Tagged trait override.
      * 
      * @return string[]
      */
@@ -69,21 +80,11 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return $this->forum()->isNewsForum();
     }
 
-    public function forumPost() : ForumPost
-    {
-        return ForumPost::getByForumTopic($this->getId());
-    }
-
     public function post() : ?string
     {
         return $this->forumPost()
             ? $this->forumPost()->post
             : null;
-    }
-
-    public function tags() : Collection
-    {
-        return ForumTag::getByForumTopic($this->getId())->all();
     }
 
     public function published() : int
@@ -104,7 +105,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     public function creator() : array
     {
         return [
-            'forum_member' => ForumMember::get($this->starterId),
+            'forum_member' => $this->starterForumMember(),
             'display_name' => $this->starterName,
         ];
     }
@@ -166,7 +167,9 @@ class ForumTopic extends DbModel implements NewsSourceInterface
 
     public function displayTitle() : string
     {
-        return self::$container->newsParser->decodeTopicTitle($this->title);
+        return $this->getWithProperty(
+            $this->displayTitlePropertyName
+        );
     }
 
     public function fullText() : ?string

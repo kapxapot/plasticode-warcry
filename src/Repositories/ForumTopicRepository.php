@@ -3,39 +3,39 @@
 namespace App\Repositories;
 
 use App\Models\ForumTopic;
-use App\Repositories\Interfaces\NewsSourceRepositoryInterface;
+use App\Models\Game;
+use App\Repositories\Interfaces\ForumTagRepositoryInterface;
+use App\Repositories\Interfaces\ForumTopicRepositoryInterface;
 use Plasticode\Query;
-use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
+use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Basic\RepositoryContext;
 
-class ForumTopicRepository extends TaggedRepository implements NewsSourceRepositoryInterface
+class ForumTopicRepository extends IdiormRepository implements ForumTopicRepositoryInterface
 {
     protected string $entityClass = ForumTopic::class;
 
     protected string $sortField = 'start_date';
     protected bool $sortReverse = true;
 
-    public function filterByTag(Query $query, string $tag) : Query
-    {
-        $ids = ForumTag::getForumTopicIdsByTag($tag);
+    protected ForumTagRepositoryInterface $forumTagRepository;
 
-        return $query->whereIn('tid', $ids);
+    /**
+     * @param HydratorInterface|ObjectProxy|null $hydrator
+     */
+    public function __construct(
+        RepositoryContext $repositoryContext,
+        ForumTagRepositoryInterface $forumTagRepository,
+        $hydrator = null
+    )
+    {
+        parent::__construct($repositoryContext, $hydrator);
+
+        $this->forumTagRepository = $forumTagRepository;
     }
 
     public function getByTag(string $tag) : Query
     {
         return self::filterByTag(self::query(), $tag);
-    }
-
-    private static function getNewsQuery(Game $game = null) : Query
-    {
-        $forumIds = Game::getNewsForumIds($game);
-
-        if ($forumIds->isEmpty()) {
-            return Query::empty();
-        }
-        
-        return self::query()
-            ->whereIn('forum_id', $forumIds);
     }
 
     // getters - one
@@ -91,5 +91,28 @@ class ForumTopicRepository extends TaggedRepository implements NewsSourceReposit
     {
         return self::getNewsQuery()
             ->whereRaw('(year(from_unixtime(start_date)) = ?)', [$year]);
+    }
+
+    // queries
+
+    private function newsQuery(?Game $game = null) : Query
+    {
+        $forumIds = Game::getNewsForumIds($game);
+
+        if ($forumIds->isEmpty()) {
+            return Query::empty();
+        }
+        
+        return self::query()
+            ->whereIn('forum_id', $forumIds);
+    }
+
+    // filters
+
+    public function filterByTag(Query $query, string $tag) : Query
+    {
+        $ids = $this->forumTagRepository->getForumTopicIdsByTag($tag);
+
+        return $query->whereIn($this->idField(), $ids);
     }
 }

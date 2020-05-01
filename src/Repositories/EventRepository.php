@@ -43,7 +43,7 @@ class EventRepository extends NewsSourceRepository implements EventRepositoryInt
             $this
                 ->unendedQuery()
                 ->apply(
-                    fn (Query $q) => $this->filterByGame($q, $game),
+                    fn (Query $q) => $this->filterByGameTree($q, $game),
                     fn (Query $q) => $this->filterCurrent($q, $days),
                     fn (Query $q) => $this->filterAnnounced($q)
                 )

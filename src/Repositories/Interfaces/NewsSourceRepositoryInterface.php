@@ -8,25 +8,25 @@ use Plasticode\Repositories\Interfaces\SearchableRepositoryInterface;
 
 interface NewsSourceRepositoryInterface extends SearchableRepositoryInterface
 {
-    function getAllByTag(string $tag, int $limit = 0) : NewsSourceCollection;
+    function getNewsByTag(string $tag, int $limit = 0) : NewsSourceCollection;
 
-    function getLatest(
+    function getLatestNews(
         ?Game $game = null,
         int $limit = 0,
         int $exceptId = 0
     ) : NewsSourceCollection;
 
-    function getAllByYear(int $year) : NewsSourceCollection;
-
-    function getAllBefore(
+    function getNewsBefore(
         ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection;
 
-    function getAllAfter(
+    function getNewsAfter(
         ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection;
+
+    function getNewsByYear(int $year) : NewsSourceCollection;
 }

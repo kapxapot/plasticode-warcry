@@ -20,7 +20,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
     protected string $sortField = 'published_at';
     protected bool $sortReverse = true;
 
-    public function getAllByTag(
+    public function getNewsByTag(
         string $tag,
         int $limit = 0
     ) : NewsSourceCollection
@@ -34,7 +34,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
         );
     }
 
-    public function getLatest(
+    public function getLatestNews(
         ?Game $game = null,
         int $limit = 0,
         int $exceptId = 0
@@ -45,7 +45,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
         );
     }
 
-    public function getAllBefore(
+    public function getNewsBefore(
         ?Game $game = null,
         string $date,
         int $limit = 0
@@ -59,7 +59,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
         );
     }
 
-    public function getAllAfter(
+    public function getNewsAfter(
         ?Game $game = null,
         string $date,
         int $limit = 0
@@ -73,7 +73,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
         );
     }
 
-    public function getAllByYear(int $year) : NewsSourceCollection
+    public function getNewsByYear(int $year) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
             $this
@@ -85,6 +85,8 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
         );
     }
 
+    // queries
+
     protected function latestQuery(
         ?Game $game = null,
         int $limit = 0,
@@ -94,7 +96,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
         return $this
             ->newsSourceQuery()
             ->apply(
-                fn (Query $q) => $this->filterByGame($q, $game)
+                fn (Query $q) => $this->filterByGameTree($q, $game)
             )
             ->applyIf(
                 $exceptId > 0,

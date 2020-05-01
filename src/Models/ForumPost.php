@@ -4,13 +4,12 @@ namespace App\Models;
 
 use Plasticode\Models\DbModel;
 
+/**
+ * @property integer $newTopic
+ * @property string|null $post
+ * @property integer $topicId
+ */
 class ForumPost extends DbModel
 {
-    public static function getByForumTopic($topicId)
-    {
-        return self::query()
-            ->where('topic_id', $topicId)
-            ->where('new_topic', 1)
-            ->one();
-    }
+    protected static string $idField = 'pid';
 }

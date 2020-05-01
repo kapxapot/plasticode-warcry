@@ -41,13 +41,7 @@ class ForumHydrator extends Hydrator
                 fn () => $this->forumRepository->getParent($entity)
             )
             ->withIsNewsForum(
-                fn () =>
-                $this
-                    ->forumService
-                    ->getNewsForums()
-                    ->any(
-                        fn (Forum $f) => $f->equals($entity)
-                    )
+                fn () => $this->forumService->isNewsForum($entity)
             );
     }
 }

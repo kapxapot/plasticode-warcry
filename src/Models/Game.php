@@ -157,13 +157,15 @@ class Game extends DbModel implements LinkableInterface
         return Forum::getAllByGame($this->getId());
     }
 
-    // FUNCS
-
-    public function filter(Query $query) : Query
+    /**
+     * Checks if the game relates to forum
+     * (the forum is defined as main forum or news forum for the game).
+     */
+    public function relatesToForum(Forum $forum) : bool
     {
-        $ids = $this->subTree()->ids();
-
-        return $query->whereIn('game_id', $ids);
+        return
+            $forum->equals($this->newsForum())
+            || $forum->equals($this->mainForum());
     }
 
     public function toString() : string

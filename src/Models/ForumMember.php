@@ -4,23 +4,17 @@ namespace App\Models;
 
 use Plasticode\Models\DbModel;
 
+/**
+ * @property string $name
+ * @method string pageUrl()
+ * @method static withPageUrl(string|callable $pageUrl)
+ */
 class ForumMember extends DbModel
 {
-    protected static $idField = 'member_id';
-    
-    // GETTERS - ONE
+    protected static string $idField = 'member_id';
 
-    public static function getByName($name)
+    protected function requiredWiths(): array
     {
-        return self::query()
-            ->where('name', $name)
-            ->one();
-    }
-    
-    // PROPS
-
-    public function pageUrl()
-    {
-        return self::$container->linker->forumUser($this->getId());
+        return ['pageUrl'];
     }
 }

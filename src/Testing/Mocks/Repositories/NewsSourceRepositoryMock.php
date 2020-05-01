@@ -12,7 +12,7 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
 {
     abstract protected function newsSources() : NewsSourceCollection;
 
-    public function getAllByTag(string $tag, int $limit = 0) : NewsSourceCollection
+    public function getNewsByTag(string $tag, int $limit = 0) : NewsSourceCollection
     {
         return $this
             ->newsSources()
@@ -22,7 +22,7 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
             ->take($limit);
     }
 
-    public function getLatest(
+    public function getLatestNews(
         ?Game $game = null,
         int $limit = 0,
         int $exceptId = 0
@@ -45,55 +45,55 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
         return $col->take($limit);
     }
 
-    public function getAllByYear(int $year) : NewsSourceCollection
+    public function getNewsBefore(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : NewsSourceCollection
+    {
+        $col = $this->newsSources();
+
+        if ($game) {
+            $col = $col->where(
+                fn (NewsSource $n) => $n->gameId == $game->getId()
+            );
+        }
+
+        return $col
+            ->where(
+                fn (NewsSource $n) => Date::dt($date) < Date::dt($n->publishedAt)
+            )
+            ->take($limit);
+    }
+
+    public function getNewsAfter(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : NewsSourceCollection
+    {
+        $col = $this->newsSources();
+
+        if ($game) {
+            $col = $col->where(
+                fn (NewsSource $n) => $n->gameId == $game->getId()
+            );
+        }
+
+        return $col
+            ->where(
+                fn (NewsSource $n) => Date::dt($date) < Date::dt($n->publishedAt)
+            )
+            ->take($limit);
+    }
+
+    public function getNewsByYear(int $year) : NewsSourceCollection
     {
         return $this
             ->newsSources()
             ->where(
                 fn (NewsSource $n) => Date::year($n->publishedAt) == $year
             );
-    }
-
-    public function getAllBefore(
-        ?Game $game = null,
-        string $date,
-        int $limit = 0
-    ) : NewsSourceCollection
-    {
-        $col = $this->newsSources();
-
-        if ($game) {
-            $col = $col->where(
-                fn (NewsSource $n) => $n->gameId == $game->getId()
-            );
-        }
-
-        return $col
-            ->where(
-                fn (NewsSource $n) => Date::dt($date) < Date::dt($n->publishedAt)
-            )
-            ->take($limit);
-    }
-
-    public function getAllAfter(
-        ?Game $game = null,
-        string $date,
-        int $limit = 0
-    ) : NewsSourceCollection
-    {
-        $col = $this->newsSources();
-
-        if ($game) {
-            $col = $col->where(
-                fn (NewsSource $n) => $n->gameId == $game->getId()
-            );
-        }
-
-        return $col
-            ->where(
-                fn (NewsSource $n) => Date::dt($date) < Date::dt($n->publishedAt)
-            )
-            ->take($limit);
     }
 
     abstract function search(string $searchQuery) : NewsSourceCollection;

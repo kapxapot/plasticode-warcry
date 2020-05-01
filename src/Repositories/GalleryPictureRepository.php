@@ -80,7 +80,7 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
             $this
                 ->publishedQuery()
                 ->apply(
-                    fn (Query $q) => $this->filterByGame($q, $game)
+                    fn (Query $q) => $this->filterByGameTree($q, $game)
                 )
                 ->limit($limit)
         );

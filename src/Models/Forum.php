@@ -26,4 +26,13 @@ class Forum extends DbModel
             ? $this->game()->getId()
             : null;
     }
+
+    /**
+     * Checks if the current forum or its parent belongs to game.
+     */
+    public function belongsToGame(Game $game) : bool
+    {
+        return $game->relatesToForum($this)
+            || $this->parent() && $this->parent()->belongsToGame($game);
+    }
 }

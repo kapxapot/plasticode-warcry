@@ -46,6 +46,13 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
         return $this->get($id);
     }
 
+    public function getAll() : GameCollection
+    {
+        return GameCollection::from(
+            $this->query()
+        );
+    }
+
     public function getAllPublished() : GameCollection
     {
         return GameCollection::from(
@@ -74,21 +81,27 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
         return $this->getByName($name) ?? $this->getDefault();
     }
 
+    /**
+     * Returns game by forum (going up in the forum tree).
+     * If not found returns the default game.
+     */
     public function getByForum(Forum $forum) : ?Game
     {
-        $games = $this->getAllPublished();
+        return $this
+            ->getAll()
+            ->first(
+                fn (Game $g) => $forum->belongsToGame($g)
+            )
+            ?? $this->getDefault();
+    }
 
-        while ($forum) {
-            foreach ($games as $game) {
-                if ($game->newsForumId == $forum->getId()
-                    || $game->mainForumId == $forum->getId()) {
-                    return $game;
-                }
-            }
-
-            $forum = $forum->parent();
-        }
-
-        return $this->getDefault();
+    /**
+     * Returns game's sub-tree or all games (if the game is null).
+     */
+    public function getSubTreeOrAll(?Game $game) : GameCollection
+    {
+        return $game
+            ? $game->subTree()
+            : $this->getAll();
     }
 }

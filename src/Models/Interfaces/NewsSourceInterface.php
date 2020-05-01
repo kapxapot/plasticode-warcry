@@ -17,7 +17,6 @@ interface NewsSourceInterface extends LinkableInterface, TaggedInterface
 
     function displayTitle() : string;
 
-    function rawText() : ?string;
     function fullText() : ?string;
     function shortText() : ?string;
 

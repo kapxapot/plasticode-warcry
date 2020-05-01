@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Collections\ForumCollection;
+use App\Models\Forum;
 use App\Models\Game;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 
@@ -19,10 +20,18 @@ class ForumService
 
     public function getNewsForums(?Game $game = null) : ForumCollection
     {
-        $games = $game
-            ? $game->subTree()
-            : $this->gameRepository->getAllPublished();
+        return $this
+            ->gameRepository
+            ->getSubTreeOrAll($game)
+            ->newsForums();
+    }
 
-        return $games->newsForums();
+    public function isNewsForum(Forum $forum) : bool
+    {
+        return $this
+            ->getNewsForums()
+            ->any(
+                fn (Forum $f) => $f->equals($forum)
+            );
     }
 }
