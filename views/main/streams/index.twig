@@ -4,39 +4,32 @@
 {% import 'main/local_macros.twig' as lm %}
 
 {% if can('streams', 'create') %}
-    {% set sidebar_buttons = [ m.create_button('streams', 'Добавить стрим') ] %}
+    {% set sidebar_buttons = [m.create_button('streams', 'Добавить стрим')] %}
 {% endif %}
 
 {% block content %}
-	<div class="panel panel-primary">
-		{{ lm.panel_header(_context) }}
-	  	<div class="panel-body body-nopad">
-			<ul class="nav nav-tabs" role="tablist">
-		  		{% for g in groups %}
-		  			{{ m.tab(g.id, g.label, loop.first) }}
-				{% endfor %}
-			</ul>
+    <div class="panel panel-primary">
+        {{ lm.panel_header(_context) }}
+        <div class="panel-body body-nopad">
+            <ul class="nav nav-tabs" role="tablist">
+                {% for g in groups %}
+                    {{ m.tab(g.id, g.label, loop.first) }}
+                {% endfor %}
+            </ul>
 
-			<div class="tab-content">
-				{% for g in groups %}
-					<div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}" id="{{ g.id }}">
-						{% if g.streams %}
-        				    {% for part in g.streams %}
+            <div class="tab-content">
+                {% for g in groups %}
+                    <div role="tabpanel" class="tab-pane fade{% if loop.first %} in active{% endif %}" id="{{ g.id }}">
+                        {% if g.streams %}
+                            {% for part in g.streams %}
                                 {% include 'components/streams.twig' with { 'streams': part } only %}
                             {% endfor %}
-						{% else %}
-							<p class="nostreams">Сейчас никто не стримит. :(</p>
-						{% endif %}
-						
-						{#% if g.telegram %}
-							<div class="flex flex-v mt-2">
-								<i class="fab fa-telegram fa-2x mr-2 telegram-icon"></i>
-								<span><a href="//t.me/{{ g.telegram }}">Подписаться</a> на объявления о начале {{ g.telegram_label ?? 'стримов' }}</span>
-							</div>
-						{% endif %#}
-					</div>
-				{% endfor %}
-			</div>
-	    </div>
-	</div>
+                        {% else %}
+                            <p class="nostreams">Сейчас никто не стримит. :(</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endblock %}

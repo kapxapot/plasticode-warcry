@@ -13,8 +13,8 @@ interface GameRepositoryInterface
     function getAll() : GameCollection;
     function getAllPublished() : GameCollection;
     function getPublishedByAlias(string $alias) : ?Game;
-    function getByName(string $name) : ?Game;
-    function getByTwitchName(string $name) : ?Game;
+    function getByName(?string $name) : ?Game;
+    function getByTwitchName(?string $name) : ?Game;
 
     /**
      * Returns game by forum (going up in the forum tree).

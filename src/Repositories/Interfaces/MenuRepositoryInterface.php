@@ -9,5 +9,5 @@ use Plasticode\Repositories\Interfaces\MenuRepositoryInterface as BaseMenuRepoos
 interface MenuRepositoryInterface extends BaseMenuRepoositoryInterface
 {
     function getAll() : MenuCollection;
-    function getAllByGame(Game $game) : MenuCollection;
+    function getAllByGame(?Game $game) : MenuCollection;
 }

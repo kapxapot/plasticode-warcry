@@ -2,165 +2,140 @@
 
 namespace App\Services;
 
+use App\Collections\StreamCollection;
 use App\Config\Interfaces\StreamConfigInterface;
+use App\Models\Game;
+use App\Models\Stream;
+use App\Repositories\Interfaces\StreamRepositoryInterface;
 use Plasticode\Collection;
 use Plasticode\Util\Cases;
-
-use App\Models\Stream;
 use Plasticode\Util\Date;
 
 class StreamService
 {
-    /** @var StreamConfigInterface */
-    private $config;
+    private StreamRepositoryInterface $streamRepository;
 
-    /** @var Cases */
-    private $cases;
-    
+    private StreamConfigInterface $config;
+    private Cases $cases;
+
     public function __construct(
+        StreamRepositoryInterface $streamRepository,
         StreamConfigInterface $config,
         Cases $cases
     )
     {
+        $this->streamRepository = $streamRepository;
+
         $this->config = $config;
         $this->cases = $cases;
     }
-    
-    public function getByTag($tag) : array
-    {
-        $streams = Stream::getByTag($tag)->all();
 
-        return $this->arrange($this->sort($streams));
+    /**
+     * @return StreamCollection[]
+     */
+    public function getByTag(string $tag) : array
+    {
+        return $this
+            ->streamRepository
+            ->getAllByTag($tag)
+            ->sort()
+            ->arrange();
     }
 
-    public function getAllSorted() : Collection
+    public function getGroups() : array
     {
-        $streams = Stream::getPublished()->all();
-        
-        return $this->sort($streams);
+        return $this
+            ->getAllSorted()
+            ->groupByTabs();
     }
 
-    public function getGroups()
+    public function getAllOnline(?Game $game = null) : Collection
     {
-        $streams = self::getAllSorted();
-
-        $groups = [
-            [
-                'id' => 'online',
-                'label' => 'Онлайн',
-                'telegram' => 'warcry_streams',
-                'streams' => $streams->where(function ($s) {
-                    return $s->remoteOnline;
-                }),
-            ],
-            [
-                'id' => 'offline',
-                'label' => 'Офлайн',
-                'telegram' => 'warcry_streams',
-                'streams' => $streams->where(function ($s) {
-                    return $s->alive() && !$s->remoteOnline;
-                }),
-            ],
-            [
-                'id' => 'blizzard',
-                'label' => 'Blizzard EN',
-                'telegram' => 'blizzard_streams',
-                'telegram_label' => 'официальных трансляций (англ.)',
-                'streams' => $streams->where(function ($s) {
-                    return $s->official;
-                }),
-            ],
-            [
-                'id' => 'blizzard_ru',
-                'label' => 'Blizzard РУ',
-                'telegram' => 'blizzard_streams_ru',
-                'telegram_label' => 'официальных трансляций (рус.)',
-                'streams' => $streams->where(function ($s) {
-                    return $s->officialRu;
-                }),
-            ],
-        ];
-        
-        return array_map(function ($g) {
-            $g['streams'] = $this->arrange($g['streams']);
-            return $g;
-        }, $groups);
-    }
-    
-    private function arrange(Collection $streams) : array
-    {
-        return array_filter([
-            $streams->where(function ($s) {
-                return $s->isOnline();
-            }),
-            $streams->where(function ($s) {
-                return !$s->isOnline() && $s->hasLogo();
-            }),
-            $streams->where(function ($s) {
-                return !$s->isOnline() && !$s->hasLogo();
-            }),
-        ], function ($a) {
-            return count($a) > 0;
-        });
-    }
-    
-    private function sort(Collection $streams) : Collection
-    {
-        $sorts = [
-            'remote_online' => [ 'dir' => 'desc' ],
-            'official_ru' => [ 'dir' => 'desc' ],
-            'official' => [ 'dir' => 'desc' ],
-            'priority' => [ 'dir' => 'desc' ],
-            'priority_game' => [ 'dir' => 'desc' ],
-            'remote_viewers' => [ 'dir' => 'desc' ],
-            'remote_online_at' => [ 'dir' => 'desc', 'type' => 'string' ],
-            'title' => [ 'dir' => 'asc', 'type' => 'string' ],
-        ];
-    
-        return $streams->multiSort($sorts);
-    }
-
-    public function getAllOnline($game = null) : Collection
-    {
-        $online = $this->getAllSorted()
-            ->where('remote_online', 1);
+        $online = $this
+            ->getAllSorted()
+            ->where(
+                fn (Stream $s) => $s->isOnline()
+            );
 
         if ($game) {
-            $online = $online->where(function ($s) use ($game) {
-                return $s->belongsToGame($game);
-            });
+            $online = $online->where(
+                fn (Stream $s) => $s->belongsToGame($game)
+            );
         }
 
         return $online;
     }
-    
-    public function topOnline($game = null)
+
+    public function getAllSorted() : StreamCollection
+    {
+        return $this
+            ->streamRepository
+            ->getAllPublished()
+            ->sort();
+    }
+
+    public function topOnline(?Game $game = null)
     {
         $stream = null;
-        
-        if ($game !== null && $game->default() === false) {
+
+        if ($game && !$game->isDefault()) {
             $stream = $this->getAllOnline($game)->first();
         }
-        
+
         return $stream ?? $this->getAllOnline()->first();
     }
-    
-    public function totalOnlineStr($game = null)
+
+    public function totalOnlineStr(?Game $game = null)
     {
         $totalOnline = $this->getAllOnline($game)->count();
-        
-        return $totalOnline . ' ' . $this->cases->caseForNumber('стрим', $totalOnline);
+
+        return $totalOnline . ' '
+            . $this->cases->caseForNumber('стрим', $totalOnline);
     }
-    
+
     public function isAlive(Stream $stream) : bool
     {
         if (!$stream->remoteOnlineAt) {
             return false;
         }
-        
+
         $timeToLive = $this->config->streamTimeToLive();
         $age = Date::age($stream->remoteOnlineAt);
-        
+
         return $age->days < $timeToLive;
+    }
+
+    public function nounsFor(Stream $stream) : array
+    {
+        return [
+            'viewers' => $this->cases->caseForNumber(
+                'зритель', $stream->remoteViewers
+            ),
+        ];
+    }
+
+    public function verbsFor(Stream $stream) : array
+    {
+        $form = [
+            'time' => Cases::PAST,
+            'person' => Cases::FIRST,
+            'number' => Cases::SINGLE,
+            'gender' => $stream->genderId,
+        ];
+
+        return [
+            'played' => $this->cases->conjugation(
+                'играть',
+                $form
+            ),
+            'broadcasted' => $this->cases->conjugation(
+                'транслировать',
+                $form
+            ),
+            'held' => $this->cases->conjugation(
+                'вести',
+                $form
+            ),
+        ];
     }
 }

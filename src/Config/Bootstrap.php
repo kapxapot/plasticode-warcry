@@ -3,6 +3,7 @@
 namespace App\Config;
 
 use App\Config\Parsing\BBContainerConfig;
+use App\Core\AppContext;
 use App\Core\Linker;
 use App\Core\Renderer;
 use App\Handlers\NotFoundHandler;
@@ -248,6 +249,7 @@ class Bootstrap extends BootstrapBase
                 new ObjectProxy(
                     fn () =>
                     new MenuHydrator(
+                        $c->gameRepository,
                         $c->menuItemRepository,
                         $c->linker
                     )
@@ -314,9 +316,16 @@ class Bootstrap extends BootstrapBase
         $map['streamRepository'] = fn (CI $c) =>
             new StreamRepository(
                 $c->repositoryContext,
+                $c->tagRepository,
                 new ObjectProxy(
                     fn () =>
                     new StreamHydrator(
+                        $c->gameRepository,
+                        $c->userRepository,
+                        $c->gameService,
+                        $c->streamService,
+                        $c->linker,
+                        $c->tagsConfig
                     )
                 )
             );
@@ -341,6 +350,16 @@ class Bootstrap extends BootstrapBase
                         $c->tagsConfig
                     )
                 )
+            );
+
+        $map['appContext'] = fn (CI $c) =>
+            new AppContext(
+                $c->settingsProvider,
+                $c->translator,
+                $c->validator,
+                $c->view,
+                $c->logger,
+                $c->menuRepository
             );
 
         $map['gallery'] = function (CI $c) {
@@ -589,6 +608,9 @@ class Bootstrap extends BootstrapBase
         $map['sidebarPartsProviderService'] = fn (CI $c) =>
             new SidebarPartsProviderService(
                 $c->settingsProvider,
+                $c->articleRepository,
+                $c->eventRepository,
+                $c->galleryPictureRepository,
                 $c->newsAggregatorService,
                 $c->streamService
             );
@@ -600,6 +622,7 @@ class Bootstrap extends BootstrapBase
 
         $map['streamService'] = fn (CI $c) =>
             new StreamService(
+                $c->streamRepository,
                 $c->config,
                 $c->cases
             );

@@ -12,7 +12,7 @@ trait ByGameRepository
     /**
      * Filters query by game if it isn't null.
      */
-    protected function filterByGame(Query $query, ?Game $game = null) : Query
+    protected function filterByGame(Query $query, ?Game $game) : Query
     {
         return $game
             ? $query->where($this->gameIdField, $game->getId())
@@ -22,7 +22,7 @@ trait ByGameRepository
     /**
      * Filters query by game and all its sub-tree if it isn't null.
      */
-    protected function filterByGameTree(Query $query, ?Game $game = null) : Query
+    protected function filterByGameTree(Query $query, ?Game $game) : Query
     {
         return $game
             ? $query->whereIn(

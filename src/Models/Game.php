@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Collections\GameCollection;
 use Plasticode\Collection;
-use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Traits\Published;
@@ -44,33 +43,21 @@ class Game extends DbModel implements LinkableInterface
     // PROPS
     
     /**
-     * The ultimate parent id
-     *
-     * @return integer
+     * The ultimate parent id.
      */
     public function rootId() : int
     {
-        return $this->lazy(
-            function () {
-                return $this->parent()
-                    ? $this->parent()->rootId()
-                    : $this->id;
-            }
-        );
+        return $this->parent()
+            ? $this->parent()->rootId()
+            : $this->id;
     }
 
     /**
-     * The ultimate parent game
-     *
-     * @return Game
+     * The ultimate parent game.
      */
     public function root() : self
     {
-        return $this->lazy(
-            function () {
-                return self::get($this->rootId());
-            }
-        );
+        return self::get($this->rootId());
     }
 
     /**
@@ -99,9 +86,6 @@ class Game extends DbModel implements LinkableInterface
 
     /**
      * Any of parents contains game?
-     *
-     * @param self $game
-     * @return boolean
      */
     public function trunkContains(self $game) : bool
     {
@@ -109,10 +93,10 @@ class Game extends DbModel implements LinkableInterface
             if ($game->id == $this->id) {
                 return true;
             }
-            
+
             $game = $game->parent();
         }
-        
+
         return false;
     }
     

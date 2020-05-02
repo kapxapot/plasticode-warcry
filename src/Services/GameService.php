@@ -19,6 +19,9 @@ class GameService
     {
         $priorityGames = $this->config->streamPriorityGames();
 
-        return in_array(mb_strtolower($gameName), $priorityGames);
+        return in_array(
+            mb_strtolower($gameName),
+            $priorityGames
+        );
     }
 }

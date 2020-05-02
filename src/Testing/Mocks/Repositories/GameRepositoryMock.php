@@ -48,12 +48,12 @@ class GameRepositoryMock implements GameRepositoryInterface
             ->first('alias', $alias);
     }
 
-    public function getByName(string $name) : ?Game
+    public function getByName(?string $name) : ?Game
     {
         return $this->games->first('name', $name);
     }
 
-    function getByTwitchName(string $name) : ?Game
+    function getByTwitchName(?string $name) : ?Game
     {
         return $this->getByName($name) ?? $this->getDefault();
     }

@@ -23,7 +23,7 @@ class MenuRepository extends BaseMenuRepository implements MenuRepositoryInterfa
         );
     }
 
-    public function getAllByGame(Game $game) : MenuCollection
+    public function getAllByGame(?Game $game) : MenuCollection
     {
         return MenuCollection::from(
             $this

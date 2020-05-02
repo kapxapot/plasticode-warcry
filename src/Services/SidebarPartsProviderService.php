@@ -2,99 +2,98 @@
 
 namespace App\Services;
 
-use App\Models\Article;
-use App\Models\Event;
-use App\Models\GalleryPicture;
+use App\Models\Game;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Repositories\Interfaces\EventRepositoryInterface;
+use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use Plasticode\Core\Interfaces\SettingsProviderInterface;
+use Plasticode\Exceptions\InvalidConfigurationException;
 
 class SidebarPartsProviderService
 {
-    /** @var SettingsProviderInterface */
-    private $settingsProvider;
+    private SettingsProviderInterface $settingsProvider;
 
-    /** @var NewsAggregatorService */
-    private $newsAggregatorService;
+    private ArticleRepositoryInterface $articleRepository;
+    private EventRepositoryInterface $eventRepository;
+    private GalleryPictureRepositoryInterface $galleryPictureRepository;
 
-    /** @var StreamService */
-    private $streamService;
+    private NewsAggregatorService $newsAggregatorService;
+    private StreamService $streamService;
 
     public function __construct(
         SettingsProviderInterface $settingsProvider,
+        ArticleRepositoryInterface $articleRepository,
+        EventRepositoryInterface $eventRepository,
+        GalleryPictureRepositoryInterface $galleryPictureRepository,
         NewsAggregatorService $newsAggregatorService,
         StreamService $streamService
     )
     {
         $this->settingsProvider = $settingsProvider;
+
+        $this->articleRepository = $articleRepository;
+        $this->eventRepository = $eventRepository;
+        $this->galleryPictureRepository = $galleryPictureRepository;
+
         $this->newsAggregatorService = $newsAggregatorService;
         $this->streamService = $streamService;
     }
 
-    public function getPart($settings, $game, $part)
+    /**
+     * @return mixed
+     */
+    public function getPart(array $settings, ?Game $game, string $part)
     {
-        $result = null;
-        
         switch ($part) {
             case 'news':
                 $limit = $this->settingsProvider
                     ->get('sidebar.latest_news_limit');
-                
+
                 $exceptNewsId = $settings['news_id'] ?? null;
-                
-                $result = $this->newsAggregatorService
+
+                return $this->newsAggregatorService
                     ->getLatest($game, $limit, $exceptNewsId);
-                
-                break;
 
             case 'articles':
                 $limit = $this->settingsProvider
                     ->get('sidebar.article_limit');
-                
+
                 $exceptArticleId = $settings['article_id'] ?? null;
-                
-                $result = Article::getLatest(
+
+                return $this->articleRepository->getLatestNews(
                     $game,
                     $limit,
                     $exceptArticleId
-                )->all();
+                );
 
-                break;
-            
             case 'stream':
-                $result = [
+                return [
                     'stream' => $this->streamService->topOnline($game),
                     'total_online' => $this->streamService->totalOnlineStr(),
                 ];
 
-                break;
-            
             case 'gallery':
                 $limit = $this->settingsProvider
                     ->get('sidebar.latest_gallery_pictures_limit');
 
-                $result = [
-                    'pictures' => GalleryPicture::getLatestByGame(
-                        $game,
-                        $limit
-                    )->all()
-                ];
+                return $this->galleryPictureRepository
+                    ->getAllByGame($game, $limit);
 
-                break;
-            
             case 'events':
                 $days = $this->settingsProvider
                     ->get('sidebar.future_events_days');
-                
-                $result = Event::getCurrent($game, $days)->all();
 
-                break;
-            
+                return $this->eventRepository
+                    ->getAllCurrent($game, $days);
+
             case 'countdown':
-                $event = Event::getFutureImportant()->one();
-                $result = ['event' => $event];
-                
-                break;
+                return $this->eventRepository
+                    ->getAllFutureImportant()
+                    ->first();
         }
-        
-        return $result;
+
+        throw new InvalidConfigurationException(
+            'No sidebart part defined: ' . $part
+        );
     }
 }

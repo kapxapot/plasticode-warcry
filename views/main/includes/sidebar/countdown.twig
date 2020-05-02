@@ -1,6 +1,5 @@
-{% set countdown = sidebar.countdown %}
-{% if countdown.event %}
-    {% set e = countdown.event %}
+{% set event = sidebar.countdown %}
+{% if event %}
     <script>
         function countdown(endDate) {
             let days, hours, minutes, seconds;
@@ -42,14 +41,14 @@
         }
         
         (function () {
-          countdown('{{ e.start.iso }}');
+          countdown('{{ event.start.iso }}');
         }());
     </script>
     
     <div class="panel panel-secondary">
         <div class="panel-body">
             <div class="mb-2 font-130 center">
-                <a href="{{ e.url }}">{{ e.name }}</a><br>
+                <a href="{{ event.url }}">{{ event.name }}</a><br>
                 состоится через
             </div>
             <div id="countdown">

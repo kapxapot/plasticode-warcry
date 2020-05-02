@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use App\Collections\ForumCollection;
 use App\Collections\GameCollection;
 use App\Config\Interfaces\GameConfigInterface;
 use App\Models\Forum;
@@ -68,15 +67,19 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
             ->one();
     }
 
-    public function getByName(string $name) : ?Game
+    public function getByName(?string $name) : ?Game
     {
+        if (strlen($name) == 0) {
+            return null;
+        }
+
         return $this
             ->query()
             ->where('name', $name)
             ->one();
     }
 
-    public function getByTwitchName(string $name) : ?Game
+    public function getByTwitchName(?string $name) : ?Game
     {
         return $this->getByName($name) ?? $this->getDefault();
     }
