@@ -14,6 +14,7 @@ use App\Hydrators\ForumMemberHydrator;
 use App\Hydrators\ForumTopicHydrator;
 use App\Hydrators\GalleryPictureHydrator;
 use App\Hydrators\GameHydrator;
+use App\Hydrators\MenuHydrator;
 use App\Hydrators\NewsHydrator;
 use App\Hydrators\RecipeHydrator;
 use App\Hydrators\RegionHydrator;
@@ -45,6 +46,8 @@ use App\Repositories\GalleryAuthorRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\GameRepository;
 use App\Repositories\LocationRepository;
+use App\Repositories\MenuItemRepository;
+use App\Repositories\MenuRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\RecipeRepository;
 use App\Repositories\RecipeSourceRepository;
@@ -70,6 +73,7 @@ use App\Services\TwitterService;
 use Plasticode\Config\Bootstrap as BootstrapBase;
 use Plasticode\Gallery\Gallery;
 use Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy;
+use Plasticode\Hydrators\MenuItemHydrator;
 use Plasticode\ObjectProxy;
 use Plasticode\Parsing\LinkMapperSource;
 use Psr\Container\ContainerInterface as CI;
@@ -228,6 +232,26 @@ class Bootstrap extends BootstrapBase
         $map['locationRepository'] = fn (CI $c) =>
             new LocationRepository(
                 $c->repositoryContext
+            );
+
+        $map['menuItemRepository'] = fn (CI $c) =>
+            new MenuItemRepository(
+                $c->repositoryContext,
+                new MenuItemHydrator(
+                    $c->linker
+                )
+            );
+
+        $map['menuRepository'] = fn (CI $c) =>
+            new MenuRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new MenuHydrator(
+                        $c->menuItemRepository,
+                        $c->linker
+                    )
+                )
             );
 
         $map['newsRepository'] = fn (CI $c) =>

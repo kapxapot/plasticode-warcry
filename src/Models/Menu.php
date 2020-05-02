@@ -2,19 +2,23 @@
 
 namespace App\Models;
 
-use Plasticode\Query;
+use App\Collections\MenuItemCollection;
 use Plasticode\Models\Menu as MenuBase;
 
+/**
+ * @property integer $gameId
+ * @method Game game()
+ * @method MenuItemCollection items()
+ * @method static withGame(Game|callable $game)
+ * @method static withItems(MenuItemCollection|callable $items)
+ */
 class Menu extends MenuBase
 {
-    public static function getByGame($gameId) : Query
+    protected function requiredWiths(): array
     {
-        return self::query()
-            ->where('game_id', $gameId);
-    }
-
-    public function game()
-    {
-        return Game::get($this->gameId);
+        return [
+            ...parent::requiredWiths(),
+            'game',
+        ];
     }
 }

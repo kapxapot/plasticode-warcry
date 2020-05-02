@@ -3,6 +3,7 @@
 namespace App\Testing\Mocks\Repositories;
 
 use App\Collections\GameCollection;
+use App\Models\Forum;
 use App\Models\Game;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Testing\Seeders\Interfaces\ArraySeederInterface;
@@ -55,5 +56,29 @@ class GameRepositoryMock implements GameRepositoryInterface
     function getByTwitchName(string $name) : ?Game
     {
         return $this->getByName($name) ?? $this->getDefault();
+    }
+
+    /**
+     * Returns game by forum (going up in the forum tree).
+     * If not found returns the default game.
+     */
+    public function getByForum(Forum $forum) : ?Game
+    {
+        return $this
+            ->games
+            ->first(
+                fn (Game $g) => $forum->belongsToGame($g)
+            )
+            ?? $this->getDefault();
+    }
+
+    /**
+     * Returns game's sub-tree or all games (if the game is null).
+     */
+    public function getSubTreeOrAll(?Game $game) : GameCollection
+    {
+        return $game
+            ? $game->subTree()
+            : $this->getAll();
     }
 }
