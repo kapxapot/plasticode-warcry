@@ -5,9 +5,8 @@ namespace App\Repositories\Interfaces;
 use App\Collections\NewsSourceCollection;
 use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
-use Plasticode\Repositories\Interfaces\SearchableRepositoryInterface;
 
-interface NewsSourceRepositoryInterface extends SearchableRepositoryInterface
+interface NewsSourceRepositoryInterface
 {
     function getNewsByTag(string $tag, int $limit = 0) : NewsSourceCollection;
 

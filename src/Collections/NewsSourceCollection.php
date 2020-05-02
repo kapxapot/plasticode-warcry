@@ -6,7 +6,7 @@ use App\Models\Interfaces\NewsSourceInterface;
 use Plasticode\TypedCollection;
 use Plasticode\Util\Sort;
 
-abstract class NewsSourceCollection extends TypedCollection
+class NewsSourceCollection extends TypedCollection
 {
     protected string $class = NewsSourceInterface::class;
 

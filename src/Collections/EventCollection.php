@@ -3,9 +3,8 @@
 namespace App\Collections;
 
 use App\Models\Event;
-use Plasticode\TypedCollection;
 
-class EventCollection extends TypedCollection
+class EventCollection extends NewsSourceCollection
 {
     protected string $class = Event::class;
 

@@ -12,7 +12,7 @@ class Menu extends MenuBase
         return self::query()
             ->where('game_id', $gameId);
     }
-    
+
     public function game()
     {
         return Game::get($this->gameId);

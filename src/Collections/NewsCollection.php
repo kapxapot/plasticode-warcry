@@ -3,9 +3,8 @@
 namespace App\Collections;
 
 use App\Models\News;
-use Plasticode\TypedCollection;
 
-class NewsCollection extends TypedCollection
+class NewsCollection extends NewsSourceCollection
 {
     protected string $class = News::class;
 }

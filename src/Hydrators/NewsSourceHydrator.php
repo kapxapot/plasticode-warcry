@@ -5,13 +5,13 @@ namespace App\Hydrators;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\NewsSource;
 use App\Repositories\Interfaces\GameRepositoryInterface;
-use App\Repositories\Interfaces\UserRepositoryInterface;
 use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\Hydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Parsing\Parsers\CutParser;
 use Plasticode\Parsing\ParsingContext;
+use Plasticode\Repositories\Interfaces\UserRepositoryInterface;
 
 abstract class NewsSourceHydrator extends Hydrator
 {

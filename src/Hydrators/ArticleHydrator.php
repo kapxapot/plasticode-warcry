@@ -7,11 +7,11 @@ use App\Models\Article;
 use App\Repositories\Interfaces\ArticleCategoryRepositoryInterface;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\GameRepositoryInterface;
-use App\Repositories\Interfaces\UserRepositoryInterface;
 use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Parsing\Parsers\CutParser;
+use Plasticode\Repositories\Interfaces\UserRepositoryInterface;
 
 class ArticleHydrator extends NewsSourceHydrator
 {

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Collections\NewsSourceCollection;
 use App\Core\Interfaces\LinkerInterface;
-use App\Models\ForumTopic;
 use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
 use App\Models\NewsYear;

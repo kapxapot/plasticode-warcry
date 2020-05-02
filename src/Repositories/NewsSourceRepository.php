@@ -11,8 +11,9 @@ use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
 use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository;
+use Plasticode\Repositories\Interfaces\SearchableRepositoryInterface;
 
-abstract class NewsSourceRepository extends TaggedRepository implements NewsSourceRepositoryInterface
+abstract class NewsSourceRepository extends TaggedRepository implements NewsSourceRepositoryInterface, SearchableRepositoryInterface
 {
     use ByGameRepository;
     use FullPublishedRepository;
@@ -20,6 +21,8 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
 
     protected string $sortField = 'published_at';
     protected bool $sortReverse = true;
+
+    // NewsSourceRepositoryInterface
 
     public function getNewsByTag(
         string $tag,
@@ -97,6 +100,10 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
     {
         return $this->getProtectedEntity($id);
     }
+
+    // SearchableRepositoryInterface
+
+    abstract public function search(string $searchQuery) : NewsSourceCollection;
 
     // queries
 

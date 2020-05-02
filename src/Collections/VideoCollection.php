@@ -3,9 +3,8 @@
 namespace App\Collections;
 
 use App\Models\Video;
-use Plasticode\TypedCollection;
 
-class VideoCollection extends TypedCollection
+class VideoCollection extends NewsSourceCollection
 {
     protected string $class = Video::class;
 }
