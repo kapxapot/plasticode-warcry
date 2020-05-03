@@ -38,7 +38,7 @@ class GalleryAuthor extends DbModel
                 $groups[] = [
                     'id' => $cat->alias,
                     'label' => $cat->name,
-                    'values' => $cat->authors()->multiSort($sorts),
+                    'values' => $cat->authors()->sort(...$sorts),
                 ];
             }
         }

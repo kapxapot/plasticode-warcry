@@ -140,11 +140,9 @@ class ArticleRepository extends NewsSourceRepository implements ArticleRepositor
                 ->publishedQuery()
                 ->search($searchQuery, '(name_en like ? or name_ru like ?)', 2)
                 ->all()
-                ->multiSort(
-                    [
-                        SortStep::byField('name_ru', Sort::STRING),
-                        SortStep::byField('category', Sort::NULL),
-                    ]
+                ->sortBy(
+                    SortStep::byField('name_ru', Sort::STRING),
+                    SortStep::byField('category', Sort::NULL)
                 )
         );
     }

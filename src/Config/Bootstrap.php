@@ -226,6 +226,8 @@ class Bootstrap extends BootstrapBase
                 new ObjectProxy(
                     fn () =>
                     new GameHydrator(
+                        $c->forumRepository,
+                        $c->gameRepository
                     )
                 )
             );
@@ -574,7 +576,6 @@ class Bootstrap extends BootstrapBase
 
         $map['gameService'] = fn (CI $c) =>
             new GameService(
-                $c->gameRepository,
                 $c->config
             );
 

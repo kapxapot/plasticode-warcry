@@ -69,13 +69,15 @@ class Stream extends DbModel implements TaggedInterface
         ];
     }
 
-    public function belongsToGame(Game $game) : bool
+    /**
+     * Checks if the stream's game relates to a given game.
+     */
+    public function relatesToGame(Game $game) : bool
     {
-        if (is_null($game) || is_null($this->game())) {
-            return false;
-        }
-
-        return $game->root()->trunkContains($this->game());
+        return
+            $game
+            && $this->game()
+            && $this->game()->relatesToGame($game);
     }
 
     public function isTop() : bool

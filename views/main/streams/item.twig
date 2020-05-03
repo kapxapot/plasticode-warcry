@@ -115,7 +115,7 @@
                 {% if stats.logs %}
                     <div role="tabpanel" class="tab-pane fade linkblock-big linkblock--spaced" id="log">
                         {% for log in stats.logs %}
-                            <div class="icon-lg{% if not log.game.default %} icon-{{ log.game.result_alias }}-lg{% endif %} flex flex-v">
+                            <div class="icon-lg{% if not log.game.is_default %} icon-{{ log.game.result_alias }}-lg{% endif %} flex flex-v">
                                 <div class="linkblock-title">{{ log.remote_game }}</div>
                                 <div>{{ log.display_remote_status }}</div>
                                 <div class="linkblock-subtext" title="{{ log.start_iso }} - {{ log.end_iso }}">

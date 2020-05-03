@@ -56,12 +56,11 @@ class StreamStatService
                 $games
             );
 
-            $steps = [
+            $games = Sort::byMany(
+                $games,
                 SortStep::desc('priority'),
-                SortStep::desc('percent'),
-            ];
-
-            $games = Sort::multi($games, $steps);
+                SortStep::desc('percent')
+            );
 
             $blizzardTotal = 0;
 
@@ -114,10 +113,12 @@ class StreamStatService
                     return $s;
                 }
             );
-            
+
         if ($lastMonthStats->any()) {
             $stats['daily'] = $this->buildDailyStats(
-                $lastMonthStats, $monthStart, $now
+                $lastMonthStats,
+                $monthStart,
+                $now
             );
 
             $stats['logs'] = $this->buildLogs($lastMonthStats);
@@ -125,7 +126,7 @@ class StreamStatService
 
         return $stats;
     }
-    
+
     private function buildGameStats($latest, \DateTime $start, \DateTime $end)
     {
         $gamely = [];

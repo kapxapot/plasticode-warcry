@@ -81,4 +81,13 @@ class GameRepositoryMock implements GameRepositoryInterface
             ? $game->subTree()
             : $this->getAll();
     }
+
+    public function getChildren(Game $parent) : GameCollection
+    {
+        return $this
+            ->games
+            ->where(
+                fn (Game $g) => $g->parentId == $parent->getId()
+            );
+    }
 }

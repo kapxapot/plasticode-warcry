@@ -74,16 +74,14 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
                 || Date::dt($p->publishedAt) == Date::dt($pic->publishedAt)
                 && $p->getId() < $pic->getId()
             )
-            ->multiSort(
-                [
-                    SortStep::byFuncDesc(
-                        fn (GalleryPicture $p) => $p->publishedAt,
-                        Sort::DATE
-                    ),
-                    SortStep::byFuncDesc(
-                        fn (GalleryPicture $p) => $p->id 
-                    ),
-                ]
+            ->sortBy(
+                SortStep::byFuncDesc(
+                    fn (GalleryPicture $p) => $p->publishedAt,
+                    Sort::DATE
+                ),
+                SortStep::byFuncDesc(
+                    fn (GalleryPicture $p) => $p->id 
+                )
             );
     }
 
@@ -100,16 +98,14 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
                 || Date::dt($p->publishedAt) == Date::dt($pic->publishedAt)
                 && $p->getId() > $pic->getId()
             )
-            ->multiSort(
-                [
-                    SortStep::byFunc(
-                        fn (GalleryPicture $p) => $p->publishedAt,
-                        Sort::DATE
-                    ),
-                    SortStep::byFunc(
-                        fn (GalleryPicture $p) => $p->id 
-                    ),
-                ]
+            ->sortBy(
+                SortStep::byFunc(
+                    fn (GalleryPicture $p) => $p->publishedAt,
+                    Sort::DATE
+                ),
+                SortStep::byFunc(
+                    fn (GalleryPicture $p) => $p->id 
+                )
             );
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Interfaces\NewsSourceInterface;
+use App\Models\Traits\Linkable;
 use Plasticode\Collections\TagLinkCollection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\SearchableInterface;
@@ -21,18 +22,17 @@ use Plasticode\Parsing\ParsingContext;
  * @method static withParsed(ParsingContext|callable|null $parsed)
  * @method static withShortText(string|callable|null $shortText)
  * @method static withTagLinks(TagLinkCollection|callable $tagLinks)
- * @method static withUrl(string|callable|null $url)
  */
 abstract class NewsSource extends DbModel implements NewsSourceInterface, SearchableInterface
 {
     use FullPublished;
+    use Linkable;
     use Stamps;
     use Tagged;
 
     private string $gamePropertyName = 'game';
     private string $fullTextPropertyName = 'fullText';
     private string $shortTextPropertyName = 'shortText';
-    private string $urlPropertyName = 'url';
 
     protected function requiredWiths(): array
     {
@@ -111,13 +111,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
     }
 
     // LinkableInterface
-
-    public function url() : ?string
-    {
-        return $this->getWithProperty(
-            $this->urlPropertyName
-        );
-    }
+    // implemented in Linkable trait
 
     // TaggedInterface
     // implemented in Tagged trait

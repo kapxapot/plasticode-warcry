@@ -18,7 +18,7 @@ class NewsYear extends Model implements LinkableInterface
         $this->url = $url;
     }
 
-    public function url() : string
+    public function url() : ?string
     {
         return $this->url;
     }

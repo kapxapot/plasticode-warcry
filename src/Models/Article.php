@@ -19,8 +19,8 @@ use Plasticode\Util\Strings;
  * @property string|null $text
  * @method ArticleCategory|null category()
  * @method ArticleCollection children()
- * @method self withCategory(ArticleCategory|callable|null $category)
- * @method self withChildren(ArticleCollection|callable $children)
+ * @method static withCategory(ArticleCategory|callable|null $category)
+ * @method static withChildren(ArticleCollection|callable $children)
  */
 class Article extends NewsSource
 {
@@ -30,8 +30,8 @@ class Article extends NewsSource
     {
         return [
             ...parent::requiredWiths(),
-            'children',
-            'parent',
+            $this->childrenPropertyName,
+            $this->parentPropertyName,
             'category',
         ];
     }

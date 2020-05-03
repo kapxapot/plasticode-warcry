@@ -54,7 +54,7 @@
 {% macro breadcrumbs(context, title, data = null) %}
     {% import 'main/macros.twig' as m %}
     {% set items = context.breadcrumbs %}
-    {% if not context.menu_game.default %}
+    {% if not context.menu_game.is_default %}
         {% set game_items = [ { 'url': context.menu_game.url, 'text': context.menu_game.name } ] %}
         {% set items = items ? game_items|merge(items) : game_items %}
     {% endif %}

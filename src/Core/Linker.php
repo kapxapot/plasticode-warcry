@@ -39,7 +39,7 @@ class Linker extends LinkerBase implements LinkerInterface
     /**
      * Get article link.
      *
-     * @param int|string $id
+     * @param int|string|null $id
      */
     public function article($id = null, ?string $cat = null) : string
     {
@@ -79,7 +79,7 @@ class Linker extends LinkerBase implements LinkerInterface
     {
         $params = [];
 
-        if ($game && !$game->default()) {
+        if ($game && !$game->isDefault()) {
             $params['game'] = $game->alias;
         }
 

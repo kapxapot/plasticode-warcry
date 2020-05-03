@@ -5,12 +5,12 @@ namespace App\Hydrators;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Stream;
 use App\Repositories\Interfaces\GameRepositoryInterface;
-use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\GameService;
 use App\Services\StreamService;
 use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\Hydrator;
 use Plasticode\Models\DbModel;
+use Plasticode\Repositories\Interfaces\UserRepositoryInterface;
 
 class StreamHydrator extends Hydrator
 {

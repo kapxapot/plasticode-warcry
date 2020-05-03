@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Collections\ForumCollection;
 use App\Collections\GameCollection;
-use Plasticode\Collection;
+use App\Models\Traits\Linkable;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
+use Plasticode\Models\Traits\Parented;
 use Plasticode\Models\Traits\Published;
 
 /**
@@ -18,62 +20,39 @@ use Plasticode\Models\Traits\Published;
  * @property integer|null $parentId
  * @property integer|null $position
  * @property string|null $twitchName
+ * @method GameCollection children()
+ * @method ForumCollection forums()
+ * @method bool isDefault()
  * @method Forum|null mainForum()
  * @method Forum|null newsForum()
+ * @method string|null resultAlias()
+ * @method string|null resultIcon()
+ * @method static withChildren(GameCollection|callable $children)
+ * @method static withForums(ForumCollection|callable $forums)
+ * @method static withIsDefault(bool|callable $isDefault)
  * @method static withMainForum(Forum|callable|null $mainForum)
  * @method static withNewsForum(Forum|callable|null $newsForum)
+ * @method static withResultAlias(string|callable|null $resultAlias)
+ * @method static withResultIcon(string|callable|null $resultIcon)
  */
 class Game extends DbModel implements LinkableInterface
 {
+    use Linkable;
+    use Parented;
     use Published;
 
-    protected static string $sortField = 'position';
-
-    // GETTERS - ONE
-    
-    public static function getRootOrDefault(int $id) : ?self
+    protected function requiredWiths(): array
     {
-        $game = self::get($id);
-        
-        return $game
-            ? $game->root()
-            : self::getDefault();
-    }
-
-    // PROPS
-    
-    /**
-     * The ultimate parent id.
-     */
-    public function rootId() : int
-    {
-        return $this->parent()
-            ? $this->parent()->rootId()
-            : $this->id;
-    }
-
-    /**
-     * The ultimate parent game.
-     */
-    public function root() : self
-    {
-        return self::get($this->rootId());
-    }
-
-    /**
-     * Child games with all their subtrees.
-     */
-    public function subGames() : GameCollection
-    {
-        $games = GameCollection::make();
-
-        foreach ($this->children() as $child) {
-            $games = $games->concat(
-                $child->subTree()
-            );
-        }
-
-        return $games;
+        return [
+            $this->childrenPropertyName,
+            $this->parentPropertyName,
+            $this->urlPropertyName,
+            'forums',
+            'mainForum',
+            'newsForum',
+            'resultAlias',
+            'resultIcon',
+        ];
     }
 
     /**
@@ -85,60 +64,32 @@ class Game extends DbModel implements LinkableInterface
     }
 
     /**
-     * Any of parents contains game?
+     * Child games with all their subtrees.
      */
-    public function trunkContains(self $game) : bool
+    public function subGames() : GameCollection
     {
-        while ($game) {
-            if ($game->id == $this->id) {
-                return true;
-            }
+        return GameCollection::from(
+            $this
+                ->children()
+                ->map(
+                    fn (Game $g) => $g->subTree()
+                )
+                ->flatten()
+        );
+    }
 
-            $game = $game->parent();
-        }
-
-        return false;
-    }
-    
-    public function default() : bool
+    /**
+     * Checks if the current game relates to a given game.
+     * 
+     * If the games have the same root, they are related.
+     */
+    public function relatesToGame(Game $game) : bool
     {
-        return $this->id == self::getDefaultId();
-    }
-    
-    public function url() : ?string
-    {
-        return self::$container->linker->game($this);
-    }
-    
-    public function resultIcon() : ?string
-    {
-        return $this->icon
-            ??
-            ($this->parent()
-                ? $this->parent()->resultIcon()
-                : null)
-            ??
-            (self::getDefault()
-                ? self::getDefault()->resultIcon()
-                : null);
-    }
-    
-    public function resultAlias() : ?string
-    {
-        return $this->alias
-            ??
-            ($this->parent()
-                ? $this->parent()->resultAlias()
-                : null)
-            ??
-            (self::getDefault()
-                ? self::getDefault()->resultAlias()
-                : null);
-    }
-    
-    public function forums() : Collection
-    {
-        return Forum::getAllByGame($this->getId());
+        return $this
+            ->root()
+            ->equals(
+                $game->root()
+            );
     }
 
     /**
@@ -156,4 +107,7 @@ class Game extends DbModel implements LinkableInterface
     {
         return '[' . $this->getId() . '] ' . $this->name;
     }
+
+    // LinkableInterface
+    // implemented in Linkable trait
 }

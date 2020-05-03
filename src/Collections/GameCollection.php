@@ -19,4 +19,11 @@ class GameCollection extends TypedCollection
                 ->clean()
         );
     }
+
+    public function contains(Game $game) : bool
+    {
+        return $this->anyFirst(
+            fn (Game $g) => $game->equals($g)
+        );
+    }
 }

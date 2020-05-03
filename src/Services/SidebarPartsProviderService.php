@@ -49,7 +49,7 @@ class SidebarPartsProviderService
                 $limit = $this->settingsProvider
                     ->get('sidebar.latest_news_limit');
 
-                $exceptNewsId = $settings['news_id'] ?? null;
+                $exceptNewsId = $settings['news_id'] ?? 0;
 
                 return $this->newsAggregatorService
                     ->getLatest($game, $limit, $exceptNewsId);
@@ -58,7 +58,7 @@ class SidebarPartsProviderService
                 $limit = $this->settingsProvider
                     ->get('sidebar.article_limit');
 
-                $exceptArticleId = $settings['article_id'] ?? null;
+                $exceptArticleId = $settings['article_id'] ?? 0;
 
                 return $this->articleRepository->getLatestNews(
                     $game,

@@ -4,6 +4,8 @@ namespace App\Collections;
 
 use App\Models\Stream;
 use Plasticode\TypedCollection;
+use Plasticode\Util\Sort;
+use Plasticode\Util\SortStep;
 
 class StreamCollection extends TypedCollection
 {
@@ -11,18 +13,16 @@ class StreamCollection extends TypedCollection
 
     public function sort() : self
     {
-        $sorts = [
-            'remote_online' => [ 'dir' => 'desc' ],
-            'official_ru' => [ 'dir' => 'desc' ],
-            'official' => [ 'dir' => 'desc' ],
-            'priority' => [ 'dir' => 'desc' ],
-            'is_top' => [ 'dir' => 'desc' ],
-            'remote_viewers' => [ 'dir' => 'desc' ],
-            'remote_online_at' => [ 'dir' => 'desc', 'type' => 'string' ],
-            'title' => [ 'dir' => 'asc', 'type' => 'string' ],
-        ];
-
-        return $this->multiSort($sorts);
+        return $this->sortBy(
+            SortStep::desc('remote_online'),
+            SortStep::desc('official_ru'),
+            SortStep::desc('official'),
+            SortStep::desc('priority'),
+            SortStep::desc('is_top'),
+            SortStep::desc('remote_viewers'),
+            SortStep::desc('remote_online_at', Sort::STRING),
+            SortStep::desc('title', Sort::STRING)
+        );
     }
 
     /**

@@ -7,15 +7,20 @@ use App\Config\Interfaces\GameConfigInterface;
 use App\Models\Forum;
 use App\Models\Game;
 use App\Repositories\Interfaces\GameRepositoryInterface;
+use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 use Plasticode\Repositories\Idiorm\Basic\RepositoryContext;
+use Plasticode\Repositories\Idiorm\Traits\ChildrenRepository;
 use Plasticode\Repositories\Idiorm\Traits\PublishedRepository;
 
 class GameRepository extends IdiormRepository implements GameRepositoryInterface
 {
+    use ChildrenRepository;
     use PublishedRepository;
 
     protected string $entityClass = Game::class;
+
+    protected string $sortField = 'position';
 
     private GameConfigInterface $config;
 
@@ -106,5 +111,16 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
         return $game
             ? $game->subTree()
             : $this->getAll();
+    }
+
+    public function getChildren(Game $parent) : GameCollection
+    {
+        return GameCollection::from(
+            $this
+                ->query()
+                ->apply(
+                    fn (Query $q) => $this->filterByParent($q, $parent->getId())
+                )
+        );
     }
 }

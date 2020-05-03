@@ -37,7 +37,7 @@ class ComicSeries extends DbModel
             'last_issued_on' => [ 'dir' => 'desc', 'type' => 'string' ],
         ];
         
-        return self::getAll()->multiSort($sorts);
+        return self::getAll()->sort(...$sorts);
     }
     
     // PROPS

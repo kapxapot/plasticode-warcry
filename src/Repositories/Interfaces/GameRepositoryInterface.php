@@ -26,4 +26,6 @@ interface GameRepositoryInterface
      * Returns game's sub-tree or all games (if the game is null).
      */
     function getSubTreeOrAll(?Game $game) : GameCollection;
+
+    function getChildren(Game $parent) : GameCollection;
 }
