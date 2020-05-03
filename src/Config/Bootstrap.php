@@ -227,7 +227,9 @@ class Bootstrap extends BootstrapBase
                     fn () =>
                     new GameHydrator(
                         $c->forumRepository,
-                        $c->gameRepository
+                        $c->gameRepository,
+                        $c->linker,
+                        $c->gameService
                     )
                 )
             );
@@ -576,6 +578,7 @@ class Bootstrap extends BootstrapBase
 
         $map['gameService'] = fn (CI $c) =>
             new GameService(
+                $c->gameRepository,
                 $c->config
             );
 
