@@ -15,6 +15,17 @@ class GameRepositoryMock implements GameRepositoryInterface
     public function __construct(ArraySeederInterface $seeder)
     {
         $this->games = GameCollection::make($seeder->seed());
+
+        $this->hydrate();
+    }
+
+    private function hydrate() : void
+    {
+        $this
+            ->games
+            ->apply(
+                fn (Game $g) => $g->withChildren($this->getChildren($g))
+            );
     }
 
     public function get(?int $id) : ?Game

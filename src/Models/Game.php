@@ -71,10 +71,9 @@ class Game extends DbModel implements LinkableInterface
         return GameCollection::from(
             $this
                 ->children()
-                ->map(
+                ->flatMap(
                     fn (Game $g) => $g->subTree()
                 )
-                ->flatten()
         );
     }
 
