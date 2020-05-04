@@ -4,9 +4,9 @@ namespace App\Models;
 
 use App\Collections\ForumCollection;
 use App\Collections\GameCollection;
-use App\Models\Traits\Linkable;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
+use Plasticode\Models\Traits\Linkable;
 use Plasticode\Models\Traits\Parented;
 use Plasticode\Models\Traits\Published;
 

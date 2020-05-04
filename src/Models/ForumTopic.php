@@ -4,8 +4,8 @@ namespace App\Models;
 
 use App\Collections\ForumTagCollection;
 use App\Models\Interfaces\NewsSourceInterface;
-use Plasticode\Collection;
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Traits\Linkable;
 use Plasticode\Models\Traits\Tagged;
 use Plasticode\Util\Arrays;
 use Plasticode\Util\Date;
@@ -32,10 +32,10 @@ use Plasticode\Util\Date;
  * @method static withShortText(string|callable|null $shortText)
  * @method static withStarterForumMember(ForumMember|callable|null $forumMember)
  * @method static withTags(ForumTagCollection|callable $tags)
- * @method static withUrl(string|callable|null $url)
  */
 class ForumTopic extends DbModel implements NewsSourceInterface
 {
+    use Linkable;
     use Tagged;
 
     private const TIME_FORMAT = '%Y-%m-%d %H:%M:%S';
@@ -46,7 +46,6 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     private string $fullTextPropertyName = 'fullText';
     private string $gamePropertyName = 'game';
     private string $shortTextPropertyName = 'shortText';
-    private string $urlPropertyName = 'url';
 
     protected function requiredWiths(): array
     {
@@ -126,13 +125,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     }
 
     // LinkableInterface
-
-    public function url() : ?string
-    {
-        return $this->getWithProperty(
-            $this->urlPropertyName
-        );
-    }
+    // implemented in Linkable trait
 
     // NewsSourceInterface
 

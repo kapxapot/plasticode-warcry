@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use App\Models\Interfaces\NewsSourceInterface;
-use App\Models\Traits\Linkable;
 use Plasticode\Collections\TagLinkCollection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\SearchableInterface;
 use Plasticode\Models\Traits\FullPublished;
+use Plasticode\Models\Traits\Linkable;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tagged;
 use Plasticode\Parsing\ParsingContext;
