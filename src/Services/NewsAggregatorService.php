@@ -8,7 +8,8 @@ use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
 use App\Models\NewsYear;
 use App\Repositories\Interfaces\NewsSourceRepositoryInterface as SrcRepoInterface;
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
+use Plasticode\Collections\Basic\ScalarCollection;
 use Plasticode\Util\Date;
 use Webmozart\Assert\Assert;
 
@@ -213,13 +214,7 @@ class NewsAggregatorService
     {
         return $this
             ->getAllRaw($strict)
-            ->map(
-                fn (NewsSourceInterface $item) =>
-                Date::year(
-                    $item->publishedAtIso()
-                )
-            )
-            ->distinct()
+            ->years()
             ->map(
                 fn (int $y) =>
                 new NewsYear(

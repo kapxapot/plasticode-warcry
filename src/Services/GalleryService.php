@@ -2,55 +2,52 @@
 
 namespace App\Services;
 
+use App\Collections\GalleryPictureCollection;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
-use Plasticode\Query;
-use Plasticode\Collection;
+use App\Models\Game;
 use Plasticode\Util\Date;
 
 class GalleryService
 {
-    private $pageSize;
-    
+    private int $pageSize;
+
     public function __construct(int $pageSize)
     {
         $this->pageSize = $pageSize;
     }
-    
-    public function getAddedPicturesSliceByAuthor($game, \DateTime $start, \DateTime $end) : array
+
+    public function getAddedPicturesSliceByAuthor(
+        ?Game $game,
+        \DateTime $start,
+        \DateTime $end
+    ) : array
     {
-        $slices = $this->getAddedPicturesSlice($game, $start, $end)
+        $slices = $this
+            ->getAddedPicturesSlice($game, $start, $end)
             ->group('author_id');
-        
+
         $result = [];
-        
+
         foreach ($slices as $authorId => $pictures) {
             $result[] = [
                 'author' => GalleryAuthor::get($authorId),
                 'pictures' => $pictures,
             ];
         }
-        
+
         return $result;
     }
-    
-    public function getAddedPicturesSlice($game, \DateTime $start, \DateTime $end) : Collection
+
+    public function getAddedPicturesSlice(
+        ?Game $game,
+        \DateTime $start,
+        \DateTime $end
+    ) : GalleryPictureCollection
     {
         return GalleryPicture::getByGame($game)
             ->whereGt('published_at', Date::formatDb($start))
             ->whereLt('published_at', Date::formatDb($end))
             ->all();
-    }
-    
-    public function getPage(Query $query, int $page = 1, int $pageSize = 0) : Query
-    {
-        if ($page <= 0) {
-            $page = 1;
-        }
-        
-        $limit = ($pageSize > 0) ? $pageSize : $this->pageSize;
-        $offset = ($page - 1) * $limit;
-
-        return $query->slice($offset, $limit);
     }
 }

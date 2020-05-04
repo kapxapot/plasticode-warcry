@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\Names;
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublished;

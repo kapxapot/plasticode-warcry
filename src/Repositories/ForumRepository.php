@@ -27,7 +27,7 @@ class ForumRepository extends IdiormRepository implements ForumRepositoryInterfa
     public function getAll() : ForumCollection
     {
         return ForumCollection::from(
-            $this->query()
+            parent::getAll()
         );
     }
 

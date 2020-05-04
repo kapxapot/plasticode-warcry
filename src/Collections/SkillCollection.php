@@ -3,9 +3,9 @@
 namespace App\Collections;
 
 use App\Models\Skill;
-use Plasticode\TypedCollection;
+use Plasticode\Collections\Basic\DbModelCollection;
 
-class SkillCollection extends TypedCollection
+class SkillCollection extends DbModelCollection
 {
     protected string $class = Skill::class;
 }

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Description;
@@ -10,7 +10,6 @@ use Plasticode\Models\Traits\Published;
 use Plasticode\Util\Strings;
 
 /**
- * @property integer $id
  * @property string $alias
  * @property integer $categoryId
  * @property string $name

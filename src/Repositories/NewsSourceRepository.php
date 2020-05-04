@@ -11,9 +11,8 @@ use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
 use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository;
-use Plasticode\Repositories\Interfaces\SearchableRepositoryInterface;
 
-abstract class NewsSourceRepository extends TaggedRepository implements NewsSourceRepositoryInterface, SearchableRepositoryInterface
+abstract class NewsSourceRepository extends TaggedRepository implements NewsSourceRepositoryInterface
 {
     use ByGameRepository;
     use FullPublishedRepository;
@@ -98,12 +97,10 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
 
     public function getNews(?int $id) : ?NewsSourceInterface
     {
-        return $this->getProtectedEntity($id);
+        return $this->getProtected($id);
     }
 
-    // SearchableRepositoryInterface
-
-    abstract public function search(string $searchQuery) : NewsSourceCollection;
+    abstract function getProtected(?int $id) : ?NewsSourceInterface;
 
     // queries
 

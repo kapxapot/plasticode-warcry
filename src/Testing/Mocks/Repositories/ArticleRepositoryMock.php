@@ -29,6 +29,12 @@ class ArticleRepositoryMock extends NewsSourceRepositoryMock implements ArticleR
         return $this->articles->first('id', $id);
     }
 
+    public function getProtected(?int $id) : ?Article
+    {
+        // placeholder (!)
+        return $this->get($id);
+    }
+
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
     {
         return

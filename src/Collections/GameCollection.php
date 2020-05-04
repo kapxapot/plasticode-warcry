@@ -3,9 +3,9 @@
 namespace App\Collections;
 
 use App\Models\Game;
-use Plasticode\TypedCollection;
+use Plasticode\Collections\Basic\DbModelCollection;
 
-class GameCollection extends TypedCollection
+class GameCollection extends DbModelCollection
 {
     protected string $class = Game::class;
 

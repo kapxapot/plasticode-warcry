@@ -4,9 +4,9 @@ namespace App\Collections;
 
 use App\Models\Forum;
 use App\Models\Game;
-use Plasticode\TypedCollection;
+use Plasticode\Collections\Basic\DbModelCollection;
 
-class ForumCollection extends TypedCollection
+class ForumCollection extends DbModelCollection
 {
     protected string $class = Forum::class;
 

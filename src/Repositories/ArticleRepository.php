@@ -48,6 +48,11 @@ class ArticleRepository extends NewsSourceRepository implements ArticleRepositor
         return $this->getEntity($id);
     }
 
+    public function getProtected(?int $id) : ?Article
+    {
+        return $this->getProtectedEntity($id);
+    }
+
     public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
     {
         return

@@ -605,6 +605,9 @@ class Bootstrap extends BootstrapBase
 
         $map['searchService'] = fn (CI $c) =>
             new SearchService(
+                $c->articleRepository,
+                $c->eventRepository,
+                $c->newsRepository,
                 $c->tagRepository,
                 $c->linker
             );

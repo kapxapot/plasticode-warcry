@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 
 class ComicStandalone extends Comic
 {

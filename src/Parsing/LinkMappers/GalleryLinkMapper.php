@@ -6,21 +6,17 @@ use App\Core\Interfaces\LinkerInterface;
 use App\Core\Interfaces\RendererInterface;
 use App\Parsing\LinkMappers\Basic\TaggedLinkMapper;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\Parsing\SlugChunk;
 use Plasticode\Util\Strings;
 
 class GalleryLinkMapper extends TaggedLinkMapper
 {
-    /** @var integer */
     private const DefaultMaxPictures = 5;
 
-    /** @var SettingsProviderInterface */
-    private $settingsProvider;
-
-    /** @var GalleryPictureRepositoryInterface */
-    private $galleryPictureRepository;
+    private SettingsProviderInterface $settingsProvider;
+    private GalleryPictureRepositoryInterface $galleryPictureRepository;
 
     public function __construct(
         SettingsProviderInterface $settingsProvider,
@@ -43,7 +39,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
     public function mapSlug(SlugChunk $slugChunk, array $otherChunks) : ?string
     {
         $pictures = Collection::empty();
-        
+
         $slug = $slugChunk->slug();
         $ids = Strings::explode($slug);
 
@@ -53,7 +49,6 @@ class GalleryLinkMapper extends TaggedLinkMapper
             self::DefaultMaxPictures
         );
 
-        /** @var boolean */
         $gridMode = false;
 
         /** @var string|null */
@@ -64,7 +59,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
                 $maxPictures = intval($chunk);
                 continue;
             }
-            
+
             if (mb_strtolower($chunk) == 'grid') {
                 $gridMode = true;
             }
@@ -75,14 +70,14 @@ class GalleryLinkMapper extends TaggedLinkMapper
                 $pictures = $this
                     ->galleryPictureRepository
                     ->getAllByTag($id, $maxPictures);
-                
+
                 $inlineTag = $id;
 
                 break;
             }
-            
+
             $pic = $this->galleryPictureRepository->get($id);
-            
+
             if ($pic) {
                 $pictures = $pictures->add($pic);
             }

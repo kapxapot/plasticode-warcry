@@ -7,7 +7,7 @@ use App\Models\Stream;
 use App\Models\StreamStat;
 use App\Repositories\Interfaces\StreamRepositoryInterface;
 use App\Repositories\Interfaces\StreamStatRepositoryInterface;
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Core\Interfaces\CacheInterface;
 use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\External\Telegram;
@@ -18,43 +18,25 @@ use Psr\Log\LoggerInterface;
 
 class UpdateStreamsJob
 {
-    /** @var SettingsProviderInterface */
-    private $settingsProvider;
+    private SettingsProviderInterface $settingsProvider;
+    private CacheInterface $cache;
+    private LinkerInterface $linker;
+    private Twitch $twitch;
+    private Telegram $telegram;
+    private LoggerInterface $logger;
 
-    /** @var CacheInterface */
-    private $cache;
-
-    /** @var LinkerInterface */
-    private $linker;
-
-    /** @var Twitch */
-    private $twitch;
-
-    /** @var Telegram */
-    private $telegram;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var StreamRepositoryInterface */
-    private $streamRepository;
-
-    /** @var StreamStatRepositoryInterface */
-    private $streamStatRepository;
+    private StreamRepositoryInterface $streamRepository;
+    private StreamStatRepositoryInterface $streamStatRepository;
 
     /**
      * Send notification or not (Telegram, Twitter, etc.)
-     *
-     * @var boolean
      */
-    private $notify;
+    private bool $notify;
 
     /**
      * Log or not
-     *
-     * @var boolean
      */
-    private $log;
+    private bool $log;
     
     public function __construct(
         SettingsProviderInterface $settingsProvider,
@@ -85,12 +67,11 @@ class UpdateStreamsJob
     
     public function run() : Collection
     {
-        return Stream::getPublished()
-            ->all()
+        return $this
+            ->streamRepository
+            ->getAllPublished()
             ->map(
-                function ($s) {
-                    return $this->updateStream($s);
-                }
+                fn (Stream $s) => $this->updateStream($s)
             );
     }
     
@@ -161,7 +142,7 @@ class UpdateStreamsJob
             'message' => $message,
         ];
     }
-    
+
     private function getGameData(string $id) : array
     {
         return $this->cache->getCached(

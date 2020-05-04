@@ -9,18 +9,12 @@ use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
 use App\Models\GalleryPicture;
 use App\Models\Video;
-use Plasticode\Collection;
 
 class TagPartsProviderService
 {
-    /** @var GalleryService */
-    private $galleryService;
-
-    /** @var NewsAggregatorService */
-    private $newsAggregatorService;
-
-    /** @var StreamService */
-    private $streamService;
+    private GalleryService $galleryService;
+    private NewsAggregatorService $newsAggregatorService;
+    private StreamService $streamService;
 
     public function __construct(
         GalleryService $galleryService,
@@ -33,13 +27,13 @@ class TagPartsProviderService
         $this->streamService = $streamService;
     }
 
-    public function getParts($tag)
+    public function getParts(string $tag) : array
     {
         $picturesQuery = GalleryPicture::getByTag($tag);
         $pictures = $this->galleryService->getPage($picturesQuery)->all();
-        
+
         $parts = [];
-        
+
         $groups = [
             [
                 'id' => 'news',

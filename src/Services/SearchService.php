@@ -5,82 +5,102 @@ namespace App\Services;
 use App\Models\Article;
 use App\Models\Event;
 use App\Models\News;
-use Plasticode\Collection;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Repositories\Interfaces\EventRepositoryInterface;
+use App\Repositories\Interfaces\NewsRepositoryInterface;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Core\Interfaces\LinkerInterface;
 use Plasticode\Models\Tag;
 use Plasticode\Repositories\Interfaces\TagRepositoryInterface;
 
 class SearchService
 {
-    /** @var TagRepositoryInterface */
-    private $tagRepository;
+    private ArticleRepositoryInterface $articleRepository;
+    private EventRepositoryInterface $eventRepository;
+    private NewsRepositoryInterface $newsRepository;
+    private TagRepositoryInterface $tagRepository;
 
-    /** @var LinkerInterface $linker */
-    private $linker;
-    
+    private LinkerInterface $linker;
+
     public function __construct(
+        ArticleRepositoryInterface $articleRepository,
+        EventRepositoryInterface $eventRepository,
+        NewsRepositoryInterface $newsRepository,
         TagRepositoryInterface $tagRepository,
         LinkerInterface $linker
     )
     {
+        $this->articleRepository = $articleRepository;
+        $this->eventRepository = $eventRepository;
+        $this->newsRepository = $newsRepository;
         $this->tagRepository = $tagRepository;
+
         $this->linker = $linker;
     }
-    
-    public function search($query)
+
+    public function search($query) : Collection
     {
-        $articles = Article::search($query)
+        $articles = $this
+            ->articleRepository
+            ->search($query)
             ->map(
-                function (Article $article) {
-                    return [
-                        'type' => 'article',
-                        'data' => $article->serialize(),
-                        'text' => $article->nameRu,
-                        'code' => $article->code(),
-                        'url' => $this->linker->abs($article->url()),
-                    ];
-                }
+                fn (Article $a) =>
+                [
+                    'type' => 'article',
+                    'data' => $a->serialize(),
+                    'text' => $a->nameRu,
+                    'code' => $a->code(),
+                    'url' => $this->linker->abs($a->url()),
+                ]
             );
-        
-        $news = News::search($query)
+
+        $news = $this
+            ->newsRepository
+            ->search($query)
             ->map(
-                function (News $news) {
-                    return [
-                        'type' => 'news',
-                        'data' => $news->serialize(),
-                        'text' => $news->displayTitle(),
-                        'code' => $news->code(),
-                        'url' => $this->linker->abs($news->url()),
-                    ];
-                }
+                fn (News $n) =>
+                [
+                    'type' => 'news',
+                    'data' => $n->serialize(),
+                    'text' => $n->displayTitle(),
+                    'code' => $n->code(),
+                    'url' => $this->linker->abs($n->url()),
+                ]
             );
-        
-        $events = Event::search($query)
+
+        $events = $this
+            ->eventRepository
+            ->search($query)
             ->map(
-                function (Event $event) {
-                    return [
-                        'type' => 'event',
-                        'data' => $event->serialize(),
-                        'text' => $event->name,
-                        'code' => $event->code(),
-                        'url' => $this->linker->abs($event->url()),
-                    ];
-                }
+                fn (Event $e) =>
+                [
+                    'type' => 'event',
+                    'data' => $e->serialize(),
+                    'text' => $e->name,
+                    'code' => $e->code(),
+                    'url' => $this->linker->abs($e->url()),
+                ]
             );
-        
-        $tags = $this->tagRepository->search($query)
-            ->distinct('tag')
+
+        $tags = $this
+            ->tagRepository
+            ->search($query)
+            ->distinctBy('tag')
             ->map(
-                function (Tag $tag) {
-                    return [
-                        'type' => 'tag',
-                        'text' => $tag->tag,
-                        'code' => $tag->code(),
-                        'url' => $this->linker->abs($tag->url()),
-                    ];
-                }
+                fn (Tag $t) =>
+                [
+                    'type' => 'tag',
+                    'text' => $t->tag,
+                    'code' => $t->code(),
+                    'url' => $this->linker->abs($t->url()),
+                ]
             );
-        
-        return Collection::merge($articles, $news, $events, $tags);
+
+        return Collection::merge(
+            $articles,
+            $news,
+            $events,
+            $tags
+        );
     }
 }

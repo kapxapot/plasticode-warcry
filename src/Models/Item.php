@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Models\DbModel; 
 
 /**
- * @property integer $id
+ * @property string $icon
  * @property string $name
  * @property string|null $nameRu
- * @property string $icon
  * @property string $quality
  */
 class Item extends DbModel

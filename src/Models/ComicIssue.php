@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Query;
 
 class ComicIssue extends Comic

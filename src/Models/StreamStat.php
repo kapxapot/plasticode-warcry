@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Models\DbModel;
 use Plasticode\Util\Date;
 
@@ -10,12 +10,14 @@ class StreamStat extends DbModel
 {
     public static function fromStream(Stream $stream) : self
     {
-        return new static([
-            'stream_id' => $stream->getId(),
-            'remote_game' => $stream->remoteGame,
-            'remote_viewers' => $stream->remoteViewers,
-            'remote_status' => $stream->remoteStatus,
-        ]);
+        return new static(
+            [
+                'stream_id' => $stream->getId(),
+                'remote_game' => $stream->remoteGame,
+                'remote_viewers' => $stream->remoteViewers,
+                'remote_status' => $stream->remoteStatus,
+            ]
+        );
     }
 
     // getters - one

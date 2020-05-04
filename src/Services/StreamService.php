@@ -7,7 +7,6 @@ use App\Config\Interfaces\StreamConfigInterface;
 use App\Models\Game;
 use App\Models\Stream;
 use App\Repositories\Interfaces\StreamRepositoryInterface;
-use Plasticode\Collection;
 use Plasticode\Util\Cases;
 use Plasticode\Util\Date;
 
@@ -49,7 +48,7 @@ class StreamService
             ->groupByTabs();
     }
 
-    public function getAllOnline(?Game $game = null) : Collection
+    public function getAllOnline(?Game $game = null) : StreamCollection
     {
         $online = $this
             ->getAllSorted()
@@ -74,7 +73,7 @@ class StreamService
             ->sort();
     }
 
-    public function topOnline(?Game $game = null)
+    public function topOnline(?Game $game = null) : ?Stream
     {
         $stream = null;
 
@@ -85,7 +84,7 @@ class StreamService
         return $stream ?? $this->getAllOnline()->first();
     }
 
-    public function totalOnlineStr(?Game $game = null)
+    public function totalOnlineStr(?Game $game = null) : string
     {
         $totalOnline = $this->getAllOnline($game)->count();
 

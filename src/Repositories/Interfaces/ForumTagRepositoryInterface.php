@@ -4,10 +4,10 @@ namespace App\Repositories\Interfaces;
 
 use App\Collections\ForumTagCollection;
 use App\Models\ForumTopic;
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\ScalarCollection;
 
 interface ForumTagRepositoryInterface
 {
     function getAllByForumTopic(ForumTopic $topic) : ForumTagCollection;
-    function getForumTopicIdsByTag(string $tag) : Collection;
+    function getForumTopicIdsByTag(string $tag) : ScalarCollection;
 }

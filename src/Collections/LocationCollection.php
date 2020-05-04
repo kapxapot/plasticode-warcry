@@ -3,9 +3,9 @@
 namespace App\Collections;
 
 use App\Models\Location;
-use Plasticode\TypedCollection;
+use Plasticode\Collections\Basic\DbModelCollection;
 
-class LocationCollection extends TypedCollection
+class LocationCollection extends DbModelCollection
 {
     protected string $class = Location::class;
 }

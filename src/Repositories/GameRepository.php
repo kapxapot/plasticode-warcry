@@ -53,7 +53,7 @@ class GameRepository extends IdiormRepository implements GameRepositoryInterface
     public function getAll() : GameCollection
     {
         return GameCollection::from(
-            $this->query()
+            parent::getAll()
         );
     }
 

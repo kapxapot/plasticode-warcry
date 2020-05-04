@@ -6,7 +6,7 @@ use App\Collections\EventCollection;
 use App\Models\Event;
 use App\Models\Game;
 
-interface EventRepositoryInterface extends NewsSourceRepositoryInterface
+interface EventRepositoryInterface extends SearchableNewsSourceRepositoryInterface
 {
     function getProtected(?int $id) : ?Event;
     function getAllOrderedByStart() : EventCollection;

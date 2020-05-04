@@ -3,9 +3,9 @@
 namespace App\Collections;
 
 use App\Models\ForumTag;
-use Plasticode\TypedCollection;
+use Plasticode\Collections\Basic\DbModelCollection;
 
-class ForumTagCollection extends TypedCollection
+class ForumTagCollection extends DbModelCollection
 {
     protected string $class = ForumTag::class;
 }

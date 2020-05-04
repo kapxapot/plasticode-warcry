@@ -3,9 +3,9 @@
 namespace App\Collections;
 
 use App\Models\GalleryAuthor;
-use Plasticode\TypedCollection;
+use Plasticode\Collections\Basic\DbModelCollection;
 
-class GalleryAuthorCollection extends TypedCollection
+class GalleryAuthorCollection extends DbModelCollection
 {
     protected string $class = GalleryAuthor::class;
 }

@@ -3,9 +3,9 @@
 namespace App\Collections;
 
 use App\Models\RecipeSource;
-use Plasticode\TypedCollection;
+use Plasticode\Collections\Basic\DbModelCollection;
 
-class RecipeSourceCollection extends TypedCollection
+class RecipeSourceCollection extends DbModelCollection
 {
     protected string $class = RecipeSource::class;
 }

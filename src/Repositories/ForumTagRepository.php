@@ -6,7 +6,7 @@ use App\Collections\ForumTagCollection;
 use App\Models\ForumTag;
 use App\Models\ForumTopic;
 use App\Repositories\Interfaces\ForumTagRepositoryInterface;
-use Plasticode\Collection;
+use Plasticode\Collections\Basic\ScalarCollection;
 use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
 
@@ -23,15 +23,17 @@ class ForumTagRepository extends IdiormRepository implements ForumTagRepositoryI
         );
     }
 
-    public function getForumTopicIdsByTag(string $tag) : Collection
+    public function getForumTopicIdsByTag(string $tag) : ScalarCollection
     {
         $tag = mb_strtolower($tag);
 
-        return $this
-            ->topicQuery()
-            ->whereRaw('(lcase(tag_text) = ?)', [$tag])
-            ->all()
-            ->extract('tag_meta_id');
+        return ScalarCollection::from(
+            $this
+                ->topicQuery()
+                ->whereRaw('(lcase(tag_text) = ?)', [$tag])
+                ->all()
+                ->extract('tag_meta_id')
+        );
     }
 
     protected function topicQuery() : Query

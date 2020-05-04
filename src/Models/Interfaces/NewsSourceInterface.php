@@ -3,13 +3,12 @@
 namespace App\Models\Interfaces;
 
 use App\Models\Game;
+use Plasticode\Models\Interfaces\DbModelInterface;
 use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Interfaces\TaggedInterface;
 
-interface NewsSourceInterface extends LinkableInterface, TaggedInterface
+interface NewsSourceInterface extends DbModelInterface, LinkableInterface, TaggedInterface
 {
-    function getId() : ?int;
-
     function game() : ?Game;
     function rootGame() : ?Game;
 
