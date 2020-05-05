@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Interfaces\LinkableInterface;
+use Plasticode\Models\Traits\Linkable;
 
 /**
- * @property integer $id
  * @property integer $createsId
  * @property integer $createsMin
  * @property integer $createsMax
@@ -17,29 +18,33 @@ use Plasticode\Models\DbModel;
  * @property string $nameRu
  * @property integer $skillId
  * @property string $source
- * @method Skill skill()
- * @method string[] sources() 
- * @method string url()
- * @method self withSkill(Skill|callable $skill)
- * @method self withSources(string[]|callable $sources)
- * @method self withUrl(string|callable $url)
  * @method array baseReagents()
  * @method array link()
  * @method array reagentsList()
  * @method array requiredSkills()
- * @method self withBaseReagents(array|callable $baseReagents)
- * @method self withLink(array|callable $link)
- * @method self withReagentsList(array|callable $reagentsList)
- * @method self withRequiredSkills(array|callable $requiredSkills)
+ * @method Skill skill()
+ * @method string[] sources() 
+ * @method static withBaseReagents(array|callable $baseReagents)
+ * @method static withLink(array|callable $link)
+ * @method static withReagentsList(array|callable $reagentsList)
+ * @method static withRequiredSkills(array|callable $requiredSkills)
+ * @method static withSkill(Skill|callable $skill)
+ * @method static withSources(string[]|callable $sources)
  */
-class Recipe extends DbModel
+class Recipe extends DbModel implements LinkableInterface
 {
+    use Linkable;
+
     protected bool $built = false;
     protected bool $forceBuild = false;
 
     protected function requiredWiths(): array
     {
-        return ['url', 'sources', 'skill'];
+        return [
+            $this->urlPropertyName,
+            'sources',
+            'skill',
+        ];
     }
 
     public function title() : string

@@ -3,18 +3,19 @@
 namespace App\Models;
 
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Traits\Parented;
 
 /**
  * @property integer $parentId
  * @method Game|null game()
  * @method bool isNewsForum()
- * @method static|null parent()
  * @method static withGame(Game|callable|null $game)
  * @method static withIsNewsForum(bool|callable $isNewsForum)
- * @method static withParent(static|callable|null $parent)
  */
 class Forum extends DbModel
 {
+    use Parented;
+
     protected function requiredWiths(): array
     {
         return ['game', 'parent', 'isNewsForum'];
