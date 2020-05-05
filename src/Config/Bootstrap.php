@@ -14,6 +14,8 @@ use App\Hydrators\EventHydrator;
 use App\Hydrators\ForumHydrator;
 use App\Hydrators\ForumMemberHydrator;
 use App\Hydrators\ForumTopicHydrator;
+use App\Hydrators\GalleryAuthorCategoryHydrator;
+use App\Hydrators\GalleryAuthorHydrator;
 use App\Hydrators\GalleryPictureHydrator;
 use App\Hydrators\GameHydrator;
 use App\Hydrators\ItemHydrator;
@@ -45,6 +47,7 @@ use App\Repositories\ForumPostRepository;
 use App\Repositories\ForumRepository;
 use App\Repositories\ForumTagRepository;
 use App\Repositories\ForumTopicRepository;
+use App\Repositories\GalleryAuthorCategoryRepository;
 use App\Repositories\GalleryAuthorRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\GameRepository;
@@ -202,9 +205,30 @@ class Bootstrap extends BootstrapBase
                 )
             );
 
+        $map['galleryAuthorCategoryRepository'] = fn (CI $c) =>
+            new GalleryAuthorCategoryRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new GalleryAuthorCategoryHydrator(
+                        $c->galleryAuthorRepository
+                    )
+                )
+            );
+
         $map['galleryAuthorRepository'] = fn (CI $c) =>
             new GalleryAuthorRepository(
-                $c->repositoryContext
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new GalleryAuthorHydrator(
+                        $c->forumMemberRepository,
+                        $c->galleryAuthorCategoryRepository,
+                        $c->galleryPictureRepository,
+                        $c->linker,
+                        $c->parser
+                    )
+                )
             );
 
         $map['galleryPictureRepository'] = fn (CI $c) =>
@@ -590,7 +614,11 @@ class Bootstrap extends BootstrapBase
         $map['galleryService'] = function (CI $c) {
             $pageSize = $this->settings['gallery']['pics_per_page'];
 
-            return new GalleryService($pageSize);
+            return new GalleryService(
+                $c->galleryAuthorRepository,
+                $c->galleryPictureRepository,
+                $pageSize
+            );
         };
 
         $map['gameService'] = fn (CI $c) =>

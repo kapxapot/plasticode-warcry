@@ -33,6 +33,7 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     function recipe(int $id) : string;
     function recipes(?Skill $skill = null) : string;
 
+    function galleryAuthor(GalleryAuthor $author) : string;
     function galleryPicture(GalleryPicture $picture) : string;
     function galleryPictureImg(GalleryPicture $picture) : string;
     function galleryThumbImg(GalleryPicture $picture) : string;

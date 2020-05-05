@@ -76,6 +76,11 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/recipes/') . $skill->alias;
     }
 
+    public function galleryAuthor(GalleryAuthor $author) : string
+    {
+        return $this->abs('/gallery/') . $author()->alias;
+    }
+
     public function galleryPictureImg(GalleryPicture $picture) : string
     {
         return $this->abs('/gallery/picture/') . $picture->getId();

@@ -54,14 +54,15 @@ class GalleryPicture extends DbModel implements LinkableInterface
     protected function requiredWiths(): array
     {
         return [
+            $this->urlPropertyName,
             'author',
             'ext',
             'game',
-            //'next',
+            'next',
             'pageUrl',
-            //'prev',
+            'parsedDescription',
+            'prev',
             'thumbUrl',
-            'url'
         ];
     }
 

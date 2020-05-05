@@ -51,11 +51,17 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     {
         return [
             $this->displayTitlePropertyName,
+            $this->fullTextPropertyName,
             $this->gamePropertyName,
+            $this->shortTextPropertyName,
+            $this->tagLinksPropertyName,
             $this->urlPropertyName,
             'forum',
             'forumPost',
             'forumUrl',
+            'parsedPost',
+            'starterForumMember',
+            'tags',
         ];
     }
 

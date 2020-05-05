@@ -37,14 +37,14 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
     protected function requiredWiths(): array
     {
         return [
-            $this->gamePropertyName,
-            'parsed',
+            $this->creatorPropertyName,
             $this->fullTextPropertyName,
+            $this->gamePropertyName,
             $this->shortTextPropertyName,
             $this->tagLinksPropertyName,
-            $this->urlPropertyName,
-            $this->creatorPropertyName,
             $this->updaterPropertyName,
+            $this->urlPropertyName,
+            'parsed',
         ];
     }
 

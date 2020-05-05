@@ -11,6 +11,7 @@ use App\Repositories\Traits\ByGameRepository;
 use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
+use Plasticode\Util\Date;
 use Plasticode\Util\SortStep;
 
 class GalleryPictureRepository extends TaggedRepository implements GalleryPictureRepositoryInterface
@@ -72,16 +73,13 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
      * Returns all published pictures by game.
      */
     public function getAllByGame(
-        ?Game $game = null,
+        ?Game $game,
         int $limit = 0
     ) : GalleryPictureCollection
     {
         return GalleryPictureCollection::from(
             $this
-                ->publishedQuery()
-                ->apply(
-                    fn (Query $q) => $this->filterByGameTree($q, $game)
-                )
+                ->byGameQuery($game)
                 ->limit($limit)
         );
     }
@@ -132,6 +130,20 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
             ->one();
     }
 
+    public function getAddedPicturesSlice(
+        ?Game $game,
+        \DateTime $start,
+        \DateTime $end
+    ) : GalleryPictureCollection
+    {
+        return GalleryPictureCollection::from(
+            $this
+                ->byGameQuery($game)
+                ->whereGt('published_at', Date::formatDb($start))
+                ->whereLt('published_at', Date::formatDb($end))
+        );
+    }
+
     // queries
 
     protected function beforeQuery(GalleryPicture $pic) : Query
@@ -149,6 +161,15 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
             ->publishedQuery()
             ->apply(
                 fn (Query $q) => $this->filterAfter($q, $pic)
+            );
+    }
+
+    protected function byGameQuery(?Game $game) : Query
+    {
+        return $this
+            ->publishedQuery()
+            ->apply(
+                fn (Query $q) => $this->filterByGameTree($q, $game)
             );
     }
 

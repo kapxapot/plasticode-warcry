@@ -18,7 +18,11 @@ class Forum extends DbModel
 
     protected function requiredWiths(): array
     {
-        return ['game', 'parent', 'isNewsForum'];
+        return [
+            $this->parentPropertyName,
+            'game',
+            'isNewsForum',
+        ];
     }
 
     public function gameId() : ?int

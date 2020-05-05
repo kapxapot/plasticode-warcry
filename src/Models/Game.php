@@ -48,6 +48,7 @@ class Game extends DbModel implements LinkableInterface
             $this->parentPropertyName,
             $this->urlPropertyName,
             'forums',
+            'isDefault',
             'mainForum',
             'newsForum',
             'resultAlias',

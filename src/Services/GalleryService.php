@@ -2,18 +2,26 @@
 
 namespace App\Services;
 
-use App\Collections\GalleryPictureCollection;
-use App\Models\GalleryAuthor;
-use App\Models\GalleryPicture;
 use App\Models\Game;
-use Plasticode\Util\Date;
+use App\Repositories\Interfaces\GalleryAuthorRepositoryInterface;
+use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 
 class GalleryService
 {
+    private GalleryAuthorRepositoryInterface $galleryAuthorRepository;
+    private GalleryPictureRepositoryInterface $galleryPictureRepository;
+
     private int $pageSize;
 
-    public function __construct(int $pageSize)
+    public function __construct(
+        GalleryAuthorRepositoryInterface $galleryAuthorRepository,
+        GalleryPictureRepositoryInterface $galleryPictureRepository,
+        int $pageSize
+    )
     {
+        $this->galleryAuthorRepository = $galleryAuthorRepository;
+        $this->galleryPictureRepository = $galleryPictureRepository;
+
         $this->pageSize = $pageSize;
     }
 
@@ -24,6 +32,7 @@ class GalleryService
     ) : array
     {
         $slices = $this
+            ->galleryPictureRepository
             ->getAddedPicturesSlice($game, $start, $end)
             ->group('author_id');
 
@@ -31,23 +40,11 @@ class GalleryService
 
         foreach ($slices as $authorId => $pictures) {
             $result[] = [
-                'author' => GalleryAuthor::get($authorId),
+                'author' => $this->galleryAuthorRepository->get($authorId),
                 'pictures' => $pictures,
             ];
         }
 
         return $result;
-    }
-
-    public function getAddedPicturesSlice(
-        ?Game $game,
-        \DateTime $start,
-        \DateTime $end
-    ) : GalleryPictureCollection
-    {
-        return GalleryPicture::getByGame($game)
-            ->whereGt('published_at', Date::formatDb($start))
-            ->whereLt('published_at', Date::formatDb($end))
-            ->all();
     }
 }

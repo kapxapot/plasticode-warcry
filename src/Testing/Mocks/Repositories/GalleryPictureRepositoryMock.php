@@ -128,7 +128,7 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
      * Returns all published pictures by game.
      */
     public function getAllByGame(
-        ?Game $game = null,
+        ?Game $game,
         int $limit = 0
     ) : GalleryPictureCollection
     {
@@ -155,5 +155,20 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
     function getNextSibling(GalleryPicture $pic) : ?GalleryPicture
     {
         return $this->getAllAfter($pic)->first();
+    }
+
+    public function getAddedPicturesSlice(
+        ?Game $game,
+        \DateTime $start,
+        \DateTime $end
+    ) : GalleryPictureCollection
+    {
+        return $this
+            ->getAllByGame($game)
+            ->where(
+                fn (GalleryPicture $p) =>
+                Date::dt($p->publishedAt) > $start
+                && Date::dt($p->publishedAt) < $end
+            );
     }
 }

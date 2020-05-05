@@ -38,7 +38,7 @@ interface GalleryPictureRepositoryInterface
      * Returns all published pictures by game.
      */
     function getAllByGame(
-        ?Game $game = null,
+        ?Game $game,
         int $limit = 0
     ) : GalleryPictureCollection;
 
@@ -51,4 +51,10 @@ interface GalleryPictureRepositoryInterface
      * Returns the next picture of the same author.
      */
     function getNextSibling(GalleryPicture $pic) : ?GalleryPicture;
+
+    function getAddedPicturesSlice(
+        ?Game $game,
+        \DateTime $start,
+        \DateTime $end
+    ) : GalleryPictureCollection;
 }
