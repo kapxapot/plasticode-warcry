@@ -218,7 +218,8 @@ class Bootstrap extends BootstrapBase
                         $c->galleryAuthorRepository,
                         $c->galleryPictureRepository,
                         $c->gameRepository,
-                        $c->linker
+                        $c->linker,
+                        $c->parser
                     )
                 )
             );

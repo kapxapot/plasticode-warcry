@@ -9,6 +9,7 @@ use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Hydrators\Basic\Hydrator;
 use Plasticode\Models\DbModel;
+use Plasticode\Parsing\Interfaces\ParserInterface;
 
 class GalleryPictureHydrator extends Hydrator
 {
@@ -17,12 +18,14 @@ class GalleryPictureHydrator extends Hydrator
     private GameRepositoryInterface $gameRepository;
 
     private LinkerInterface $linker;
+    private ParserInterface $parser;
 
     public function __construct(
         GalleryAuthorRepositoryInterface $galleryAuthorRepository,
         GalleryPictureRepositoryInterface $galleryPictureRepository,
         GameRepositoryInterface $gameRepository,
-        LinkerInterface $linker
+        LinkerInterface $linker,
+        ParserInterface $parser
     )
     {
         $this->galleryAuthorRepository = $galleryAuthorRepository;
@@ -30,6 +33,7 @@ class GalleryPictureHydrator extends Hydrator
         $this->gameRepository = $gameRepository;
 
         $this->linker = $linker;
+        $this->parser = $parser;
     }
 
     /**
@@ -43,6 +47,9 @@ class GalleryPictureHydrator extends Hydrator
             )
             ->withGame(
                 fn () => $this->gameRepository->get($entity->gameId)
+            )
+            ->withParsedDescription(
+                fn () => $this->parse($entity->description)
             )
             ->withPrev(
                 fn () => $this->galleryPictureRepository->getPrevSibling($entity)
@@ -62,5 +69,19 @@ class GalleryPictureHydrator extends Hydrator
             ->withPageUrl(
                 fn () => $this->linker->galleryPicture($entity)
             );
+    }
+
+    private function parse(?string $text) : ?string
+    {
+        if (strlen($text) == 0) {
+            return null;
+        }
+
+        $context = $this->parser->parse($text);
+        $context = $this->parser->renderLinks($context);
+
+        return $context
+            ? $context->text
+            : null;
     }
 }

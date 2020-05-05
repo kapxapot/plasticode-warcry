@@ -5,45 +5,47 @@ namespace App\Models;
 use Plasticode\AspectRatio;
 use Plasticode\IO\Image;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Traits\Description;
+use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Traits\FullPublished;
+use Plasticode\Models\Traits\Linkable;
 use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tagged;
 use Webmozart\Assert\Assert;
 
 /**
- * @property integer $id
  * @property integer $authorId
- * @property integer|null $gameId
- * @property string|null $comment
- * @property integer|null $width
- * @property integer|null $height
  * @property string|null $avgColor
- * @property string|null $tags
+ * @property string|null $comment
+ * @property string|null $description
+ * @property integer|null $gameId
+ * @property integer|null $height
+ * @property integer $official
  * @property string $pictureType
- * @property integer $published
- * @property string|null $publishedAt
+ * @property string|null $points
+ * @property string|null $tags
+ * @property string $thumbType
+ * @property integer|null $width
  * @method GalleryAuthor author()
  * @method string ext()
  * @method Game|null game()
  * @method static|null next()
  * @method string pageUrl()
+ * @method string|null parsedDescription()
  * @method static|null prev()
  * @method string thumbUrl()
- * @method string url()
- * @method self withAuthor(GalleryAuthor|callable $author)
- * @method self withExt(string|callable $ext)
- * @method self withGame(Game|callable|null $game)
- * @method self withNext(static|callable|null $next)
- * @method self withPageUrl(string|callable $pageUrl)
- * @method self withPrev(static|callable|null $prev)
- * @method self withThumbUrl(string|callable $thumbUrl)
- * @method self withUrl(string|callable $url)
+ * @method static withAuthor(GalleryAuthor|callable $author)
+ * @method static withExt(string|callable $ext)
+ * @method static withGame(Game|callable|null $game)
+ * @method static withNext(static|callable|null $next)
+ * @method static withPageUrl(string|callable $pageUrl)
+ * @method static withParsedDescription(string|callable|null $parsedDescription)
+ * @method static withPrev(static|callable|null $prev)
+ * @method static withThumbUrl(string|callable $thumbUrl)
  */
-class GalleryPicture extends DbModel
+class GalleryPicture extends DbModel implements LinkableInterface
 {
-    use Description;
     use FullPublished;
+    use Linkable;
     use Stamps;
     use Tagged;
 
@@ -96,5 +98,10 @@ class GalleryPicture extends DbModel
         $bgColor = $this->avgColor ?? self::DEFAULT_BG_COLOR;
 
         return Image::deserializeRGBA($bgColor);
+    }
+
+    public function isOfficial() : bool
+    {
+        return self::toBool($this->official);
     }
 }
