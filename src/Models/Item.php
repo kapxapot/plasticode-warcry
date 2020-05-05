@@ -2,84 +2,37 @@
 
 namespace App\Models;
 
-use Plasticode\Collections\Basic\Collection;
-use Plasticode\Models\DbModel; 
+use App\Collections\RecipeCollection;
+use Plasticode\Models\DbModel;
+use Plasticode\Models\Interfaces\LinkableInterface;
+use Plasticode\Models\Traits\CreatedAt;
+use Plasticode\Models\Traits\Linkable;
+use Plasticode\Models\Traits\UpdatedAt;
 
 /**
+ * @property integer|null $avgbuyout
+ * @property integer|null $buyprice
  * @property string $icon
  * @property string $name
  * @property string|null $nameRu
- * @property string $quality
+ * @property integer|null $quality
+ * @property integer|null $sellprice
+ * @method RecipeCollection recipes()
+ * @method static withRecipes(RecipeCollection|callable $recipes)
  */
-class Item extends DbModel
+class Item extends DbModel implements LinkableInterface
 {
-    public static function getSafe(int $id) : self
-    {
-        $item = self::get($id);
-        
-        if ($item && strlen($item->nameRu) > 0) {
-            return $item;
-        }
+    use CreatedAt;
+    use UpdatedAt;
+    use Linkable;
 
-        return self::getRemote($id);
-    }
-
-    private static function getRemote(int $id) : self
-    {
-        $linker = self::$container->linker;
-
-        $url = $linker->wowheadItemXml($id);
-        $urlRu = $linker->wowheadItemRuXml($id);
-        
-        $xml = @simplexml_load_file($url, null, LIBXML_NOCDATA);
-        $xmlRu = @simplexml_load_file($urlRu, null, LIBXML_NOCDATA);
-        
-        if ($xml !== false) {
-            $name = (string)$xml->item->name;
-            
-            $item = self::get($id);
-            
-            if (!$item) {
-                $item = new self(
-                    [
-                        'id' => $id,
-                        'name' => $name,
-                    ]
-                );
-            }
-            
-            $item->icon = (string)$xml->item->icon;
-            $item->quality = (string)$xml->item->quality['id'];
-
-            if ($xmlRu !== false) {
-                $nameRu = (string)$xmlRu->item->name;
-                
-                if ($nameRu !== $name) {
-                    $item->nameRu = $nameRu;
-                }
-            }
-
-            // Todo: remove this dirty hack
-            $item = self::save($item);
-        }
-        
-        return $item;
-    }
-    
-    // props
-    
     public function displayName() : string
     {
         return $this->nameRu ?? $this->name;
     }
-    
-    public function url() : string
+
+    public function isFullyLoaded() : bool
     {
-        return self::$container->linker->wowheadItemRu($this->getId());
-    }
-    
-    public function recipes() : Collection
-    {
-        return self::$container->recipeRepository->getAllByItemId($this->getId());
+        return strlen($this->nameRu) > 0;
     }
 }

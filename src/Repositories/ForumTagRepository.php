@@ -27,13 +27,11 @@ class ForumTagRepository extends IdiormRepository implements ForumTagRepositoryI
     {
         $tag = mb_strtolower($tag);
 
-        return ScalarCollection::from(
-            $this
-                ->topicQuery()
-                ->whereRaw('(lcase(tag_text) = ?)', [$tag])
-                ->all()
-                ->extract('tag_meta_id')
-        );
+        return $this
+            ->topicQuery()
+            ->whereRaw('(lcase(tag_text) = ?)', [$tag])
+            ->all()
+            ->extractScalar('tag_meta_id');
     }
 
     protected function topicQuery() : Query

@@ -16,6 +16,7 @@ use App\Hydrators\ForumMemberHydrator;
 use App\Hydrators\ForumTopicHydrator;
 use App\Hydrators\GalleryPictureHydrator;
 use App\Hydrators\GameHydrator;
+use App\Hydrators\ItemHydrator;
 use App\Hydrators\MenuHydrator;
 use App\Hydrators\NewsHydrator;
 use App\Hydrators\RecipeHydrator;
@@ -47,6 +48,7 @@ use App\Repositories\ForumTopicRepository;
 use App\Repositories\GalleryAuthorRepository;
 use App\Repositories\GalleryPictureRepository;
 use App\Repositories\GameRepository;
+use App\Repositories\ItemRepository;
 use App\Repositories\LocationRepository;
 use App\Repositories\MenuItemRepository;
 use App\Repositories\MenuRepository;
@@ -63,6 +65,7 @@ use App\Services\ForumService;
 use App\Services\GalleryPictureService;
 use App\Services\GalleryService;
 use App\Services\GameService;
+use App\Services\ItemService;
 use App\Services\NewsAggregatorService;
 use App\Services\RecipeService;
 use App\Services\SearchService;
@@ -231,6 +234,18 @@ class Bootstrap extends BootstrapBase
                         $c->gameRepository,
                         $c->linker,
                         $c->gameService
+                    )
+                )
+            );
+
+        $map['itemRepository'] = fn (CI $c) =>
+            new ItemRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ItemHydrator(
+                        $c->recipeRepository,
+                        $c->linker
                     )
                 )
             );
@@ -581,6 +596,13 @@ class Bootstrap extends BootstrapBase
             new GameService(
                 $c->gameRepository,
                 $c->config
+            );
+
+        $map['itemService'] = fn (CI $c) =>
+            new ItemService(
+                $c->itemRepository,
+                $c->linker,
+                $c->logger
             );
 
         $map['newsAggregatorService'] = function (CI $c) {
