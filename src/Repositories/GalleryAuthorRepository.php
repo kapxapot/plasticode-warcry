@@ -39,7 +39,7 @@ class GalleryAuthorRepository extends IdiormRepository implements GalleryAuthorR
             ->whereAnyIs(
                 [
                     ['alias' => $alias],
-                    ['id' => $alias],
+                    [$this->idField() => $alias],
                 ]
             )
             ->one();
