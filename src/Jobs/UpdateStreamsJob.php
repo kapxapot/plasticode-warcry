@@ -7,6 +7,7 @@ use App\Models\Stream;
 use App\Models\StreamStat;
 use App\Repositories\Interfaces\StreamRepositoryInterface;
 use App\Repositories\Interfaces\StreamStatRepositoryInterface;
+use App\Services\StreamStatService;
 use Plasticode\Collections\Basic\Collection;
 use Plasticode\Core\Interfaces\CacheInterface;
 use Plasticode\Core\Interfaces\SettingsProviderInterface;
@@ -28,6 +29,8 @@ class UpdateStreamsJob
     private StreamRepositoryInterface $streamRepository;
     private StreamStatRepositoryInterface $streamStatRepository;
 
+    private StreamStatService $streamStatService;
+
     /**
      * Send notification or not (Telegram, Twitter, etc.)
      */
@@ -37,7 +40,7 @@ class UpdateStreamsJob
      * Log or not
      */
     private bool $log;
-    
+
     public function __construct(
         SettingsProviderInterface $settingsProvider,
         CacheInterface $cache,
@@ -47,6 +50,7 @@ class UpdateStreamsJob
         LoggerInterface $logger,
         StreamRepositoryInterface $streamRepository,
         StreamStatRepositoryInterface $streamStatRepository,
+        StreamStatService $streamStatService,
         bool $notify
     )
     {
@@ -56,15 +60,18 @@ class UpdateStreamsJob
         $this->twitch = $twitch;
         $this->telegram = $telegram;
         $this->logger = $logger;
+
         $this->streamRepository = $streamRepository;
         $this->streamStatRepository = $streamStatRepository;
-        
+
+        $this->streamStatService = $streamStatService;
+
         $this->notify = $notify;
 
         $logSettings = $this->settingsProvider->get('streams.log');
         $this->log = ($logSettings === true);
     }
-    
+
     public function run() : Collection
     {
         return $this
@@ -93,7 +100,7 @@ class UpdateStreamsJob
 
         if ($s) {
             $streamStarted = !$stream->isOnline();
-            
+
             $gameId = $s['game_id'];
             $game = $this->getGameData($gameId);
 
@@ -109,9 +116,9 @@ class UpdateStreamsJob
             $stream->remoteStatus = urlencode($sanitizedTitle);
 
             $stream->remoteLogo = $user['profile_image_url'] ?? null;
-            
+
             $description = $user['description'] ?? null;
-            
+
             if (!is_null($description)) {
                 $stream->description = $description;
             }
@@ -123,9 +130,9 @@ class UpdateStreamsJob
             $stream->remoteOnline = 0;
             $stream->remoteViewers = 0;
         }
-        
+
         $now = Date::dbNow();
-        
+
         $stream->remoteUpdatedAt = $now;
 
         if ($stream->remoteOnline == 1) {
@@ -135,7 +142,7 @@ class UpdateStreamsJob
         $stream = $this->streamRepository->save($stream);
 
         $this->updateStreamStats($stream);
-        
+
         return [
             'stream' => $stream,
             'json' => json_encode($data),
@@ -163,7 +170,7 @@ class UpdateStreamsJob
             }
         );
     }
-    
+
     private function getUserData(string $id) : array
     {
         return $this->cache->getCached(
@@ -184,56 +191,58 @@ class UpdateStreamsJob
             }
         );
     }
-    
+
     private function updateStreamStats(Stream $stream) : void
     {
         $online = $stream->isOnline();
         $refresh = $online;
-        
-        $stats = StreamStat::getLast($stream->id);
-        
-        if ($stats) {
+
+        $stat = $this->streamStatRepository->getLastByStream($stream);
+
+        if ($stat) {
             if ($online) {
-                $statsTTL = $this->settingsProvider
+                $statsTTL = $this
+                    ->settingsProvider
                     ->get('streams.stats_ttl', 10);
 
-                $expired = Date::expired($stats->createdAt, "PT{$statsTTL}M");
-    
-                if (!$expired && ($stream->remoteGame == $stats->remoteGame)) {
+                $expired = Date::expired($stat->createdAt, "PT{$statsTTL}M");
+
+                if (!$expired && ($stream->remoteGame == $stat->remoteGame)) {
                     $refresh = false;
                 }
             }
 
-            if (!$stats->finishedAt && (!$online || $refresh)) {
-                $stats->finish();
+            if (!$stat->finishedAt && (!$online || $refresh)) {
+                $stats = $this->streamStatService->finishStat($stat);
             }
         }
-        
+
         if ($refresh) {
             $stat = StreamStat::fromStream($stream);
             $this->streamStatRepository->save($stat);
         }
     }
-    
-    private function sendStreamNotifications(Stream $s) : string
-    {
-        $status = $s->remoteStatus;
 
-        $verb = ($s->channel == 1)
+    private function sendStreamNotifications(Stream $stream) : string
+    {
+        $status = $stream->remoteStatus;
+
+        $verb = $stream->isChannel()
             ? ($status
                 ? 'транслирует <b>' . $status . '</b>'
                 : 'ведет трансляцию')
-            : 'играет в <b>' . $s->remoteGame . '</b>' . PHP_EOL . $status;
+            : 'играет в <b>' . $stream->remoteGame . '</b>' . PHP_EOL . $status;
 
-        $verbEn = ($s->channel == 1)
+        $verbEn = $stream->isChannel()
             ? ($status
                 ? 'is streaming <b>' . $status . '</b>'
                 : 'started streaming')
-            : 'is playing <b>' . $s->remoteGame . '</b>' . PHP_EOL . $status;
-        
-        $url = $this->linker->twitch($s->streamId);
-        $source = '<a href="' . $url . '">' . $s->title . '</a>';
-        
+            : 'is playing <b>' . $stream->remoteGame . '</b>' . PHP_EOL . $status;
+
+        $url = $this->linker->twitch($stream->streamId);
+
+        $source = '<a href="' . $url . '">' . $stream->title . '</a>';
+
         $message = $source . ' ' . $verb;
         $messageEn = $source . ' ' . $verbEn;
 
@@ -245,12 +254,12 @@ class UpdateStreamsJob
             ],
             [
                 'channel' => 'blizzard_streams',
-                'condition' => $s->official == 1,
+                'condition' => $stream->isOfficial(),
                 'message' => $messageEn,
             ],
             [
                 'channel' => 'blizzard_streams_ru',
-                'condition' => $s->officialRu == 1,
+                'condition' => $stream->isOfficialRu(),
                 'message' => $message,
             ],
         ];

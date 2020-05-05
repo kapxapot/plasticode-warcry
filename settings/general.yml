@@ -84,7 +84,10 @@ streams:
 
   # in days
   ttl: 14
-  
+
+  # in days
+  analysis_period: 30
+
   # in minutes
   stats_ttl: 10
 

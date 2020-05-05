@@ -6,6 +6,7 @@ use App\Config\Parsing\BBContainerConfig;
 use App\Core\AppContext;
 use App\Core\Linker;
 use App\Core\Renderer;
+use App\Factories\UpdateStreamsJobFactory;
 use App\Handlers\NotFoundHandler;
 use App\Hydrators\ArticleCategoryHydrator;
 use App\Hydrators\ArticleHydrator;
@@ -637,11 +638,17 @@ class Bootstrap extends BootstrapBase
         $map['streamStatService'] = fn (CI $c) =>
             new StreamStatService(
                 $c->gameRepository,
-                $c->gameService
+                $c->streamStatRepository,
+                $c->gameService,
+                $c->config
             );
 
         $map['tagPartsProviderService'] = fn (CI $c) =>
             new TagPartsProviderService(
+                $c->articleRepository,
+                $c->eventRepository,
+                $c->galleryPictureRepository,
+                $c->videoRepository,
                 $c->galleryService,
                 $c->newsAggregatorService,
                 $c->streamService
@@ -652,13 +659,26 @@ class Bootstrap extends BootstrapBase
                 $c->linker
             );
 
+        $map['updateStreamsJobFactory'] = fn (CI $c) =>
+            new UpdateStreamsJobFactory(
+                $c->settingsProvider,
+                $c->cache,
+                $c->linker,
+                $c->twitch,
+                $c->telegram,
+                $c->logger,
+                $c->streamRepository,
+                $c->streamStatRepository,
+                $c->streamStatService
+            );
+
         // handlers
 
         $map['notFoundHandler'] = fn (CI $c) =>
             new NotFoundHandler(
                 $c
             );
-        
+
         return $map;
     }
 }

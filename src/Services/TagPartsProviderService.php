@@ -2,26 +2,40 @@
 
 namespace App\Services;
 
-use App\Models\Article;
-use App\Models\Event;
 use App\Models\ComicIssue;
 use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
-use App\Models\GalleryPicture;
-use App\Models\Video;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
+use App\Repositories\Interfaces\EventRepositoryInterface;
+use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
+use App\Repositories\Interfaces\VideoRepositoryInterface;
+use Plasticode\Collections\Basic\Collection;
 
 class TagPartsProviderService
 {
-    private GalleryService $galleryService;
+    private ArticleRepositoryInterface $articleRepository;
+    private EventRepositoryInterface $eventRepository;
+    private GalleryPictureRepositoryInterface $galleryPictureRepository;
+    private VideoRepositoryInterface $videoRepository;
+
     private NewsAggregatorService $newsAggregatorService;
     private StreamService $streamService;
 
     public function __construct(
+        ArticleRepositoryInterface $articleRepository,
+        EventRepositoryInterface $eventRepository,
+        GalleryPictureRepositoryInterface $galleryPictureRepository,
+        VideoRepositoryInterface $videoRepository,
         GalleryService $galleryService,
         NewsAggregatorService $newsAggregatorService,
         StreamService $streamService
     )
     {
+        $this->articleRepository = $articleRepository;
+        $this->eventRepository = $eventRepository;
+        $this->galleryPictureRepository = $galleryPictureRepository;
+        $this->videoRepository = $videoRepository;
+
         $this->galleryService = $galleryService;
         $this->newsAggregatorService = $newsAggregatorService;
         $this->streamService = $streamService;
@@ -29,11 +43,6 @@ class TagPartsProviderService
 
     public function getParts(string $tag) : array
     {
-        $picturesQuery = GalleryPicture::getByTag($tag);
-        $pictures = $this->galleryService->getPage($picturesQuery)->all();
-
-        $parts = [];
-
         $groups = [
             [
                 'id' => 'news',
@@ -44,21 +53,19 @@ class TagPartsProviderService
             [
                 'id' => 'articles',
                 'label' => 'Статьи',
-                'values' => Article::getByTag($tag)->all(),
+                'values' => $this->articleRepository->getNewsByTag($tag),
                 'component' => 'articles',
             ],
             [
                 'id' => 'events',
                 'label' => 'События',
-                'values' => Event::getByTag($tag)
-                    ->orderByDesc('starts_at')
-                    ->all(),
+                'values' => $this->eventRepository->getNewsByTag($tag),
                 'component' => 'events',
             ],
             [
                 'id' => 'gallery_pictures',
                 'label' => 'Галерея',
-                'values' => $pictures,
+                'values' => $this->galleryPictureRepository->getAllByTag($tag),
                 'component' => 'gallery_pictures',
                 'no_linkblock' => true,
             ],
@@ -76,7 +83,7 @@ class TagPartsProviderService
             [
                 'id' => 'videos',
                 'label' => 'Видео',
-                'values' => Video::getByTag($tag)->all(),
+                'values' => $this->videoRepository->getNewsByTag($tag),
                 'component' => 'videos',
                 'no_linkblock' => true,
             ],
@@ -89,12 +96,9 @@ class TagPartsProviderService
             ],
         ];
 
-        foreach ($groups as $group) {
-            if (count($group['values']) > 0) {
-                $parts[] = $group;
-            }
-        }
-
-        return $parts;
+        return array_filter(
+            $groups,
+            fn (array $a) => count($a['values']) > 0
+        );
     }
 }

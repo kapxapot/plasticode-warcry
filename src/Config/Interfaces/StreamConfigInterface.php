@@ -6,15 +6,18 @@ interface StreamConfigInterface
 {
     /**
      * Stream time to live in days.
-     *
-     * @return integer
      */
-    public function streamTimeToLive() : int;
+    function streamTimeToLive() : int;
 
     /**
      * Priority games list for streams.
      * 
      * @return string[]
      */
-    public function streamPriorityGames() : array;
+    function streamPriorityGames() : array;
+
+    /**
+     * Stream analysis period in days.
+     */
+    function streamAnalysisPeriod() : int;
 }

@@ -2,46 +2,74 @@
 
 namespace App\Services;
 
+use App\Collections\StreamStatCollection;
+use App\Config\Interfaces\StreamConfigInterface;
 use App\Models\Stream;
 use App\Models\StreamStat;
 use App\Repositories\Interfaces\GameRepositoryInterface;
+use App\Repositories\Interfaces\StreamStatRepositoryInterface;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
 use Plasticode\Util\SortStep;
 
 class StreamStatService
 {
-    /** @var GameRepositoryInterface */
-    private $gameRepository;
+    private GameRepositoryInterface $gameRepository;
+    private StreamStatRepositoryInterface $streamStatRepository;
 
-    /** @var GameService */
-    private $gameService;
+    private GameService $gameService;
+
+    private StreamConfigInterface $config;
 
     public function __construct(
         GameRepositoryInterface $gameRepository,
-        GameService $gameService
+        StreamStatRepositoryInterface $streamStatRepository,
+        GameService $gameService,
+        StreamConfigInterface $config
     )
     {
         $this->gameRepository = $gameRepository;
+        $this->streamStatRepository = $streamStatRepository;
+
         $this->gameService = $gameService;
+
+        $this->config = $config;
     }
 
-    public function build(Stream $stream)
+    public function build(Stream $stream) : array
     {
         $stats = [];
-        
+
         $streamId = $stream->id;
-        
-        $games = StreamStat::getGames($streamId)->toArray();
-        
+
+        $byGame = $this
+            ->streamStatRepository
+            ->getLatestWithGameByStream(
+                $stream,
+                $this->config->streamAnalysisPeriod()
+            )
+            ->groupByGame();
+
+        $games = array_map(
+            fn (string $key, StreamStatCollection $value) =>
+            [
+                'remote_game' => $key,
+                'count' => $value->count(),
+            ],
+            array_keys($byGame),
+            $byGame
+        );
+
         if (!empty($games)) {
             $total = 0;
+
             foreach ($games as $game) {
                 $total += $game['count'];
             }
-            
+
             $games = array_map(
-                function($game) use ($total) {
+                function ($game) use ($total) {
                     $game['percent'] = ($total > 0)
                         ? round($game['count'] * 100 / $total, 1)
                         : 0;
@@ -50,7 +78,7 @@ class StreamStatService
                         $this->gameService->isPriorityGame(
                             $game['remote_game']
                         );
-                    
+
                     return $game;
                 },
                 $games
@@ -72,7 +100,7 @@ class StreamStatService
 
             $stats['games'] = $games;
             $stats['blizzard_total'] = $blizzardTotal;
-            
+
             $stats['blizzard'] = [
                 ['value' => $blizzardTotal, 'label' => 'Игры Blizzard'],
                 ['value' => 100 - $blizzardTotal, 'label' => 'Другие игры']
@@ -82,35 +110,48 @@ class StreamStatService
         $now = new \DateTime;
         $start = Date::startOfHour($now)->modify('-23 hour');
 
-        $lastDayStats = StreamStat::getFrom($streamId, $start)
+        $lastDayStats = $this
+            ->streamStatRepository
+            ->getAllFromDateByStream($stream, $start)
             ->map(
-                function ($s) {
+                function (StreamStat $s) {
                     $cr = strtotime($s->createdAt);
-                    $s->stamp = strftime('%d-%H', $cr);
-                    $s->iso = Date::formatIso($cr);
-                    return $s;
+
+                    return [
+                        ...$s->toArray(),
+                        'stamp' => strftime('%d-%H', $cr),
+                        'iso' => Date::formatIso($cr),
+                    ];
                 }
             );
 
         if ($lastDayStats->any()) {
             $stats['viewers'] = $this->buildGameStats(
-                $lastDayStats, $start, $now
+                $lastDayStats,
+                $start,
+                $now
             );
         }
-        
+
         $utc = Date::utc();
         $monthStartUtc = Date::startOfDay($utc)
             ->modify('-1 month')
             ->modify('1 day');
-        
+
         $monthStart = Date::fromUtc($monthStartUtc);
-        
-        $lastMonthStats = StreamStat::getFrom($streamId, $monthStart)
+
+        $lastMonthStats = $this
+            ->streamStatRepository
+            ->getAllFromDateByStream($stream, $monthStart)
             ->map(
-                function ($s) {
+                function (StreamStat $s) {
                     $utcCreatedAt = Date::utc(Date::dt($s->createdAt));
-                    $s->stamp = $utcCreatedAt->format('m-d');
-                    return $s;
+
+                    return [
+                        ...$s->toArray,
+                        'display_remote_status' => $s->displayRemoteStatus(),
+                        'stamp' => $utcCreatedAt->format('m-d'),
+                    ];
                 }
             );
 
@@ -127,16 +168,20 @@ class StreamStatService
         return $stats;
     }
 
-    private function buildGameStats($latest, \DateTime $start, \DateTime $end)
+    private function buildGameStats(
+        Collection $latest,
+        \DateTime $start,
+        \DateTime $end
+    ) : array
     {
         $gamely = [];
-        
+
         $prev = null;
         $prevGame = null;
-        
+
         $set = [];
-        
-        $closeSet = function($game) use (&$gamely, &$set) {
+
+        $closeSet = function ($game) use (&$gamely, &$set) {
             if (!empty($set)) {
                 if (!array_key_exists($game, $gamely)) {
                     $gamely[$game] = [];
@@ -146,13 +191,15 @@ class StreamStatService
                 $set = [];
             }
         };
-        
+
         foreach ($latest as $s) {
-            $game = $s->remoteGame;
-            
+            $game = $s['remote_game'];
+
             if ($prev) {
                 $exceeds = Date::exceedsInterval(
-                    $prev->createdAt, $s->createdAt, 'PT30M'
+                    $prev['created_at'],
+                    $s['created_at'],
+                    'PT30M'
                 ); // 30 minutes
 
                 if ($exceeds) {
@@ -160,17 +207,17 @@ class StreamStatService
                 } elseif ($prevGame != $game) {
                     $closeSet($prevGame);
 
-                    $prev->remoteGame = $game;
+                    $prev['remote_game'] = $game;
                     $set[] = $prev;
                 }
             }
 
             $set[] = $s;
-            
+
             $prev = $s;
             $prevGame = $game;
         }
-        
+
         $closeSet($prevGame);
 
         return [
@@ -180,10 +227,14 @@ class StreamStatService
         ];
     }
 
-    private function buildDailyStats($latest, \DateTime $start, \DateTime $end)
+    private function buildDailyStats(
+        Collection $latest,
+        \DateTime $start,
+        \DateTime $end
+    ) : array
     {
         $daily = [];
-        
+
         $cur = clone $start;
 
         while ($cur < $end) {
@@ -194,14 +245,14 @@ class StreamStatService
 
             $peak = 0;
             $peakStatus = null;
-            
+
             if (!empty($slice)) {
                 foreach ($slice as $stat) {
-                    $peak = max($stat->remoteViewers, $peak);
-                    $peakStatus = $stat->displayRemoteStatus();
+                    $peak = max($stat['remote_viewers'], $peak);
+                    $peakStatus = $stat['display_remote_status'];
                 }
             }
-            
+
             $daily[] = [
                 'day' => $utcCur->format('M j'),
                 'week_day' => $utcCur->format('D, M j'),
@@ -216,32 +267,39 @@ class StreamStatService
         return $daily;
     }
 
-    private function buildLogs($stats)
+    private function buildLogs(Collection $stats) : array
     {
         $logs = [];
 
-        $add = function ($log) use (&$logs) {
-            $log->startIso = Date::formatIso(Date::dt($log->createdAt));
-            $log->endIso = Date::formatIso(Date::dt($log->finishedAt));
-            $log->game = $this->gameRepository->getByTwitchName($log->remoteGame);
+        $add = function (array $log) use (&$logs) {
+            $log['start_iso'] = Date::formatIso(Date::dt($log['created_at']));
+            $log['end_iso'] = Date::formatIso(Date::dt($log['finished_at']));
+
+            $log['game'] = $this
+                ->gameRepository
+                ->getByTwitchName($log['remote_game']);
 
             $logs[] = $log;
         };
 
         foreach ($stats as $stat) {
-            $stat->createdCmp = strtotime($stat->createdAt);
+            $stat['created_cmp'] = strtotime($stat['created_at']);
 
             if (!isset($cur)) {
                 $cur = $stat;
             } else {
                 $exceeds = Date::exceedsInterval(
-                    $cur->finishedAt, $stat->createdAt, '5 minutes'
+                    $cur['finished_at'],
+                    $stat['created_at'],
+                    '5 minutes'
                 );
-                
-                if ($cur->remoteGame == $stat->remoteGame &&
-                    $cur->remoteStatus == $stat->remoteStatus &&
-                    !$exceeds) {
-                    $cur->finishedAt = $stat->finishedAt;
+
+                if (
+                    $cur['remote_game'] == $stat['remote_game']
+                    && $cur['remote_status'] == $stat['remote_status']
+                    && !$exceeds
+                ) {
+                    $cur['finished_at'] = $stat['finished_at'];
                 } else {
                     $add($cur);
                     $cur = $stat;
@@ -252,9 +310,16 @@ class StreamStatService
         if (isset($cur)) {
             $add($cur);
         }
-        
+
         $logs = Sort::desc($logs, 'created_cmp');
-        
+
         return $logs;
+    }
+
+    public function finishStat(StreamStat $stat) : StreamStat
+    {
+        $stat->finishedAt = Date::dbNow();
+
+        return $this->streamStatRepository->save($stat);
     }
 }

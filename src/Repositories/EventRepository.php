@@ -18,6 +18,9 @@ class EventRepository extends NewsSourceRepository implements EventRepositoryInt
 
     protected string $entityClass = Event::class;
 
+    protected string $sortField = 'starts_at';
+    protected bool $sortReverse = true;
+
     public function getProtected(?int $id) : ?Event
     {
         return $this->getProtectedEntity($id);

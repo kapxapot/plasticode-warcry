@@ -111,4 +111,19 @@ class Stream extends DbModel implements TaggedInterface
     {
         return urldecode($this->remoteStatus);
     }
+
+    public function isChannel() : bool
+    {
+        return self::toBool($this->channel);
+    }
+
+    public function isOfficial() : bool
+    {
+        return self::toBool($this->official);
+    }
+
+    public function isOfficialRu() : bool
+    {
+        return self::toBool($this->officialRu);
+    }
 }

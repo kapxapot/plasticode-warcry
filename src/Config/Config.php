@@ -39,4 +39,9 @@ class Config extends ConfigBase implements GameConfigInterface, RecipeConfigInte
     {
         return $this->get('streams.ttl', 14);
     }
+
+    public function streamAnalysisPeriod() : int
+    {
+        return $this->get('streams.analysis_period', 30);
+    }
 }
