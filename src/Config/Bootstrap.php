@@ -342,6 +342,7 @@ class Bootstrap extends BootstrapBase
                 new ObjectProxy(
                     fn () =>
                     new RegionHydrator(
+                        $c->regionRepository
                     )
                 )
             );

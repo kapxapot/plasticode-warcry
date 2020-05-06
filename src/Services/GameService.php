@@ -36,7 +36,7 @@ class GameService
     {
         return $game->icon
             ??
-            ($game->parent()
+            ($game->hasParent()
                 ? $game->parent()->resultIcon()
                 : null)
             ??
@@ -49,7 +49,7 @@ class GameService
     {
         return $game->alias
             ??
-            ($game->parent()
+            ($game->gasParent()
                 ? $game->parent()->resultAlias()
                 : null)
             ??

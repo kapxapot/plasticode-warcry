@@ -38,6 +38,6 @@ class Forum extends DbModel
     public function belongsToGame(Game $game) : bool
     {
         return $game->relatesToForum($this)
-            || $this->parent() && $this->parent()->belongsToGame($game);
+            || $this->hasParent() && $this->parent()->belongsToGame($game);
     }
 }

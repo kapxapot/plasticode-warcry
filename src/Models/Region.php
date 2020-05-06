@@ -3,31 +3,45 @@
 namespace App\Models;
 
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Traits\Parented;
+use Plasticode\Models\Traits\Stamps;
 
+/**
+ * @property string|null $nameEn
+ * @property string $nameRu
+ * @property integer|null $parentId
+ * @property integer $terminal
+ */
 class Region extends DbModel
 {
-    // PROPS
-    
-    public function parent()
+    use Parented;
+    use Stamps;
+
+    protected function requiredWiths(): array
     {
-        return $this->parentId
-            ? Region::get($this->parentId)
-            : null;
+        return [
+            $this->parentPropertyName,
+        ];
     }
-    
+
     public function displayName()
     {
-        $ru = [ $this->nameRu ];
-        $en = [ $this->nameEn ];
+        $ru = [$this->nameRu];
+        $en = [$this->nameEn];
 
-        if ($this->parent() && $this->terminal == 0) {
+        if ($this->hasParent() && !$this->isTerminal()) {
             $ru[] = $this->parent()->nameRu;
             $en[] = $this->parent()->nameEn;
         }
-        
+
         $ruStr = implode(', ', array_filter($ru, 'strlen'));
         $enStr = implode(', ', array_filter($en, 'strlen'));
-        
-        return $ruStr . ($enStr ? " ({$enStr})" : '');
+
+        return $ruStr . ($enStr ? ' (' . $enStr . ')' : '');
+    }
+
+    public function isTerminal() : bool
+    {
+        return self::toBool($this->terminal);
     }
 }
