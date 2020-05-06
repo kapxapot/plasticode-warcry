@@ -5,6 +5,7 @@ namespace App\Testing\Mocks;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Article;
 use App\Models\ComicIssue;
+use App\Models\ComicSeries;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
@@ -96,6 +97,11 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/gallery/')
             . $picture->author()->alias . '/'
             . $picture->getId();
+    }
+
+    public function comicSeries(ComicSeries $series) : string
+    {
+        return $this->abs('/comic_series/') . $series->alias;
     }
 
     public function comicIssue(?ComicIssue $comic) : string

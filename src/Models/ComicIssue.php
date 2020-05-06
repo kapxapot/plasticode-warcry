@@ -9,12 +9,6 @@ class ComicIssue extends Comic
 {
     protected static string $sortField = 'number';
 
-    public static function getBySeries($seriesId) : Query
-    {
-        return self::getPublished()
-            ->where('series_id', $seriesId);
-    }
-    
     public function createPage() : ComicPage
     {
         return ComicPage::createForComic($this->getId());

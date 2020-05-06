@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Collections\ComicSeriesCollection;
+use App\Models\ComicSeries;
+use App\Repositories\Interfaces\ComicSeriesRepositoryInterface;
+use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
+
+class ComicSeriesRepository extends IdiormRepository implements ComicSeriesRepositoryInterface
+{
+    use FullPublishedRepository;
+
+    protected string $entityClass = ComicSeries::class;
+
+    public function getAllPublished() : ComicSeriesCollection
+    {
+        return ComicSeriesCollection::from(
+            $this->publishedQuery()
+        );
+    }
+
+    public function getPublishedByAlias(string $alias) : ?ComicSeries
+    {
+        return $this
+            ->publishedQuery()
+            ->where('alias', $alias)
+            ->one();
+    }
+
+}

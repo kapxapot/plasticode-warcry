@@ -5,6 +5,7 @@ namespace App\Core;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Article;
 use App\Models\ComicIssue;
+use App\Models\ComicSeries;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
@@ -178,7 +179,7 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function comicSeries($series) : string
+    public function comicSeries(ComicSeries $series) : string
     {
         return $this->router->pathFor(
             'main.comics.series',

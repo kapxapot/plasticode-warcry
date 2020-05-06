@@ -2,121 +2,93 @@
 
 namespace App\Models;
 
+use App\Collections\ComicIssueCollection;
 use App\Models\Traits\Names;
 use App\Models\Traits\Stamps;
-use Plasticode\Collections\Basic\Collection;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Tagged;
 
+/**
+ * @property string $alias
+ * @property string|null $description
+ * @property integer $gameId
+ * @property string $nameEn
+ * @property string|null $nameRu
+ * @property integer $publisherId
+ * @property string|null $tags
+ * @method Game game()
+ * @method ComicIssueCollection issues()
+ * @method string pageUrl()
+ * @method ComicPublisher publisher()
+ * @method static withGame(Game|callable $game)
+ * @method static withIssues(ComicIssueCollection $issues)
+ * @method static withPageUrl(string|callable $pageUrl)
+ * @method static withPublisher(ComicPublisher|callable $publisher)
+ */
 class ComicSeries extends DbModel
 {
-    use Description;
     use FullPublished;
     use Names;
     use Stamps;
     use Tagged;
 
-    protected static $tagsEntityType = 'comics';
-
-    // getters - one
-
-    public static function getPublishedByAlias(string $alias) : ?self
+    protected function requiredWiths(): array
     {
-        return self::getPublished()
-            ->where('alias', $alias)
-            ->one();
-    }
-
-    // GETTERS - MANY
-    
-    public static function getAllSorted() : Collection
-    {
-        $sorts = [
-            'last_issued_on' => [ 'dir' => 'desc', 'type' => 'string' ],
+        return [
+            'game',
+            'issues',
+            'pageUrl',
+            'publisher',
         ];
-        
-        return self::getAll()->sort(...$sorts);
-    }
-    
-    // PROPS
-    
-    public function game() : Game
-    {
-        return Game::get($this->gameId);
     }
 
-    public function pageUrl() : string
+    public function issueByNumber(int $number) : ?ComicIssue
     {
-        return self::$container->linker->comicSeries($this);
+        return $this
+            ->issues()
+            ->first('number', $number);
     }
-    
-    public function issues() : Collection
-    {
-        return $this->lazy(
-            function () {
-                return ComicIssue::getBySeries($this->id)
-                    ->all();
-            }
-        );
-    }
-    
-    public function issueByNumber($number) : ?ComicIssue
-    {
-        return $this->issues()->where('number', $number)->first();
-    }
-    
+
     public function count() : int
     {
         return $this->issues()->count();
     }
-    
-    public function countStr() : string
-    {
-        return self::$container->cases->caseForNumber('выпуск', $this->count());
-    }
-    
+
     public function first() : ?ComicIssue
     {
         return $this->issues()->first();
     }
-    
+
     public function last() : ?ComicIssue
     {
         return $this->issues()->last();
     }
-    
+
     public function cover() : ?ComicPageBase
     {
         return $this->first()
             ? $this->first()->cover()
             : null;
     }
-    
-    public function lastIssuedOn()
+
+    public function lastIssuedOn() : ?string
     {
         return $this->last()
             ? $this->last()->issuedOn
             : null;
     }
-    
-    public function publisher() : ComicPublisher
+
+    public function maxIssueNumber(int $exceptId = 0) : int
     {
-        return ComicPublisher::get($this->publisherId);
-    }
-    
-    public function maxIssueNumber($exceptId = null)
-    {
-        $max = $this->issues()
+        $max = $this
+            ->issues()
             ->where(
-                function ($issue) use ($exceptId) {
-                    return $issue->id != $exceptId;
-                }
+                fn (ComicIssue $i) => $i->getId() != $exceptId
             )
             ->asc('number')
             ->last();
-        
+
         return $max ? $max->number : 0;
     }
 }

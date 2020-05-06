@@ -10,6 +10,7 @@ use App\Factories\UpdateStreamsJobFactory;
 use App\Handlers\NotFoundHandler;
 use App\Hydrators\ArticleCategoryHydrator;
 use App\Hydrators\ArticleHydrator;
+use App\Hydrators\ComicSeriesHydrator;
 use App\Hydrators\EventHydrator;
 use App\Hydrators\ForumHydrator;
 use App\Hydrators\ForumMemberHydrator;
@@ -41,7 +42,9 @@ use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
+use App\Repositories\ComicIssueRepository;
 use App\Repositories\ComicPublisherRepository;
+use App\Repositories\ComicSeriesRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\EventTypeRepository;
 use App\Repositories\ForumMemberRepository;
@@ -128,9 +131,28 @@ class Bootstrap extends BootstrapBase
                 )
             );
 
+        $map['comicIssueRepository'] = fn (CI $c) =>
+            new ComicIssueRepository(
+                $c->repositoryContext
+            );
+
         $map['comicPublisherRepository'] = fn (CI $c) =>
             new ComicPublisherRepository(
                 $c->repositoryContext
+            );
+
+        $map['comicSeriesRepository'] = fn (CI $c) =>
+            new ComicSeriesRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ComicSeriesHydrator(
+                        $c->comicIssueRepository,
+                        $c->comicPublisherRepository,
+                        $c->gameRepository,
+                        $c->linker
+                    )
+                )
             );
 
         $map['eventRepository'] = fn (CI $c) =>
