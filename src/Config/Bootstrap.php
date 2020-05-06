@@ -400,7 +400,7 @@ class Bootstrap extends BootstrapBase
                 )
             );
 
-        $map['userRepoository'] = fn (CI $c) =>
+        $map['userRepository'] = fn (CI $c) =>
             new UserRepository(
                 $c->repositoryContext,
                 new ObjectProxy(

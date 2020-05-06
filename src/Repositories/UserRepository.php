@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use Plasticode\Models\User as BaseUser;
 use Plasticode\Repositories\Idiorm\UserRepository as BaseUserRepository;
 
 class UserRepository extends BaseUserRepository implements UserRepositoryInterface
@@ -20,7 +21,7 @@ class UserRepository extends BaseUserRepository implements UserRepositoryInterfa
         return parent::create($data);
     }
 
-    public function save(User $user) : User
+    public function save(BaseUser $user) : User
     {
         return parent::save($user);
     }
