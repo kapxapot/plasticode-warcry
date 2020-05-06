@@ -41,6 +41,7 @@ use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
+use App\Repositories\ComicPublisherRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\EventTypeRepository;
 use App\Repositories\ForumMemberRepository;
@@ -125,6 +126,11 @@ class Bootstrap extends BootstrapBase
                         $c->tagsConfig
                     )
                 )
+            );
+
+        $map['comicPublisherRepository'] = fn (CI $c) =>
+            new ComicPublisherRepository(
+                $c->repositoryContext
             );
 
         $map['eventRepository'] = fn (CI $c) =>
