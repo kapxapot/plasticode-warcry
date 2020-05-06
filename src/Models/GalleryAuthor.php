@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Collections\GalleryPictureCollection;
+use App\Models\Traits\Stamps;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Traits\Published;
-use Plasticode\Models\Traits\Stamps;
 
 /**
  * @property string|null $alias

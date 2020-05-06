@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Stamps;
 use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Published;
-use Plasticode\Models\Traits\Stamps;
 
 abstract class ComicPageBase extends DbModel
 {

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Stamps;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\TaggedInterface;
 use Plasticode\Models\Traits\FullPublished;
-use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tagged;
 
 /**

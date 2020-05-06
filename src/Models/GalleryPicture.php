@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Stamps;
 use Plasticode\AspectRatio;
 use Plasticode\IO\Image;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Linkable;
-use Plasticode\Models\Traits\Stamps;
 use Plasticode\Models\Traits\Tagged;
 use Webmozart\Assert\Assert;
 

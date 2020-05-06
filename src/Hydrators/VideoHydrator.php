@@ -5,11 +5,11 @@ namespace App\Hydrators;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Video;
 use App\Repositories\Interfaces\GameRepositoryInterface;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Parsing\Parsers\CutParser;
-use Plasticode\Repositories\Interfaces\UserRepositoryInterface;
 
 class VideoHydrator extends NewsSourceHydrator
 {

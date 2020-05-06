@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Stamps;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Traits\Stamps;
 
 /**
  * @property string $name

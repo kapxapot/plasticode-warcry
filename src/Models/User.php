@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
-use Plasticode\Models\User as UserBase;
+use Plasticode\Models\User as BaseUser;
 
-class User extends UserBase
+/**
+ * @property string|null $forumName
+ * @method ForumMember|null forumMember()
+ * @method static withForumMember(ForumMember|callable|null $forumMember)
+ */
+class User extends BaseUser
 {
-    public function forumMember()
+    protected function requiredWiths(): array
     {
-        return ForumMember::getByName($this->forumName ?? $this->login);
+        return [
+            ...parent::requiredWiths(),
+            'forumMember',
+        ];
     }
 }

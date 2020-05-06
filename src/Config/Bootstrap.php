@@ -25,6 +25,7 @@ use App\Hydrators\RecipeHydrator;
 use App\Hydrators\RegionHydrator;
 use App\Hydrators\SkillHydrator;
 use App\Hydrators\StreamHydrator;
+use App\Hydrators\UserHydrator;
 use App\Hydrators\VideoHydrator;
 use App\Parsing\ForumParser;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
@@ -62,6 +63,7 @@ use App\Repositories\RegionRepository;
 use App\Repositories\SkillRepository;
 use App\Repositories\StreamRepository;
 use App\Repositories\StreamStatRepository;
+use App\Repositories\UserRepository;
 use App\Repositories\VideoRepository;
 use App\Services\ComicService;
 use App\Services\ForumService;
@@ -394,6 +396,20 @@ class Bootstrap extends BootstrapBase
                         $c->linker,
                         $c->parser,
                         $c->tagsConfig
+                    )
+                )
+            );
+
+        $map['userRepoository'] = fn (CI $c) =>
+            new UserRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new UserHydrator(
+                        $c->forumMemberRepository,
+                        $c->roleRepository,
+                        $c->linker,
+                        $c->gravatar
                     )
                 )
             );
