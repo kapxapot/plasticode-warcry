@@ -22,7 +22,10 @@ class ComicStandalonePageRepository extends IdiormRepository implements ComicSta
         return ComicStandalonePageCollection::from(
             $this
                 ->publishedQuery()
-                ->where('comic_standalone_id', $comic->getId())
+                ->where(
+                    ComicStandalonePage::comicIdField(),
+                    $comic->getId()
+                )
         );
     }
 }

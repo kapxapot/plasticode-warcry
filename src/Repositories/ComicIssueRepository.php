@@ -15,6 +15,8 @@ class ComicIssueRepository extends IdiormRepository implements ComicIssueReposit
 
     protected string $entityClass = ComicIssue::class;
 
+    protected string $sortField = 'number';
+
     public function get(?int $id) : ?ComicIssue
     {
         return $this->getEntity($id);

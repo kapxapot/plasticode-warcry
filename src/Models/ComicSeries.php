@@ -6,6 +6,7 @@ use App\Collections\ComicIssueCollection;
 use App\Models\Traits\ComicRoot;
 use App\Models\Traits\Stamps;
 use Plasticode\Models\DbModel;
+use Plasticode\Models\Interfaces\TaggedInterface;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Tagged;
 
@@ -13,7 +14,7 @@ use Plasticode\Models\Traits\Tagged;
  * @method ComicIssueCollection issues()
  * @method static withIssues(ComicIssueCollection $issues)
  */
-class ComicSeries extends DbModel
+class ComicSeries extends DbModel implements TaggedInterface
 {
     use ComicRoot;
     use FullPublished;
@@ -25,16 +26,26 @@ class ComicSeries extends DbModel
         return [
             $this->gamePropertyName,
             $this->pageUrlPropertyName,
+            $this->parsedDescriptionPropertyName,
             $this->publisherPropertyName,
+            $this->tagLinksPropertyName,
             'issues',
         ];
     }
 
     public function issueByNumber(int $number) : ?ComicIssue
     {
-        return $this
-            ->issues()
-            ->first('number', $number);
+        return $this->issues()->byNumber($number);
+    }
+
+    public function prevIssue(int $number) : ?ComicIssue
+    {
+        return $this->issues()->prev($number);
+    }
+
+    public function nextIssue(int $number) : ?ComicIssue
+    {
+        return $this->issues()->next($number);
     }
 
     public function count() : int

@@ -14,6 +14,11 @@ class ComicSeriesRepository extends TaggedRepository implements ComicSeriesRepos
 
     protected string $entityClass = ComicSeries::class;
 
+    public function get(?int $id) : ?ComicSeries
+    {
+        return $this->getEntity($id);
+    }
+
     public function getAllPublished() : ComicSeriesCollection
     {
         return ComicSeriesCollection::from(
@@ -28,5 +33,4 @@ class ComicSeriesRepository extends TaggedRepository implements ComicSeriesRepos
             ->where('alias', $alias)
             ->one();
     }
-
 }

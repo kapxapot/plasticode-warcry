@@ -3,69 +3,78 @@
 namespace App\Models;
 
 use App\Collections\ComicPageBaseCollection;
-use App\Models\Traits\Description;
-use App\Models\Traits\Stamps;
+use App\Models\Traits\ComicCommon;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Traits\FullPublished;
-use Plasticode\Models\Traits\Tagged;
+use Plasticode\Models\Interfaces\TaggedInterface;
 
-abstract class Comic extends DbModel
+/**
+ * @property string $issuedOn
+ * @property string|null $origin
+ */
+abstract class Comic extends DbModel implements TaggedInterface
 {
-    use Description;
-    use FullPublished;
-    use Stamps;
-    use Tagged;
+    use ComicCommon;
 
-    abstract public function pages() : ComicPageBaseCollection;
+    protected string $pagesPropertyName = 'pages';
+
+    protected function requiredWiths(): array
+    {
+        return [
+            $this->pagesPropertyName,
+            $this->pageUrlPropertyName,
+            $this->parsedDescriptionPropertyName,
+            $this->tagLinksPropertyName,
+        ];
+    }
+
+    public function pages() : ComicPageBaseCollection
+    {
+        return $this->getWithProperty(
+            $this->pagesPropertyName
+        );
+    }
 
     abstract public function createPage() : ComicPageBase;
 
-    public function prev() : ?self
+    /**
+     * @return static|null
+     */
+    abstract public function prev() : ?self;
+
+    /**
+     * @return static|null
+     */
+    abstract public function next() : ?self;
+
+    public function pageByNumber(int $number) : ?ComicPageBase
     {
-        return null;
-    }
-    
-    public function next() : ?self
-    {
-        return null;
+        return $this->pages()->byNumber($number);
     }
 
-    public function pageByNumber($number)
-    {
-        return $this->pages()->where('number', $number)->first();
-    }
-    
     public function count() : int
     {
         return $this->pages()->count();
     }
-    
-    public function first()
-    {
-        return $this->pages()->first();
-    }
-    
-    public function last()
-    {
-        return $this->pages()->last();
-    }
-    
+
     public function cover()
     {
         return $this->first();
     }
 
-    public function maxPageNumber($exceptId = null) : int
+    public function first() : ComicPageBase
     {
-        $max = $this->pages(true)
-            ->where(
-                function ($page) use ($exceptId) {
-                    return $page->id != $exceptId;
-                }
-            )
-            ->asc('number')
-            ->last();
-        
-        return $max ? $max->number : 0;
+        return $this->pages()->first();
     }
+
+    public function last() : ComicPageBase
+    {
+        return $this->pages()->last();
+    }
+
+    public function maxPageNumber() : int
+    {
+        return $this->pages()->maxNumber();
+    }
+
+    abstract function titleName() : string;
 }

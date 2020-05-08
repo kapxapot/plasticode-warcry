@@ -13,7 +13,6 @@ use App\Models\Game;
  * @property string $nameEn
  * @property string|null $nameRu
  * @property integer $publisherId
- * @property string|null $tags
  * @method Game game()
  * @method ComicPublisher publisher()
  * @method static withGame(Game|callable $game)
@@ -21,8 +20,7 @@ use App\Models\Game;
  */
 trait ComicRoot
 {
-    use Description;
-    use PageUrl;
+    use ComicCommon;
 
     protected string $gamePropertyName = 'game';
     protected string $publisherPropertyName = 'publisher';

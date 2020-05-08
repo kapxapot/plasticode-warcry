@@ -7,6 +7,9 @@ use Plasticode\Query;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Published;
 
+/**
+ * @property integer $number
+ */
 abstract class ComicPageBase extends DbModel
 {
     use Published;
@@ -14,14 +17,11 @@ abstract class ComicPageBase extends DbModel
 
     protected static string $sortField = 'number';
 
-    protected static $comicIdField;
+    protected static string $comicIdField;
 
-    // queries
-
-    public static function getByComic($comicId) : Query
+    public static function comicIdField() : string
     {
-        return self::getPublished()
-            ->where(static::$comicIdField, $comicId);
+        return static::$comicIdField;
     }
 
     /**
@@ -34,9 +34,9 @@ abstract class ComicPageBase extends DbModel
         );
     }
 
-    public abstract function comic();
+    abstract public function comic() : Comic;
 
-    public abstract function pageUrl() : string;
+    abstract public function pageUrl() : string;
 
     public function url() : string
     {
@@ -107,7 +107,7 @@ abstract class ComicPageBase extends DbModel
             }
         );
     }
-    
+
     public function titleName() : string
     {
         return $this->numberStr() . ' - ' . $this->comic()->titleName();

@@ -7,6 +7,7 @@ use App\Models\ComicSeries;
 
 interface ComicSeriesRepositoryInterface
 {
+    function get(?int $id) : ?ComicSeries;
     function getAllPublished() : ComicSeriesCollection;
     function getPublishedByAlias(string $alias) : ?ComicSeries;
 }
