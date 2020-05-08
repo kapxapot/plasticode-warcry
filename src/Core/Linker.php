@@ -6,6 +6,7 @@ use App\Core\Interfaces\LinkerInterface;
 use App\Models\Article;
 use App\Models\ComicIssue;
 use App\Models\ComicSeries;
+use App\Models\ComicStandalone;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
@@ -235,7 +236,7 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function comicStandalone($comic)
+    public function comicStandalone(ComicStandalone $comic) : string
     {
         return $this->router->pathFor(
             'main.comics.standalone',

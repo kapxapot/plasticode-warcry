@@ -6,6 +6,7 @@ use App\Core\Interfaces\LinkerInterface;
 use App\Models\Article;
 use App\Models\ComicIssue;
 use App\Models\ComicSeries;
+use App\Models\ComicStandalone;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
@@ -101,12 +102,18 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
 
     public function comicSeries(ComicSeries $series) : string
     {
-        return $this->abs('/comic_series/') . $series->alias;
+        return $this->abs('/comics/series/') . $series->alias;
     }
 
     public function comicIssue(?ComicIssue $comic) : string
     {
-        return $this->abs('/comic_issues/') . $comic->getId();
+        return $this->comicSeries($comic->series())
+            . '/' . $comic->number;
+    }
+
+    public function comicStandalone(ComicStandalone $comic) : string
+    {
+        return $this->abs('/comics/') . $comic->alias;
     }
 
     public function disqusArticle(Article $article) : string

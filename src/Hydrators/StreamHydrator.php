@@ -9,10 +9,11 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\GameService;
 use App\Services\StreamService;
 use Plasticode\Config\Interfaces\TagsConfigInterface;
-use Plasticode\Hydrators\Basic\Hydrator;
+use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
+use Plasticode\Parsing\Interfaces\ParserInterface;
 
-class StreamHydrator extends Hydrator
+class StreamHydrator extends ParsingHydrator
 {
     private GameRepositoryInterface $gameRepository;
     private UserRepositoryInterface $userRepository;
@@ -30,9 +31,12 @@ class StreamHydrator extends Hydrator
         GameService $gameService,
         StreamService $streamService,
         LinkerInterface $linker,
+        ParserInterface $parser,
         TagsConfigInterface $tagsConfig
     )
     {
+        parent::__construct($parser);
+
         $this->gameRepository = $gameRepository;
         $this->userRepository = $userRepository;
 
@@ -55,6 +59,9 @@ class StreamHydrator extends Hydrator
             )
             ->withIsAlive(
                 fn () => $this->streamService->isAlive($entity)
+            )
+            ->withParsedDescription(
+                fn () => $this->parse($entity->description)->text
             )
             ->withIsPriorityGame(
                 fn () => $this->gameService->isPriorityGame($entity->remoteGame)

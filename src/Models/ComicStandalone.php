@@ -2,51 +2,23 @@
 
 namespace App\Models;
 
-use Plasticode\Collections\Basic\Collection;
+use App\Collections\ComicStandalonePageCollection;
+use App\Models\Traits\ComicRoot;
 
+/**
+ * @property string $issuedOn
+ * @property string $nameRu
+ * @property string|null $origin
+ * @method ComicStandalonePageCollection pages()
+ * @method static withPages(ComicStandalonePageCollection|callable $pages)
+ */
 class ComicStandalone extends Comic
 {
-    protected static string $sortField = 'issued_on';
-    protected static bool $sortReverse = true;
-    protected static $tagsEntityType = 'comics';
-
-    public static function getPublishedByAlias($alias) : ?self
-    {
-        return self::getPublished()
-            ->where('alias', $alias)
-            ->one();
-    }
+    use ComicRoot;
 
     public function createPage() : ComicStandalonePage
     {
-        return ComicStandalonePage::createForComic($this->getId());
-    }
-
-    public function game() : Game
-    {
-        return Game::get($this->gameId);
-    }
-
-    public function pageUrl() : string
-    {
-        return self::$container->linker->comicStandalone($this);
-    }
-    
-    public function pages(bool $ignoreCache = false) : Collection
-    {
-        return $this->lazy(
-            function () {
-                return ComicStandalonePage::getByComic($this->id)
-                    ->all();
-            },
-            null,
-            $ignoreCache
-        );
-    }
-
-    public function publisher() : ComicPublisher
-    {
-        return ComicPublisher::get($this->publisherId);
+        return ComicStandalonePage::createForComic($this);
     }
 
     public function titleName() : string

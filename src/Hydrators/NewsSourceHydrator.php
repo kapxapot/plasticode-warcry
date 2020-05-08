@@ -7,20 +7,19 @@ use App\Models\NewsSource;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Plasticode\Config\Interfaces\TagsConfigInterface;
-use Plasticode\Hydrators\Basic\Hydrator;
+use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Parsing\Parsers\CutParser;
 use Plasticode\Parsing\ParsingContext;
 
-abstract class NewsSourceHydrator extends Hydrator
+abstract class NewsSourceHydrator extends ParsingHydrator
 {
     protected GameRepositoryInterface $gameRepository;
     protected UserRepositoryInterface $userRepository;
 
     protected CutParser $cutParser;
     protected LinkerInterface $linker;
-    protected ParserInterface $parser;
 
     protected TagsConfigInterface $tagsConfig;
 
@@ -33,12 +32,13 @@ abstract class NewsSourceHydrator extends Hydrator
         TagsConfigInterface $tagsConfig
     )
     {
+        parent::__construct($parser);
+
         $this->gameRepository = $gameRepository;
         $this->userRepository = $userRepository;
 
         $this->cutParser = $cutParser;
         $this->linker = $linker;
-        $this->parser = $parser;
 
         $this->tagsConfig = $tagsConfig;
     }
@@ -54,7 +54,7 @@ abstract class NewsSourceHydrator extends Hydrator
             )
             ->withParsed(
                 $this->frozen(
-                    fn () => $this->parseText($entity)
+                    fn () => $this->parse($entity->rawText())
                 )
             )
             ->withFullText(
@@ -86,19 +86,5 @@ abstract class NewsSourceHydrator extends Hydrator
             ->withUpdater(
                 fn () => $this->userRepository->get($entity->updatedBy)
             );
-    }
-
-    private function parseText(NewsSource $entity) : ?ParsingContext
-    {
-        $text = $entity->rawText();
-
-        if (strlen($text) == 0) {
-            return null;
-        }
-
-        $context = $this->parser->parse($text);
-        $context = $this->parser->renderLinks($context);
-
-        return $context;
     }
 }

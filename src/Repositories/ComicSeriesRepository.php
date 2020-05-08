@@ -5,10 +5,10 @@ namespace App\Repositories;
 use App\Collections\ComicSeriesCollection;
 use App\Models\ComicSeries;
 use App\Repositories\Interfaces\ComicSeriesRepositoryInterface;
-use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
 
-class ComicSeriesRepository extends IdiormRepository implements ComicSeriesRepositoryInterface
+class ComicSeriesRepository extends TaggedRepository implements ComicSeriesRepositoryInterface
 {
     use FullPublishedRepository;
 

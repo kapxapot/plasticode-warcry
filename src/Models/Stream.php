@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Description;
+use App\Models\Traits\PageUrl;
 use App\Models\Traits\Stamps;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\TaggedInterface;
@@ -10,7 +12,6 @@ use Plasticode\Models\Traits\Tagged;
 
 /**
  * @property integer $channel
- * @property string|null $description
  * @property integer $genderId
  * @property integer $official
  * @property integer $officialRu
@@ -32,7 +33,6 @@ use Plasticode\Models\Traits\Tagged;
  * @method bool isPriorityGame()
  * @method string largeImgUrl()
  * @method array nouns()
- * @method string pageUrl()
  * @method string streamUrl()
  * @method array verbs()
  * @method static withGame(Game|callable|null $game)
@@ -41,13 +41,14 @@ use Plasticode\Models\Traits\Tagged;
  * @method static withIsPriorityGame(bool|callable $isPriorityGame)
  * @method static withLargeImgUrl(string|callable $largeImgUrl)
  * @method static withNouns(array|callable $nouns)
- * @method static withPageUrl(string|callable $pageUrl)
  * @method static withStreamUrl(string|callable $streamUrl)
  * @method static withVerbs(array|callable $verbs)
  */
 class Stream extends DbModel implements TaggedInterface
 {
+    use Description;
     use FullPublished;
+    use PageUrl;
     use Stamps;
     use Tagged;
 
@@ -55,6 +56,8 @@ class Stream extends DbModel implements TaggedInterface
     {
         return [
             $this->creatorPropertyName,
+            $this->pageUrlPropertyName,
+            $this->parsedDescriptionPropertyName,
             $this->updaterPropertyName,
             $this->tagLinksPropertyName,
             'game',
@@ -63,7 +66,6 @@ class Stream extends DbModel implements TaggedInterface
             'isPriorityGame',
             'largeImgUrl',
             'nouns',
-            'pageUrl',
             'streamUrl',
             'verbs',
         ];

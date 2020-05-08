@@ -11,6 +11,7 @@ use App\Handlers\NotFoundHandler;
 use App\Hydrators\ArticleCategoryHydrator;
 use App\Hydrators\ArticleHydrator;
 use App\Hydrators\ComicSeriesHydrator;
+use App\Hydrators\ComicStandaloneHydrator;
 use App\Hydrators\EventHydrator;
 use App\Hydrators\ForumHydrator;
 use App\Hydrators\ForumMemberHydrator;
@@ -45,6 +46,7 @@ use App\Repositories\ArticleRepository;
 use App\Repositories\ComicIssueRepository;
 use App\Repositories\ComicPublisherRepository;
 use App\Repositories\ComicSeriesRepository;
+use App\Repositories\ComicStandaloneRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\EventTypeRepository;
 use App\Repositories\ForumMemberRepository;
@@ -144,13 +146,31 @@ class Bootstrap extends BootstrapBase
         $map['comicSeriesRepository'] = fn (CI $c) =>
             new ComicSeriesRepository(
                 $c->repositoryContext,
+                $c->tagRepository,
                 new ObjectProxy(
                     fn () =>
                     new ComicSeriesHydrator(
                         $c->comicIssueRepository,
                         $c->comicPublisherRepository,
                         $c->gameRepository,
-                        $c->linker
+                        $c->linker,
+                        $c->parser
+                    )
+                )
+            );
+
+        $map['comicStandaloneRepository'] = fn (CI $c) =>
+            new ComicStandaloneRepository(
+                $c->repositoryContext,
+                $c->tagRepository,
+                new ObjectProxy(
+                    fn () =>
+                    new ComicStandaloneHydrator(
+                        $c->comicPublisherRepository,
+                        $c->comicStandalonePageRepository,
+                        $c->gameRepository,
+                        $c->linker,
+                        $c->parser
                     )
                 )
             );
@@ -401,6 +421,7 @@ class Bootstrap extends BootstrapBase
                         $c->gameService,
                         $c->streamService,
                         $c->linker,
+                        $c->parser,
                         $c->tagsConfig
                     )
                 )
@@ -644,7 +665,10 @@ class Bootstrap extends BootstrapBase
         // services
 
         $map['comicService'] = fn (CI $c) =>
-            new ComicService();
+            new ComicService(
+                $c->comicIssueRepository,
+                $c->comicStandaloneRepository
+            );
 
         $map['forumService'] = fn (CI $c) =>
             new ForumService(

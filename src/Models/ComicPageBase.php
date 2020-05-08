@@ -23,18 +23,17 @@ abstract class ComicPageBase extends DbModel
         return self::getPublished()
             ->where(static::$comicIdField, $comicId);
     }
-    
-    // funcs
-    
-    public static function createForComic($comicId) : ?self
+
+    /**
+     * @return static
+     */
+    public static function createForComic(Comic $comic) : self
     {
-        return self::create(
-            [static::$comicIdField => $comicId]
+        return static::create(
+            [static::$comicIdField => $comic->getId()]
         );
     }
-    
-    // PROPS
-    
+
     public abstract function comic();
 
     public abstract function pageUrl() : string;

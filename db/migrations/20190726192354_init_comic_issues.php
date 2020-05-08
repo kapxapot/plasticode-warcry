@@ -13,7 +13,6 @@ class InitComicIssues extends AbstractMigration
             ->addColumn('number', 'integer')
             ->addColumn('name_ru', 'string', ['limit' => 250, 'null' => true])
             ->addColumn('name_en', 'string', ['limit' => 250, 'null' => true])
-            ->addColumn('alias', 'string', ['limit' => 100])
             ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
             ->addColumn('updated_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
             ->addColumn('created_by', 'integer', ['null' => true])

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Description;
+use App\Models\Traits\PageUrl;
 use App\Models\Traits\Stamps;
 use Plasticode\AspectRatio;
 use Plasticode\IO\Image;
@@ -16,7 +18,6 @@ use Webmozart\Assert\Assert;
  * @property integer $authorId
  * @property string|null $avgColor
  * @property string|null $comment
- * @property string|null $description
  * @property integer|null $gameId
  * @property integer|null $height
  * @property integer $official
@@ -29,23 +30,21 @@ use Webmozart\Assert\Assert;
  * @method string ext()
  * @method Game|null game()
  * @method static|null next()
- * @method string pageUrl()
- * @method string|null parsedDescription()
  * @method static|null prev()
  * @method string thumbUrl()
  * @method static withAuthor(GalleryAuthor|callable $author)
  * @method static withExt(string|callable $ext)
  * @method static withGame(Game|callable|null $game)
  * @method static withNext(static|callable|null $next)
- * @method static withPageUrl(string|callable $pageUrl)
- * @method static withParsedDescription(string|callable|null $parsedDescription)
  * @method static withPrev(static|callable|null $prev)
  * @method static withThumbUrl(string|callable $thumbUrl)
  */
 class GalleryPicture extends DbModel implements LinkableInterface
 {
+    use Description;
     use FullPublished;
     use Linkable;
+    use PageUrl;
     use Stamps;
     use Tagged;
 
@@ -54,13 +53,13 @@ class GalleryPicture extends DbModel implements LinkableInterface
     protected function requiredWiths(): array
     {
         return [
+            $this->pageUrlPropertyName,
+            $this->parsedDescriptionPropertyName,
             $this->urlPropertyName,
             'author',
             'ext',
             'game',
             'next',
-            'pageUrl',
-            'parsedDescription',
             'prev',
             'thumbUrl',
         ];

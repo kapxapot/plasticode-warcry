@@ -3,25 +3,25 @@
 namespace App\Hydrators;
 
 use App\Core\Interfaces\LinkerInterface;
-use App\Models\ComicSeries;
-use App\Repositories\Interfaces\ComicIssueRepositoryInterface;
+use App\Models\ComicStandalone;
 use App\Repositories\Interfaces\ComicPublisherRepositoryInterface;
+use App\Repositories\Interfaces\ComicStandalonePageRepositoryInterface;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 
-class ComicSeriesHydrator extends ParsingHydrator
+class ComicStandaloneHydrator extends ParsingHydrator
 {
-    private ComicIssueRepositoryInterface $comicIssueRepository;
     private ComicPublisherRepositoryInterface $comicPublisherRepository;
+    private ComicStandalonePageRepositoryInterface $comicStandalonePageRepository;
     private GameRepositoryInterface $gameRepository;
 
     private LinkerInterface $linker;
 
     public function __construct(
-        ComicIssueRepositoryInterface $comicIssueRepository,
         ComicPublisherRepositoryInterface $comicPublisherRepository,
+        ComicStandalonePageRepositoryInterface $comicStandalonePageRepository,
         GameRepositoryInterface $gameRepository,
         LinkerInterface $linker,
         ParserInterface $parser
@@ -29,33 +29,33 @@ class ComicSeriesHydrator extends ParsingHydrator
     {
         parent::__construct($parser);
 
-        $this->comicIssueRepository = $comicIssueRepository;
         $this->comicPublisherRepository = $comicPublisherRepository;
+        $this->comicStandalonePageRepository = $comicStandalonePageRepository;
         $this->gameRepository = $gameRepository;
 
         $this->linker = $linker;
     }
 
     /**
-     * @param ComicSeries $entity
+     * @param ComicStandalone $entity
      */
-    public function hydrate(DbModel $entity) : ComicSeries
+    public function hydrate(DbModel $entity) : ComicStandalone
     {
         return $entity
             ->withGame(
                 fn () => $this->gameRepository->get($entity->gameId)
             )
-            ->withIssues(
-                fn () => $this->comicIssueRepository->getAllBySeries($entity)
-            )
             ->withPublisher(
                 fn () => $this->comicPublisherRepository->get($entity->publisherId)
+            )
+            ->withPages(
+                fn () => $this->comicStandalonePageRepository->getAllByComic($entity)
             )
             ->withParsedDescription(
                 fn () => $this->parse($entity->description)->text
             )
             ->withPageUrl(
-                fn () => $this->linker->comicSeries($entity)
+                fn () => $this->linker->comicStandalone($entity)
             );
     }
 }

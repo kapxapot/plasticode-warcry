@@ -3,8 +3,13 @@
 namespace App\Models;
 
 use Plasticode\Collections\Basic\Collection;
-use Plasticode\Query;
 
+/**
+ * @property string|null $nameEn
+ * @property string|null $nameRu
+ * @property integer $number
+ * @property integer $seriesId
+ */
 class ComicIssue extends Comic
 {
     protected static string $sortField = 'number';

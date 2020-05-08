@@ -15,6 +15,11 @@ class ComicIssueRepository extends IdiormRepository implements ComicIssueReposit
 
     protected string $entityClass = ComicIssue::class;
 
+    public function get(?int $id) : ?ComicIssue
+    {
+        return $this->getEntity($id);
+    }
+
     /**
      * Returns all published comic issues by series.
      */

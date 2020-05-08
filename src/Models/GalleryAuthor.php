@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Collections\GalleryPictureCollection;
+use App\Models\Traits\Description;
+use App\Models\Traits\PageUrl;
 use App\Models\Traits\Stamps;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
@@ -12,34 +14,31 @@ use Plasticode\Models\Traits\Published;
  * @property string|null $alias
  * @property string|null $artStation
  * @property integer $categoryId
- * @property string|null $description
  * @property string|null $deviant
  * @property string $name
  * @property string|null $realName
  * @property string|null $realNameEn
  * @method GalleryAuthorCategory category()
  * @method ForumMember|null forumMember()
- * @method string pageUrl()
- * @method string|null parsedDescription()
  * @method GalleryPictureCollection pictures()
  * @method static withCategory(GalleryAuthorCategory|callable $category)
  * @method static withForumMember(ForumMember|callable|null $forumMember)
- * @method static withPageUrl(string|callable $pageUrl)
- * @method static withParsedDescription(string|callable|null $parsedDescription)
  * @method static withPictures(GalleryPictureCollection|callable $pictures)
  */
 class GalleryAuthor extends DbModel implements LinkableInterface
 {
+    use Description;
+    use PageUrl;
     use Published;
     use Stamps;
 
     protected function requiredWiths(): array
     {
         return [
+            $this->pageUrlPropertyName,
+            $this->parsedDescriptionPropertyName,
             'category',
             'forumMember',
-            'pageUrl',
-            'parsedDescription',
             'pictures',
         ];
     }

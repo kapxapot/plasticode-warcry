@@ -7,18 +7,17 @@ use App\Models\GalleryPicture;
 use App\Repositories\Interfaces\GalleryAuthorRepositoryInterface;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use App\Repositories\Interfaces\GameRepositoryInterface;
-use Plasticode\Hydrators\Basic\Hydrator;
+use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 
-class GalleryPictureHydrator extends Hydrator
+class GalleryPictureHydrator extends ParsingHydrator
 {
     private GalleryAuthorRepositoryInterface $galleryAuthorRepository;
     private GalleryPictureRepositoryInterface $galleryPictureRepository;
     private GameRepositoryInterface $gameRepository;
 
     private LinkerInterface $linker;
-    private ParserInterface $parser;
 
     public function __construct(
         GalleryAuthorRepositoryInterface $galleryAuthorRepository,
@@ -28,12 +27,13 @@ class GalleryPictureHydrator extends Hydrator
         ParserInterface $parser
     )
     {
+        parent::__construct($parser);
+
         $this->galleryAuthorRepository = $galleryAuthorRepository;
         $this->galleryPictureRepository = $galleryPictureRepository;
         $this->gameRepository = $gameRepository;
 
         $this->linker = $linker;
-        $this->parser = $parser;
     }
 
     /**
@@ -49,7 +49,7 @@ class GalleryPictureHydrator extends Hydrator
                 fn () => $this->gameRepository->get($entity->gameId)
             )
             ->withParsedDescription(
-                fn () => $this->parse($entity->description)
+                fn () => $this->parse($entity->description)->text
             )
             ->withPrev(
                 fn () => $this->galleryPictureRepository->getPrevSibling($entity)
@@ -69,19 +69,5 @@ class GalleryPictureHydrator extends Hydrator
             ->withPageUrl(
                 fn () => $this->linker->galleryPicture($entity)
             );
-    }
-
-    private function parse(?string $text) : ?string
-    {
-        if (strlen($text) == 0) {
-            return null;
-        }
-
-        $context = $this->parser->parse($text);
-        $context = $this->parser->renderLinks($context);
-
-        return $context
-            ? $context->text
-            : null;
     }
 }

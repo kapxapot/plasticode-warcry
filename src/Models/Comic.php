@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\Traits\Names;
+use App\Collections\ComicPageBaseCollection;
+use App\Models\Traits\Description;
 use App\Models\Traits\Stamps;
-use Plasticode\Collections\Basic\Collection;
 use Plasticode\Models\DbModel;
-use Plasticode\Models\Traits\Description;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Tagged;
 
@@ -14,16 +13,13 @@ abstract class Comic extends DbModel
 {
     use Description;
     use FullPublished;
-    use Names;
     use Stamps;
     use Tagged;
-    
-    // PROPS
 
-    public abstract function pages() : Collection;
-    
-    public abstract function createPage();
-    
+    abstract public function pages() : ComicPageBaseCollection;
+
+    abstract public function createPage() : ComicPageBase;
+
     public function prev() : ?self
     {
         return null;
