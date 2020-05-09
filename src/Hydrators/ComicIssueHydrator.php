@@ -4,34 +4,28 @@ namespace App\Hydrators;
 
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\ComicIssue;
-use App\Repositories\Interfaces\ComicPageRepositoryInterface;
+use App\Repositories\Interfaces\ComicIssuePageRepositoryInterface;
 use App\Repositories\Interfaces\ComicSeriesRepositoryInterface;
-use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
 
 class ComicIssueHydrator extends ParsingHydrator
 {
-    private ComicPageRepositoryInterface $comicPageRepository;
+    private ComicIssuePageRepositoryInterface $comicIssuePageRepository;
     private ComicSeriesRepositoryInterface $comicSeriesRepository;
 
     private LinkerInterface $linker;
 
-    private TagsConfigInterface $tagsConfig;
-
     public function __construct(
-        ComicPageRepositoryInterface $comicPageRepository,
+        ComicIssuePageRepositoryInterface $comicIssuePageRepository,
         ComicSeriesRepositoryInterface $comicSeriesRepository,
-        LinkerInterface $linker,
-        TagsConfigInterface $tagsConfig
+        LinkerInterface $linker
     )
     {
-        $this->comicPageRepository = $comicPageRepository;
+        $this->comicIssuePageRepository = $comicIssuePageRepository;
         $this->comicSeriesRepository = $comicSeriesRepository;
 
         $this->linker = $linker;
-
-        $this->tagsConfig = $tagsConfig;
     }
 
     /**
@@ -44,7 +38,7 @@ class ComicIssueHydrator extends ParsingHydrator
                 fn () => $this->comicSeriesRepository->get($entity->seriesId)
             )
             ->withPages(
-                fn () => $this->comicPageRepository->getAllByComic($entity)
+                fn () => $this->comicIssuePageRepository->getAllByComic($entity)
             )
             ->withParsedDescription(
                 fn () => $this->parse($entity->description)->text
@@ -53,11 +47,7 @@ class ComicIssueHydrator extends ParsingHydrator
                 fn () => $this->linker->comicIssue($entity)
             )
             ->withTagLinks(
-                fn () =>
-                $this->linker->tagLinks(
-                    $entity,
-                    $this->tagsConfig->getTab(get_class($entity))
-                )
+                fn () => $this->linker->tagLinks($entity)
             );
     }
 }

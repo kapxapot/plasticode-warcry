@@ -3,11 +3,9 @@
 namespace App\Repositories\Interfaces;
 
 use App\Collections\ComicStandalonePageCollection;
-use App\Models\ComicStandalone;
+use App\Models\Comic;
 
-interface ComicStandalonePageRepositoryInterface
+interface ComicStandalonePageRepositoryInterface extends ComicPageRepositoryInterface
 {
-    function getAllByComic(
-        ComicStandalone $comic
-    ) : ComicStandalonePageCollection;
+    function getAllByComic(Comic $comic) : ComicStandalonePageCollection;
 }

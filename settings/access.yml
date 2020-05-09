@@ -57,7 +57,7 @@ rights:
   comic_issues:
     template: editor_strict
 
-  comic_pages:
+  comic_issue_pages:
     template: editor_strict
 
   comic_publishers:

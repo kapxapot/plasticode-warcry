@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Collections\ComicPageCollection;
+use App\Collections\ComicIssuePageCollection;
+use App\Models\Interfaces\NumberedInterface;
 use App\Models\Traits\ComicCommon;
 
 /**
@@ -14,9 +15,9 @@ use App\Models\Traits\ComicCommon;
  * @property integer $seriesId
  * @method ComicSeries series()
  * @method static withSeries(ComicSeries|callable $series)
- * @method static withPages(ComicPageCollection|callable $pages)
+ * @method static withPages(ComicIssuePageCollection|callable $pages)
  */
-class ComicIssue extends Comic
+class ComicIssue extends Comic implements NumberedInterface
 {
     use ComicCommon;
 
@@ -28,16 +29,21 @@ class ComicIssue extends Comic
         ];
     }
 
-    public function createPage() : ComicPage
+    public function createPage() : ComicIssuePage
     {
-        return ComicPage::createForComic($this);
+        return ComicIssuePage::createForComic($this);
     }
 
-    public function pages() : ComicPageCollection
+    public function pages() : ComicIssuePageCollection
     {
-        return ComicPageCollection::from(
+        return ComicIssuePageCollection::from(
             parent::pages()
         );
+    }
+
+    public function number() : int
+    {
+        return $this->number;
     }
 
     public function numberStr() : string

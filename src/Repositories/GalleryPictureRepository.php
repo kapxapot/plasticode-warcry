@@ -43,11 +43,7 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
     ) : GalleryPictureCollection
     {
         return GalleryPictureCollection::from(
-            $this
-                ->query()
-                ->apply(
-                    fn (Query $q) => $this->filterByTag($q, $tag, $limit)
-                )
+            $this->filterByTag($this->publishedQuery(), $tag, $limit)
         );
     }
 

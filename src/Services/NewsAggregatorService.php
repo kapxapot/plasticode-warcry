@@ -80,7 +80,7 @@ class NewsAggregatorService
         );
     }
 
-    public function getByTag(
+    public function getAllByTag(
         string $tag,
         bool $strict = true
     ) : NewsSourceCollection

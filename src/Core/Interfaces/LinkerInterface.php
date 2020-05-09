@@ -4,8 +4,11 @@ namespace App\Core\Interfaces;
 
 use App\Models\Article;
 use App\Models\ComicIssue;
+use App\Models\ComicIssuePage;
+use App\Models\ComicPage;
 use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
+use App\Models\ComicStandalonePage;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
@@ -41,8 +44,12 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     function galleryThumbImg(GalleryPicture $picture) : string;
 
     function comicSeries(ComicSeries $series) : string;
-    function comicIssue(?ComicIssue $comic) : string;
+    function comicIssue(ComicIssue $comic) : string;
     function comicStandalone(ComicStandalone $comic) : string;
+    function comicIssuePage(ComicIssuePage $page) : string;
+    function comicStandalonePage(ComicStandalonePage $page) : string;
+    function comicPageImg(ComicPage $page) : string;
+    function comicThumbImg(ComicPage $page) : string;
 
     function disqusArticle(Article $article) : string;
     function disqusNews(int $id) : string;

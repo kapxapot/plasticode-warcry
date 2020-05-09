@@ -9,6 +9,7 @@ use Plasticode\AspectRatio;
 use Plasticode\IO\Image;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\LinkableInterface;
+use Plasticode\Models\Interfaces\TaggedInterface;
 use Plasticode\Models\Traits\FullPublished;
 use Plasticode\Models\Traits\Linkable;
 use Plasticode\Models\Traits\Tagged;
@@ -39,7 +40,7 @@ use Webmozart\Assert\Assert;
  * @method static withPrev(static|callable|null $prev)
  * @method static withThumbUrl(string|callable $thumbUrl)
  */
-class GalleryPicture extends DbModel implements LinkableInterface
+class GalleryPicture extends DbModel implements LinkableInterface, TaggedInterface
 {
     use Description;
     use FullPublished;

@@ -3,9 +3,9 @@
 namespace App\Repositories\Interfaces;
 
 use App\Collections\ComicPageCollection;
-use App\Models\ComicIssue;
+use App\Models\Comic;
 
 interface ComicPageRepositoryInterface
 {
-    function getAllByComic(ComicIssue $comic) : ComicPageCollection;
+    function getAllByComic(Comic $comic) : ComicPageCollection;
 }

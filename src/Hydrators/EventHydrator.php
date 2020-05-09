@@ -8,7 +8,6 @@ use App\Repositories\Interfaces\EventTypeRepositoryInterface;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Repositories\Interfaces\RegionRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Parsing\Parsers\CutParser;
@@ -25,8 +24,7 @@ class EventHydrator extends NewsSourceHydrator
         UserRepositoryInterface $userRepository,
         CutParser $cutParser,
         LinkerInterface $linker,
-        ParserInterface $parser,
-        TagsConfigInterface $tagsConfig
+        ParserInterface $parser
     )
     {
         parent::__construct(
@@ -34,8 +32,7 @@ class EventHydrator extends NewsSourceHydrator
             $userRepository,
             $cutParser,
             $linker,
-            $parser,
-            $tagsConfig
+            $parser
         );
 
         $this->eventTypeRepository = $eventTypeRepository;

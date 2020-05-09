@@ -5,9 +5,12 @@ namespace App\Repositories\Interfaces;
 use App\Collections\NewsSourceCollection;
 use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
+use Plasticode\Repositories\Interfaces\Basic\TaggedRepositoryInterface;
 
-interface NewsSourceRepositoryInterface
+interface NewsSourceRepositoryInterface extends TaggedRepositoryInterface
 {
+    function getAllByTag(string $tag, int $limit = 0) : NewsSourceCollection;
+
     function getNewsByTag(string $tag, int $limit = 0) : NewsSourceCollection;
 
     function getLatestNews(

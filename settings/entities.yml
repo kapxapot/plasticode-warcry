@@ -203,11 +203,11 @@ comic_issues:
     comic_pages:
       name: Страницы
       template: >
-        '<a href="comic_issues/' + row.id + '/comic_pages" class="btn btn-success btn-pad mr-1"><i class="glyphicon glyphicon-picture" title="Редактировать страницы"></i></a> <button type="button" data-id="' + row.id + '" data-action="upload" class="btn btn-success btn-pad"><i class="glyphicon glyphicon-open" title="Загрузить страницы"></i></button>'
+        '<a href="comic_issues/' + row.id + '/pages" class="btn btn-success btn-pad mr-1"><i class="glyphicon glyphicon-picture" title="Редактировать страницы"></i></a> <button type="button" data-id="' + row.id + '" data-action="upload" class="btn btn-success btn-pad"><i class="glyphicon glyphicon-open" title="Загрузить страницы"></i></button>'
       attributes: [ no_sort, readonly ]
 
 
-comic_pages:
+comic_issue_pages:
 
   name_gen: страницы
   name_accus: страницу
@@ -439,7 +439,7 @@ comic_standalones:
     comic_standalone_pages:
       name: Страницы
       template: >
-        '<a href="comic_standalones/' + row.id + '/comic_standalone_pages"><button type="button" class="btn btn-success btn-pad mr-1"><span class="glyphicon glyphicon-picture" title="Редактировать страницы"></span></button></a>  <button type="button" data-id="' + row.id + '" data-action="upload" class="btn btn-success btn-pad"><i class="glyphicon glyphicon-open" title="Загрузить страницы"></i></button>'
+        '<a href="comic_standalones/' + row.id + '/pages"><button type="button" class="btn btn-success btn-pad mr-1"><span class="glyphicon glyphicon-picture" title="Редактировать страницы"></span></button></a>  <button type="button" data-id="' + row.id + '" data-action="upload" class="btn btn-success btn-pad"><i class="glyphicon glyphicon-open" title="Загрузить страницы"></i></button>'
       attributes: [ no_sort, readonly ]
 
 

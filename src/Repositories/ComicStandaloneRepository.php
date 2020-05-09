@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Collections\ComicStandaloneCollection;
 use App\Models\ComicStandalone;
 use App\Repositories\Interfaces\ComicStandaloneRepositoryInterface;
 use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
@@ -27,5 +28,15 @@ class ComicStandaloneRepository extends TaggedRepository implements ComicStandal
             ->publishedQuery()
             ->where('alias', $alias)
             ->one();
+    }
+
+    public function getAllByTag(
+        string $tag,
+        int $limit = 0
+    ) : ComicStandaloneCollection
+    {
+        return ComicStandaloneCollection::from(
+            $this->filterByTag($this->publishedQuery(), $tag, $limit)
+        );
     }
 }

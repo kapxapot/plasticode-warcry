@@ -5,18 +5,22 @@ namespace App\Core;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Article;
 use App\Models\ComicIssue;
+use App\Models\ComicIssuePage;
+use App\Models\ComicPage;
 use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
+use App\Models\ComicStandalonePage;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
 use App\Models\Skill;
+use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\Core\Linker as LinkerBase;
 use Plasticode\Gallery\Gallery;
+use Plasticode\IO\File;
 use Plasticode\Util\Strings;
 use Slim\Interfaces\RouterInterface;
-use Webmozart\Assert\Assert;
 
 class Linker extends LinkerBase implements LinkerInterface
 {
@@ -25,10 +29,11 @@ class Linker extends LinkerBase implements LinkerInterface
     public function __construct(
         SettingsProviderInterface $settingsProvider,
         RouterInterface $router,
-        Gallery $gallery
+        Gallery $gallery,
+        TagsConfigInterface $tagsConfig
     )
     {
-        parent::__construct($settingsProvider, $router);
+        parent::__construct($settingsProvider, $router, $tagsConfig);
 
         $this->gallery = $gallery;
     }
@@ -188,18 +193,9 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function comicIssue(?ComicIssue $comic) : string
+    public function comicIssue(ComicIssue $comic) : string
     {
-        if (is_null($comic)) {
-            return null;
-        }
-
         $series = $comic->series();
-
-        Assert::notNull(
-            $series,
-            'Comic issue ' . $comic . ' has no comic series.'
-        );
 
         return $this->router->pathFor(
             'main.comics.issue',
@@ -210,22 +206,11 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function comicIssuePage($page)
+    public function comicIssuePage(ComicIssuePage $page) : string
     {
         $comic = $page->comic();
-
-        Assert::notNull(
-            $comic,
-            'Comic issue page ' . $page . ' has no comic issue.'
-        );
-        
         $series = $comic->series();
-        
-        Assert::notNull(
-            $series,
-            'Comic issue ' . $comic . ' has no comic series.'
-        );
-        
+
         return $this->router->pathFor(
             'main.comics.issue.page',
             [
@@ -244,14 +229,9 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function comicStandalonePage($page)
+    public function comicStandalonePage(ComicStandalonePage $page) : string
     {
         $comic = $page->comic();
-
-        Assert::notNull(
-            $comic,
-            'Comic standalone page ' . $page . ' has no comic standalone.'
-        );
 
         return $this->router->pathFor(
             'main.comics.standalone.page',
@@ -262,20 +242,20 @@ class Linker extends LinkerBase implements LinkerInterface
         );
     }
 
-    public function comicPageImg($page)
+    public function comicPageImg(ComicPage $page) : string
     {
-        $ext = $this->getImageExtension($page->type);
+        $folder = $this->settingsProvider
+            ->get('folders.comics_pages_public');
 
-        return $this->settingsProvider
-            ->get('folders.comics_pages_public') . $page->id . '.' . $ext;
+        return File::combine($folder, $page->fileName());
     }
 
-    public function comicThumbImg($page)
+    public function comicThumbImg(ComicPage $page) : string
     {
-        $ext = $this->getImageExtension($page->type);
+        $folder = $this->settingsProvider
+            ->get('folders.comics_thumbs_public');
 
-        return $this->settingsProvider
-            ->get('folders.comics_thumbs_public') . $page->id . '.' . $ext;
+        return File::combine($folder, $page->fileName());
     }
 
     public function recipes(?Skill $skill = null) : string

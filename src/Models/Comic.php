@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Collections\ComicPageBaseCollection;
+use App\Collections\ComicPageCollection;
 use App\Models\Traits\ComicCommon;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\TaggedInterface;
@@ -25,14 +25,14 @@ abstract class Comic extends DbModel implements TaggedInterface
         ];
     }
 
-    public function pages() : ComicPageBaseCollection
+    public function pages() : ComicPageCollection
     {
         return $this->getWithProperty(
             $this->pagesPropertyName
         );
     }
 
-    abstract public function createPage() : ComicPageBase;
+    abstract public function createPage() : ComicPage;
 
     /**
      * @return static|null
@@ -44,7 +44,7 @@ abstract class Comic extends DbModel implements TaggedInterface
      */
     abstract public function next() : ?self;
 
-    public function pageByNumber(int $number) : ?ComicPageBase
+    public function pageByNumber(int $number) : ?ComicPage
     {
         return $this->pages()->byNumber($number);
     }
@@ -54,19 +54,41 @@ abstract class Comic extends DbModel implements TaggedInterface
         return $this->pages()->count();
     }
 
-    public function cover()
+    public function cover() : ComicPage
     {
-        return $this->first();
+        return $this->firstPage();
     }
 
-    public function first() : ComicPageBase
+    public function firstPage() : ComicPage
     {
         return $this->pages()->first();
     }
 
-    public function last() : ComicPageBase
+    public function lastPage() : ComicPage
     {
         return $this->pages()->last();
+    }
+
+    public function prevPage(int $number) : ?ComicPage
+    {
+        $prev = $this->pages()->prev($number);
+
+        if (!$prev && $this->prev()) {
+            $prev = $this->prev()->lastPage();
+        }
+
+        return $prev;
+    }
+
+    public function nextPage(int $number) : ?ComicPage
+    {
+        $next = $this->pages()->next($number);
+
+        if (!$next && $this->next()) {
+            $next = $this->next()->firstPage();
+        }
+
+        return $next;
     }
 
     public function maxPageNumber() : int

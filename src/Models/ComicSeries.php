@@ -31,6 +31,28 @@ class ComicSeries extends DbModel implements TaggedInterface
         return $this->issues()->byNumber($number);
     }
 
+    public function count() : int
+    {
+        return $this->issues()->count();
+    }
+
+    public function cover() : ?ComicPage
+    {
+        return $this->firstIssue()
+            ? $this->firstIssue()->cover()
+            : null;
+    }
+
+    public function firstIssue() : ?ComicIssue
+    {
+        return $this->issues()->first();
+    }
+
+    public function lastIssue() : ?ComicIssue
+    {
+        return $this->issues()->last();
+    }
+
     public function prevIssue(int $number) : ?ComicIssue
     {
         return $this->issues()->prev($number);
@@ -41,32 +63,10 @@ class ComicSeries extends DbModel implements TaggedInterface
         return $this->issues()->next($number);
     }
 
-    public function count() : int
-    {
-        return $this->issues()->count();
-    }
-
-    public function first() : ?ComicIssue
-    {
-        return $this->issues()->first();
-    }
-
-    public function last() : ?ComicIssue
-    {
-        return $this->issues()->last();
-    }
-
-    public function cover() : ?ComicPageBase
-    {
-        return $this->first()
-            ? $this->first()->cover()
-            : null;
-    }
-
     public function lastIssuedOn() : ?string
     {
-        return $this->last()
-            ? $this->last()->issuedOn
+        return $this->lastIssue()
+            ? $this->lastIssue()->issuedOn
             : null;
     }
 

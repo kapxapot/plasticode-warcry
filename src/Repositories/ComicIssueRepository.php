@@ -6,10 +6,10 @@ use App\Collections\ComicIssueCollection;
 use App\Models\ComicIssue;
 use App\Models\ComicSeries;
 use App\Repositories\Interfaces\ComicIssueRepositoryInterface;
-use Plasticode\Repositories\Idiorm\Basic\IdiormRepository;
+use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
 
-class ComicIssueRepository extends IdiormRepository implements ComicIssueRepositoryInterface
+class ComicIssueRepository extends TaggedRepository implements ComicIssueRepositoryInterface
 {
     use FullPublishedRepository;
 
@@ -31,6 +31,13 @@ class ComicIssueRepository extends IdiormRepository implements ComicIssueReposit
             $this
                 ->publishedQuery()
                 ->where('series_id', $series->getId())
+        );
+    }
+
+    public function getAllByTag(string $tag, int $limit = 0) : ComicIssueCollection
+    {
+        return ComicIssueCollection::from(
+            $this->filterByTag($this->publishedQuery(), $tag, $limit)
         );
     }
 }

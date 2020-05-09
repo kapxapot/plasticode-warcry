@@ -10,8 +10,11 @@ use App\Factories\UpdateStreamsJobFactory;
 use App\Handlers\NotFoundHandler;
 use App\Hydrators\ArticleCategoryHydrator;
 use App\Hydrators\ArticleHydrator;
+use App\Hydrators\ComicIssueHydrator;
+use App\Hydrators\ComicIssuePageHydrator;
 use App\Hydrators\ComicSeriesHydrator;
 use App\Hydrators\ComicStandaloneHydrator;
+use App\Hydrators\ComicStandalonePageHydrator;
 use App\Hydrators\EventHydrator;
 use App\Hydrators\ForumHydrator;
 use App\Hydrators\ForumMemberHydrator;
@@ -29,6 +32,16 @@ use App\Hydrators\SkillHydrator;
 use App\Hydrators\StreamHydrator;
 use App\Hydrators\UserHydrator;
 use App\Hydrators\VideoHydrator;
+use App\Models\Article;
+use App\Models\Comic;
+use App\Models\ComicSeries;
+use App\Models\ComicStandalone;
+use App\Models\Event;
+use App\Models\ForumTopic;
+use App\Models\GalleryPicture;
+use App\Models\News;
+use App\Models\Stream;
+use App\Models\Video;
 use App\Parsing\ForumParser;
 use App\Parsing\LinkMappers\ArticleLinkMapper;
 use App\Parsing\LinkMappers\CoordsLinkMapper;
@@ -43,9 +56,11 @@ use App\Parsing\LinkMappers\VideoLinkMapper;
 use App\Parsing\NewsParser;
 use App\Repositories\ArticleCategoryRepository;
 use App\Repositories\ArticleRepository;
+use App\Repositories\ComicIssuePageRepository;
 use App\Repositories\ComicIssueRepository;
 use App\Repositories\ComicPublisherRepository;
 use App\Repositories\ComicSeriesRepository;
+use App\Repositories\ComicStandalonePageRepository;
 use App\Repositories\ComicStandaloneRepository;
 use App\Repositories\EventRepository;
 use App\Repositories\EventTypeRepository;
@@ -87,6 +102,7 @@ use App\Services\StreamStatService;
 use App\Services\TagPartsProviderService;
 use App\Services\TwitterService;
 use Plasticode\Config\Bootstrap as BootstrapBase;
+use Plasticode\Config\TagsConfig;
 use Plasticode\Gallery\Gallery;
 use Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy;
 use Plasticode\Hydrators\MenuItemHydrator;
@@ -127,15 +143,35 @@ class Bootstrap extends BootstrapBase
                         $c->userRepository,
                         $c->cutParser,
                         $c->linker,
-                        $c->parser,
-                        $c->tagsConfig
+                        $c->parser
                     )
                 )
             );
 
         $map['comicIssueRepository'] = fn (CI $c) =>
             new ComicIssueRepository(
-                $c->repositoryContext
+                $c->repositoryContext,
+                $c->tagRepository,
+                new ObjectProxy(
+                    fn () =>
+                    new ComicIssueHydrator(
+                        $c->comicIssuePageRepository,
+                        $c->comicSeriesRepository,
+                        $c->linker
+                    )
+                )
+            );
+
+        $map['comicIssuePageRepository'] = fn (CI $c) =>
+            new ComicIssuePageRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ComicIssuePageHydrator(
+                        $c->comicIssueRepository,
+                        $c->linker
+                    )
+                )
             );
 
         $map['comicPublisherRepository'] = fn (CI $c) =>
@@ -175,6 +211,18 @@ class Bootstrap extends BootstrapBase
                 )
             );
 
+        $map['comicStandalonePageRepository'] = fn (CI $c) =>
+            new ComicStandalonePageRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new ComicStandalonePageHydrator(
+                        $c->comicStandaloneRepository,
+                        $c->linker
+                    )
+                )
+            );
+
         $map['eventRepository'] = fn (CI $c) =>
             new EventRepository(
                 $c->repositoryContext,
@@ -188,8 +236,7 @@ class Bootstrap extends BootstrapBase
                         $c->userRepository,
                         $c->cutParser,
                         $c->linker,
-                        $c->parser,
-                        $c->tagsConfig
+                        $c->parser
                     )
                 )
             );
@@ -249,8 +296,7 @@ class Bootstrap extends BootstrapBase
                         $c->cutParser,
                         $c->forumParser,
                         $c->linker,
-                        $c->newsParser,
-                        $c->tagsConfig
+                        $c->newsParser
                     )
                 )
             );
@@ -362,8 +408,7 @@ class Bootstrap extends BootstrapBase
                         $c->userRepository,
                         $c->cutParser,
                         $c->linker,
-                        $c->parser,
-                        $c->tagsConfig
+                        $c->parser
                     )
                 )
             );
@@ -421,8 +466,7 @@ class Bootstrap extends BootstrapBase
                         $c->gameService,
                         $c->streamService,
                         $c->linker,
-                        $c->parser,
-                        $c->tagsConfig
+                        $c->parser
                     )
                 )
             );
@@ -430,6 +474,20 @@ class Bootstrap extends BootstrapBase
         $map['streamStatRepository'] = fn (CI $c) =>
             new StreamStatRepository(
                 $c->repositoryContext
+            );
+
+        $map['userRepository'] = fn (CI $c) =>
+            new UserRepository(
+                $c->repositoryContext,
+                new ObjectProxy(
+                    fn () =>
+                    new UserHydrator(
+                        $c->forumMemberRepository,
+                        $c->roleRepository,
+                        $c->linker,
+                        $c->gravatar
+                    )
+                )
             );
 
         $map['videoRepository'] = fn (CI $c) =>
@@ -443,22 +501,7 @@ class Bootstrap extends BootstrapBase
                         $c->userRepository,
                         $c->cutParser,
                         $c->linker,
-                        $c->parser,
-                        $c->tagsConfig
-                    )
-                )
-            );
-
-        $map['userRepository'] = fn (CI $c) =>
-            new UserRepository(
-                $c->repositoryContext,
-                new ObjectProxy(
-                    fn () =>
-                    new UserHydrator(
-                        $c->forumMemberRepository,
-                        $c->roleRepository,
-                        $c->linker,
-                        $c->gravatar
+                        $c->parser
                     )
                 )
             );
@@ -543,7 +586,20 @@ class Bootstrap extends BootstrapBase
             new LocalizationConfig();
 
         $map['tagsConfig'] = fn (CI $c) =>
-            new TagsConfig();
+            new TagsConfig(
+                [
+                    Article::class => 'articles',
+                    News::class => 'news',
+                    ForumTopic::class => 'news',
+                    Event::class => 'events',
+                    GalleryPicture::class => 'gallery',
+                    ComicSeries::class => 'comics',
+                    Comic::class => 'comics',
+                    ComicStandalone::class => 'comics',
+                    Video::class => 'videos',
+                    Stream::class => 'streams',
+                ]
+            );
 
         $map['renderer'] = fn (CI $c) =>
             new Renderer(
@@ -554,7 +610,8 @@ class Bootstrap extends BootstrapBase
             new Linker(
                 $c->settingsProvider,
                 $c->router,
-                $c->gallery
+                $c->gallery,
+                $c->tagsConfig
             );
 
         $map['bbContainerConfig'] = fn (CI $c) =>
@@ -667,6 +724,7 @@ class Bootstrap extends BootstrapBase
         $map['comicService'] = fn (CI $c) =>
             new ComicService(
                 $c->comicIssueRepository,
+                $c->comicSeriesRepository,
                 $c->comicStandaloneRepository
             );
 
@@ -769,7 +827,7 @@ class Bootstrap extends BootstrapBase
                 $c->eventRepository,
                 $c->galleryPictureRepository,
                 $c->videoRepository,
-                $c->galleryService,
+                $c->comicService,
                 $c->newsAggregatorService,
                 $c->streamService
             );

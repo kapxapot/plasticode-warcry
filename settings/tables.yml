@@ -36,7 +36,7 @@ comic_issues:
   sort: number
   has: [ updated_at, created_by, updated_by ]
 
-comic_pages:
+comic_issue_pages:
   table: comic_pages
   api: full
   name_field: number

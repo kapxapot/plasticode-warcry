@@ -5,7 +5,6 @@ namespace App\Repositories;
 use App\Collections\StreamCollection;
 use App\Models\Stream;
 use App\Repositories\Interfaces\StreamRepositoryInterface;
-use Plasticode\Query;
 use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
 use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
 
@@ -41,17 +40,10 @@ class StreamRepository extends TaggedRepository implements StreamRepositoryInter
         );
     }
 
-    public function getAllByTag(
-        string $tag,
-        int $limit = 0
-    ) : StreamCollection
+    public function getAllByTag(string $tag, int $limit = 0) : StreamCollection
     {
         return StreamCollection::from(
-            $this
-                ->publishedQuery()
-                ->apply(
-                    fn (Query $q) => $this->filterByTag($q, $tag, $limit)
-                )
+            $this->filterByTag($this->publishedQuery(), $tag, $limit)
         );
     }
 }

@@ -11,7 +11,6 @@ use App\Repositories\Interfaces\ForumPostRepositoryInterface;
 use App\Repositories\Interfaces\ForumRepositoryInterface;
 use App\Repositories\Interfaces\ForumTagRepositoryInterface;
 use App\Repositories\Interfaces\GameRepositoryInterface;
-use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\Hydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Parsers\CutParser;
@@ -29,8 +28,6 @@ class ForumTopicHydrator extends Hydrator
     private LinkerInterface $linker;
     private NewsParser $newsParser;
 
-    private TagsConfigInterface $tagsConfig;
-
     public function __construct(
         ForumMemberRepositoryInterface $forumMemberRepository,
         ForumPostRepositoryInterface $forumPostRepository,
@@ -40,8 +37,7 @@ class ForumTopicHydrator extends Hydrator
         CutParser $cutParser,
         ForumParser $forumParser,
         LinkerInterface $linker,
-        NewsParser $newsParser,
-        TagsConfigInterface $tagsConfig
+        NewsParser $newsParser
     )
     {
         $this->forumMemberRepository = $forumMemberRepository;
@@ -54,8 +50,6 @@ class ForumTopicHydrator extends Hydrator
         $this->forumParser = $forumParser;
         $this->linker = $linker;
         $this->newsParser = $newsParser;
-
-        $this->tagsConfig = $tagsConfig;
     }
 
     /**
@@ -109,11 +103,7 @@ class ForumTopicHydrator extends Hydrator
                 fn () => $this->forumTagRepository->getAllByForumTopic($entity)
             )
             ->withTagLinks(
-                fn () =>
-                $this->linker->tagLinks(
-                    $entity,
-                    $this->tagsConfig->getTab(get_class($entity))
-                )
+                fn () => $this->linker->tagLinks($entity)
             )
             ->withStarterForumMember(
                 fn () => $this->forumMemberRepository->get($entity->starterId)

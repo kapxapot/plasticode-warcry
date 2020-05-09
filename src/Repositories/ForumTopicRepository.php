@@ -43,14 +43,12 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
         return $this->getEntity($id);
     }
 
-    public function getAllByTag(string $tag) : ForumTopicCollection
+    // TaggedRepositoryInterface
+
+    public function getAllByTag(string $tag, int $limit = 0) : ForumTopicCollection
     {
         return ForumTopicCollection::from(
-            $this
-                ->query()
-                ->apply(
-                    fn (Query $q) => $this->filterByTag($q, $tag)
-                )
+            $this->filterByTag($this->query(), $tag, $limit)
         );
     }
 
@@ -59,12 +57,7 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
     public function getNewsByTag(string $tag, int $limit = 0) : ForumTopicCollection
     {
         return ForumTopicCollection::from(
-            $this
-                ->newsQuery()
-                ->apply(
-                    fn (Query $q) => $this->filterByTag($q, $tag)
-                )
-                ->limit($limit)
+            $this->filterByTag($this->newsQuery(), $tag, $limit)
         );
     }
 
@@ -158,10 +151,12 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
 
     // filters
 
-    protected function filterByTag(Query $query, string $tag) : Query
+    protected function filterByTag(Query $query, string $tag, int $limit = 0) : Query
     {
         $ids = $this->forumTagRepository->getForumTopicIdsByTag($tag);
 
-        return $query->whereIn($this->idField(), $ids);
+        return $query
+            ->whereIn($this->idField(), $ids)
+            ->limit($limit);
     }
 }

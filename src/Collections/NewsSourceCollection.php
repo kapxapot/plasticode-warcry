@@ -3,12 +3,12 @@
 namespace App\Collections;
 
 use App\Models\Interfaces\NewsSourceInterface;
-use Plasticode\Collections\Basic\DbModelCollection;
 use Plasticode\Collections\Basic\ScalarCollection;
+use Plasticode\Collections\Basic\TaggedCollection;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
 
-class NewsSourceCollection extends DbModelCollection
+class NewsSourceCollection extends TaggedCollection
 {
     protected string $class = NewsSourceInterface::class;
 

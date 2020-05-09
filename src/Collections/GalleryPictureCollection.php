@@ -3,9 +3,9 @@
 namespace App\Collections;
 
 use App\Models\GalleryPicture;
-use Plasticode\Collections\Basic\DbModelCollection;
+use Plasticode\Collections\Basic\TaggedCollection;
 
-class GalleryPictureCollection extends DbModelCollection
+class GalleryPictureCollection extends TaggedCollection
 {
     protected string $class = GalleryPicture::class;
 }

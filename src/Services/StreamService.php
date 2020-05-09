@@ -32,7 +32,7 @@ class StreamService
     /**
      * @return StreamCollection[]
      */
-    public function getByTag(string $tag) : array
+    public function getArrangedByTag(string $tag) : array
     {
         return $this
             ->streamRepository

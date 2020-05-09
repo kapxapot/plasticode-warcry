@@ -21,6 +21,16 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
     protected string $sortField = 'published_at';
     protected bool $sortReverse = true;
 
+    // TaggedRepositoryInterface
+
+    public function getAllByTag(
+        string $tag,
+        int $limit = 0
+    ) : NewsSourceCollection
+    {
+        return $this->getNewsByTag($tag, $limit);
+    }
+
     // NewsSourceRepositoryInterface
 
     public function getNewsByTag(
@@ -29,11 +39,7 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
     ) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
-            $this
-                ->newsSourceQuery()
-                ->apply(
-                    fn (Query $q) => $this->filterByTag($q, $tag, $limit)
-                )
+            $this->filterByTag($this->newsSourceQuery(), $tag, $limit)
         );
     }
 

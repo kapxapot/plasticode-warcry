@@ -7,7 +7,6 @@ use App\Models\ComicStandalone;
 use App\Repositories\Interfaces\ComicPublisherRepositoryInterface;
 use App\Repositories\Interfaces\ComicStandalonePageRepositoryInterface;
 use App\Repositories\Interfaces\GameRepositoryInterface;
-use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
@@ -20,15 +19,12 @@ class ComicStandaloneHydrator extends ParsingHydrator
 
     private LinkerInterface $linker;
 
-    private TagsConfigInterface $tagsConfig;
-
     public function __construct(
         ComicPublisherRepositoryInterface $comicPublisherRepository,
         ComicStandalonePageRepositoryInterface $comicStandalonePageRepository,
         GameRepositoryInterface $gameRepository,
         LinkerInterface $linker,
-        ParserInterface $parser,
-        TagsConfigInterface $tagsConfig
+        ParserInterface $parser
     )
     {
         parent::__construct($parser);
@@ -38,8 +34,6 @@ class ComicStandaloneHydrator extends ParsingHydrator
         $this->gameRepository = $gameRepository;
 
         $this->linker = $linker;
-
-        $this->tagsConfig = $tagsConfig;
     }
 
     /**
@@ -64,11 +58,7 @@ class ComicStandaloneHydrator extends ParsingHydrator
                 fn () => $this->linker->comicStandalone($entity)
             )
             ->withTagLinks(
-                fn () =>
-                $this->linker->tagLinks(
-                    $entity,
-                    $this->tagsConfig->getTab(get_class($entity))
-                )
+                fn () => $this->linker->tagLinks($entity)
             );
     }
 }

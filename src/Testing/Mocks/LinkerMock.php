@@ -5,16 +5,20 @@ namespace App\Testing\Mocks;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Article;
 use App\Models\ComicIssue;
+use App\Models\ComicIssuePage;
+use App\Models\ComicPage;
 use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
+use App\Models\ComicStandalonePage;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
 use App\Models\Skill;
-use Plasticode\Testing\Mocks\LinkerMock as LinkerMockBase;
+use Plasticode\IO\File;
+use Plasticode\Testing\Mocks\LinkerMock as BaseLinkerMock;
 use Plasticode\Util\Strings;
 
-class LinkerMock extends LinkerMockBase implements LinkerInterface
+class LinkerMock extends BaseLinkerMock implements LinkerInterface
 {
     public function game(?Game $game) : string
     {
@@ -105,15 +109,37 @@ class LinkerMock extends LinkerMockBase implements LinkerInterface
         return $this->abs('/comics/series/') . $series->alias;
     }
 
-    public function comicIssue(?ComicIssue $comic) : string
+    public function comicIssue(ComicIssue $comic) : string
     {
         return $this->comicSeries($comic->series())
             . '/' . $comic->number;
     }
 
+    public function comicIssuePage(ComicIssuePage $page) : string
+    {
+        return $this->comicIssue($page->comic())
+            . '/' . $page->number;
+    }
+
     public function comicStandalone(ComicStandalone $comic) : string
     {
         return $this->abs('/comics/') . $comic->alias;
+    }
+
+    public function comicStandalonePage(ComicStandalonePage $page) : string
+    {
+        return $this->comicStandalone($page->comic())
+            . '/' . $page->number;
+    }
+
+    public function comicPageImg(ComicPage $page) : string
+    {
+        return File::combine('../comics/pages/', $page->fileName());
+    }
+
+    public function comicThumbImg(ComicPage $page) : string
+    {
+        return File::combine('../comics/thumbs/', $page->fileName());
     }
 
     public function disqusArticle(Article $article) : string

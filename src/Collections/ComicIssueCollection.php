@@ -3,49 +3,23 @@
 namespace App\Collections;
 
 use App\Models\ComicIssue;
-use Plasticode\Collections\Basic\DbModelCollection;
 
-class ComicIssueCollection extends DbModelCollection
+class ComicIssueCollection extends NumberedCollection
 {
     protected string $class = ComicIssue::class;
 
     public function byNumber(int $number) : ?ComicIssue
     {
-        return $this->first(
-            fn (ComicIssue $i) => $i->number == $number
-        );
+        return parent::byNumber($number);
     }
 
     public function prev(int $number) : ?ComicIssue
     {
-        return $this
-            ->desc(
-                fn (ComicIssue $i) => $i->number
-            )
-            ->first(
-                fn (ComicIssue $i) => $i->number < $number
-            );
+        return parent::prev($number);
     }
 
     public function next(int $number) : ?ComicIssue
     {
-        return $this
-            ->asc(
-                fn (ComicIssue $i) => $i->number
-            )
-            ->first(
-                fn (ComicIssue $i) => $i->number > $number
-            );
-    }
-
-    public function maxNumber() : int
-    {
-        $max = $this
-            ->asc(
-                fn (ComicIssue $i) => $i->number
-            )
-            ->last();
-
-        return $max ? $max->number : 0;
+        return parent::next($number);
     }
 }

@@ -2,59 +2,97 @@
 
 namespace App\Generators;
 
-use App\Models\ComicIssue;
+use App\Services\ComicService;
+use Plasticode\Exceptions\Http\NotFoundException;
+use Plasticode\Gallery\Gallery;
+use Plasticode\Generators\EntityGenerator;
+use Psr\Container\ContainerInterface;
 
-class ComicPagesGenerator extends ComicPagesBaseGenerator
+abstract class ComicPagesGenerator extends EntityGenerator
 {
-    protected function getPageUrl(array $item) : string
+    protected Gallery $comics;
+    protected ComicService $comicService;
+
+    public function __construct(ContainerInterface $container, string $entity)
     {
-        $comic = ComicIssue::get($item['comic_issue_id']);
+        parent::__construct($container, $entity);
+
+        $this->comics = $container->comics;
+        $this->comicService = $container->comicService;
+    }
+
+    public function getRules(array $data, $id = null) : array
+    {
+        $rules = parent::getRules($data, $id);
+
+        $rules['picture'] = $this->optional('image');
+        $rules['thumb'] = $this->rule('image');
+
+        return $rules;
+    }
+
+    public function afterLoad(array $item) : array
+    {
+        $item = parent::afterLoad($item);
+
+        $item['picture'] = $this->comics->getPictureUrl($item);
+        $item['thumb'] = $this->comics->getThumbUrl($item);
+
+        unset($item['pic_type']);
+
+        $item['page_url'] = $this->getPageUrl($item);
+
+        return $item;
+    }
+
+    private function getPageUrl(array $item) : string
+    {
+        $comic = $this->comicService->getComicByContext($item['comic_issue_id']);
         $page = $comic->pageByNumber($item['number']);
 
         return $page->pageUrl();
     }
-    
-    public function getOptions() : array
+
+    public function beforeSave(array $data, $id = null) : array
     {
-        $options = parent::getOptions();
-        
-        $options['uri'] = 'comic_issues/{id:\d+}/comic_pages';
-        $options['filter'] = 'comic_issue_id';
-        
-        return $options;
+        $data = parent::beforeSave($data, $id);
+
+        if (isset($data['points'])) {
+            unset($data['points']);
+        }
+
+        if (isset($data['picture'])) {
+            unset($data['picture']);
+        }
+
+        if (isset($data['thumb'])) {
+            unset($data['thumb']);
+        }
+
+        if (($data['number'] ?? 0) <= 0) {
+            $comic = $this->comicService->getComicByContext($data);
+
+            if (!$comic) {
+                throw new NotFoundException('Comic not found!');
+            }
+
+            $data['number'] = $comic->maxPageNumber() + 1;
+        }
+
+        return $data;
     }
-    
-    public function getAdminParams(array $args) : array
+
+    public function afterSave(array $item, array $data) : void
     {
-        $params = parent::getAdminParams($args);
+        parent::afterSave($item, $data);
 
-        $comicId = $args['id'];
-        
-        $comic = ComicIssue::get($comicId);
-        $series = $comic->series();
+        $this->comics->save($item, $data);
+    }
 
-        $params['source'] = "comic_issues/{$comicId}/comic_pages";
-        $params['breadcrumbs'] = [
-            [
-                'text' => 'Серии',
-                'link' => $this->router->pathFor('admin.entities.comic_series')
-            ],
-            ['text' => $series->game()->name],
-            [
-                'text' => $series->nameRu,
-                'link' => $this->router->pathFor(
-                    'admin.entities.comic_issues',
-                    ['id' => $series->getId()]
-                )
-            ],
-            ['text' => $comic->numberStr()],
-            ['text' => 'Страницы'],
-        ];
-        
-        $params['hidden'] = [
-            'comic_issue_id' => $comicId,
-        ];
-        
-        return $params;
+    public function afterDelete(array $item) : void
+    {
+        parent::afterDelete($item);
+
+        $this->comics->delete($item);
     }
 }

@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
-class ComicStandalonePage extends ComicPageBase
+/**
+ * @property integer $comicStandaloneId
+ * @method static withComic(ComicStandalone|callable $comic)
+ */
+class ComicStandalonePage extends ComicPage
 {
     protected static string $comicIdField = 'comic_standalone_id';
 
+    public function comicId() : int
+    {
+        return $this->comicStandaloneId;
+    }
+
     public function comic() : ComicStandalone
     {
-        return ComicStandalone::get($this->{static::$comicIdField});
-    }
-    
-    public function pageUrl() : string
-    {
-        return self::$container->linker->comicStandalonePage($this);
+        return parent::comic();
     }
 }

@@ -6,8 +6,9 @@ use App\Collections\GalleryPictureCollection;
 use App\Models\GalleryAuthor;
 use App\Models\GalleryPicture;
 use App\Models\Game;
+use Plasticode\Repositories\Interfaces\Basic\TaggedRepositoryInterface;
 
-interface GalleryPictureRepositoryInterface
+interface GalleryPictureRepositoryInterface extends TaggedRepositoryInterface
 {
     function get(?int $id) : ?GalleryPicture;
 

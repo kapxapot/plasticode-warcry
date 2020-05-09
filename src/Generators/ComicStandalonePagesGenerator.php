@@ -2,25 +2,27 @@
 
 namespace App\Generators;
 
-use App\Models\ComicStandalone;
+use App\Repositories\Interfaces\ComicStandaloneRepositoryInterface;
+use Psr\Container\ContainerInterface;
 
-class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
+class ComicStandalonePagesGenerator extends ComicPagesGenerator
 {
-    protected function getPageUrl(array $item) : string
+    private ComicStandaloneRepositoryInterface $comicStandaloneRepository;
+
+    public function __construct(ContainerInterface $container, string $entity)
     {
-        $comic = ComicStandalone::get($item['comic_standalone_id']);
-        $page = $comic->pageByNumber($item['number']);
-        
-        return $page->pageUrl();
+        parent::__construct($container, $entity);
+
+        $this->comicStandaloneRepository = $container->comicStandaloneRepository;
     }
-    
+
     public function getOptions() : array
     {
         $options = parent::getOptions();
-        
-        $options['uri'] = 'comic_standalones/{id:\d+}/comic_standalone_pages';
+
+        $options['uri'] = 'comic_standalones/{id:\d+}/pages';
         $options['filter'] = 'comic_standalone_id';
-        
+
         return $options;
     }
 
@@ -29,10 +31,10 @@ class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
         $params = parent::getAdminParams($args);
 
         $comicId = $args['id'];
-        
-        $comic = ComicStandalone::get($comicId);
 
-        $params['source'] = "comic_standalones/{$comicId}/comic_standalone_pages";
+        $comic = $this->comicStandaloneRepository->get($comicId);
+
+        $params['source'] = "comic_standalones/{$comicId}/pages";
         $params['breadcrumbs'] = [
             [
                 'text' => 'Комиксы',
@@ -42,11 +44,11 @@ class ComicStandalonePagesGenerator extends ComicPagesBaseGenerator
             ['text' => $comic->nameRu],
             ['text' => 'Страницы'],
         ];
-        
+
         $params['hidden'] = [
             'comic_standalone_id' => $comicId,
         ];
-        
+
         return $params;
     }
 }

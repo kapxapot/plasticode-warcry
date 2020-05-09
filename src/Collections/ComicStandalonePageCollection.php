@@ -4,7 +4,7 @@ namespace App\Collections;
 
 use App\Models\ComicStandalonePage;
 
-class ComicStandalonePageCollection extends ComicPageBaseCollection
+class ComicStandalonePageCollection extends ComicPageCollection
 {
     protected string $class = ComicStandalonePage::class;
 

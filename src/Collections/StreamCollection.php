@@ -3,11 +3,11 @@
 namespace App\Collections;
 
 use App\Models\Stream;
-use Plasticode\Collections\Basic\DbModelCollection;
+use Plasticode\Collections\Basic\TaggedCollection;
 use Plasticode\Util\Sort;
 use Plasticode\Util\SortStep;
 
-class StreamCollection extends DbModelCollection
+class StreamCollection extends TaggedCollection
 {
     protected string $class = Stream::class;
 

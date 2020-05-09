@@ -13,6 +13,11 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
 {
     abstract protected function newsSources() : NewsSourceCollection;
 
+    public function getAllByTag(string $tag, int $limit = 0) : NewsSourceCollection
+    {
+        return $this->getNewsByTag($tag, $limit);
+    }
+
     public function getNewsByTag(string $tag, int $limit = 0) : NewsSourceCollection
     {
         return $this

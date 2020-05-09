@@ -2,14 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\ComicIssue;
-use App\Models\ComicSeries;
-use App\Models\ComicStandalone;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use App\Repositories\Interfaces\VideoRepositoryInterface;
-use Plasticode\Collections\Basic\Collection;
 
 class TagPartsProviderService
 {
@@ -18,6 +14,7 @@ class TagPartsProviderService
     private GalleryPictureRepositoryInterface $galleryPictureRepository;
     private VideoRepositoryInterface $videoRepository;
 
+    private ComicService $comicService;
     private NewsAggregatorService $newsAggregatorService;
     private StreamService $streamService;
 
@@ -26,7 +23,7 @@ class TagPartsProviderService
         EventRepositoryInterface $eventRepository,
         GalleryPictureRepositoryInterface $galleryPictureRepository,
         VideoRepositoryInterface $videoRepository,
-        GalleryService $galleryService,
+        ComicService $comicService,
         NewsAggregatorService $newsAggregatorService,
         StreamService $streamService
     )
@@ -36,7 +33,7 @@ class TagPartsProviderService
         $this->galleryPictureRepository = $galleryPictureRepository;
         $this->videoRepository = $videoRepository;
 
-        $this->galleryService = $galleryService;
+        $this->comicService = $comicService;
         $this->newsAggregatorService = $newsAggregatorService;
         $this->streamService = $streamService;
     }
@@ -47,19 +44,19 @@ class TagPartsProviderService
             [
                 'id' => 'news',
                 'label' => 'Новости',
-                'values' => $this->newsAggregatorService->getByTag($tag),
+                'values' => $this->newsAggregatorService->getAllByTag($tag),
                 'component' => 'news',
             ],
             [
                 'id' => 'articles',
                 'label' => 'Статьи',
-                'values' => $this->articleRepository->getNewsByTag($tag),
+                'values' => $this->articleRepository->getAllByTag($tag),
                 'component' => 'articles',
             ],
             [
                 'id' => 'events',
                 'label' => 'События',
-                'values' => $this->eventRepository->getNewsByTag($tag),
+                'values' => $this->eventRepository->getAllByTag($tag),
                 'component' => 'events',
             ],
             [
@@ -72,25 +69,21 @@ class TagPartsProviderService
             [
                 'id' => 'comics',
                 'label' => 'Комиксы',
-                'values' => Collection::merge(
-                    ComicIssue::getByTag($tag)->all(),
-                    ComicSeries::getByTag($tag)->all(),
-                    ComicStandalone::getByTag($tag)->all()
-                ),
+                'values' => $this->comicService->getAllByTag($tag),
                 'component' => 'comics',
                 'no_linkblock' => true,
             ],
             [
                 'id' => 'videos',
                 'label' => 'Видео',
-                'values' => $this->videoRepository->getNewsByTag($tag),
+                'values' => $this->videoRepository->getAllByTag($tag),
                 'component' => 'videos',
                 'no_linkblock' => true,
             ],
             [
                 'id' => 'streams',
                 'label' => 'Стримы',
-                'values' => $this->streamService->getByTag($tag),
+                'values' => $this->streamService->getArrangedByTag($tag),
                 'component' => 'streams',
                 'no_linkblock' => true,
             ],

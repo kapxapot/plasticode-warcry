@@ -6,12 +6,10 @@ use App\Core\Interfaces\LinkerInterface;
 use App\Models\NewsSource;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Parsing\Parsers\CutParser;
-use Plasticode\Parsing\ParsingContext;
 
 abstract class NewsSourceHydrator extends ParsingHydrator
 {
@@ -21,15 +19,12 @@ abstract class NewsSourceHydrator extends ParsingHydrator
     protected CutParser $cutParser;
     protected LinkerInterface $linker;
 
-    protected TagsConfigInterface $tagsConfig;
-
     public function __construct(
         GameRepositoryInterface $gameRepository,
         UserRepositoryInterface $userRepository,
         CutParser $cutParser,
         LinkerInterface $linker,
-        ParserInterface $parser,
-        TagsConfigInterface $tagsConfig
+        ParserInterface $parser
     )
     {
         parent::__construct($parser);
@@ -39,8 +34,6 @@ abstract class NewsSourceHydrator extends ParsingHydrator
 
         $this->cutParser = $cutParser;
         $this->linker = $linker;
-
-        $this->tagsConfig = $tagsConfig;
     }
 
     /**
@@ -74,11 +67,7 @@ abstract class NewsSourceHydrator extends ParsingHydrator
                 )
             )
             ->withTagLinks(
-                fn () =>
-                $this->linker->tagLinks(
-                    $entity,
-                    $this->tagsConfig->getTab(get_class($entity))
-                )
+                fn () => $this->linker->tagLinks($entity)
             )
             ->withCreator(
                 fn () => $this->userRepository->get($entity->createdBy)

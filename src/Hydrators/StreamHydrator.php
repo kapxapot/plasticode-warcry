@@ -8,7 +8,6 @@ use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\GameService;
 use App\Services\StreamService;
-use Plasticode\Config\Interfaces\TagsConfigInterface;
 use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
 use Plasticode\Parsing\Interfaces\ParserInterface;
@@ -23,16 +22,13 @@ class StreamHydrator extends ParsingHydrator
 
     private LinkerInterface $linker;
 
-    private TagsConfigInterface $tagsConfig;
-
     public function __construct(
         GameRepositoryInterface $gameRepository,
         UserRepositoryInterface $userRepository,
         GameService $gameService,
         StreamService $streamService,
         LinkerInterface $linker,
-        ParserInterface $parser,
-        TagsConfigInterface $tagsConfig
+        ParserInterface $parser
     )
     {
         parent::__construct($parser);
@@ -44,8 +40,6 @@ class StreamHydrator extends ParsingHydrator
         $this->streamService = $streamService;
 
         $this->linker = $linker;
-
-        $this->tagsConfig = $tagsConfig;
     }
 
     /**
@@ -85,11 +79,7 @@ class StreamHydrator extends ParsingHydrator
                 fn () => $this->streamService->verbsFor($entity)
             )
             ->withTagLinks(
-                fn () =>
-                $this->linker->tagLinks(
-                    $entity,
-                    $this->tagsConfig->getTab(get_class($entity))
-                )
+                fn () => $this->linker->tagLinks($entity)
             )
             ->withCreator(
                 fn () => $this->userRepository->get($entity->createdBy)

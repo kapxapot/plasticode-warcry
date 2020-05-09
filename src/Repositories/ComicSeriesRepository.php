@@ -33,4 +33,11 @@ class ComicSeriesRepository extends TaggedRepository implements ComicSeriesRepos
             ->where('alias', $alias)
             ->one();
     }
+
+    public function getAllByTag(string $tag, int $limit = 0) : ComicSeriesCollection
+    {
+        return ComicSeriesCollection::from(
+            $this->filterByTag($this->publishedQuery(), $tag, $limit)
+        );
+    }
 }

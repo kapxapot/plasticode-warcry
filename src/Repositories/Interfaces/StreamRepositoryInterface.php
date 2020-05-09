@@ -4,8 +4,9 @@ namespace App\Repositories\Interfaces;
 
 use App\Collections\StreamCollection;
 use App\Models\Stream;
+use Plasticode\Repositories\Interfaces\Basic\TaggedRepositoryInterface;
 
-interface StreamRepositoryInterface
+interface StreamRepositoryInterface extends TaggedRepositoryInterface
 {
     function save(Stream $stream) : Stream;
     function getPublishedByAlias(string $alias) : ?Stream;
