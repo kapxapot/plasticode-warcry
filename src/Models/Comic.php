@@ -20,10 +20,8 @@ abstract class Comic extends DbModel implements TaggedInterface
     protected function requiredWiths(): array
     {
         return [
+            ...$this->comicCommonProperties(),
             $this->pagesPropertyName,
-            $this->pageUrlPropertyName,
-            $this->parsedDescriptionPropertyName,
-            $this->tagLinksPropertyName,
         ];
     }
 

@@ -15,4 +15,16 @@ trait ComicCommon
     use PageUrl;
     use Stamps;
     use Tagged;
+
+    /**
+     * @return string[]
+     */
+    protected function comicCommonProperties() : array
+    {
+        return [
+            $this->pageUrlPropertyName,
+            $this->parsedDescriptionPropertyName,
+            $this->tagLinksPropertyName,
+        ];
+    }
 }

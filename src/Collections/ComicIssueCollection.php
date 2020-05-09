@@ -37,4 +37,15 @@ class ComicIssueCollection extends DbModelCollection
                 fn (ComicIssue $i) => $i->number > $number
             );
     }
+
+    public function maxNumber() : int
+    {
+        $max = $this
+            ->asc(
+                fn (ComicIssue $i) => $i->number
+            )
+            ->last();
+
+        return $max ? $max->number : 0;
+    }
 }

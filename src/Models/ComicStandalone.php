@@ -19,8 +19,7 @@ class ComicStandalone extends Comic
     {
         return [
             ...parent::requiredWiths(),
-            $this->gamePropertyName,
-            $this->publisherPropertyName,
+            ...$this->comicRootProperties(),
         ];
     }
 

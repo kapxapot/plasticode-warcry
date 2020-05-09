@@ -20,10 +20,19 @@ use App\Models\Game;
  */
 trait ComicRoot
 {
-    use ComicCommon;
-
     protected string $gamePropertyName = 'game';
     protected string $publisherPropertyName = 'publisher';
+
+    /**
+     * @return string[]
+     */
+    protected function comicRootProperties() : array
+    {
+        return [
+            $this->gamePropertyName,
+            $this->publisherPropertyName,
+        ];
+    }
 
     public function name() : string
     {

@@ -3,12 +3,10 @@
 namespace App\Models;
 
 use App\Collections\ComicIssueCollection;
+use App\Models\Traits\ComicCommon;
 use App\Models\Traits\ComicRoot;
-use App\Models\Traits\Stamps;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Interfaces\TaggedInterface;
-use Plasticode\Models\Traits\FullPublished;
-use Plasticode\Models\Traits\Tagged;
 
 /**
  * @method ComicIssueCollection issues()
@@ -16,19 +14,14 @@ use Plasticode\Models\Traits\Tagged;
  */
 class ComicSeries extends DbModel implements TaggedInterface
 {
+    use ComicCommon;
     use ComicRoot;
-    use FullPublished;
-    use Stamps;
-    use Tagged;
 
     protected function requiredWiths(): array
     {
         return [
-            $this->gamePropertyName,
-            $this->pageUrlPropertyName,
-            $this->parsedDescriptionPropertyName,
-            $this->publisherPropertyName,
-            $this->tagLinksPropertyName,
+            ...$this->comicCommonProperties(),
+            ...$this->comicRootProperties(),
             'issues',
         ];
     }
@@ -77,16 +70,8 @@ class ComicSeries extends DbModel implements TaggedInterface
             : null;
     }
 
-    public function maxIssueNumber(int $exceptId = 0) : int
+    public function maxIssueNumber() : int
     {
-        $max = $this
-            ->issues()
-            ->where(
-                fn (ComicIssue $i) => $i->getId() != $exceptId
-            )
-            ->asc('number')
-            ->last();
-
-        return $max ? $max->number : 0;
+        return $this->issues()->maxNumber();
     }
 }

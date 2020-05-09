@@ -7,7 +7,7 @@ use Plasticode\Collections\Basic\DbModelCollection;
 
 abstract class ComicPageBaseCollection extends DbModelCollection
 {
-    protected string $entity = ComicPageBase::class;
+    protected string $class = ComicPageBase::class;
 
     public function byNumber(int $number) : ?ComicPageBase
     {
