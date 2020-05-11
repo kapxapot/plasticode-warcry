@@ -19,7 +19,7 @@ class MenuRepository extends BaseMenuRepository implements MenuRepositoryInterfa
     public function getAll() : MenuCollection
     {
         return MenuCollection::from(
-            parent::getAll()
+            $this->query()
         );
     }
 

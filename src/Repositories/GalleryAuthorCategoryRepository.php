@@ -21,7 +21,7 @@ class GalleryAuthorCategoryRepository extends IdiormRepository implements Galler
     public function getAll() : GalleryAuthorCategoryCollection
     {
         return GalleryAuthorCategoryCollection::from(
-            parent::getAll()
+            $this->query()
         );
     }
 }
