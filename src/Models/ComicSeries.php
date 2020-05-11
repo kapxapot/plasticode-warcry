@@ -55,12 +55,12 @@ class ComicSeries extends DbModel implements TaggedInterface
 
     public function prevIssue(int $number) : ?ComicIssue
     {
-        return $this->issues()->prev($number);
+        return $this->issues()->prevBy($number);
     }
 
     public function nextIssue(int $number) : ?ComicIssue
     {
-        return $this->issues()->next($number);
+        return $this->issues()->nextBy($number);
     }
 
     public function lastIssuedOn() : ?string

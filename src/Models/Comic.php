@@ -71,7 +71,7 @@ abstract class Comic extends DbModel implements TaggedInterface
 
     public function prevPage(int $number) : ?ComicPage
     {
-        $prev = $this->pages()->prev($number);
+        $prev = $this->pages()->prevBy($number);
 
         if (!$prev && $this->prev()) {
             $prev = $this->prev()->lastPage();
@@ -82,7 +82,7 @@ abstract class Comic extends DbModel implements TaggedInterface
 
     public function nextPage(int $number) : ?ComicPage
     {
-        $next = $this->pages()->next($number);
+        $next = $this->pages()->nextBy($number);
 
         if (!$next && $this->next()) {
             $next = $this->next()->firstPage();

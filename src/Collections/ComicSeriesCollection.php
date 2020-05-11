@@ -3,11 +3,11 @@
 namespace App\Collections;
 
 use App\Models\ComicSeries;
-use Plasticode\Collections\Basic\DbModelCollection;
+use Plasticode\Collections\Basic\TaggedCollection;
 use Plasticode\Util\Sort;
 use Plasticode\Util\SortStep;
 
-class ComicSeriesCollection extends DbModelCollection
+class ComicSeriesCollection extends TaggedCollection
 {
     protected string $class = ComicSeries::class;
 
