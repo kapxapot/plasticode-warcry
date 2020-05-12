@@ -12,8 +12,9 @@
         {% set breadcrumbs = [
             { 'url': path_for('main.videos'), 'text': videos_title }
         ] %}
+
         {{ lm.panel_header(_context, title, {
-            'buttons': [ m.edit_button('videos', video) ],
+            'buttons': [ m.edit_button(video) ],
             'published': video.published
         }) }}
 

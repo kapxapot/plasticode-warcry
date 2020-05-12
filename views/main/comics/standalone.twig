@@ -5,26 +5,29 @@
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
-	<div class="panel panel-primary comic">
-		{% set breadcrumbs = [
-			{ 'url': path_for('main.comics'), 'text': comics_title }
-		] %}
-		{{ lm.panel_header(_context, comic.name_ru, {
-			'subtitle': comic.name_en,
-			'buttons': [ m.edit_button('comic_standalones', comic) ]
-		}) }}
-	  	<div class="panel-body">
-			{% if comic.publisher %}
-	  			<p><b>Издательство:</b> <a href="{{ comic.publisher.website }}">{{ comic.publisher.name }}</a></p>
-			{% endif %}
-			{% if comic.issued_on %}
-	  			<p ng-cloak><b>Дата выхода:</b> {{ gm.moment_local_short(comic.issued_on) }}</p>
-			{% endif %}
-			{% if comic.parsed_description %}
-	  			<p>{{ comic.parsed_description|raw }}</p>
-			{% endif %}
-			{% include 'components/comics_pages.twig' with { 'pages': pages } only %}
-		</div>
-	    {% include 'main/comics/comic_footer.twig' %}
-	</div>
+    <div class="panel panel-primary comic">
+        {% set breadcrumbs = [
+            { 'url': path_for('main.comics'), 'text': comics_title }
+        ] %}
+
+        {{ lm.panel_header(_context, comic.name_ru, {
+            'subtitle': comic.name_en,
+            'buttons': [ m.edit_button(comic) ]
+        }) }}
+
+        <div class="panel-body">
+            {% if comic.publisher %}
+                <p><b>Издательство:</b> <a href="{{ comic.publisher.website }}">{{ comic.publisher.name }}</a></p>
+            {% endif %}
+            {% if comic.issued_on %}
+                <p ng-cloak><b>Дата выхода:</b> {{ gm.moment_local_short(comic.issued_on) }}</p>
+            {% endif %}
+            {% if comic.parsed_description %}
+                <p>{{ comic.parsed_description|raw }}</p>
+            {% endif %}
+            {% include 'components/comics_pages.twig' with { 'pages': pages } only %}
+        </div>
+
+        {% include 'main/comics/comic_footer.twig' %}
+    </div>
 {% endblock %}

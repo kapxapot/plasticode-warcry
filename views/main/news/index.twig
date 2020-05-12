@@ -18,12 +18,12 @@
                 <div class="panel panel-primary">
                     {{ lm.panel_game_header(news_item.game, news_item.display_title, {
                         'url': news_item.url,
-                        'buttons': [ m.edit_button(news_item.entity_alias, news_item) ]
+                        'buttons': [ m.edit_button(news_item) ]
                     }) }}
-                    
-                    {% if news_item.entity_alias == 'events' %}
+
+                    {% if news_item.plural_alias == 'events' %}
                         {% include 'components/event_bodyfooter.twig' with { 'event': news_item } only %}
-                    {% elseif news_item.entity_alias == 'videos' %}
+                    {% elseif news_item.plural_alias == 'videos' %}
                         {% include 'components/video_bodyfooter.twig' with { 'video': news_item } only %}
                     {% else %}
                         <div class="panel-body article news">
@@ -34,7 +34,7 @@
                                 {{ news_item.full_text|raw }}
                             {% endif %}
                         </div>
-    
+
                         {% include 'main/news/footer.twig' %}
                     {% endif %}
                 </div>
@@ -42,7 +42,7 @@
         {% else %}
             {{ lm.panel(_context, null, 'По заданным параметрам новости не найдены.') }}
         {% endif %}
-        
+
         {% if paging %}
             <div id="news-pagination">
                 {% include 'components/paging.twig' with { 'paging': paging } only %}

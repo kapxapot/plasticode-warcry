@@ -12,7 +12,7 @@
     <div class="panel panel-primary">
         {{ lm.panel_header(_context, article.name_ru, {
             'subtitle': not article.hideeng ? article.name_en,
-            'buttons': [ m.edit_button('articles', article) ],
+            'buttons': [ m.edit_button(article) ],
             'published': article.published
         }) }}
 

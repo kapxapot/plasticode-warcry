@@ -4,7 +4,7 @@
 {% import 'main/local_macros.twig' as lm %}
 
 {% if can('streams', 'create') %}
-    {% set sidebar_buttons = [m.create_button('streams', 'Добавить стрим')] %}
+    {% set sidebar_buttons = [ m.create_button('streams', 'Добавить стрим') ] %}
 {% endif %}
 
 {% block content %}

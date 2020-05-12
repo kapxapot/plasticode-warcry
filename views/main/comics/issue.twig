@@ -5,43 +5,47 @@
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
-	<div class="panel panel-primary comic">
-		{% set breadcrumbs = [
-			{ 'url': path_for('main.comics'), 'text': comics_title },
-			{ 'url': path_for('main.comics.series', { 'alias': series.alias }), 'text': series.name }
-		] %}
-		{{ lm.panel_header(_context, series.name ~ ' ' ~ comic.number_str, {
-			'subtitle': series.sub_name ?? comic.sub_name,
-			'bc_title': 'Выпуск ' ~ comic.number_str,
-			'buttons': [ m.edit_button('comic_issues', comic, { 'id': series.id }) ]
-		}) }}
-	  	<div class="panel-body">
-			{% if comic.issued_on %}
-	  			<p ng-cloak><b>Дата выхода:</b> {{ gm.moment_local_short(comic.issued_on) }}</p>
-			{% endif %}
-			{% if comic.parsed_description %}
-	  			<p>{{ comic.parsed_description|raw }}</p>
-			{% endif %}
-			{% include 'components/comics_pages.twig' with { 'pages': pages } only %}
-		</div>
-	    {% include 'main/comics/comic_footer.twig' %}
-	</div>
-  	<div class="pagination-flex">
-		{% if comic.prev %}
-			<a href="{{ comic.prev.page_url }}" title="Назад: Выпуск {{ comic.prev.number_str }}" class="btn btn-default btn-lg">
-			    {% include 'components/prev.twig' %}
-				Выпуск
-				<span class="hidden-xs">{{ comic.prev.number_str }}</span>
-				<span class="visible-xs-inline">#{{ comic.prev.number }}</span>
-			</a>
-		{% endif %}
-		{% if comic.next %}
-			<a href="{{ comic.next.page_url }}" title="Вперед: Выпуск {{ comic.next.number_str }}" class="btn btn-default btn-lg">
-				Выпуск
-				<span class="hidden-xs">{{ comic.next.number_str }}</span>
-				<span class="visible-xs-inline">#{{ comic.next.number }}</span>
-			    {% include 'components/next.twig' %}
-			</a>
-		{% endif %}
-	</div>
+    <div class="panel panel-primary comic">
+        {% set breadcrumbs = [
+            { 'url': path_for('main.comics'), 'text': comics_title },
+            { 'url': path_for('main.comics.series', { 'alias': series.alias }), 'text': series.name }
+        ] %}
+
+        {{ lm.panel_header(_context, series.name ~ ' ' ~ comic.number_str, {
+            'subtitle': series.sub_name ?? comic.sub_name,
+            'bc_title': 'Выпуск ' ~ comic.number_str,
+            'buttons': [ m.edit_button(comic, { 'id': series.id }) ]
+        }) }}
+
+        <div class="panel-body">
+            {% if comic.issued_on %}
+                <p ng-cloak><b>Дата выхода:</b> {{ gm.moment_local_short(comic.issued_on) }}</p>
+            {% endif %}
+            {% if comic.parsed_description %}
+                <p>{{ comic.parsed_description|raw }}</p>
+            {% endif %}
+            {% include 'components/comics_pages.twig' with { 'pages': pages } only %}
+        </div>
+
+        {% include 'main/comics/comic_footer.twig' %}
+    </div>
+
+    <div class="pagination-flex">
+        {% if comic.prev %}
+            <a href="{{ comic.prev.page_url }}" title="Назад: Выпуск {{ comic.prev.number_str }}" class="btn btn-default btn-lg">
+                {% include 'components/prev.twig' %}
+                Выпуск
+                <span class="hidden-xs">{{ comic.prev.number_str }}</span>
+                <span class="visible-xs-inline">#{{ comic.prev.number }}</span>
+            </a>
+        {% endif %}
+        {% if comic.next %}
+            <a href="{{ comic.next.page_url }}" title="Вперед: Выпуск {{ comic.next.number_str }}" class="btn btn-default btn-lg">
+                Выпуск
+                <span class="hidden-xs">{{ comic.next.number_str }}</span>
+                <span class="visible-xs-inline">#{{ comic.next.number }}</span>
+                {% include 'components/next.twig' %}
+            </a>
+        {% endif %}
+    </div>
 {% endblock %}

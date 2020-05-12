@@ -7,7 +7,7 @@
 {% set with_charts = true %}
 
 {% if can('streams', 'create') %}
-    {% set sidebar_buttons = [m.create_button('streams', 'Добавить стрим')] %}
+    {% set sidebar_buttons = [ m.create_button('streams', 'Добавить стрим') ] %}
 {% endif %}
 
 {% block content %}
@@ -15,14 +15,17 @@
         {% set breadcrumbs = [
             { 'url': path_for('main.streams'), 'text': streams_title }
         ] %}
+
         {{ lm.panel_header(_context, title, {
-            'buttons': [m.edit_button('streams', stream)]
+            'buttons': [ m.edit_button(stream) ]
         }) }}
+
         <div class="panel-body panel-body--nopad mb-1">
             <div class="embed-responsive embed-responsive-16by9">
                 <iframe class="embed-responsive-item" src="https://player.twitch.tv/?channel={{ stream.stream_id }}" allowfullscreen="true" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
+
         <div class="panel-body body-nopad stream-footer" ng-cloak>
             <ul class="nav nav-tabs" role="tablist">
                 {{ m.tab('about', 'Описание', true, '<i class="fas fa-info-circle"></i> <b>Описание</b>') }}
@@ -40,12 +43,9 @@
                     {{ m.tab('log', 'Журнал трансляций за последний месяц', false, '<i class="fas fa-history"></i> <b>Журнал</b>') }}
                 {% endif %}
             </ul>
+
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade in active" id="about">
-                    {#% if stream.remote_logo %}
-                        <img src="{{ stream.remote_logo }}" class="stream-logo" />
-                    {% endif %#}
-
                     {% set s = stream %}
 
                     <div class="card-body__title lh-12 grey-5">
@@ -128,7 +128,7 @@
                 {% endif %}
             </div>
         </div>
-        {% if stream.tag_links %}
+        {% if stream.tag_links.any %}
             <div class="panel-footer">
                 {% include 'components/tags.twig' with { 'tags': stream.tag_links } only %}
             </div>

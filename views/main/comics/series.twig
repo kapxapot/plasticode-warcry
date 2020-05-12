@@ -4,27 +4,30 @@
 {% import 'main/local_macros.twig' as lm %}
 
 {% block content %}
-	<div class="panel panel-primary">
-		{% set breadcrumbs = [
-			{ 'url': path_for('main.comics'), 'text': comics_title }
-		] %}
-		{{ lm.panel_header(_context, series.name, {
-			'subtitle': series.sub_name,
-			'buttons': [ m.edit_button('comic_series', series) ]
-		}) }}
-	  	<div class="panel-body">
-			{% if series.publisher %}
-	  			<p><b>Издательство:</b> <a href="{{ series.publisher.website }}">{{ series.publisher.name }}</a></p>
-			{% endif %}
-			{% if series.description %}
-	  			<p>{{ series.description|raw }}</p>
-			{% endif %}
-		    {% include 'components/comics_issues.twig' with { 'comics': comics } only %}
-	    </div>
-		{% if series.tags %}
-			<div class="panel-footer">
+    <div class="panel panel-primary">
+        {% set breadcrumbs = [
+            { 'url': path_for('main.comics'), 'text': comics_title }
+        ] %}
+
+        {{ lm.panel_header(_context, series.name, {
+            'subtitle': series.sub_name,
+            'buttons': [ m.edit_button(series) ]
+        }) }}
+
+        <div class="panel-body">
+            {% if series.publisher %}
+                <p><b>Издательство:</b> <a href="{{ series.publisher.website }}">{{ series.publisher.name }}</a></p>
+            {% endif %}
+            {% if series.description %}
+                <p>{{ series.description|raw }}</p>
+            {% endif %}
+            {% include 'components/comics_issues.twig' with { 'comics': comics } only %}
+        </div>
+
+        {% if series.tag_links.any %}
+            <div class="panel-footer">
                 {% include 'components/tags.twig' with { 'tags': series.tag_links } only %}
-			</div>
-		{% endif %}
-	</div>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

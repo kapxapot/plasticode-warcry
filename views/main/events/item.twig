@@ -8,15 +8,16 @@
 {% endif %}
 
 {% block content %}
-	<div class="panel panel-primary">
-		{% set breadcrumbs = [
-			{ 'url': path_for('main.events'), 'text': events_title }
-		] %}
-		{{ lm.panel_header(_context, title, {
-			'buttons': [ m.edit_button('events', event) ],
-			'published': event.published
-		}) }}
+    <div class="panel panel-primary">
+        {% set breadcrumbs = [
+            { 'url': path_for('main.events'), 'text': events_title }
+        ] %}
+
+        {{ lm.panel_header(_context, title, {
+            'buttons': [ m.edit_button(event) ],
+            'published': event.published
+        }) }}
 
         {% include 'components/event_bodyfooter.twig' with { 'event': event, 'full': true } only %}
-	</div>
+    </div>
 {% endblock %}
