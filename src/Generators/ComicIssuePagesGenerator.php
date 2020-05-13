@@ -36,7 +36,8 @@ class ComicIssuePagesGenerator extends ComicPagesGenerator
 
         $series = $comic->series();
 
-        $params['source'] = "comic_issues/{$comicId}/pages";
+        $params['source'] = 'comic_issues/' . $comicId . '/pages';
+
         $params['breadcrumbs'] = [
             [
                 'text' => 'Серии',

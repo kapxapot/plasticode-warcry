@@ -8,6 +8,7 @@ use Plasticode\Repositories\Interfaces\Basic\TaggedRepositoryInterface;
 
 interface StreamRepositoryInterface extends TaggedRepositoryInterface
 {
+    function get(?int $id) : ?Stream;
     function save(Stream $stream) : Stream;
     function getPublishedByAlias(string $alias) : ?Stream;
     function getAllPublished() : StreamCollection;

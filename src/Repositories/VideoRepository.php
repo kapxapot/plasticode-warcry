@@ -11,6 +11,11 @@ class VideoRepository extends NewsSourceRepository implements VideoRepositoryInt
 {
     protected string $entityClass = Video::class;
 
+    public function get(?int $id) : ?Video
+    {
+        return $this->getEntity($id);
+    }
+
     public function getProtected(?int $id) : ?Video
     {
         return $this->getProtectedEntity($id);

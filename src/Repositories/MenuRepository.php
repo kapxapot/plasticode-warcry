@@ -16,6 +16,11 @@ class MenuRepository extends BaseMenuRepository implements MenuRepositoryInterfa
 
     protected string $entityClass = Menu::class;
 
+    public function get(?int $id) : ?Menu
+    {
+        return $this->getEntity($id);
+    }
+
     public function getAll() : MenuCollection
     {
         return MenuCollection::from(

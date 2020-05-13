@@ -9,8 +9,7 @@ use Respect\Validation\Validator;
 
 class GamesGenerator extends EntityGenerator
 {
-    /** @var GameRepositoryInterface */
-    private $gameRepository;
+    private GameRepositoryInterface $gameRepository;
 
     public function __construct(ContainerInterface $container, string $entity)
     {
@@ -30,41 +29,45 @@ class GamesGenerator extends EntityGenerator
         $rules['main_forum_id'] = $this->optional('posInt');
         $rules['position'] = $this->optional('posInt');
         $rules['parent_id'] = Validator::nonRecursiveParent($this->entity, $id);
-        
+
         return $rules;
     }
-    
+
     public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
-        
+
         $item['tags'] = $this->buildAutoTags($item);
 
         $parts = [];
 
-        $cur = $this->gameRepository->get($item[$this->idField]);
-        
+        $gameId = $item[$this->idField];
+
+        $cur = $this->gameRepository->get($gameId);
+
         while ($cur) {
             $parts[] = $cur->name;
             $cur = $cur->parent();
         }
 
         $item['select_title'] = implode(' » ', array_reverse($parts));
-        
+
         return $item;
     }
-    
+
     private function buildAutoTags(array $item) : string
     {
         $parts = [];
-        
-        $cur = $this->gameRepository->get($item[$this->idField]);
-        
+
+        $gameId = $item[$this->idField];
+
+        $cur = $this->gameRepository->get($gameId);
+
         while ($cur) {
             $parts[] = $cur->autotags;
             $cur = $cur->parent();
         }
-        
+
         return implode(', ', array_reverse($parts));
     }
 }

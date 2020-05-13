@@ -4,11 +4,10 @@ namespace App\Config;
 
 use App\Config\Interfaces\GameConfigInterface;
 use App\Config\Interfaces\RecipeConfigInterface;
-use App\Config\Interfaces\SkillConfigInterface;
 use App\Config\Interfaces\StreamConfigInterface;
 use Plasticode\Config\Config as ConfigBase;
 
-class Config extends ConfigBase implements GameConfigInterface, RecipeConfigInterface, SkillConfigInterface, StreamConfigInterface
+class Config extends ConfigBase implements GameConfigInterface, RecipeConfigInterface, StreamConfigInterface
 {
     public function defaultWoWIcon() : string
     {
@@ -28,9 +27,7 @@ class Config extends ConfigBase implements GameConfigInterface, RecipeConfigInte
         $games = $this->get('streams.priority_games', []);
 
         return array_map(
-            function (string $game) {
-                return mb_strtolower($game);
-            },
+            fn (string $game) => mb_strtolower($game),
             $games
         );
     }

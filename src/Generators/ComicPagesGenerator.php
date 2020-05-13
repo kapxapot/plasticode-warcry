@@ -47,7 +47,7 @@ abstract class ComicPagesGenerator extends EntityGenerator
 
     private function getPageUrl(array $item) : string
     {
-        $comic = $this->comicService->getComicByContext($item['comic_issue_id']);
+        $comic = $this->comicService->getComicByContext($item);
         $page = $comic->pageByNumber($item['number']);
 
         return $page->pageUrl();

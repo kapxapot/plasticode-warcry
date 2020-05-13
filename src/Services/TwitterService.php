@@ -8,8 +8,7 @@ use Plasticode\Util\Strings;
 
 class TwitterService
 {
-    /** @var LinkerInterface */
-    private $linker;
+    private LinkerInterface $linker;
 
     public function __construct(LinkerInterface $linker)
     {

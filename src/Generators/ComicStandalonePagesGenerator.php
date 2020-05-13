@@ -34,7 +34,8 @@ class ComicStandalonePagesGenerator extends ComicPagesGenerator
 
         $comic = $this->comicStandaloneRepository->get($comicId);
 
-        $params['source'] = "comic_standalones/{$comicId}/pages";
+        $params['source'] = 'comic_standalones/' . $comicId . '/pages';
+
         $params['breadcrumbs'] = [
             [
                 'text' => 'Комиксы',

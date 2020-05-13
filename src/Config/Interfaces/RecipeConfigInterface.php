@@ -4,5 +4,5 @@ namespace App\Config\Interfaces;
 
 interface RecipeConfigInterface
 {
-    public function defaultWoWIcon() : string;
+    function defaultWoWIcon() : string;
 }

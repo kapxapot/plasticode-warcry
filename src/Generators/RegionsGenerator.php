@@ -26,14 +26,16 @@ class RegionsGenerator extends EntityGenerator
 
         return $rules;
     }
-    
+
     public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
 
         $parts = [];
 
-        $cur = $this->regionRepository->get($item[$this->idField]);
+        $id = $item[$this->idField];
+
+        $cur = $this->regionRepository->get($id);
 
         while ($cur) {
             $parts[] = $cur->nameRu;

@@ -8,8 +8,7 @@ use Psr\Container\ContainerInterface;
 
 class GalleryAuthorsGenerator extends EntityGenerator
 {
-    /** @var GalleryAuthorRepositoryInterface */
-    private $galleryAuthorRepository;
+    private GalleryAuthorRepositoryInterface $galleryAuthorRepository;
 
     public function __construct(ContainerInterface $container, string $entity)
     {
@@ -21,20 +20,20 @@ class GalleryAuthorsGenerator extends EntityGenerator
     public function getRules(array $data, $id = null) : array
     {
         $rules = parent::getRules($data, $id);
-        
+
         $rules['name'] = $this->rule('text')->galleryAuthorNameAvailable($id);
 
         if (array_key_exists('alias', $data)) {
             $rules['alias'] = $this->rule('alias')->galleryAuthorAliasAvailable($id);
         }
-        
+
         return $rules;
     }
-    
+
     public function getOptions() : array
     {
         $options = parent::getOptions();
-        
+
         $options['admin_uri'] = 'gallery';
         $options['admin_template'] = 'entity_with_upload';
         $options['admin_args'] = [
@@ -43,16 +42,17 @@ class GalleryAuthorsGenerator extends EntityGenerator
 
         return $options;
     }
-    
+
     public function afterLoad(array $item) : array
     {
         $item = parent::afterLoad($item);
 
-        $item['context_field'] = 'author_id';
+        $id = $item[$this->idField];
 
-        $author = $this->galleryAuthorRepository->get($item[$this->idField]);
+        $author = $this->galleryAuthorRepository->get($id);
 
         $item['page_url'] = $author->pageUrl();
+        $item['context_field'] = 'author_id';
 
         return $item;
     }

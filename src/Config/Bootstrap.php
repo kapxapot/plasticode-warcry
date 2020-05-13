@@ -96,7 +96,6 @@ use App\Services\NewsAggregatorService;
 use App\Services\RecipeService;
 use App\Services\SearchService;
 use App\Services\SidebarPartsProviderService;
-use App\Services\SkillService;
 use App\Services\StreamService;
 use App\Services\StreamStatService;
 use App\Services\TagPartsProviderService;
@@ -799,11 +798,6 @@ class Bootstrap extends BootstrapBase
                 $c->galleryPictureRepository,
                 $c->newsAggregatorService,
                 $c->streamService
-            );
-
-        $map['skillService'] = fn (CI $c) =>
-            new SkillService(
-                $this->config
             );
 
         $map['streamService'] = fn (CI $c) =>

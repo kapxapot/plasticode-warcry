@@ -10,6 +10,11 @@ class NewsRepository extends NewsSourceRepository implements NewsRepositoryInter
 {
     protected string $entityClass = News::class;
 
+    public function get(?int $id) : ?News
+    {
+        return $this->getEntity($id);
+    }
+
     public function getProtected(?int $id) : ?News
     {
         return $this->getProtectedEntity($id);

@@ -14,8 +14,7 @@ use Psr\Log\LoggerInterface;
 
 class AppContext extends BaseAppContext
 {
-    /** @var MenuRepositoryInterface */
-    protected $menuRepository;
+    private MenuRepositoryInterface $menuRepository;
 
     public function __construct(
         SettingsProviderInterface $settingsProvider,
@@ -34,6 +33,8 @@ class AppContext extends BaseAppContext
             $logger,
             $menuRepository
         );
+
+        $this->menuRepository = $menuRepository;
     }
 
     public function getMenus() : MenuCollection

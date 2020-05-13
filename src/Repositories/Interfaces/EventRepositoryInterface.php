@@ -8,6 +8,7 @@ use App\Models\Game;
 
 interface EventRepositoryInterface extends SearchableNewsSourceRepositoryInterface
 {
+    function get(?int $id) : ?Event;
     function getProtected(?int $id) : ?Event;
     function getAllOrderedByStart() : EventCollection;
     function getAllUnended() : EventCollection;

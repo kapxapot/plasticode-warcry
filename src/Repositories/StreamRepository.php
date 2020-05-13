@@ -17,6 +17,11 @@ class StreamRepository extends TaggedRepository implements StreamRepositoryInter
     protected string $sortField = 'remote_viewers';
     protected bool $sortReverse = true;
 
+    public function get(?int $id) : ?Stream
+    {
+        return $this->getEntity($id);
+    }
+
     public function save(Stream $stream) : Stream
     {
         return $this->saveEntity($stream);
