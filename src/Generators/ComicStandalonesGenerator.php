@@ -26,7 +26,7 @@ class ComicStandalonesGenerator extends TaggableEntityGenerator
 
         $options['admin_template'] = 'entity_with_upload';
         $options['admin_args'] = [
-            'upload_path' => 'admin.comics.upload',
+            'upload_path' => 'admin.comics.standalone.upload',
         ];
 
         return $options;

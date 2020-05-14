@@ -29,11 +29,6 @@ class ComicIssue extends Comic implements NumberedInterface
         ];
     }
 
-    public function createPage() : ComicIssuePage
-    {
-        return ComicIssuePage::createForComic($this);
-    }
-
     public function pages() : ComicIssuePageCollection
     {
         return ComicIssuePageCollection::from(

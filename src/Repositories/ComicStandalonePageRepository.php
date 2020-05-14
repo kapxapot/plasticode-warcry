@@ -17,6 +17,11 @@ class ComicStandalonePageRepository extends ComicPageRepository implements Comic
         return ComicStandalonePage::comicIdField();
     }
 
+    public function save(ComicStandalonePage $page) : ComicStandalonePage
+    {
+        return $this->saveEntity($page);
+    }
+
     /**
      * @param ComicStandalone $comic
      */

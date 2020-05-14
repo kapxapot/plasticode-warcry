@@ -17,6 +17,11 @@ class ComicIssuePageRepository extends ComicPageRepository implements ComicIssue
         return ComicIssuePage::comicIdField();
     }
 
+    public function save(ComicIssuePage $page) : ComicIssuePage
+    {
+        return $this->saveEntity($page);
+    }
+
     /**
      * @param ComicIssue $comic
      */

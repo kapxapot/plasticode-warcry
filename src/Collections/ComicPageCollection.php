@@ -7,7 +7,7 @@ use App\Collections\Traits\NumberedCollection;
 use App\Models\ComicPage;
 use Plasticode\Collections\Basic\DbModelCollection;
 
-abstract class ComicPageCollection extends DbModelCollection implements NumberedCollectionInterface
+class ComicPageCollection extends DbModelCollection implements NumberedCollectionInterface
 {
     use NumberedCollection
     {

@@ -30,11 +30,6 @@ class ComicStandalone extends Comic
         );
     }
 
-    public function createPage() : ComicStandalonePage
-    {
-        return ComicStandalonePage::createForComic($this);
-    }
-
     /**
      * @return static|null
      */

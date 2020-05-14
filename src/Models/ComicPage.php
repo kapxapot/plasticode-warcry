@@ -44,16 +44,6 @@ abstract class ComicPage extends DbModel implements NumberedInterface
         ];
     }
 
-    /**
-     * @return static
-     */
-    public static function createForComic(Comic $comic) : self
-    {
-        return static::create(
-            [static::$comicIdField => $comic->getId()]
-        );
-    }
-
     abstract public function comicId() : int;
 
     /**

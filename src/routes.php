@@ -12,7 +12,8 @@ use App\Controllers\StreamController;
 use App\Controllers\TagController;
 use App\Controllers\TestController;
 use App\Controllers\VideoController;
-use App\Controllers\Admin\ComicController as AdminComicController;
+use App\Controllers\Admin\ComicIssueController as AdminComicIssueController;
+use App\Controllers\Admin\ComicStandaloneController as AdminComicStandaloneController;
 use App\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Controllers\Admin\PlaygroundController as AdminPlaygroundController;
 use App\Controllers\Tests\SmokeTestController;
@@ -104,7 +105,7 @@ $app->group(
                         $gen->generateAPIRoutes($this, $access);
                     }
                 }
-            
+
                 $this->post(
                     '/parser/parse',
                     ParserController::class . ':parse'
@@ -113,7 +114,7 @@ $app->group(
         )->add(new TokenAuthMiddleware($container->authService));
 
         // admin
-        
+
         $this->get(
             '/admin',
             function ($request, $response, $args) {
@@ -129,24 +130,31 @@ $app->group(
                         $gen = $container
                             ->generatorResolver
                             ->resolveEntity($entity);
-                        
+
                         $gen->generateAdminPageRoute($this, $access);
                     }
-                    
+
                     $this
                         ->get(
                             '/playground',
                             AdminPlaygroundController::class
                         )
                         ->setName('admin.playground');
-                    
+
                     $this
                         ->post(
-                            '/comics/upload',
-                            AdminComicController::class . ':upload'
+                            '/comics/issue/upload',
+                            AdminComicIssueController::class . ':upload'
                         )
-                        ->setName('admin.comics.upload');
-                    
+                        ->setName('admin.comics.issue.upload');
+
+                    $this
+                        ->post(
+                            '/comics/standalone/upload',
+                            AdminComicStandaloneController::class . ':upload'
+                        )
+                        ->setName('admin.comics.standalone.upload');
+
                     $this
                         ->post(
                             '/gallery/upload',
@@ -164,54 +172,54 @@ $app->group(
             );
 
         // site
-        
+
         $this->get('/news/{id:\d+}', NewsController::class . ':item')
             ->setName('main.news');
 
         $this->get('/news/archive', NewsController::class . ':archiveIndex')
             ->setName('main.news.archive');
-        
+
         $this->get('/news/archive/{year:\d+}', NewsController::class . ':archiveYear')
             ->setName('main.news.archive.year');
-        
+
         $this->get('/rss', NewsController::class . ':rss')
             ->setName('main.rss');
-        
+
         $this->get('/articles/{id}[/{cat}]', ArticleController::class . ':item')
             ->setName('main.article');
-        
+
         $this->get('/streams', StreamController::class . ':index')
             ->setName('main.streams');
-        
+
         $this->get('/streams/{alias}', StreamController::class . ':item')
             ->setName('main.stream');
 
         $this->get('/gallery', GalleryController::class . ':index')
             ->setName('main.gallery');
-        
+
         $this->get('/gallery/{id:\d+}', GalleryController::class . ':picture')
             ->setName('main.gallery.picture.direct');
-        
+
         $this->get('/gallery/{alias}', GalleryController::class . ':author')
             ->setName('main.gallery.author');
-        
+
         $this->get('/gallery/{alias}/{id:\d+}', GalleryController::class . ':picture')
             ->setName('main.gallery.picture');
-        
+
         $this->get('/map', MapController::class . ':index')
             ->setName('main.map');
-        
+
         $this->get('/comics', ComicController::class . ':index')
             ->setName('main.comics');
-        
+
         $this->get('/comics/series/{alias}', ComicController::class . ':series')
             ->setName('main.comics.series');
-        
+
         $this->get(
             '/comics/series/{alias}/{number:\d+}',
             ComicController::class . ':issue'
         )->setName('main.comics.issue');
-        
+
         $this->get(
             '/comics/series/{alias}/{number:\d+}/{page:\d+}',
             ComicController::class . ':issuePage'
@@ -219,7 +227,7 @@ $app->group(
 
         $this->get('/comics/{alias}', ComicController::class . ':standalone')
             ->setName('main.comics.standalone');
-        
+
         $this->get(
             '/comics/{alias}/{page:\d+}',
             ComicController::class . ':standalonePage'
@@ -227,19 +235,19 @@ $app->group(
 
         $this->get('/recipes/{id:\d+}', RecipeController::class . ':item')
             ->setName('main.recipe');
-        
+
         $this->get('/recipes[/{skill}]', RecipeController::class . ':index')
             ->setName('main.recipes');
 
         $this->get('/events', EventController::class . ':index')
             ->setName('main.events');
-        
+
         $this->get('/events/{id:\d+}', EventController::class . ':item')
             ->setName('main.event');
 
         $this->get('/videos', VideoController::class . ':index')
             ->setName('main.videos');
-        
+
         $this->get('/videos/{id:\d+}', VideoController::class . ':item')
             ->setName('main.video');
 
@@ -249,14 +257,14 @@ $app->group(
         if ($env->isDev()) {
             $this->get('/test', TestController::class . ':index')->setName('main.test');
         }
-        
+
         $this->get(
             $trueRoot ? '/[{game}]' : '[/{game}]',
             NewsController::class . ':index'
         )->setName('main.index');
 
         // cron
-        
+
         $this->group(
             '/cron',
             function () {
@@ -268,14 +276,14 @@ $app->group(
         );
 
         // public auth
-        
+
         $this
             ->group(
                 '/auth',
                 function () {
                     $this->post('/signup', AuthController::class . ':postSignUp')
                         ->setName('auth.signup');
-                    
+
                     $this->post('/signin', AuthController::class . ':postSignIn')
                         ->setName('auth.signin');
                 }
@@ -287,7 +295,7 @@ $app->group(
                     'main.index'
                 )
             );
-        
+
         // private auth
 
         $this
@@ -300,7 +308,7 @@ $app->group(
                             AuthController::class . ':postSignOut'
                         )
                         ->setName('auth.signout');
-                    
+
                     $this
                         ->post(
                             '/password/change',
@@ -316,9 +324,9 @@ $app->group(
                     'main.index'
                 )
             );
-        
+
         // tests
-        
+
         if ($env->isDev()) {
             $this->group(
                 '/tests',

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Collections\ArticleCollection;
+use Plasticode\Collections\Basic\Collection;
 use Plasticode\Models\Traits\Parented;
 use Plasticode\Util\Strings;
 
@@ -68,7 +69,7 @@ class Article extends NewsSource
             ->ascStr('name_ru');
     }
 
-    public function breadcrumbs() : ArticleCollection
+    public function breadcrumbs() : Collection
     {
         $breadcrumbs = [];
 

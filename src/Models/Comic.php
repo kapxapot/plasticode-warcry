@@ -32,8 +32,6 @@ abstract class Comic extends DbModel implements TaggedInterface
         );
     }
 
-    abstract public function createPage() : ComicPage;
-
     /**
      * @return static|null
      */
@@ -54,17 +52,17 @@ abstract class Comic extends DbModel implements TaggedInterface
         return $this->pages()->count();
     }
 
-    public function cover() : ComicPage
+    public function cover() : ?ComicPage
     {
         return $this->firstPage();
     }
 
-    public function firstPage() : ComicPage
+    public function firstPage() : ?ComicPage
     {
         return $this->pages()->first();
     }
 
-    public function lastPage() : ComicPage
+    public function lastPage() : ?ComicPage
     {
         return $this->pages()->last();
     }
