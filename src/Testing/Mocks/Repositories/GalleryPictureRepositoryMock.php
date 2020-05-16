@@ -29,11 +29,12 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
             ->first('id', $id);
     }
 
-    /**
-     * Todo: This method must set $pic->id if it's 0 ("not persisted").
-     */
     public function save(GalleryPicture $pic) : GalleryPicture
     {
+        if (!$pic->isPersisted()) {
+            $pic->id = $this->pictures->ids()->max();
+        }
+
         $this->pictures = $this->pictures->add($pic);
 
         return $pic;

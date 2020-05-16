@@ -21,6 +21,7 @@ use Webmozart\Assert\Assert;
  * @property string|null $comment
  * @property integer|null $gameId
  * @property integer|null $height
+ * @property integer $id
  * @property integer $official
  * @property string $pictureType
  * @property string|null $points
