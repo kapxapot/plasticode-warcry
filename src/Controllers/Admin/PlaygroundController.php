@@ -8,7 +8,10 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class PlaygroundController extends Controller
 {
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    )
     {
         return $this->render(
             $response,

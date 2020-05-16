@@ -8,7 +8,10 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SmokeTestController extends Controller
 {
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    )
     {
         $pages = $this->getSettings('smoke_tests');
         $testResults = $this->test($pages);

@@ -11,6 +11,7 @@ use Plasticode\Repositories\Interfaces\Basic\TaggedRepositoryInterface;
 interface GalleryPictureRepositoryInterface extends TaggedRepositoryInterface
 {
     function get(?int $id) : ?GalleryPicture;
+    function save(GalleryPicture $pic) : GalleryPicture;
 
     function getAllByTag(
         string $tag,

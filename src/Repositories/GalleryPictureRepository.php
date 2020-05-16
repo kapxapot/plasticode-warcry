@@ -37,6 +37,11 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
         return $this->getEntity($id);
     }
 
+    public function save(GalleryPicture $pic) : GalleryPicture
+    {
+        return $this->saveEntity($pic);
+    }
+
     public function getAllByTag(
         string $tag,
         int $limit = 0
