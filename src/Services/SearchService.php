@@ -8,7 +8,7 @@ use App\Models\News;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Repositories\Interfaces\NewsRepositoryInterface;
-use Plasticode\Collections\Basic\Collection;
+use Plasticode\Collections\Basic\ArrayCollection;
 use Plasticode\Core\Interfaces\LinkerInterface;
 use Plasticode\Models\Tag;
 use Plasticode\Repositories\Interfaces\TagRepositoryInterface;
@@ -38,7 +38,7 @@ class SearchService
         $this->linker = $linker;
     }
 
-    public function search($query) : Collection
+    public function search($query) : ArrayCollection
     {
         $articles = $this
             ->articleRepository
@@ -96,11 +96,11 @@ class SearchService
                 ]
             );
 
-        return Collection::merge(
-            $articles,
-            $news,
-            $events,
-            $tags
+        return ArrayCollection::merge(
+            ArrayCollection::from($articles),
+            ArrayCollection::from($news),
+            ArrayCollection::from($events),
+            ArrayCollection::from($tags)
         );
     }
 }

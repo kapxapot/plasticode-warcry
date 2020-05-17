@@ -110,9 +110,9 @@ class NewsController extends NewsSourceController
             return ($this->notFoundHandler)($request, $response);
         }
 
-        // additional check for forum news
-        if ($rebuild !== null && method_exists($news, 'resetDescription')) {
-            $news->resetDescription();
+        if ($rebuild !== null) {
+            // Todo: reset news description, if applicable
+            // Currently, there's no caching
         }
 
         $prev = $this->newsAggregatorService->getPrev($news);

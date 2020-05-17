@@ -21,7 +21,11 @@ class ArticleController extends NewsSourceController
         $this->notFoundHandler = $container->notFoundHandler;
     }
 
-    public function item(SlimRequest $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(
+        SlimRequest $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $id = $args['id'];
         $cat = $args['cat'];
@@ -35,13 +39,14 @@ class ArticleController extends NewsSourceController
         }
 
         if ($rebuild !== null) {
-            $article->resetDescription();
+            // Todo: reset article description
+            // Currently, there's no caching
         }
 
         $params = $this->buildParams(
             [
                 'game' => $article->game(),
-                'sidebar' => [ 'stream', 'gallery', 'events', 'articles' ],
+                'sidebar' => ['stream', 'gallery', 'events', 'articles'],
                 'article_id' => $article->getId(),
                 'large_image' => $article->largeImage(),
                 'image' => $article->image(),
@@ -51,7 +56,11 @@ class ArticleController extends NewsSourceController
                     'disqus_id' => 'article' . $article->getId() . $cat,
                     'article' => $article,
                     'title' => $article->titleFull(),
-                    'page_description' => $this->makeNewsPageDescription($article, 'articles.description_limit'),
+                    'page_description' => $this->makeNewsPageDescription(
+                        $article,
+                        'articles.description_limit'
+                    ),
+                    'canonical_url' => $this->linker->abs($article->url()),
                 ],
             ]
         );

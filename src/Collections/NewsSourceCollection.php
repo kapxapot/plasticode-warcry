@@ -39,13 +39,11 @@ class NewsSourceCollection extends TaggedCollection
 
     public function years() : ScalarCollection
     {
-        return
-            ScalarCollection::from(
-                $this->map(
-                    fn (NewsSourceInterface $item) =>
-                    Date::year(
-                        $item->publishedAtIso()
-                    )
+        return $this
+            ->scalarize(
+                fn (NewsSourceInterface $item) =>
+                Date::year(
+                    $item->publishedAtIso()
                 )
             )
             ->distinct();

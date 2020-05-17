@@ -74,7 +74,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     {
         $tags = $this
             ->tags()
-            ->extractScalar('tag_text')
+            ->tagTexts()
             ->toArray();
 
         return Arrays::trim($tags);

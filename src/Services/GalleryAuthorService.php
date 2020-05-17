@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\GalleryAuthorCategory;
 use App\Repositories\Interfaces\GalleryAuthorCategoryRepositoryInterface;
-use Plasticode\Collections\Basic\Collection;
+use Plasticode\Collections\Basic\ArrayCollection;
 
 class GalleryAuthorService
 {
@@ -17,7 +17,7 @@ class GalleryAuthorService
         $this->galleryAuthorCategoryRepository = $galleryAuthorCategoryRepository;
     }
 
-    public function getGroups() : Collection
+    public function getGroups() : ArrayCollection
     {
         return $this
             ->galleryAuthorCategoryRepository

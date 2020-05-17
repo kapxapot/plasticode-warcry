@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Collections\ArticleCollection;
-use Plasticode\Collections\Basic\Collection;
+use Plasticode\Collections\Basic\ArrayCollection;
 use Plasticode\Models\Traits\Parented;
 use Plasticode\Util\Strings;
 
@@ -69,7 +69,7 @@ class Article extends NewsSource
             ->ascStr('name_ru');
     }
 
-    public function breadcrumbs() : Collection
+    public function breadcrumbs() : ArrayCollection
     {
         $breadcrumbs = [];
 
@@ -83,7 +83,7 @@ class Article extends NewsSource
             $article = $article->parent();
         }
 
-        return ArticleCollection::make($breadcrumbs)
+        $bcArrays = ArticleCollection::make($breadcrumbs)
             ->reverse()
             ->map(
                 fn (Article $a) =>
@@ -93,6 +93,8 @@ class Article extends NewsSource
                     'title' => $a->titleEn(),
                 ]
             );
+
+        return ArrayCollection::from($bcArrays);
     }
 
     public function isAnnounced() : bool

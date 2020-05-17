@@ -38,11 +38,11 @@ trait NumberedCollection
     public function maxNumber() : int
     {
         $max = $this
-            ->asc(
+            ->scalarize(
                 fn (NumberedInterface $n) => $n->number
             )
-            ->last();
+            ->max();
 
-        return $max ? $max->number : 0;
+        return $max ?? 0;
     }
 }

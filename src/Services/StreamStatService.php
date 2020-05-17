@@ -8,7 +8,7 @@ use App\Models\Stream;
 use App\Models\StreamStat;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Repositories\Interfaces\StreamStatRepositoryInterface;
-use Plasticode\Collections\Basic\Collection;
+use Plasticode\Collections\Basic\ArrayCollection;
 use Plasticode\Util\Date;
 use Plasticode\Util\Sort;
 use Plasticode\Util\SortStep;
@@ -110,20 +110,7 @@ class StreamStatService
         $now = new \DateTime;
         $start = Date::startOfHour($now)->modify('-23 hour');
 
-        $lastDayStats = $this
-            ->streamStatRepository
-            ->getAllFromDateByStream($stream, $start)
-            ->map(
-                function (StreamStat $s) {
-                    $cr = strtotime($s->createdAt);
-
-                    return [
-                        ...$s->toArray(),
-                        'stamp' => strftime('%d-%H', $cr),
-                        'iso' => Date::formatIso($cr),
-                    ];
-                }
-            );
+        $lastDayStats = $this->getLastDayStats($stream, $start);
 
         if ($lastDayStats->any()) {
             $stats['viewers'] = $this->buildGameStats(
@@ -140,20 +127,7 @@ class StreamStatService
 
         $monthStart = Date::fromUtc($monthStartUtc);
 
-        $lastMonthStats = $this
-            ->streamStatRepository
-            ->getAllFromDateByStream($stream, $monthStart)
-            ->map(
-                function (StreamStat $s) {
-                    $utcCreatedAt = Date::utc(Date::dt($s->createdAt));
-
-                    return [
-                        ...$s->toArray,
-                        'display_remote_status' => $s->displayRemoteStatus(),
-                        'stamp' => $utcCreatedAt->format('m-d'),
-                    ];
-                }
-            );
+        $lastMonthStats = $this->getLastMonthStats($stream, $monthStart);
 
         if ($lastMonthStats->any()) {
             $stats['daily'] = $this->buildDailyStats(
@@ -168,8 +142,51 @@ class StreamStatService
         return $stats;
     }
 
+    private function getLastDayStats(
+        Stream $stream,
+        \DateTime $start
+    ) : ArrayCollection
+    {
+        $stats = $this
+            ->streamStatRepository
+            ->getAllFromDateByStream($stream, $start)
+            ->map(
+                function (StreamStat $s) {
+                    $cr = strtotime($s->createdAt);
+
+                    return [
+                        ...$s->toArray(),
+                        'stamp' => strftime('%d-%H', $cr),
+                        'iso' => Date::formatIso($cr),
+                    ];
+                }
+            );
+
+        return ArrayCollection::from($stats);
+    }
+
+    private function getLastMonthStats(Stream $stream, \DateTime $monthStart) : ArrayCollection
+    {
+        $stats = $this
+            ->streamStatRepository
+            ->getAllFromDateByStream($stream, $monthStart)
+            ->map(
+                function (StreamStat $s) {
+                    $utcCreatedAt = Date::utc(Date::dt($s->createdAt));
+
+                    return [
+                        ...$s->toArray,
+                        'display_remote_status' => $s->displayRemoteStatus(),
+                        'stamp' => $utcCreatedAt->format('m-d'),
+                    ];
+                }
+            );
+
+        return ArrayCollection::from($stats);
+    }
+
     private function buildGameStats(
-        Collection $latest,
+        ArrayCollection $latest,
         \DateTime $start,
         \DateTime $end
     ) : array
@@ -228,7 +245,7 @@ class StreamStatService
     }
 
     private function buildDailyStats(
-        Collection $latest,
+        ArrayCollection $latest,
         \DateTime $start,
         \DateTime $end
     ) : array
@@ -267,7 +284,7 @@ class StreamStatService
         return $daily;
     }
 
-    private function buildLogs(Collection $stats) : array
+    private function buildLogs(ArrayCollection $stats) : array
     {
         $logs = [];
 

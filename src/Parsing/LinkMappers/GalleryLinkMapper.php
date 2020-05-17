@@ -2,11 +2,11 @@
 
 namespace App\Parsing\LinkMappers;
 
+use App\Collections\GalleryPictureCollection;
 use App\Core\Interfaces\LinkerInterface;
 use App\Core\Interfaces\RendererInterface;
 use App\Parsing\LinkMappers\Basic\TaggedLinkMapper;
 use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
-use Plasticode\Collections\Basic\Collection;
 use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\Parsing\SlugChunk;
 use Plasticode\Util\Strings;
@@ -38,7 +38,7 @@ class GalleryLinkMapper extends TaggedLinkMapper
 
     public function mapSlug(SlugChunk $slugChunk, array $otherChunks) : ?string
     {
-        $pictures = Collection::empty();
+        $pictures = GalleryPictureCollection::empty();
 
         $slug = $slugChunk->slug();
         $ids = Strings::explode($slug);

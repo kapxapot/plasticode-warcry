@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Collections\ForumTagCollection;
+use App\Collections\ForumTopicCollection;
 use App\Models\ForumTag;
 use App\Models\ForumTopic;
 use App\Repositories\Interfaces\ForumTagRepositoryInterface;
@@ -25,13 +26,20 @@ class ForumTagRepository extends IdiormRepository implements ForumTagRepositoryI
 
     public function getForumTopicIdsByTag(string $tag) : ScalarCollection
     {
+        return $this
+            ->getForumTopicTagsByTag($tag)
+            ->metaIds();
+    }
+
+    public function getForumTopicTagsByTag(string $tag) : ForumTagCollection
+    {
         $tag = mb_strtolower($tag);
 
-        return $this
-            ->topicQuery()
-            ->whereRaw('(lcase(tag_text) = ?)', [$tag])
-            ->all()
-            ->extractScalar('tag_meta_id');
+        return ForumTagCollection::from(
+            $this
+                ->topicQuery()
+                ->whereRaw('(lcase(tag_text) = ?)', [$tag])
+        );
     }
 
     protected function topicQuery() : Query

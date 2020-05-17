@@ -8,7 +8,7 @@ use App\Models\StreamStat;
 use App\Repositories\Interfaces\StreamRepositoryInterface;
 use App\Repositories\Interfaces\StreamStatRepositoryInterface;
 use App\Services\StreamStatService;
-use Plasticode\Collections\Basic\Collection;
+use Plasticode\Collections\Basic\ArrayCollection;
 use Plasticode\Core\Interfaces\CacheInterface;
 use Plasticode\Core\Interfaces\SettingsProviderInterface;
 use Plasticode\External\Telegram;
@@ -72,7 +72,7 @@ class UpdateStreamsJob
         $this->log = ($logSettings === true);
     }
 
-    public function run() : Collection
+    public function run() : ArrayCollection
     {
         return $this
             ->streamRepository

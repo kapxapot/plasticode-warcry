@@ -15,6 +15,11 @@ class NewsYear implements LinkableInterface
         $this->url = $url;
     }
 
+    public function year() : int
+    {
+        return $this->year;
+    }
+
     public function url() : ?string
     {
         return $this->url;

@@ -10,4 +10,5 @@ interface ForumTagRepositoryInterface
 {
     function getAllByForumTopic(ForumTopic $topic) : ForumTagCollection;
     function getForumTopicIdsByTag(string $tag) : ScalarCollection;
+    function getForumTopicTagsByTag(string $tag) : ForumTagCollection;
 }

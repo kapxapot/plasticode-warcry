@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use App\Collections\NewsSourceCollection;
+use App\Collections\NewsYearCollection;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
 use App\Models\NewsYear;
 use App\Repositories\Interfaces\NewsSourceRepositoryInterface as SrcRepoInterface;
-use Plasticode\Collections\Basic\Collection;
-use Plasticode\Collections\Basic\ScalarCollection;
 use Plasticode\Util\Date;
 use Webmozart\Assert\Assert;
 
@@ -210,9 +209,9 @@ class NewsAggregatorService
     /**
      * Descending.
      */
-    public function getYears(bool $strict = true) : Collection
+    public function getYears(bool $strict = true) : NewsYearCollection
     {
-        return $this
+        $years = $this
             ->getAllRaw($strict)
             ->years()
             ->map(
@@ -221,8 +220,9 @@ class NewsAggregatorService
                     $y,
                     $this->linker->newsYear($y)
                 )
-            )
-            ->desc('year');
+            );
+
+        return NewsYearCollection::from($years)->sort();
     }
 
     public function getPrevYear(int $year, bool $strict = true) : ?NewsYear

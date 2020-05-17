@@ -32,7 +32,7 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
     public function save(GalleryPicture $pic) : GalleryPicture
     {
         if (!$pic->isPersisted()) {
-            $pic->id = $this->pictures->ids()->max();
+            $pic->id = $this->pictures->nextId();
         }
 
         $this->pictures = $this->pictures->add($pic);

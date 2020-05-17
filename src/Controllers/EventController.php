@@ -71,7 +71,8 @@ class EventController extends NewsSourceController
         }
 
         if ($rebuild !== null) {
-            $event->resetDescription();
+            // Todo: reset event description
+            // Currently, there's no caching
         }
 
         $params = $this->buildParams(
