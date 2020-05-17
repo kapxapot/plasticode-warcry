@@ -22,6 +22,13 @@ class ComicStandaloneRepository extends TaggedRepository implements ComicStandal
         return $this->getEntity($id);
     }
 
+    public function getAllPublished() : ComicStandaloneCollection
+    {
+        return ComicStandaloneCollection::from(
+            $this->publishedQuery()
+        );
+    }
+
     public function getPublishedByAlias(string $alias) : ?ComicStandalone
     {
         return $this

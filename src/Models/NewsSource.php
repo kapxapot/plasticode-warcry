@@ -15,11 +15,11 @@ use Plasticode\Parsing\ParsingContext;
 /**
  * @property integer|null $gameId
  * @property string $tags
- * @method ParsingContext|null parsed()
+ * @method ParsingContext parsed()
  * @method TagLinkCollection tagLinks()
  * @method static withFullText(string|callable|null $fullText)
  * @method static withGame(Game|callable|null $game)
- * @method static withParsed(ParsingContext|callable|null $parsed)
+ * @method static withParsed(ParsingContext|callable $parsed)
  * @method static withShortText(string|callable|null $shortText)
  * @method static withTagLinks(TagLinkCollection|callable $tagLinks)
  */
@@ -50,9 +50,7 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
 
     public function parsedText() : ?string
     {
-        return $this->parsed()
-            ? $this->parsed()->text
-            : null;
+        return $this->parsed()->text;
     }
 
     // NewsSourceInterface
@@ -73,23 +71,17 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
 
     public function largeImage() : ?string
     {
-        return $this->parsed()
-            ? $this->parsed()->largeImage
-            : null;
+        return $this->parsed()->largeImage();
     }
-    
+
     public function image() : ?string
     {
-        return $this->parsed()
-            ? $this->parsed()->image
-            : null;
+        return $this->parsed()->image();
     }
 
     public function video() : ?string
     {
-        return $this->parsed()
-            ? $this->parsed()->video
-            : null;
+        return $this->parsed()->video();
     }
 
     abstract public function displayTitle() : string;

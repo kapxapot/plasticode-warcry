@@ -8,6 +8,7 @@ use App\Repositories\Interfaces\ComicIssuePageRepositoryInterface;
 use App\Repositories\Interfaces\ComicSeriesRepositoryInterface;
 use Plasticode\Hydrators\Basic\ParsingHydrator;
 use Plasticode\Models\DbModel;
+use Plasticode\Parsing\Interfaces\ParserInterface;
 
 class ComicIssueHydrator extends ParsingHydrator
 {
@@ -19,9 +20,12 @@ class ComicIssueHydrator extends ParsingHydrator
     public function __construct(
         ComicIssuePageRepositoryInterface $comicIssuePageRepository,
         ComicSeriesRepositoryInterface $comicSeriesRepository,
-        LinkerInterface $linker
+        LinkerInterface $linker,
+        ParserInterface $parser
     )
     {
+        parent::__construct($parser);
+
         $this->comicIssuePageRepository = $comicIssuePageRepository;
         $this->comicSeriesRepository = $comicSeriesRepository;
 

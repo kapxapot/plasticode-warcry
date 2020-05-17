@@ -38,7 +38,9 @@ class ComicIssue extends Comic implements NumberedInterface
 
     public function number() : int
     {
-        return $this->number;
+        // Well this is ugly, but it works.
+        // Todo: remove \ORM from DbModel, make models pure.
+        return $this->getObj()['number'];
     }
 
     public function numberStr() : string

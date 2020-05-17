@@ -5,6 +5,8 @@ namespace App\Controllers;
 use App\Handlers\NotFoundHandler;
 use App\Models\ComicSeries;
 use App\Models\ComicStandalone;
+use App\Repositories\Interfaces\ComicSeriesRepositoryInterface;
+use App\Repositories\Interfaces\ComicStandaloneRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,6 +14,9 @@ use Slim\Http\Request as SlimRequest;
 
 class ComicController extends Controller
 {
+    private ComicSeriesRepositoryInterface $comicSeriesRepository;
+    private ComicStandaloneRepositoryInterface $comicStandaloneRepository;
+
     private NotFoundHandler $notFoundHandler;
 
     private string $comicsTitle;
@@ -20,37 +25,52 @@ class ComicController extends Controller
     {
         parent::__construct($container);
 
+        $this->comicSeriesRepository = $container->comicSeriesRepository;
+        $this->comicStandaloneRepository = $container->comicStandaloneRepository;
+
         $this->notFoundHandler = $container->notFoundHandler;
 
         $this->comicsTitle = $this->getSettings('comics.title');
     }
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function index(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ) : ResponseInterface
     {
         $params = $this->buildParams(
             [
                 'sidebar' => [ 'stream', 'gallery', 'news' ],
                 'params' => [
                     'title' => $this->comicsTitle,
-                    'series' => ComicSeries::getAllSorted(),
-                    'standalones' => ComicStandalone::getPublished()->all(),
+                    'series' => $this
+                        ->comicSeriesRepository
+                        ->getAllPublished()
+                        ->sort(),
+                    'standalones' => $this
+                        ->comicStandaloneRepository
+                        ->getAllPublished(),
                 ],
             ]
         );
-    
+
         return $this->render($response, 'main/comics/index.twig', $params);
     }
 
-    public function series(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function series(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $alias = $args['alias'];
-        
-        $series = ComicSeries::getPublishedByAlias($alias);
+
+        $series = $this->comicSeriesRepository->getPublishedByAlias($alias);
 
         if (!$series) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         $params = $this->buildParams(
             [
                 'game' => $series->game(),
@@ -59,7 +79,7 @@ class ComicController extends Controller
                 'large_image' => $series->cover()
                     ? $this->linker->abs($series->cover()->url())
                     : null,
-                'description' => $series->parsedDescription($this->parser),
+                'description' => $series->parsedDescription(),
                 'params' => [
                     'series' => $series,
                     'comics' => $series->issues(),
@@ -71,7 +91,7 @@ class ComicController extends Controller
 
         return $this->render($response, 'main/comics/series.twig', $params);
     }
-    
+
     public function issue(
         ServerRequestInterface $request,
         ResponseInterface $response,
@@ -81,14 +101,14 @@ class ComicController extends Controller
         $alias = $args['alias'];
         $number = $args['number'];
 
-        $series = ComicSeries::getPublishedByAlias($alias);
+        $series = $this->comicSeriesRepository->getPublishedByAlias($alias);
 
         if (!$series) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         $comic = $series->issueByNumber($number);
-        
+
         if (!$comic) {
             return ($this->notFoundHandler)($request, $response);
         }
@@ -101,22 +121,26 @@ class ComicController extends Controller
                 'large_image' => $comic->cover()
                     ? $this->linker->abs($comic->cover()->url())
                     : null,
-                'description' => $comic->parsedDescription($this->parser),
+                'description' => $comic->parsedDescription(),
                 'params' => [
                     'series' => $series,
                     'comic' => $comic,
                     'pages' => $comic->pages(),
                     'title' => $comic->titleName(),
                     'comics_title' => $this->comicsTitle,
-                    'rel_prev' => $this->linker->comicIssue($comic->prev()),
-                    'rel_next' => $this->linker->comicIssue($comic->next()),
+                    'rel_prev' => $comic->prev()
+                        ? $this->linker->comicIssue($comic->prev())
+                        : null,
+                    'rel_next' => $comic->next()
+                        ? $this->linker->comicIssue($comic->next())
+                        : null,
                 ],
             ]
         );
 
         return $this->render($response, 'main/comics/issue.twig', $params);
     }
-    
+
     public function standalone(
         ServerRequestInterface $request,
         ResponseInterface $response,
@@ -125,7 +149,7 @@ class ComicController extends Controller
     {
         $alias = $args['alias'];
 
-        $comic = ComicStandalone::getPublishedByAlias($alias);
+        $comic = $this->comicStandaloneRepository->getPublishedByAlias($alias);
 
         if (!$comic) {
             return ($this->notFoundHandler)($request, $response);
@@ -139,7 +163,7 @@ class ComicController extends Controller
                 'large_image' => $comic->cover()
                     ? $this->linker->abs($comic->cover()->url())
                     : null,
-                'description' => $comic->parsedDescription($this->parser),
+                'description' => $comic->parsedDescription(),
                 'params' => [
                     'comic' => $comic,
                     'pages' => $comic->pages(),
@@ -151,7 +175,7 @@ class ComicController extends Controller
 
         return $this->render($response, 'main/comics/standalone.twig', $params);
     }
-    
+
     public function issuePage(
         SlimRequest $request,
         ResponseInterface $response,
@@ -162,24 +186,24 @@ class ComicController extends Controller
         $comicNumber = $args['number'];
         $pageNumber = $args['page'];
 
-        $series = ComicSeries::getPublishedByAlias($alias);
+        $series = $this->comicSeriesRepository->getPublishedByAlias($alias);
 
         if (!$series) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         $comic = $series->issueByNumber($comicNumber);
-        
+
         if (!$comic) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         $page = $comic->pageByNumber($pageNumber);
-        
+
         if (!$page) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         $fullscreen = $request->getQueryParam('full', null);
 
         $params = $this->buildParams(
@@ -203,7 +227,7 @@ class ComicController extends Controller
 
         return $this->render($response, 'main/comics/issue_page.twig', $params);
     }
-    
+
     public function standalonePage(
         SlimRequest $request,
         ResponseInterface $response,
@@ -213,7 +237,7 @@ class ComicController extends Controller
         $alias = $args['alias'];
         $pageNumber = $args['page'];
 
-        $comic = ComicStandalone::getPublishedByAlias($alias);
+        $comic = $this->comicStandaloneRepository->getPublishedByAlias($alias);
 
         if (!$comic) {
             return ($this->notFoundHandler)($request, $response);
@@ -224,7 +248,7 @@ class ComicController extends Controller
         if (!$page) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         $fullscreen = $request->getQueryParam('full', null);
 
         $params = $this->buildParams(

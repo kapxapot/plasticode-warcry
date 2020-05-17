@@ -19,6 +19,8 @@ class Controller extends BaseController
 {
     private const PAGE_DESCRIPTION_LIMIT = 1000;
 
+    private AppContext $appContext;
+
     protected RouterInterface $router;
     protected LinkerInterface $linker;
     protected ParserInterface $parser;
@@ -26,14 +28,15 @@ class Controller extends BaseController
     protected GameRepositoryInterface $gameRepository;
     protected SidebarPartsProviderService $sidebarPartsProviderService;
 
-    /** @var AppContext */
-    protected $appContext;
-
     protected ?Game $defaultGame = null;
 
     public function __construct(ContainerInterface $container)
     {
+        $appContext = $container->appContext;
+
         parent::__construct($container->appContext);
+
+        $this->appContext = $appContext;
 
         $this->router = $container->router;
         $this->linker = $container->linker;
@@ -45,11 +48,6 @@ class Controller extends BaseController
             $container->sidebarPartsProviderService;
 
         $this->defaultGame = $this->gameRepository->getDefault();
-    }
-
-    protected function appContext() : AppContext
-    {
-        return $this->appContext;
     }
 
     protected function buildParams(array $settings) : array
@@ -67,10 +65,7 @@ class Controller extends BaseController
     {
         $menuGame = $this->getMenuGame($settings);
 
-        /** @var AppContext */
-        $appContext = $this->appContext();
-
-        return $appContext->getMenusByGame($menuGame);
+        return $this->appContext->getMenusByGame($menuGame);
     }
 
     protected function getMenuGame(array $settings) : ?Game

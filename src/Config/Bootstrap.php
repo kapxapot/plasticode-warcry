@@ -156,7 +156,8 @@ class Bootstrap extends BootstrapBase
                     new ComicIssueHydrator(
                         $c->comicIssuePageRepository,
                         $c->comicSeriesRepository,
-                        $c->linker
+                        $c->linker,
+                        $c->parser
                     )
                 )
             );

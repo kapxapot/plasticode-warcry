@@ -12,9 +12,6 @@ use Plasticode\Models\DbModel;
 class MenuHydrator extends BaseMenuHydrator
 {
     protected GameRepositoryInterface $gameRepository;
-    protected MenuItemRepositoryInterface $menuItemRepository;
-
-    protected LinkerInterface $linker;
 
     public function __construct(
         GameRepositoryInterface $gameRepository,
