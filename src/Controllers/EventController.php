@@ -3,9 +3,6 @@
 namespace App\Controllers;
 
 use App\Handlers\NotFoundHandler;
-use App\Models\Event;
-use App\Models\EventType;
-use App\Models\Game;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -18,7 +15,7 @@ class EventController extends NewsSourceController
     private NotFoundHandler $notFoundHandler;
 
     /**
-     * Events title for views
+     * Events title for views.
      */
     private string $eventsTitle;
 
@@ -45,12 +42,10 @@ class EventController extends NewsSourceController
                 'params' => [
                     'title' => $this->eventsTitle,
                     'events' => $events->groups(),
-                    'event_games' => Game::getAll(),
-                    'event_types' => EventType::getAll(),
                 ],
             ]
         );
-    
+
         return $this->render($response, 'main/events/index.twig', $params);
     }
 
@@ -86,7 +81,10 @@ class EventController extends NewsSourceController
                     'event' => $event,
                     'title' => $event->name,
                     'events_title' => $this->eventsTitle,
-                    'page_description' => $this->makeNewsPageDescription($event, 'events.description_limit'),
+                    'page_description' => $this->makeNewsPageDescription(
+                        $event,
+                        'events.description_limit'
+                    ),
                 ],
             ]
         );

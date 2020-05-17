@@ -40,6 +40,15 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
         return $pic;
     }
 
+    public function getAllPublished() : GalleryPictureCollection
+    {
+        return $this
+            ->pictures
+            ->where(
+                fn (GalleryPicture $p) => $p->isPublished()
+            );
+    }
+
     public function getAllByTag(
         string $tag,
         int $limit = 0
@@ -61,15 +70,6 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
                 ? $pictures->take($limit)
                 : $pictures
         );
-    }
-
-    private function getAllPublished() : GalleryPictureCollection
-    {
-        return $this
-            ->pictures
-            ->where(
-                fn (GalleryPicture $p) => $p->isPublished()
-            );
     }
 
     /**

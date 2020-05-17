@@ -12,10 +12,17 @@ interface GalleryPictureRepositoryInterface extends TaggedRepositoryInterface
 {
     function get(?int $id) : ?GalleryPicture;
     function save(GalleryPicture $pic) : GalleryPicture;
+    function getAllPublished() : GalleryPictureCollection;
 
     function getAllByTag(
         string $tag,
         int $limit = 0
+    ) : GalleryPictureCollection;
+
+    function getChunkBefore(
+        ?GalleryPicture $pic = null,
+        ?GalleryAuthor $author = null,
+        ?string $tag = null
     ) : GalleryPictureCollection;
 
     /**

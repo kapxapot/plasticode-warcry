@@ -3,8 +3,8 @@
 namespace App\Controllers;
 
 use App\Handlers\NotFoundHandler;
-use App\Models\GalleryAuthor;
-use App\Models\GalleryPicture;
+use App\Repositories\Interfaces\GalleryAuthorRepositoryInterface;
+use App\Repositories\Interfaces\GalleryPictureRepositoryInterface;
 use App\Services\GalleryService;
 use Plasticode\Exceptions\Http\NotFoundException;
 use Psr\Container\ContainerInterface;
@@ -14,17 +14,23 @@ use Slim\Http\Request as SlimRequest;
 
 class GalleryController extends Controller
 {
+    private GalleryAuthorRepositoryInterface $galleryAuthorRepository;
+    private GalleryPictureRepositoryInterface $galleryPictureRepository;
+
     private GalleryService $galleryService;
     private NotFoundHandler $notFoundHandler;
 
     /**
-     * Gallery title for views
+     * Gallery title for views.
      */
     private string $galleryTitle;
     
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
+
+        $this->galleryAuthorRepository = $container->galleryAuthorRepository;
+        $this->galleryPictureRepository = $container->galleryPictureRepository;
 
         $this->galleryService = $container->galleryService;
         $this->notFoundHandler = $container->notFoundHandler;
@@ -37,9 +43,8 @@ class GalleryController extends Controller
         ResponseInterface $response
     ) : ResponseInterface
     {
-        $query = GalleryPicture::getPublished();
-        $pictures = $this->galleryService->getPage($query)->all();
-        
+        $pictures = $this->galleryService->getChunk();
+
         $lastPic = $pictures->last();
 
         $params = $this->buildParams(
@@ -52,7 +57,7 @@ class GalleryController extends Controller
                 ],
             ]
         );
-    
+
         return $this->render($response, 'main/gallery/index.twig', $params);
     }
 
@@ -64,17 +69,14 @@ class GalleryController extends Controller
     {
         $alias = $args['alias'];
 
-        $author = GalleryAuthor::getPublishedByAlias($alias);
+        $author = $this->galleryAuthorRepository->getPublishedByAlias($alias);
 
         if (!$author) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
-        $id = $author->id;
 
-        $query = $author->pictures();
-        $pictures = $this->galleryService->getPage($query)->all();
-        
+        $pictures = $this->galleryService->getChunk(null, $author);
+
         $lastPic = $pictures->last();
 
         $params = $this->buildParams(
@@ -90,7 +92,7 @@ class GalleryController extends Controller
                     'title' => $author->fullName(),
                     'gallery_title' => $this->galleryTitle,
                     'disqus_url' => $this->linker->disqusGalleryAuthor($author),
-                    'disqus_id' => 'galleryauthor' . $id,
+                    'disqus_id' => 'galleryauthor' . $author->getId(),
                     'rel_prev' => $author->prev() ? $author->prev()->url() : null,
                     'rel_next' => $author->next() ? $author->next()->url() : null,
                 ],
@@ -99,7 +101,7 @@ class GalleryController extends Controller
 
         return $this->render($response, 'main/gallery/author.twig', $params);
     }
-    
+
     public function picture(
         SlimRequest $request,
         ResponseInterface $response,
@@ -109,25 +111,25 @@ class GalleryController extends Controller
         $id = $args['id'];
         $alias = $args['alias'] ?? null;
 
-        /** @var GalleryPicture */
-        $picture = GalleryPicture::getPublished()->find($id);
-        
+        $picture = $this->galleryPictureRepository->get($id);
+
         if (!$picture) {
             return ($this->notFoundHandler)($request, $response);
         }
 
         $author = $picture->author();
 
+        // Todo: do we need alias here at all?
         if ($alias) {
-            $aliasAuthor = GalleryAuthor::getPublishedByAlias($alias);
-        
-            if (!$aliasAuthor || $author->getId() != $aliasAuthor->getId()) {
+            $aliasAuthor = $this
+                ->galleryAuthorRepository
+                ->getPublishedByAlias($alias);
+
+            if (!$author->equals($aliasAuthor)) {
                 return ($this->notFoundHandler)($request, $response);
             }
-            
-            $author = $aliasAuthor;
         }
-        
+
         $fullscreen = $request->getQueryParam('full', null);
 
         $params = $this->buildParams(
@@ -168,18 +170,18 @@ class GalleryController extends Controller
         $tag = $request->getQueryParam('tag', null);
         $showAuthor = $request->getQueryParam('show_author', false);
 
-        $borderPic = GalleryPicture::get($borderId);
-        
-        if ($authorId > 0) {
-            $query = GalleryPicture::getPublishedByAuthor($authorId);
-        } elseif (strlen($tag) > 0) {
-            $query = GalleryPicture::getByTag($tag);
-        }
-        
-        $query = GalleryPicture::getBefore($borderPic, $query);
+        $borderPic = $borderId > 0
+            ? $this->galleryPictureRepository->get($borderId)
+            : null;
 
-        $pictures = $this->galleryService->getPage($query)->all();
-        
+        $author = $authorId > 0
+            ? $this->galleryAuthorRepository->get($authorId)
+            : null;
+
+        $pictures = $this
+            ->galleryService
+            ->getChunk($borderPic, $author, $tag);
+
         if ($pictures->isEmpty()) {
             throw new NotFoundException();
         }

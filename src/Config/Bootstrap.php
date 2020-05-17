@@ -739,12 +739,10 @@ class Bootstrap extends BootstrapBase
             );
 
         $map['galleryService'] = function (CI $c) {
-            $pageSize = $this->settings['gallery']['pics_per_page'];
-
             return new GalleryService(
                 $c->galleryAuthorRepository,
                 $c->galleryPictureRepository,
-                $pageSize
+                $c->config
             );
         };
 

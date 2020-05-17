@@ -2,12 +2,13 @@
 
 namespace App\Config;
 
+use App\Config\Interfaces\GalleryConfigInterface;
 use App\Config\Interfaces\GameConfigInterface;
 use App\Config\Interfaces\RecipeConfigInterface;
 use App\Config\Interfaces\StreamConfigInterface;
 use Plasticode\Config\Config as ConfigBase;
 
-class Config extends ConfigBase implements GameConfigInterface, RecipeConfigInterface, StreamConfigInterface
+class Config extends ConfigBase implements GalleryConfigInterface, GameConfigInterface, RecipeConfigInterface, StreamConfigInterface
 {
     public function defaultWoWIcon() : string
     {
@@ -17,6 +18,11 @@ class Config extends ConfigBase implements GameConfigInterface, RecipeConfigInte
     public function defaultGameId() : ?int
     {
         return $this->get('default_game_id');
+    }
+
+    public function galleryPicsPerPage(): int
+    {
+        return $this->get('gallery.pics_per_page', 50);
     }
 
     /**

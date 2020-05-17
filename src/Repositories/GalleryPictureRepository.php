@@ -42,6 +42,13 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
         return $this->saveEntity($pic);
     }
 
+    public function getAllPublished() : GalleryPictureCollection
+    {
+        return GalleryPictureCollection::from(
+            $this->publishedQuery()
+        );
+    }
+
     public function getAllByTag(
         string $tag,
         int $limit = 0
@@ -81,6 +88,28 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
         return GalleryPictureCollection::from(
             $this
                 ->byGameQuery($game)
+                ->limit($limit)
+        );
+    }
+
+    public function getChunkBefore(
+        ?GalleryPicture $pic = null,
+        ?GalleryAuthor $author = null,
+        ?string $tag = null,
+        int $limit = 0
+    ) : GalleryPictureCollection
+    {
+        return GalleryPictureCollection::from(
+            $this
+                ->beforeQuery($pic)
+                ->applyIf(
+                    $author !== null,
+                    fn (Query $q) => $this->filterByAuthor($q, $author)
+                )
+                ->applyIf(
+                    strlen($tag) > 0,
+                    fn (Query $q) => $this->filterByTag($q, $tag)
+                )
                 ->limit($limit)
         );
     }
@@ -147,20 +176,22 @@ class GalleryPictureRepository extends TaggedRepository implements GalleryPictur
 
     // queries
 
-    protected function beforeQuery(GalleryPicture $pic) : Query
+    protected function beforeQuery(?GalleryPicture $pic) : Query
     {
         return $this
             ->publishedQuery()
-            ->apply(
+            ->applyIf(
+                $pic !== null,
                 fn (Query $q) => $this->filterBefore($q, $pic)
             );
     }
 
-    protected function afterQuery(GalleryPicture $pic) : Query
+    protected function afterQuery(?GalleryPicture $pic) : Query
     {
         return $this
             ->publishedQuery()
-            ->apply(
+            ->applyIf(
+                $pic !== null,
                 fn (Query $q) => $this->filterAfter($q, $pic)
             );
     }
