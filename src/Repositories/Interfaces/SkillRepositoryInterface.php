@@ -9,5 +9,5 @@ interface SkillRepositoryInterface
 {
     function get(?int $id) : ?Skill;
     function getAllActive() : SkillCollection;
-    function getByAlias(string $alias) : ?Skill;
+    function getByAlias(?string $alias) : ?Skill;
 }

@@ -88,6 +88,11 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
 
     abstract public function rawText() : ?string;
 
+    public function hasText() : bool
+    {
+        return strlen($this->rawText()) > 0;
+    }
+
     public function fullText() : ?string
     {
         return $this->getWithProperty(
@@ -99,6 +104,20 @@ abstract class NewsSource extends DbModel implements NewsSourceInterface, Search
     {
         return $this->getWithProperty(
             $this->shortTextPropertyName
+        );
+    }
+
+    public function creator() : ?User
+    {
+        return $this->getWithProperty(
+            $this->creatorPropertyName
+        );
+    }
+
+    public function tagLinks() : TagLinkCollection
+    {
+        return $this->getWithProperty(
+            $this->tagLinksPropertyName
         );
     }
 

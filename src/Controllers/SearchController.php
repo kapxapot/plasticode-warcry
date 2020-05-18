@@ -10,8 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class SearchController extends Controller
 {
-    /** @var SearchService */
-    private $searchService;
+    private SearchService $searchService;
 
     public function __construct(ContainerInterface $container)
     {
@@ -20,12 +19,16 @@ class SearchController extends Controller
         $this->searchService = $container->searchService;
     }
 
-    public function search(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function search(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $query = $args['query'];
-        
+
         $result = $this->searchService->search($query);
-        
+
         return Response::json($response, $result);
     }
 }

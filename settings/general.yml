@@ -117,6 +117,8 @@ comics:
   thumb_height: 400
 
 news:
+  limit: 7
+  rss_limit: 20
   description_limit: 1000
 
 events:
@@ -126,9 +128,6 @@ events:
 videos:
   title: Видео
   description_limit: 1000
-
-news_limit: 7
-rss_limit: 20
 
 sidebar:
   article_limit: 7

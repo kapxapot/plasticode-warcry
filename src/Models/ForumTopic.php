@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Collections\ForumTagCollection;
 use App\Models\Interfaces\NewsSourceInterface;
+use Plasticode\Collections\TagLinkCollection;
 use Plasticode\Models\DbModel;
 use Plasticode\Models\Traits\Linkable;
 use Plasticode\Models\Traits\Tagged;
@@ -92,6 +93,11 @@ class ForumTopic extends DbModel implements NewsSourceInterface
             : null;
     }
 
+    public function hasText() : bool
+    {
+        return strlen($this->post()) > 0;
+    }
+
     public function published() : int
     {
         return 1;
@@ -107,15 +113,17 @@ class ForumTopic extends DbModel implements NewsSourceInterface
         return Date::iso($this->publishedAt());
     }
 
-    public function creator() : array
+    public function creator() : ?User
     {
-        return [
-            'forum_member' => $this->starterForumMember(),
-            'display_name' => $this->starterName,
-        ];
+        /** @var User */
+        $user = User::create(['name' => $this->starterName]);
+
+        return $user->withForumMember(
+            $this->starterForumMember()
+        );
     }
 
-    public function updater() : array
+    public function updater() : ?User
     {
         return $this->creator();
     }
@@ -128,6 +136,13 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     public function updatedAtIso() : string
     {
         return $this->createdAtIso();
+    }
+
+    public function tagLinks() : TagLinkCollection
+    {
+        return $this->getWithProperty(
+            $this->tagLinksPropertyName
+        );
     }
 
     // LinkableInterface

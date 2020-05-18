@@ -24,11 +24,12 @@ class SkillRepository extends IdiormRepository implements SkillRepositoryInterfa
         );
     }
 
-    public function getByAlias(string $alias) : ?Skill
+    public function getByAlias(?string $alias) : ?Skill
     {
         return $this
             ->getActiveQuery()
-            ->first('alias', $alias);
+            ->where('alias', $alias)
+            ->one();
     }
 
     protected function getActiveQuery() : Query

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Handlers\NotFoundHandler;
+use App\Models\Interfaces\NewsSourceInterface;
 use App\Services\NewsAggregatorService;
 use Plasticode\Core\Pagination;
 use Plasticode\RSS\FeedImage;
@@ -11,6 +12,7 @@ use Plasticode\RSS\RSSCreator20;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Plasticode\IO\File;
+use Plasticode\TagLink;
 use Plasticode\Util\Text;
 use Psr\Container\ContainerInterface;
 use Slim\Http\Request as SlimRequest;
@@ -40,7 +42,8 @@ class NewsController extends NewsSourceController
         $gameAlias = $args['game'] ?? null;
 
         if ($gameAlias) {
-            $game = $this->gameRepository
+            $game = $this
+                ->gameRepository
                 ->getPublishedByAlias($gameAlias);
 
             if (is_null($game)) {
@@ -52,27 +55,18 @@ class NewsController extends NewsSourceController
 
         $pageSize = $request->getQueryParam(
             'pagesize',
-            $this->getSettings('news_limit')
+            $this->getSettings('news.limit', 7)
         );
 
-        $news = $this->newsAggregatorService
+        $news = $this
+            ->newsAggregatorService
             ->getPage($game, $page, $pageSize);
 
-        // paging
         $count = $this->newsAggregatorService->getCount($game);
 
         $url = $this->linker->game($game);
 
         $paging = $this->pagination->complex($url, $count, $page, $pageSize);
-
-        // gallery
-        /*$byAuthor = $this->galleryService->getAddedPicturesSliceByAuthor($game, Date::dt()->modify('-3 month'), Date::dt());
-
-        foreach ($byAuthor as $item) {
-            var_dump([ $item['author']->displayName(), $item['pictures']->count() ]);
-        }
-
-        dd();*/
 
         $params = $this->buildParams(
             [
@@ -130,7 +124,10 @@ class NewsController extends NewsSourceController
                     'disqus_id' => 'news' . $id,
                     'news_item' => $news,
                     'title' => $news->displayTitle(),
-                    'page_description' => $this->makeNewsPageDescription($news, 'news.description_limit'),
+                    'page_description' => $this->makeNewsPageDescription(
+                        $news,
+                        'news.description_limit'
+                    ),
                     'news_prev' => $prev,
                     'news_next' => $next,
                     'rel_prev' => $prev ? $prev->url() : null,
@@ -138,7 +135,7 @@ class NewsController extends NewsSourceController
                 ],
             ]
         );
-        
+
         return $this->render($response, 'main/news/item.twig', $params);
     }
 
@@ -198,7 +195,7 @@ class NewsController extends NewsSourceController
         ResponseInterface $response
     ) : ResponseInterface
     {
-        $limit = $this->getSettings('rss_limit' ?? 10);
+        $limit = $this->getSettings('news.rss_limit' ?? 10);
 
         $news = $this->newsAggregatorService->getTop($limit);
 
@@ -232,6 +229,7 @@ class NewsController extends NewsSourceController
             $image->description = $siteDescription;
             $rss->image = $image;
 
+            /** @var NewsSourceInterface */
             foreach ($news as $n) {
                 $item = new FeedItem();
                 $item->title = $n->displayTitle();
@@ -245,10 +243,8 @@ class NewsController extends NewsSourceController
                 $item->date = $n->publishedAtIso();
                 $item->author = $n->creator()->displayName();
                 $item->category = array_map(
-                    function ($t) {
-                        return $t->tag;
-                    },
-                    $n->tagLinks()
+                    fn (TagLink $t) => $t->tag,
+                    $n->tagLinks()->toArray()
                 );
 
                 $rss->addItem($item);

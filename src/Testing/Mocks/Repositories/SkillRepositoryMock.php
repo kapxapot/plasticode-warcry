@@ -26,7 +26,7 @@ class SkillRepositoryMock implements SkillRepositoryInterface
         return $this->skills->where('active', 1);
     }
 
-    public function getByAlias(string $alias) : ?Skill
+    public function getByAlias(?string $alias) : ?Skill
     {
         return $this->skills->first('alias', $alias);
     }

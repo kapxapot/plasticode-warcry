@@ -14,11 +14,8 @@
             'published': news_item.published
         }) }}
 
-        <div class="panel-body article news">
-            {{ news_item.full_text|raw }}
-        </div>
-
-        {% include 'main/news/footer.twig' %}
+        {% include 'components/news_text.twig' with { 'news': news_item, 'full': true } only %}
+        {% include 'main/news/footer.twig' with { 'news': news_item } only %}
     </div>
 
     <div class="pagination-flex">

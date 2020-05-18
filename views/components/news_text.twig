@@ -1,0 +1,10 @@
+{% if news.has_text %}
+    <div class="panel-body article news">
+        {% if not full and news.short_text %}
+            {{ news.short_text|raw }}
+            {% include 'components/read_more.twig' with { 'url': news.url } only %}
+        {% else %}
+            {{ news.full_text|raw }}
+        {% endif %}
+    </div>
+{% endif %}

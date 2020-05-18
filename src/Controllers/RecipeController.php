@@ -5,9 +5,9 @@ namespace App\Controllers;
 use App\Handlers\NotFoundHandler;
 use App\Models\Game;
 use App\Models\Recipe;
-use App\Models\Skill;
-use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Repositories\Interfaces\RecipeRepositoryInterface;
+use App\Repositories\Interfaces\SkillRepositoryInterface;
+use Plasticode\Core\Pagination;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Request as SlimRequest;
@@ -15,6 +15,9 @@ use Slim\Http\Request as SlimRequest;
 class RecipeController extends Controller
 {
     private RecipeRepositoryInterface $recipeRepository;
+    private SkillRepositoryInterface $skillRepository;
+
+    private Pagination $pagination;
     private NotFoundHandler $notFoundHandler;
 
     /**
@@ -29,6 +32,9 @@ class RecipeController extends Controller
         parent::__construct($container);
 
         $this->recipeRepository = $container->recipeRepository;
+        $this->skillRepository = $container->skillRepository;
+
+        $this->pagination = $container->pagination;
         $this->notFoundHandler = $container->notFoundHandler;
 
         $this->recipesTitle = $this->getSettings('recipes.title', 'Recipes');
@@ -44,12 +50,12 @@ class RecipeController extends Controller
     ) : ResponseInterface
     {
         $skillAlias = $args['skill'];
-        
+
         $page = $request->getQueryParam('page', 1);
         $query = $request->getQueryParam('q', null);
         $rebuild = $request->getQueryParam('rebuild', null);
 
-        $skill = Skill::getByAlias($skillAlias);
+        $skill = $this->skillRepository->getByAlias($skillAlias);
 
         $pageSize = $this->getSettings('recipes.page_size');
 
@@ -57,10 +63,11 @@ class RecipeController extends Controller
             ? $skill['name_ru']
             : $this->recipesTitle;
 
+        $skillId = null;
+        $breadcrumbs = null;
+
         if ($skill) {
             $skillId = $skill->getId();
-            
-            $titleEn = $skill['name'];
             $breadcrumbs = [
                 [
                     'url' => $this->router->pathFor('main.recipes'),
@@ -69,8 +76,8 @@ class RecipeController extends Controller
             ];
         }
 
-        // paging
-        $count = $this->recipeRepository
+        $count = $this
+            ->recipeRepository
             ->getFilteredCount($skillId, $query);
 
         $url = $this->linker->recipes($skill);
@@ -83,7 +90,8 @@ class RecipeController extends Controller
 
         $offset = ($page - 1) * $pageSize;
 
-        $recipes = $this->recipeRepository
+        $recipes = $this
+            ->recipeRepository
             ->getFilteredPage(
                 $skillId,
                 $query,
@@ -103,13 +111,13 @@ class RecipeController extends Controller
                 'sidebar' => ['stream', 'gallery'],
                 'params' => [
                     'disqus_url' => $this->linker->disqusRecipes($skill),
-                    'disqus_id' => 'recipes' . ($skill ? '_' . $skill['alias'] : ''),
+                    'disqus_id' => 'recipes' . ($skill ? '_' . $skill->alias : ''),
                     'base_url' => $this->linker->recipes(),
-                    'skills' => Skill::getActive()->all(),
+                    'skills' => $this->skillRepository->getAllActive(),
                     'skill' => $skill,
                     'recipes' => $recipes,
                     'title' => $title,
-                    'title_en' => $titleEn,
+                    'title_en' => $skill ? $skill->name : null,
                     'breadcrumbs' => $breadcrumbs,
                     'query' => $query,
                     'paging' => $paging,
@@ -120,7 +128,7 @@ class RecipeController extends Controller
 
         return $this->render($response, 'main/recipes/index.twig', $params);
     }
-    
+
     public function item(
         SlimRequest $request,
         ResponseInterface $response,

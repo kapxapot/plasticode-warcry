@@ -60,7 +60,7 @@ $app->group(
                         $captcha = $this->captcha->generate(
                             $settings['captcha_digits'], true
                         );
-                        
+
                         return Response::json(
                             $response, ['captcha' => $captcha['captcha']]
                         );
@@ -73,7 +73,7 @@ $app->group(
                         $digits = $request->getParam(
                             'digits', $settings['captcha_digits']
                         );
-                        
+
                         $captcha = $this->captcha->generate($digits, false);
 
                         return Response::json(

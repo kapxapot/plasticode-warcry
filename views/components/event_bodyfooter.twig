@@ -22,19 +22,5 @@
     {% endif %}
 </div>
 
-{% if event.parsed_description %}
-    <div class="panel-body article">
-        {% if full or not event.short_text %}
-            {{ event.full_text|raw }}
-        {% else %}
-            {{ event.short_text|raw }}
-            {% include 'components/read_more.twig' with { 'url': event.url } only %}
-        {% endif %}
-    </div>
-{% endif %}
-
-<div class="panel-footer">
-    {% include 'components/published_at.twig' with { 'entity': event } only %}
-    {% include 'components/creator.twig' with { 'entity': event } only %}
-    {% include 'components/tags.twig' with { 'tags': event.tag_links } only %}
-</div>
+{% include 'components/news_text.twig' with { 'news': event, 'full': full } only %}
+{% include 'main/news/footer.twig' with { 'news': event } only %}
