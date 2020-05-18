@@ -100,7 +100,7 @@ class ArticleRepository extends NewsSourceRepository implements ArticleRepositor
     /**
      * Returns all published orphans.
      */
-    public function getAllOrphans() : ArticleCollection
+    public function getAllPublishedOrphans() : ArticleCollection
     {
         return ArticleCollection::from(
             $this

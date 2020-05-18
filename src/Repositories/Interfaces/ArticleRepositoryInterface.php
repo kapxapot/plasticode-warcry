@@ -13,4 +13,5 @@ interface ArticleRepositoryInterface extends SearchableNewsSourceRepositoryInter
     function getBySlug(string $slug, string $cat = null) : ?Article;
     function getByAlias(string $name, string $cat = null) : ?Article;
     function getChildren(Article $parent) : ArticleCollection;
+    function getAllPublishedOrphans() : ArticleCollection;
 }
