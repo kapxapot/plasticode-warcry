@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e60793dfbea48e134df0c6ae71cbccae",
+    "content-hash": "79a0a234db19d78cd5ebd78475557b02",
     "packages": [
         {
             "name": "cakephp/cache",
@@ -592,7 +592,7 @@
         },
         {
             "name": "kapxapot/plasticode",
-            "version": "dev-master",
+            "version": "v0.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kapxapot/plasticode.git",
@@ -629,16 +629,7 @@
                     "functions/functions.php"
                 ]
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Plasticode\\Tests\\": "tests"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -652,17 +643,13 @@
             "description": "PHP framework based on Slim framework",
             "homepage": "https://github.com/kapxapot/plasticode",
             "keywords": [
-                "API",
-                "Bootstrap",
-                "PHP",
                 "Plasticode",
-                "Slim",
-                "Twig"
+                "api",
+                "bootstrap",
+                "php",
+                "slim",
+                "twig"
             ],
-            "support": {
-                "source": "https://github.com/kapxapot/plasticode/tree/master",
-                "issues": "https://github.com/kapxapot/plasticode/issues"
-            },
             "time": "2020-05-18T23:36:36+00:00"
         },
         {
@@ -3361,9 +3348,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "kapxapot/plasticode": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
