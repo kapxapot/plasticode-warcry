@@ -71,6 +71,22 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
                 : $pictures
         );
     }
+    public function getChunkBefore(
+        ?GalleryPicture $pic = null,
+        ?GalleryAuthor $author = null,
+        ?string $tag = null,
+        int $limit = 0
+    ) : GalleryPictureCollection
+    {
+        return $this
+            ->getAllBefore($pic)
+            ->where(
+                fn (GalleryPicture $p) =>
+                (is_null($author) || $p->author()->equals($author))
+                && (strlen($tag) == 0 || in_array($tag, $p->getTags()))
+            )
+            ->take($limit);
+    }
 
     /**
      * Returns all published pictures that were published before given.

@@ -21,6 +21,13 @@ class VideoRepository extends NewsSourceRepository implements VideoRepositoryInt
         return $this->getProtectedEntity($id);
     }
 
+    public function getAllPublished() : VideoCollection
+    {
+        return VideoCollection::from(
+            $this->publishedQuery()
+        );
+    }
+
     // SearchableRepositoryInterface
 
     public function search(string $searchQuery) : VideoCollection

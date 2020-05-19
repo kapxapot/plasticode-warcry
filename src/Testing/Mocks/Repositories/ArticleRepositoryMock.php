@@ -79,20 +79,20 @@ class ArticleRepositoryMock extends NewsSourceRepositoryMock implements ArticleR
         $cat = Strings::toSpaces($cat);
 
         $aliasParts[] = $name;
-        
+
         if (strlen($cat) > 0) {
             $aliasParts[] = $cat;
         }
-        
+
         $alias = Strings::joinTagParts($aliasParts);
 
         return $this
             ->articles
-            //->protectedQuery()
             ->where(
-                function (Article $article) use ($alias) {
-                    return Strings::contains($article->aliases, $alias);
-                }
+                fn (Article $a) => $a->isPublished()
+            )
+            ->where(
+                fn (Article $a) => Strings::contains($a->aliases, $alias)
             )
             ->first();
     }
@@ -100,6 +100,15 @@ class ArticleRepositoryMock extends NewsSourceRepositoryMock implements ArticleR
     public function getChildren(Article $parent) : ArticleCollection
     {
         return $this->articles->where('parent_id', $parent->getId());
+    }
+
+    public function getAllPublishedOrphans() : ArticleCollection
+    {
+        return $this
+            ->articles
+            ->where(
+                fn (Article $a) => $a->isPublished() && $a->isOrphan()
+            );
     }
 
     protected function newsSources() : ArticleCollection

@@ -15,10 +15,10 @@ class VideoController extends NewsSourceController
     private NotFoundHandler $notFoundHandler;
 
     /**
-     * Videos title for views
+     * Videos title for views.
      */
     private string $videosTitle;
-    
+
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
@@ -29,22 +29,29 @@ class VideoController extends NewsSourceController
         $this->videosTitle = $this->getSettings('videos.title', 'Videos');
     }
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    public function index(
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ) : ResponseInterface
     {
         $params = $this->buildParams(
             [
                 'sidebar' => ['stream', 'gallery', 'news'],
                 'params' => [
                     'title' => $this->videosTitle,
-                    'videos' => Video::getPublished(),
+                    'videos' => $this->videoRepository->getAllPublished(),
                 ],
             ]
         );
-    
+
         return $this->render($response, 'main/videos/index.twig', $params);
     }
 
-    public function item(ServerRequestInterface $request, ResponseInterface $response, array $args) : ResponseInterface
+    public function item(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $args
+    ) : ResponseInterface
     {
         $id = $args['id'];
 
@@ -63,7 +70,10 @@ class VideoController extends NewsSourceController
                     'video' => $video,
                     'title' => $video->name,
                     'videos_title' => $this->videosTitle,
-                    'page_description' => $this->makeNewsPageDescription($video, 'videos.description_limit'),
+                    'page_description' => $this->makeNewsPageDescription(
+                        $video,
+                        'videos.description_limit'
+                    ),
                 ],
             ]
         );

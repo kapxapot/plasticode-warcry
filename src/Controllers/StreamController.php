@@ -24,10 +24,10 @@ class StreamController extends Controller
     private UpdateStreamsJobFactory $updateStreamsJobFactory;
 
     /**
-     * Streams title for views
+     * Streams title for views.
      */
     private string $streamsTitle;
-    
+
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);

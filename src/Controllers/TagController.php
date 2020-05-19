@@ -28,7 +28,7 @@ class TagController extends Controller
         if (strlen($tag) == 0) {
             return ($this->notFoundHandler)($request, $response);
         }
-        
+
         $parts = $this->tagPartsProviderService->getParts($tag);
 
         $params = $this->buildParams(
@@ -41,7 +41,7 @@ class TagController extends Controller
                 ],
             ]
         );
-    
+
         return $this->render($response, 'main/tags/item.twig', $params);
     }
 }

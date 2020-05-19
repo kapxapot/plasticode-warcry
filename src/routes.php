@@ -254,10 +254,6 @@ $app->group(
         $this->get('/tags/{tag}', TagController::class . ':item')
             ->setName('main.tag');
 
-        if ($env->isDev()) {
-            $this->get('/test', TestController::class . ':index')->setName('main.test');
-        }
-
         $this->get(
             $trueRoot ? '/[{game}]' : '[/{game}]',
             NewsController::class . ':index'
