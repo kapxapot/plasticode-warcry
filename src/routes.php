@@ -10,7 +10,6 @@ use App\Controllers\RecipeController;
 use App\Controllers\SearchController;
 use App\Controllers\StreamController;
 use App\Controllers\TagController;
-use App\Controllers\TestController;
 use App\Controllers\VideoController;
 use App\Controllers\Admin\ComicIssueController as AdminComicIssueController;
 use App\Controllers\Admin\ComicStandaloneController as AdminComicStandaloneController;
