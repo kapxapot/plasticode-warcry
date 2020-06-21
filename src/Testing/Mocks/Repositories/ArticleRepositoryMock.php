@@ -35,14 +35,14 @@ class ArticleRepositoryMock extends NewsSourceRepositoryMock implements ArticleR
         return $this->get($id);
     }
 
-    public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
+    public function getBySlugOrAlias(string $slug, ?string $cat = null) : ?Article
     {
         return
             $this->getBySlug($slug, $cat)
             ?? $this->getByAlias($slug, $cat);
     }
 
-    public function getBySlug(string $slug, string $cat = null) : ?Article
+    public function getBySlug(string $slug, ?string $cat = null) : ?Article
     {
         $slug = Strings::toSpaces($slug);
         $cat = Strings::toSpaces($cat);
@@ -73,7 +73,7 @@ class ArticleRepositoryMock extends NewsSourceRepositoryMock implements ArticleR
             ->first();
     }
 
-    public function getByAlias(string $name, string $cat = null) : ?Article
+    public function getByAlias(string $name, ?string $cat = null) : ?Article
     {
         $name = Strings::toSpaces($name);
         $cat = Strings::toSpaces($cat);
@@ -109,6 +109,19 @@ class ArticleRepositoryMock extends NewsSourceRepositoryMock implements ArticleR
             ->where(
                 fn (Article $a) => $a->isPublished() && $a->isOrphan()
             );
+    }
+
+    /**
+     * Checks article duplicates for validation.
+     */
+    public function lookup(
+        string $name,
+        int $catId = 0,
+        int $exceptId = 0
+    ) : ArticleCollection
+    {
+        // placeholder
+        return ArticleCollection::empty();
     }
 
     protected function newsSources() : ArticleCollection

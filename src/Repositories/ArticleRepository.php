@@ -53,21 +53,21 @@ class ArticleRepository extends NewsSourceRepository implements ArticleRepositor
         return $this->getProtectedEntity($id);
     }
 
-    public function getBySlugOrAlias(string $slug, string $cat = null) : ?Article
+    public function getBySlugOrAlias(string $slug, ?string $cat = null) : ?Article
     {
         return
             $this->getBySlug($slug, $cat)
             ?? $this->getByAlias($slug, $cat);
     }
 
-    public function getBySlug(string $slug, string $cat = null) : ?Article
+    public function getBySlug(string $slug, ?string $cat = null) : ?Article
     {
         return $this
             ->bySlugQuery($slug, $cat)
             ->one();
     }
 
-    public function getByAlias(string $name, string $cat = null) : ?Article
+    public function getByAlias(string $name, ?string $cat = null) : ?Article
     {
         $name = Strings::toSpaces($name);
         $cat = Strings::toSpaces($cat);
@@ -112,7 +112,7 @@ class ArticleRepository extends NewsSourceRepository implements ArticleRepositor
     }
 
     /**
-     * Check article duplicates for validation.
+     * Checks article duplicates for validation.
      */
     public function lookup(
         string $name,

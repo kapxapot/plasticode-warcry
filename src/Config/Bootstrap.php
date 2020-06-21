@@ -106,6 +106,8 @@ use Plasticode\Gallery\Gallery;
 use Plasticode\Gallery\ThumbStrategies\UniformThumbStrategy;
 use Plasticode\Hydrators\MenuItemHydrator;
 use Plasticode\ObjectProxy;
+use Plasticode\Parsing\LinkMappers\NewsLinkMapper;
+use Plasticode\Parsing\LinkMappers\TagLinkMapper;
 use Plasticode\Parsing\LinkMapperSource;
 use Psr\Container\ContainerInterface as CI;
 
@@ -617,6 +619,12 @@ class Bootstrap extends BootstrapBase
         $map['bbContainerConfig'] = fn (CI $c) =>
             new BBContainerConfig();
 
+        $map['tagLinkMapper'] = fn (CI $c) =>
+            new TagLinkMapper(
+                $c->renderer,
+                $c->linker
+            );
+
         $map['articleLinkMapper'] = fn (CI $c) =>
             new ArticleLinkMapper(
                 $c->articleRepository,
@@ -685,6 +693,12 @@ class Bootstrap extends BootstrapBase
                 $c->linker
             );
 
+        $map['newsLinkMapper'] = fn (CI $c) =>
+            new NewsLinkMapper(
+                $c->renderer,
+                $c->linker
+            );
+
         $map['doubleBracketsConfig'] = function (CI $c) {
             $config = new LinkMapperSource();
 
@@ -701,6 +715,7 @@ class Bootstrap extends BootstrapBase
                     $c->galleryLinkMapper,
                     $c->itemLinkMapper,
                     $c->spellLinkMapper,
+                    $c->tagLinkMapper,
                 ]
             );
 

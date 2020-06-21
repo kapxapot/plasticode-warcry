@@ -40,7 +40,11 @@ class ArticlesGenerator extends TaggableEntityGenerator
 
         if (array_key_exists('name_en', $data) && array_key_exists('cat', $data)) {
             $rules['name_en'] = $this->rule('text')
-                ->articleNameCatAvailable($data['cat'], $id);
+                ->articleNameCatAvailable(
+                    $this->articleRepository,
+                    $data['cat'],
+                    $id
+                );
         }
 
         return $rules;

@@ -3,23 +3,36 @@
 namespace App\Validation\Rules;
 
 use App\Models\Article;
+use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Respect\Validation\Rules\AbstractRule;
 
 class ArticleNameCatAvailable extends AbstractRule
 {
-    private $cat;
-    private $id;
-    
-    public function __construct($cat = null, $id = null)
+    private ArticleRepositoryInterface $articleRepository;
+
+    private ?int $catId = null;
+    private ?int $exceptId = null;
+
+    public function __construct(
+        ArticleRepositoryInterface $articleRepository,
+        ?int $catId = null,
+        ?int $exceptId = null
+    )
     {
-        $this->cat = $cat;
-        $this->id = $id;
+        $this->articleRepository = $articleRepository;
+
+        $this->catId = $catId ?? 0;
+        $this->exceptId = $exceptId ?? 0;
     }
 
+    /**
+     * @param string $input
+     */
     public function validate($input)
     {
-        $article = Article::lookup($input, $this->cat, $this->id)->one();
-
-        return is_null($article);
+        return $this
+            ->articleRepository
+            ->lookup($input, $this->catId, $this->exceptId)
+            ->isEmpty();
     }
 }
