@@ -33,8 +33,6 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     function forumUser(int $id) : string;
     function forumTopic(int $id, bool $new = false) : string;
 
-    function newsYear(int $year) : string;
-
     function recipe(int $id) : string;
     function recipes(?Skill $skill = null) : string;
 

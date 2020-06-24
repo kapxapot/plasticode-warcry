@@ -52,7 +52,7 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
         );
     }
 
-    // NewsSourceRepositoryInterface
+    // base NewsSourceRepositoryInterface
 
     public function getNewsByTag(string $tag, int $limit = 0) : ForumTopicCollection
     {
@@ -61,56 +61,24 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
         );
     }
 
-    public function getLatestNews(
-        ?Game $game = null,
-        int $limit = 0,
-        int $exceptId = 0
-    ) : ForumTopicCollection
+    public function getLatestNews(int $limit = 0, int $exceptId = 0) : ForumTopicCollection
     {
-        return ForumTopicCollection::from(
-            $this
-                ->newsQuery($game)
-                ->applyIf(
-                    $exceptId > 0,
-                    fn (Query $q) => $q->whereNotEqual($this->idField(), $exceptId)
-                )
-                ->limit($limit)
-        );
+        return $this->getLatestNewsByGame(null, $limit, $exceptId);
     }
 
-    public function getNewsCount(?Game $game = null) : int
+    public function getNewsCount() : int
     {
-        return $this
-            ->newsQuery($game)
-            ->count();
+        return $this->getNewsCountByGame();
     }
 
-    public function getNewsBefore(
-        ?Game $game = null,
-        string $date,
-        int $limit = 0
-    ) : ForumTopicCollection
+    public function getNewsBefore(string $date, int $limit = 0) : ForumTopicCollection
     {
-        return ForumTopicCollection::from(
-            $this
-                ->newsQuery($game)
-                ->whereLt('start_date', strtotime($date))
-                ->orderByDesc('start_date')
-        );
+        return $this->getNewsBeforeByGame(null, $date, $limit);
     }
 
-    public function getNewsAfter(
-        ?Game $game = null,
-        string $date,
-        int $limit = 0
-    ) : ForumTopicCollection
+    public function getNewsAfter(string $date, int $limit = 0) : ForumTopicCollection
     {
-        return ForumTopicCollection::from(
-            $this
-                ->newsQuery($game)
-                ->whereGt('start_date', strtotime($date))
-                ->orderByAsc('start_date')
-        );
+        return $this->getNewsAfterByGame(null, $date, $limit);
     }
 
     public function getNewsByYear(int $year) : ForumTopicCollection
@@ -132,6 +100,60 @@ class ForumTopicRepository extends IdiormRepository implements ForumTopicReposit
         return ($topic && $topic->isNews())
             ? $topic
             : null;
+    }
+
+    // NewsSourceRepositoryInterface
+
+    public function getLatestNewsByGame(
+        ?Game $game = null,
+        int $limit = 0,
+        int $exceptId = 0
+    ) : ForumTopicCollection
+    {
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery($game)
+                ->applyIf(
+                    $exceptId > 0,
+                    fn (Query $q) => $q->whereNotEqual($this->idField(), $exceptId)
+                )
+                ->limit($limit)
+        );
+    }
+
+    public function getNewsCountByGame(?Game $game = null) : int
+    {
+        return $this
+            ->newsQuery($game)
+            ->count();
+    }
+
+    public function getNewsBeforeByGame(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : ForumTopicCollection
+    {
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery($game)
+                ->whereLt('start_date', strtotime($date))
+                ->orderByDesc('start_date')
+        );
+    }
+
+    public function getNewsAfterByGame(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : ForumTopicCollection
+    {
+        return ForumTopicCollection::from(
+            $this
+                ->newsQuery($game)
+                ->whereGt('start_date', strtotime($date))
+                ->orderByAsc('start_date')
+        );
     }
 
     // queries

@@ -28,7 +28,46 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
             ->take($limit);
     }
 
-    public function getLatestNews(
+    public function getLatestNews(int $limit = 0, int $exceptId = 0) : NewsSourceCollection
+    {
+        return $this->getLatestNewsByGame(null, $limit, $exceptId);
+    }
+
+    public function getNewsCount() : int
+    {
+        return $this->getNewsCountByGame();
+    }
+
+    public function getNewsBefore(string $date, int $limit = 0) : NewsSourceCollection
+    {
+        return $this->getNewsBeforeByGame(null, $date, $limit);
+    }
+
+    public function getNewsAfter(string $date, int $limit = 0
+    ) : NewsSourceCollection
+    {
+        return $this->getNewsAfterByGame(null, $date, $limit);
+    }
+
+    public function getNewsByYear(int $year) : NewsSourceCollection
+    {
+        return $this
+            ->newsSources()
+            ->where(
+                fn (NewsSource $n) => Date::year($n->publishedAt) == $year
+            );
+    }
+
+    public function getNews(?int $id) : ?NewsSourceInterface
+    {
+        return $this
+            ->newsSources()
+            ->first(
+                fn (NewsSourceInterface $n) => $n->getId() == $id
+            );
+    }
+
+    public function getLatestNewsByGame(
         ?Game $game = null,
         int $limit = 0,
         int $exceptId = 0
@@ -51,14 +90,14 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
         return $col->take($limit);
     }
 
-    public function getNewsCount(?Game $game = null) : int
+    public function getNewsCountByGame(?Game $game = null) : int
     {
         return $this
-            ->getLatestNews($game)
+            ->getLatestNewsByGame($game)
             ->count();
     }
 
-    public function getNewsBefore(
+    public function getNewsBeforeByGame(
         ?Game $game = null,
         string $date,
         int $limit = 0
@@ -79,7 +118,7 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
             ->take($limit);
     }
 
-    public function getNewsAfter(
+    public function getNewsAfterByGame(
         ?Game $game = null,
         string $date,
         int $limit = 0
@@ -99,24 +138,4 @@ abstract class NewsSourceRepositoryMock implements NewsSourceRepositoryInterface
             )
             ->take($limit);
     }
-
-    public function getNewsByYear(int $year) : NewsSourceCollection
-    {
-        return $this
-            ->newsSources()
-            ->where(
-                fn (NewsSource $n) => Date::year($n->publishedAt) == $year
-            );
-    }
-
-    public function getNews(?int $id) : ?NewsSourceInterface
-    {
-        return $this
-            ->newsSources()
-            ->first(
-                fn (NewsSourceInterface $n) => $n->getId() == $id
-            );
-    }
-
-    abstract function search(string $searchQuery) : NewsSourceCollection;
 }

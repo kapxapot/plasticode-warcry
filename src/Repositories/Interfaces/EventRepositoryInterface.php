@@ -14,4 +14,6 @@ interface EventRepositoryInterface extends SearchableNewsSourceRepositoryInterfa
     function getAllUnended() : EventCollection;
     function getAllCurrent(?Game $game, int $days) : EventCollection;
     function getAllFutureImportant() : EventCollection;
+
+    function search(string $searchQuery) : EventCollection;
 }

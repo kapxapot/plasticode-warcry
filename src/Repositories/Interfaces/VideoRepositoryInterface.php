@@ -10,4 +10,6 @@ interface VideoRepositoryInterface extends SearchableNewsSourceRepositoryInterfa
     function get(?int $id) : ?Video;
     function getProtected(?int $id) : ?Video;
     function getAllPublished() : VideoCollection;
+
+    function search(string $searchQuery) : VideoCollection;
 }

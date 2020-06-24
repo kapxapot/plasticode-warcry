@@ -23,4 +23,6 @@ interface ArticleRepositoryInterface extends SearchableNewsSourceRepositoryInter
         int $catId = 0,
         int $exceptId = 0
     ) : ArticleCollection;
+
+    function search(string $searchQuery) : ArticleCollection;
 }

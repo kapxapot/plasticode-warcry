@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Collections\NewsSourceCollection;
-use App\Collections\NewsYearCollection;
 use App\Core\Interfaces\LinkerInterface;
 use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
-use App\Models\NewsYear;
 use App\Repositories\Interfaces\NewsSourceRepositoryInterface as SrcRepoInterface;
+use Plasticode\Collections\NewsYearCollection;
+use Plasticode\Models\NewsYear;
 use Plasticode\Util\Date;
 use Webmozart\Assert\Assert;
 
@@ -135,7 +135,7 @@ class NewsAggregatorService
             ->collect(
                 $strict,
                 fn (SrcRepoInterface $s) =>
-                $s->getLatestNews($game, $loadLimit, $exceptId)
+                $s->getLatestNewsByGame($game, $loadLimit, $exceptId)
             )
             ->sort()
             ->slice($offset, $pageSize);

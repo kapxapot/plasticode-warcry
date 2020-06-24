@@ -60,7 +60,7 @@ class SidebarPartsProviderService
 
                 $exceptArticleId = $settings['article_id'] ?? 0;
 
-                return $this->articleRepository->getLatestNews(
+                return $this->articleRepository->getLatestNewsByGame(
                     $game,
                     $limit,
                     $exceptArticleId

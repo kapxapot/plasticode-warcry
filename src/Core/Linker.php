@@ -59,14 +59,6 @@ class Linker extends LinkerBase implements LinkerInterface
         return $this->router->pathFor('main.article', $params);
     }
 
-    public function newsYear(int $year) : string
-    {
-        return $this->router->pathFor(
-            'main.news.archive.year',
-            ['year' => $year]
-        );
-    }
-
     public function event(int $id = null) : string
     {
         return $this->router->pathFor('main.event', ['id' => $id]);

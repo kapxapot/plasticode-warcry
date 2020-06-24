@@ -8,96 +8,55 @@ use App\Models\Interfaces\NewsSourceInterface;
 use App\Repositories\Interfaces\NewsSourceRepositoryInterface;
 use App\Repositories\Traits\ByGameRepository;
 use Plasticode\Query;
-use Plasticode\Repositories\Idiorm\Basic\TaggedRepository;
-use Plasticode\Repositories\Idiorm\Traits\FullPublishedRepository;
-use Plasticode\Repositories\Idiorm\Traits\ProtectedRepository;
+use Plasticode\Repositories\Idiorm\Basic\NewsSourceRepository as BaseNewsSourceRepository;
 
-abstract class NewsSourceRepository extends TaggedRepository implements NewsSourceRepositoryInterface
+abstract class NewsSourceRepository extends BaseNewsSourceRepository implements NewsSourceRepositoryInterface
 {
     use ByGameRepository;
-    use FullPublishedRepository;
-    use ProtectedRepository;
-
-    protected string $sortField = 'published_at';
-    protected bool $sortReverse = true;
 
     // TaggedRepositoryInterface
 
-    public function getAllByTag(
-        string $tag,
-        int $limit = 0
-    ) : NewsSourceCollection
-    {
-        return $this->getNewsByTag($tag, $limit);
-    }
-
-    // NewsSourceRepositoryInterface
-
-    public function getNewsByTag(
-        string $tag,
-        int $limit = 0
-    ) : NewsSourceCollection
+    public function getAllByTag(string $tag, int $limit = 0) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
-            $this->filterByTag($this->newsSourceQuery(), $tag, $limit)
+            parent::getAllByTag($tag, $limit)
         );
     }
 
-    public function getLatestNews(
-        ?Game $game = null,
-        int $limit = 0,
-        int $exceptId = 0
-    ) : NewsSourceCollection
+    // base NewsSourceRepositoryInterface
+
+    public function getNewsByTag(string $tag, int $limit = 0) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
-            $this->latestQuery($game, $limit, $exceptId)
+            parent::getNewsByTag($tag, $limit)
         );
     }
 
-    public function getNewsCount(?Game $game = null) : int
-    {
-        return $this
-            ->latestQuery($game)
-            ->count();
-    }
-
-    public function getNewsBefore(
-        ?Game $game = null,
-        string $date,
-        int $limit = 0
-    ) : NewsSourceCollection
+    public function getLatestNews(int $limit = 0, int $exceptId = 0) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
-            $this
-                ->latestQuery($game, $limit)
-                ->whereLt($this->publishedAtField, $date)
-                ->orderByDesc($this->publishedAtField)
+            parent::getLatestNews($limit, $exceptId)
         );
     }
 
-    public function getNewsAfter(
-        ?Game $game = null,
-        string $date,
-        int $limit = 0
-    ) : NewsSourceCollection
+    public function getNewsBefore(string $date, int $limit = 0) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
-            $this
-                ->latestQuery($game, $limit)
-                ->whereGt($this->publishedAtField, $date)
-                ->orderByAsc($this->publishedAtField)
+            parent::getNewsBefore($date, $limit)
+        );
+    }
+
+    public function getNewsAfter(string $date, int $limit = 0) : NewsSourceCollection
+    {
+        return NewsSourceCollection::from(
+            parent::getNewsAfter($date, $limit)
         );
     }
 
     public function getNewsByYear(int $year) : NewsSourceCollection
     {
         return NewsSourceCollection::from(
-            $this
-                ->newsSourceQuery()
-                ->whereRaw(
-                    '(year(' . $this->publishedAtField . ') = ?)',
-                    [$year]
-                )
+            parent::getNewsByYear($year)
         );
     }
 
@@ -108,31 +67,66 @@ abstract class NewsSourceRepository extends TaggedRepository implements NewsSour
 
     abstract function getProtected(?int $id) : ?NewsSourceInterface;
 
+    // NewsSourceRepositoryInterface
+
+    public function getLatestNewsByGame(
+        ?Game $game = null,
+        int $limit = 0,
+        int $exceptId = 0
+    ) : NewsSourceCollection
+    {
+        return NewsSourceCollection::from(
+            $this->latestByGameQuery($game, $limit, $exceptId)
+        );
+    }
+
+    public function getNewsCountByGame(?Game $game = null) : int
+    {
+        return $this
+            ->latestByGameQuery($game)
+            ->count();
+    }
+
+    public function getNewsBeforeByGame(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : NewsSourceCollection
+    {
+        return NewsSourceCollection::from(
+            $this
+                ->latestByGameQuery($game, $limit)
+                ->whereLt($this->publishedAtField, $date)
+                ->orderByDesc($this->publishedAtField)
+        );
+    }
+
+    public function getNewsAfterByGame(
+        ?Game $game = null,
+        string $date,
+        int $limit = 0
+    ) : NewsSourceCollection
+    {
+        return NewsSourceCollection::from(
+            $this
+                ->latestByGameQuery($game, $limit)
+                ->whereGt($this->publishedAtField, $date)
+                ->orderByAsc($this->publishedAtField)
+        );
+    }
+
     // queries
 
-    protected function latestQuery(
+    protected function latestByGameQuery(
         ?Game $game = null,
         int $limit = 0,
         int $exceptId = 0
     ) : Query
     {
         return $this
-            ->newsSourceQuery()
+            ->latestQuery($limit, $exceptId)
             ->apply(
                 fn (Query $q) => $this->filterByGameTree($q, $game)
-            )
-            ->applyIf(
-                $exceptId > 0,
-                fn (Query $q) => $q->whereNotEqual($this->idField(), $exceptId)
-            )
-            ->limit($limit);
-    }
-
-    /**
-     * Override this if needed.
-     */
-    protected function newsSourceQuery() : Query
-    {
-        return $this->publishedQuery();
+            );
     }
 }

@@ -5,35 +5,35 @@ namespace App\Repositories\Interfaces;
 use App\Collections\NewsSourceCollection;
 use App\Models\Game;
 use App\Models\Interfaces\NewsSourceInterface;
-use Plasticode\Repositories\Interfaces\Basic\TaggedRepositoryInterface;
+use Plasticode\Repositories\Interfaces\Basic\NewsSourceRepositoryInterface as BaseNewsSourceRepositoryInterface;
 
-interface NewsSourceRepositoryInterface extends TaggedRepositoryInterface
+interface NewsSourceRepositoryInterface extends BaseNewsSourceRepositoryInterface
 {
     function getAllByTag(string $tag, int $limit = 0) : NewsSourceCollection;
-
     function getNewsByTag(string $tag, int $limit = 0) : NewsSourceCollection;
+    function getLatestNews(int $limit = 0, int $exceptId = 0) : NewsSourceCollection;
+    function getNewsBefore(string $date, int $limit = 0) : NewsSourceCollection;
+    function getNewsAfter(string $date, int $limit = 0) : NewsSourceCollection;
+    function getNewsByYear(int $year) : NewsSourceCollection;
+    function getNews(?int $id) : ?NewsSourceInterface;
 
-    function getLatestNews(
+    function getLatestNewsByGame(
         ?Game $game = null,
         int $limit = 0,
         int $exceptId = 0
     ) : NewsSourceCollection;
 
-    function getNewsCount(?Game $game = null) : int;
+    function getNewsCountByGame(?Game $game = null) : int;
 
-    function getNewsBefore(
+    function getNewsBeforeByGame(
         ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection;
 
-    function getNewsAfter(
+    function getNewsAfterByGame(
         ?Game $game = null,
         string $date,
         int $limit = 0
     ) : NewsSourceCollection;
-
-    function getNewsByYear(int $year) : NewsSourceCollection;
-
-    function getNews(?int $id) : ?NewsSourceInterface;
 }

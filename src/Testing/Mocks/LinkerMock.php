@@ -67,11 +67,6 @@ class LinkerMock extends BaseLinkerMock implements LinkerInterface
         return $url;
     }
 
-    public function newsYear(int $year) : string
-    {
-        return $this->abs('/news/archive/') . $year;
-    }
-
     public function recipe(int $id) : string
     {
         return $this->abs('/recipes/') . $id;
