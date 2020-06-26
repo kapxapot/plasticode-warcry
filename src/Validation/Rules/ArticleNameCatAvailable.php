@@ -2,7 +2,6 @@
 
 namespace App\Validation\Rules;
 
-use App\Models\Article;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Respect\Validation\Rules\AbstractRule;
 
