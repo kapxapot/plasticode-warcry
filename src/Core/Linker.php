@@ -85,11 +85,6 @@ class Linker extends LinkerBase implements LinkerInterface
         return $this->router->pathFor('main.index', $params);
     }
 
-    public function disqusNews(int $id) : string
-    {
-        return $this->abs($this->news($id));
-    }
-
     public function disqusArticle(Article $article) : string
     {
         $id = $article->nameEn;

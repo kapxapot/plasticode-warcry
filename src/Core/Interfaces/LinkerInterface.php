@@ -50,7 +50,6 @@ interface LinkerInterface extends PlasticodeLinkerInterface
     function comicThumbImg(ComicPage $page) : string;
 
     function disqusArticle(Article $article) : string;
-    function disqusNews(int $id) : string;
     function disqusGalleryAuthor(GalleryAuthor $author) : string;
     function disqusRecipes(?Skill $skill) : string;
     function disqusRecipe(int $id) : string;

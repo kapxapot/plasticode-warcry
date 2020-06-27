@@ -9,6 +9,7 @@ use App\Models\Game;
 use App\Repositories\Interfaces\GameRepositoryInterface;
 use App\Services\SidebarPartsProviderService;
 use Plasticode\Controllers\Controller as BaseController;
+use Plasticode\Controllers\Traits\PageDescription;
 use Plasticode\Exceptions\InvalidConfigurationException;
 use Plasticode\Parsing\Interfaces\ParserInterface;
 use Plasticode\Util\Strings;
@@ -17,7 +18,7 @@ use Slim\Interfaces\RouterInterface;
 
 class Controller extends BaseController
 {
-    private const PAGE_DESCRIPTION_LIMIT = 1000;
+    use PageDescription;
 
     private AppContext $appContext;
 
@@ -112,15 +113,5 @@ class Controller extends BaseController
         $result[$part] = $providedPart;
 
         return $result;
-    }
-
-    public function makePageDescription(string $text, string $limitVar) : string
-    {
-        $limit = $this->getSettings(
-            $limitVar,
-            self::PAGE_DESCRIPTION_LIMIT
-        );
-
-        return Strings::stripTrunc($text, $limit);
     }
 }

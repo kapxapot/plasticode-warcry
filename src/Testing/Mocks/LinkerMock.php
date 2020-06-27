@@ -142,11 +142,6 @@ class LinkerMock extends BaseLinkerMock implements LinkerInterface
         return 'disqus/article/' . $article->getId();
     }
 
-    public function disqusNews(int $id) : string
-    {
-        return 'disqus/news/' . $id;
-    }
-
     function disqusGalleryAuthor(GalleryAuthor $author) : string
     {
         return 'disqus/gallery_author/' . $author->getId();
