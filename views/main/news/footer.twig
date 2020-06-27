@@ -3,7 +3,7 @@
 <div class="panel-footer">
     {% include 'components/published_at.twig' with { 'entity': news } only %}
     {% include 'components/creator.twig' with { 'entity': news } only %}
-    {% if news_item.forum_url %}
+    {% if news.forum_url %}
         <div class="glyphicon-block">
             <i class="fas fa-comments"></i>
             <a href="{{ news.forum_url }}" title="Комментарии на форуме">{{ news.posts }}</a>
