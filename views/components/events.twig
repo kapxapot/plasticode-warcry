@@ -1,12 +1,12 @@
 {% import 'macros.twig' as gm %}
 
 {% for event in events %}
-	<div class="icon-lg icon-{{ event.game.result_alias }}-lg">
-		<div>
-			<a{% if event.important %} class="important"{% endif %} title="[{{ event.game.name }}] {{ event.name|raw }}" href="{{ path_for('main.event', { 'id': event.id }) }}">{{ event.name }}</a>
-		</div>
-		<div ng-cloak>
-			{{ event.type.name }}, {{ gm.moment_diff(event.start, event.end, event.unknown_end) }}
-		</div>
-	</div>
+    <div class="icon-lg icon-{{ event.game.result_alias }}-lg">
+        <div>
+            <a{% if event.important %} class="important"{% endif %} title="[{{ event.game.name }}] {{ event.name|raw }}" href="{{ path_for('main.event', { 'id': event.id }) }}">{{ event.name }}</a>
+        </div>
+        <div ng-cloak>
+            {{ event.type.name }}, {{ gm.moment_diff(event.start, event.end, event.unknown_end) }}
+        </div>
+    </div>
 {% endfor %}
