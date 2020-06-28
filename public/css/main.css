@@ -59,7 +59,25 @@
     background-size: 32px 32px;
 }
 
-.linkblock-big > .icon-lg {
+.linkblock > div {
+    padding: 5px 10px 5px 44px;
+    display: block;
+    background-size: 24px 24px;
+    background-position: left 10px center;
+    background-repeat: no-repeat;
+}
+
+.linkblock-big > div,
+.tab-content .linkblock-big > div {
+    padding: 8px 10px 8px 53px;
+    display: block;
+    background-size: 32px 32px;
+    background-position: left 10px center;
+    background-repeat: no-repeat;
+}
+
+.linkblock-big > .icon-lg,
+.tab-content .linkblock-big > .icon-lg {
     background-size: 48px 48px;
     padding-left: 69px;
     min-height: 58px;
