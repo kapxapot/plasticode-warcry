@@ -120,8 +120,6 @@ class NewsController extends NewsSourceController
                 'large_image' => $news->largeImage(),
                 'image' => $news->image(),
                 'params' => [
-                    'disqus_url' => $this->linker->disqusNews($id),
-                    'disqus_id' => 'news' . $id,
                     'news_item' => $news,
                     'title' => $news->displayTitle(),
                     'page_description' => $this->makeNewsPageDescription(
@@ -132,6 +130,8 @@ class NewsController extends NewsSourceController
                     'news_next' => $next,
                     'rel_prev' => $prev ? $prev->url() : null,
                     'rel_next' => $next ? $next->url() : null,
+                    'canonical_url' => $this->linker->abs($news->url),
+                    'disqus_id' => 'news' . $id,
                 ],
             ]
         );
