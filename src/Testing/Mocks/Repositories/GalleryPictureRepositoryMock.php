@@ -31,6 +31,10 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
 
     public function save(GalleryPicture $pic) : GalleryPicture
     {
+        if ($this->pictures->contains($pic)) {
+            return $pic;
+        }
+
         if (!$pic->isPersisted()) {
             $pic->id = $this->pictures->nextId();
         }
@@ -71,6 +75,7 @@ class GalleryPictureRepositoryMock implements GalleryPictureRepositoryInterface
                 : $pictures
         );
     }
+
     public function getChunkBefore(
         ?GalleryPicture $pic = null,
         ?GalleryAuthor $author = null,

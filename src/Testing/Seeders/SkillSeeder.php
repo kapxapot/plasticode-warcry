@@ -17,7 +17,9 @@ class SkillSeeder implements ArraySeederInterface
         $this->linker = $linker;
     }
 
-    /** @var Skill[] */
+    /**
+     * @return Skill[]
+     */
     public function seed() : array
     {
         $skill = new Skill(

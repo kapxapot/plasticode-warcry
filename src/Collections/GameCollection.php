@@ -19,11 +19,4 @@ class GameCollection extends DbModelCollection
                 ->clean()
         );
     }
-
-    public function contains(Game $game) : bool
-    {
-        return $this->anyFirst(
-            fn (Game $g) => $game->equals($g)
-        );
-    }
 }

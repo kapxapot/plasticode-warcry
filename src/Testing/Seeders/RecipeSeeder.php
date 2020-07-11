@@ -21,11 +21,11 @@ class RecipeSeeder implements ArraySeederInterface
         $this->linker = $linker;
     }
 
-    /** @var Recipe[] */
+    /**
+     * @return Recipe[]
+     */
     public function seed() : array
     {
-        $skill = $this->skillRepository->get(1);
-
         $recipe = new Recipe(
             [
                 'id' => 1,

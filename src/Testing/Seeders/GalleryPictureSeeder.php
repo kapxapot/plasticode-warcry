@@ -27,7 +27,9 @@ class GalleryPictureSeeder implements ArraySeederInterface
         $this->linker = $linker;
     }
 
-    /** @var GalleryPicture[] */
+    /**
+     * @return GalleryPicture[]
+     */
     public function seed() : array
     {
         $pic1 = new GalleryPicture(
