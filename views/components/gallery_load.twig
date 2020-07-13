@@ -23,23 +23,23 @@ $scope.gridSentinel = {
         if (!this.el) {
             return;
         }
-        
+
         $scope.gridObserver.unobserve(this.el);
         this.el = null;
     }
 };
 
 $scope.updateSentinel = function() {
-	const last = getLastChild($scope.gridId);
-	
-	if (last) {
+    const last = getLastChild($scope.gridId);
+
+    if (last) {
         $scope.gridSentinel.set(last);
-	}
+    }
 };
 
 $scope.getBorderId = function() {
-	const last = getLastChild($scope.gridId);
-	return last.dataset.id;
+    const last = getLastChild($scope.gridId);
+    return last.dataset.id;
 };
 
 $scope.finishLoading = function() {
@@ -54,39 +54,38 @@ $scope.loadMore = function() {
     if (borderId > 0) {
         url += '/' + borderId;
     }
-	
-	{% if params|length > 0 %}
-	    url += '?';
-	    
-	    {% for param, value in params %}
-	        {% if not loop.first %}
-	            url += '&';
-            {% endif %}
-            
-	        url += '{{ param }}={{ value }}';
-	    {% endfor %}
-	{% endif %}
 
-	$scope.gallery_loading = true;
-    
+    {% if params|length > 0 %}
+        url += '?';
+
+        {% for param, value in params %}
+            {% if not loop.first %}
+                url += '&';
+            {% endif %}
+
+            url += '{{ param }}={{ value }}';
+        {% endfor %}
+    {% endif %}
+
+    $scope.gallery_loading = true;
+
     $scope.ajax({
         method: 'get',
-		url: url,
-	    noSuccessMessage: true,
-		onSuccess: function(data) {
-		    $scope.gallery_loading = false;
-		    
-		    $('#' + $scope.gridId).append(data);
+        url: url,
+        noSuccessMessage: true,
+        onSuccess: function(data) {
+            $scope.gallery_loading = false;
+            
+            $('#' + $scope.gridId).append(data);
 
-        	$scope.updateSentinel();
-		    
-		    updateUI();
-		},
-		onError: function() {
-		    $scope.gallery_loading = false;
-		    $scope.finishLoading();
-		}
-	});
+            $scope.updateSentinel();
+            $scope.updateUi();
+        },
+        onError: function() {
+            $scope.gallery_loading = false;
+            $scope.finishLoading();
+        }
+    });
 };
 
 $scope.updateSentinel();
