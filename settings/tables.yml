@@ -108,7 +108,7 @@ gallery_authors:
   has: [ updated_at, created_by, updated_by ]
 
 gallery_author_categories:
-  api: list
+  api: read
   name_field: name
   sort: position
   default: 2
@@ -127,7 +127,7 @@ games:
   default: 1
 
 genders:
-  api: list
+  api: read
   name_field: name
   sort: id
   default: 1
