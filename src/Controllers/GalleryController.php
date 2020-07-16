@@ -157,7 +157,7 @@ class GalleryController extends Controller
 
         return $this->render($response, 'main/gallery/picture.twig', $params);
     }
-    
+
     public function chunk(
         SlimRequest $request,
         ResponseInterface $response,
