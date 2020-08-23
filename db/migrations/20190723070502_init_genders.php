@@ -14,28 +14,30 @@ class InitGenders extends AbstractMigration
             ->create();
 
         $table
-            ->insert([
+            ->insert(
                 [
-                    'id' => 1,
-                    'name' => 'Мужской',
-                    'tag' => 'MAS',
-                ],
-                [
-                    'id' => 2,
-                    'name' => 'Женский',
-                    'tag' => 'FEM',
-                ],
-                [
-                    'id' => 3,
-                    'name' => 'Средний',
-                    'tag' => 'NEU',
-                ],
-                [
-                    'id' => 4,
-                    'name' => 'Множественный',
-                    'tag' => 'PLU',
-                ],
-            ])
+                    [
+                        'id' => 1,
+                        'name' => 'Мужской',
+                        'tag' => 'MAS',
+                    ],
+                    [
+                        'id' => 2,
+                        'name' => 'Женский',
+                        'tag' => 'FEM',
+                    ],
+                    [
+                        'id' => 3,
+                        'name' => 'Средний',
+                        'tag' => 'NEU',
+                    ],
+                    [
+                        'id' => 4,
+                        'name' => 'Множественный',
+                        'tag' => 'PLU',
+                    ],
+                ]
+            )
             ->save();
     }
 
