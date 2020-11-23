@@ -13,7 +13,7 @@ class SettingsProviderMock implements SettingsProviderInterface
         ],
     ];
 
-    public function get(string $path = null, $default = null)
+    public function get(string $path, $default = null)
     {
         return Arrays::get($this->settings, $path) ?? $default;
     }
