@@ -26,6 +26,7 @@ abstract class ComicController extends ImageUploadController
     {
         $page = $this->createPage($context, $image->imgType);
 
+        // todo: get rid of getObj(), an interface must be used here
         $this->comics->saveImage($page->getObj(), $image);
     }
 

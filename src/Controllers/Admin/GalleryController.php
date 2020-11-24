@@ -39,6 +39,7 @@ class GalleryController extends ImageUploadController
 
         $picture = $this->galleryPictureRepository->save($picture);
 
+        // todo: get rid of getObj(), an interface must be used here
         $this->gallery->saveImage($picture->getObj(), $image);
     }
 }
