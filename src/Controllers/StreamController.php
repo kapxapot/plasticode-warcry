@@ -10,7 +10,7 @@ use App\Services\StreamStatService;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Request as SlimRequest;
+use Slim\Http\Request;
 
 class StreamController extends Controller
 {
@@ -110,7 +110,7 @@ class StreamController extends Controller
     }
 
     public function refresh(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response
     ) : ResponseInterface
     {

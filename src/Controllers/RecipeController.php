@@ -10,7 +10,7 @@ use App\Repositories\Interfaces\SkillRepositoryInterface;
 use Plasticode\Core\Pagination;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Http\Request as SlimRequest;
+use Slim\Http\Request;
 
 class RecipeController extends Controller
 {
@@ -44,7 +44,7 @@ class RecipeController extends Controller
     }
 
     public function index(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface
@@ -130,7 +130,7 @@ class RecipeController extends Controller
     }
 
     public function item(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface

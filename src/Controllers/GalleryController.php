@@ -10,7 +10,7 @@ use Plasticode\Exceptions\Http\NotFoundException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Request as SlimRequest;
+use Slim\Http\Request;
 
 class GalleryController extends Controller
 {
@@ -103,7 +103,7 @@ class GalleryController extends Controller
     }
 
     public function picture(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface
@@ -159,7 +159,7 @@ class GalleryController extends Controller
     }
 
     public function chunk(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface

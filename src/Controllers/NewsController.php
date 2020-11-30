@@ -15,7 +15,7 @@ use Plasticode\IO\File;
 use Plasticode\TagLink;
 use Plasticode\Util\Text;
 use Psr\Container\ContainerInterface;
-use Slim\Http\Request as SlimRequest;
+use Slim\Http\Request;
 
 class NewsController extends NewsSourceController
 {
@@ -33,7 +33,7 @@ class NewsController extends NewsSourceController
     }
 
     public function index(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface
@@ -89,7 +89,7 @@ class NewsController extends NewsSourceController
     }
 
     public function item(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface

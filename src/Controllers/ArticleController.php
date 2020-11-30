@@ -6,7 +6,7 @@ use App\Handlers\NotFoundHandler;
 use App\Repositories\Interfaces\ArticleRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Http\Request as SlimRequest;
+use Slim\Http\Request;
 
 class ArticleController extends NewsSourceController
 {
@@ -22,7 +22,7 @@ class ArticleController extends NewsSourceController
     }
 
     public function item(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface

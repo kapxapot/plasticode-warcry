@@ -7,7 +7,7 @@ use App\Repositories\Interfaces\EventRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Request as SlimRequest;
+use Slim\Http\Request;
 
 class EventController extends NewsSourceController
 {
@@ -50,7 +50,7 @@ class EventController extends NewsSourceController
     }
 
     public function item(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
      ) : ResponseInterface

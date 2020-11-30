@@ -3,14 +3,12 @@
 namespace App\Controllers;
 
 use App\Handlers\NotFoundHandler;
-use App\Models\ComicSeries;
-use App\Models\ComicStandalone;
 use App\Repositories\Interfaces\ComicSeriesRepositoryInterface;
 use App\Repositories\Interfaces\ComicStandaloneRepositoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Request as SlimRequest;
+use Slim\Http\Request;
 
 class ComicController extends Controller
 {
@@ -177,7 +175,7 @@ class ComicController extends Controller
     }
 
     public function issuePage(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface
@@ -229,7 +227,7 @@ class ComicController extends Controller
     }
 
     public function standalonePage(
-        SlimRequest $request,
+        Request $request,
         ResponseInterface $response,
         array $args
     ) : ResponseInterface
