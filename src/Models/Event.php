@@ -24,7 +24,7 @@ use Plasticode\Util\Strings;
  */
 class Event extends NewsSource
 {
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...parent::requiredWiths(),

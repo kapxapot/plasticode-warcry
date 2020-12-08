@@ -32,7 +32,7 @@ class GalleryAuthor extends DbModel implements LinkableInterface
     use Published;
     use Stamps;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->pageUrlPropertyName,

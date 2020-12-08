@@ -21,7 +21,7 @@ class ComicIssue extends Comic implements NumberedInterface
 {
     use ComicCommon;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...parent::requiredWiths(),

@@ -15,7 +15,7 @@ class ComicStandalone extends Comic
 {
     use ComicRoot;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...parent::requiredWiths(),

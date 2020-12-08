@@ -11,7 +11,7 @@ use Plasticode\Models\User as BaseUser;
  */
 class User extends BaseUser
 {
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...parent::requiredWiths(),

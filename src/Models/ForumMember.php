@@ -13,7 +13,7 @@ class ForumMember extends DbModel
 {
     protected static string $idField = 'member_id';
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return ['pageUrl'];
     }

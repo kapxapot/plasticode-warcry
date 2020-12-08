@@ -17,7 +17,7 @@ abstract class NewsSource extends BaseNewsSource implements NewsSourceInterface
 
     private string $gamePropertyName = 'game';
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...parent::requiredWiths(),

@@ -52,7 +52,7 @@ class Stream extends DbModel implements TaggedInterface
     use Stamps;
     use Tagged;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->creatorPropertyName,

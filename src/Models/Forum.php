@@ -16,7 +16,7 @@ class Forum extends DbModel
 {
     use Parented;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->parentPropertyName,

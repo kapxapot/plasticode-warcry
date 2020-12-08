@@ -52,7 +52,7 @@ class GalleryPicture extends DbModel implements LinkableInterface, TaggedInterfa
 
     private const DEFAULT_BG_COLOR = '255,255,255,1';
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->pageUrlPropertyName,

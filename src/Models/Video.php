@@ -15,7 +15,7 @@ class Video extends NewsSource
 {
     protected string $videoPropertyName = 'video';
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...parent::requiredWiths(),

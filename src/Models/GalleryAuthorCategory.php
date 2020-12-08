@@ -14,7 +14,7 @@ use Plasticode\Models\DbModel;
  */
 class GalleryAuthorCategory extends DbModel
 {
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return ['authors'];
     }

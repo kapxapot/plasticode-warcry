@@ -14,7 +14,7 @@ use Plasticode\Models\Menu as MenuBase;
  */
 class Menu extends MenuBase
 {
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...parent::requiredWiths(),

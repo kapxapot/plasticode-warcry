@@ -26,7 +26,7 @@ class Item extends DbModel implements LinkableInterface
     use UpdatedAt;
     use Linkable;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->urlPropertyName,

@@ -48,7 +48,7 @@ class ForumTopic extends DbModel implements NewsSourceInterface
     private string $gamePropertyName = 'game';
     private string $shortTextPropertyName = 'shortText';
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->displayTitlePropertyName,

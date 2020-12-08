@@ -17,14 +17,14 @@ class Region extends DbModel
     use Parented;
     use Stamps;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->parentPropertyName,
         ];
     }
 
-    public function displayName()
+    public function displayName() : string
     {
         $ru = [$this->nameRu];
         $en = [$this->nameEn];

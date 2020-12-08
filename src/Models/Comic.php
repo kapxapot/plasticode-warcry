@@ -17,7 +17,7 @@ abstract class Comic extends DbModel implements TaggedInterface
 
     protected string $pagesPropertyName = 'pages';
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...$this->comicCommonProperties(),

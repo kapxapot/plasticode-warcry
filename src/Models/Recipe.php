@@ -38,7 +38,7 @@ class Recipe extends DbModel implements LinkableInterface
     protected bool $built = false;
     protected bool $forceBuild = false;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->urlPropertyName,

@@ -41,7 +41,7 @@ class Game extends DbModel implements LinkableInterface
     use Parented;
     use Published;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             $this->childrenPropertyName,

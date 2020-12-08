@@ -17,7 +17,7 @@ class ComicSeries extends DbModel implements TaggedInterface
     use ComicCommon;
     use ComicRoot;
 
-    protected function requiredWiths(): array
+    protected function requiredWiths() : array
     {
         return [
             ...$this->comicCommonProperties(),
