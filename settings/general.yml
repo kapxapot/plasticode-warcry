@@ -48,13 +48,6 @@ view:
     - {PLASTICODE_TEMPLATES_PATH}
   cache_path: false
 
-telegram:
-  channels:
-    warcry: warcry_ru
-    blizzard_streams: blizzard_streams
-    blizzard_streams_ru: blizzard_streams_ru
-    warcry_streams: warcry_streams
-
 forum:
   index: /forum
   page: /forum/index.php
@@ -144,6 +137,11 @@ twitch:
 
 telegram:
   bot_token: {TELEGRAM_BOT_TOKEN}
+  channels:
+    warcry: warcry_ru
+    blizzard_streams: blizzard_streams
+    blizzard_streams_ru: blizzard_streams_ru
+    warcry_streams: warcry_streams
 
 twitter:
   consumer_key: {TWITTER_CONSUMER_KEY}
