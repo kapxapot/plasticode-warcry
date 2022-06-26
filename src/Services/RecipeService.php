@@ -103,8 +103,6 @@ class RecipeService
 
     public function build($rebuild = false, &$requiredSkills = [], $trunk = [])
     {
-        //var_dump($this . ' build!');
-
         $topLevel = empty($trunk);
 
         // на всякий -__-
